@@ -1,217 +1,276 @@
 local Table = {}
+setmetatable(Table, {__index = table})
 
-------------------------------------
--------- Table functions -----------
-------------------------------------
+local T = function(t) return setmetatable(t, {__index = Table}) end
 
-
-
---[[	Copy the contents of one table to another, since Lua can't do it natively
-
-    Provide a second table as 'base' to use it as the basis for copying, only
-    bringing over keys from the source table that don't exist in the base
-
-    'depth' only exists to provide indenting for my debug messages, it can
-    be left out when calling the function.
-]]--
-Table.table_copy = function (source, base, depth)
-
-    -- 'Depth' is only for indenting debug messages
-    depth = ((not not depth) and (depth + 1)) or 0
-
-
-
-    if type(source) ~= "table" then return source end
-
-    local meta = getmetatable(source)
-    local new = base or {}
-    for k, v in pairs(source) do
-
-
-
-        if type(v) == "table" then
-
-            if base then
-                new[k] = Table.table_copy(v, base[k], depth)
-            else
-                new[k] = Table.table_copy(v, nil, depth)
-            end
-
-        else
-            if not base or (base and new[k] == nil) then
-
-                new[k] = v
-            end
-        end
-
-    end
-    setmetatable(new, meta)
-
-    return new
-
+Table.forEach = function(t, cb)
+  for k, v in pairs(t) do
+    cb(v, k, t)
+  end
 end
 
+Table.orderedForEach = function(t, cb)
+  local l = #t
 
--- (For debugging)
+  for i = 1, l do
+    cb(t[i], i, t)
+  end
+end
+
+Table.map = function(t, cb)
+  local mapped = T{}
+
+  for k, v in pairs(t) do
+    mapped[k] = cb(v, k, t)
+  end
+
+  return mapped
+end
+
+Table.orderedMap = function(t, cb)
+  local mapped = T{}
+  local l = #t
+
+  for i = 1, l do
+    mapped[i] = cb(t[i], i, t)
+  end
+
+  return mapped
+end
+
+Table.filter = function(t, cb)
+  local filtered, l = T{}, 0
+
+  for k, v in pairs(t) do
+    if cb(v, k, t) then
+      filtered[l] = v
+      l = l + 1
+    end
+  end
+
+  return filtered
+end
+
+Table.orderedFilter = function(t, cb)
+  local filtered, fl = T{}, 0
+  local l = #t
+
+  for i = 1, l do
+    if cb(t[i], i, t) then
+      filtered[fl] = t[i]
+      fl = fl + 1
+    end
+  end
+
+  return filtered
+end
+
+Table.reduce = function(t, cb, acc)
+  if acc == nil then acc = 0 end
+
+  for k, v in pairs(t) do
+    acc = cb(acc, v, k, t)
+  end
+
+  return acc
+end
+
+Table.orderedReduce = function(t, cb, acc)
+  if acc == nil then acc = 0 end
+
+  local l = #t
+  for i = 1, l do
+    acc = cb(acc, t[i], i, t)
+  end
+
+  return acc
+end
+
+Table.copy = function (source, base)
+  if type(source) ~= "table" then return source end
+
+  local meta = getmetatable(source)
+  local new = base or {}
+  for k, v in pairs(source) do
+      if type(v) == "table" then
+          if base then
+              new[k] = Table.copy(v, base[k])
+          else
+              new[k] = Table.copy(v, nil)
+          end
+      else
+          if not base or (base and new[k] == nil) then
+              new[k] = v
+          end
+      end
+  end
+  setmetatable(new, meta)
+
+  return new
+end
+
 -- Returns a string of the table's contents, indented to show nested tables
 -- If 't' contains classes, or a lot of nested tables, etc, be wary of using larger
 -- values for max_depth - this function will happily freeze Reaper for ten minutes.
-Table.table_list = function (t, max_depth, cur_depth)
+Table.stringify = function (t, max_depth, cur_depth)
+  local ret = {}
+  local n,v
+  cur_depth = cur_depth or 0
 
-    local ret = {}
-    local n,v
-    cur_depth = cur_depth or 0
+  for n,v in pairs(t) do
+              ret[#ret+1] = string.rep("  ", cur_depth) .. n .. " = "
 
-    for n,v in pairs(t) do
+              if type(v) == "table" then
+                  ret[#ret] = ret[#ret] .. "table:"
 
-                ret[#ret+1] = string.rep("\t", cur_depth) .. n .. " = "
+                  if not max_depth or cur_depth <= max_depth then
+                      ret[#ret+1] = Table.stringify(v, max_depth, cur_depth + 1)
+                  end
+              else
+                  ret[#ret] = ret[#ret] .. tostring(v)
+              end
+  end
 
-                if type(v) == "table" then
-
-                    ret[#ret] = ret[#ret] .. "table:"
-                    if not max_depth or cur_depth <= max_depth then
-                        ret[#ret+1] = Table.table_list(v, max_depth, cur_depth + 1)
-                    end
-
-                else
-
-                    ret[#ret] = ret[#ret] .. tostring(v)
-                end
-
-    end
-
-    return table.concat(ret, "\n")
-
+  return table.concat(ret, "\n")
 end
 
 
--- Compare the contents of one table to another, since Lua can't do it natively
--- Returns true if all of t_a's keys + and values match all of t_b's.
-Table.table_compare = function (t_a, t_b)
+-- Recursively compares the contents of two tables, since Lua doesn't offer it
+-- Returns true if all of table a's keys and values match all of table b's.
+Table.deepEquals = function (a, b)
+  if type(a) ~= "table" or type(b) ~= "table" then return false end
 
-    if type(t_a) ~= "table" or type(t_b) ~= "table" then return false end
+  local key_exists = {}
+  for k1, v1 in pairs(a) do
+      local v2 = b[k1]
+      if v2 == nil or not Table.compare(v1, v2) then return false end
+      key_exists[k1] = true
+  end
+  for k2, v2 in pairs(b) do
+      if not key_exists[k2] then return false end
+  end
 
-    local key_exists = {}
-    for k1, v1 in pairs(t_a) do
-        local v2 = t_b[k1]
-        if v2 == nil or not Table.table_compare(v1, v2) then return false end
-        key_exists[k1] = true
-    end
-    for k2, v2 in pairs(t_b) do
-        if not key_exists[k2] then return false end
-    end
-
-    return true
-
+  return true
 end
 
 
 -- 	Sorting function adapted from: http://lua-users.org/wiki/SortedIteration
-Table.full_sort = function (op1, op2)
+Table.fullSort = function (op1, op2)
 
-    -- Sort strings that begin with a number as if they were numbers,
-    -- i.e. so that 12 > "6 apples"
-    if type(op1) == "string" and string.match(op1, "^(%-?%d+)") then
-        op1 = tonumber( string.match(op1, "^(%-?%d+)") )
-    end
-    if type(op2) == "string" and string.match(op2, "^(%-?%d+)") then
-        op2 = tonumber( string.match(op2, "^(%-?%d+)") )
-    end
+  -- Sort strings that begin with a number as if they were numbers,
+  -- i.e. so that 12 > "6 apples"
+  if type(op1) == "string" and string.match(op1, "^(%-?%d+)") then
+      op1 = tonumber( string.match(op1, "^(%-?%d+)") )
+  end
+  if type(op2) == "string" and string.match(op2, "^(%-?%d+)") then
+      op2 = tonumber( string.match(op2, "^(%-?%d+)") )
+  end
 
-    --if op1 == "0" then op1 = 0 end
-    --if op2 == "0" then op2 = 0 end
-    local type1, type2 = type(op1), type(op2)
-    if type1 ~= type2 then --cmp by type
-        return type1 < type2
-    elseif type1 == "number" and type2 == "number"
-        or type1 == "string" and type2 == "string" then
-        return op1 < op2 --comp by default
-    elseif type1 == "boolean" and type2 == "boolean" then
-        return op1 == true
-    else
-        return tostring(op1) < tostring(op2) --cmp by address
-    end
+  --if op1 == "0" then op1 = 0 end
+  --if op2 == "0" then op2 = 0 end
+  local type1, type2 = type(op1), type(op2)
+  if type1 ~= type2 then --cmp by type
+      return type1 < type2
+  elseif type1 == "number" and type2 == "number"
+      or type1 == "string" and type2 == "string" then
+      return op1 < op2 --comp by default
+  elseif type1 == "boolean" and type2 == "boolean" then
+      return op1 == true
+  else
+      return tostring(op1) < tostring(op2) --cmp by address
+  end
 
 end
 
 
---[[	Allows "for x, y in pairs(z) do" in alphabetical/numerical order
+--[[	Allows "for x, y in pairs(z) do" in proper alphanumeric order
 
-    Copied from Programming In Lua, 19.3
+  Copied from Programming In Lua, 19.3
 
-    Call with f = "full" to use the full sorting function above, or
-    use f to provide your own sorting function as per pairs() and ipairs()
+  Call with f = "full" to use the full sorting function above, or
+  use f to provide your own sorting function as per pairs() and ipairs()
 
 ]]--
 Table.kpairs = function (t, f)
+  if f == "full" then
+      f = Table.fullSort
+  end
 
+  local a = {}
+  for n in pairs(t) do table.insert(a, n) end
 
-    if f == "full" then
-        f = Table.full_sort
-    end
+  table.sort(a, f)
 
-    local a = {}
-    for n in pairs(t) do table.insert(a, n) end
+  local i = 0      -- iterator variable
+  local iter = function ()   -- iterator function
 
-    table.sort(a, f)
+      i = i + 1
 
-    local i = 0      -- iterator variable
-    local iter = function ()   -- iterator function
+      if a[i] == nil then return nil
+      else return a[i], t[a[i]]
+      end
 
-        i = i + 1
+  end
 
-        if a[i] == nil then return nil
-        else return a[i], t[a[i]]
-        end
-
-    end
-
-
-    return iter
+  return iter
 end
 
 
 -- Accepts a table, and returns a table with the keys and values swapped, i.e.
 -- {a = 1, b = 2, c = 3} --> {1 = "a", 2 = "b", 3 = "c"}
-Table.table_invert = function(t)
+-- This will behave unpredictably if given a table where the same value exists
+-- over multiple keys
+Table.invert = function(t)
+  local inv = T{}
 
-    local tmp = {}
+  for k, v in pairs(t) do
+      inv[v] = k
+  end
 
-    for k, v in pairs(t) do
-        tmp[v] = k
-    end
-
-    return tmp
-
+  return inv
 end
 
 
--- Looks through a table using ipairs (specify a different function with 'f') and returns
--- the first key whose value matches 'find'. 'find' is checked using string.match, so patterns
--- should be allowable. No (captures) though.
+-- Looks through a table using ipairs (specify a different function with 'iter') and returns
+-- the first value for which cb(value) is truthy.
+Table.find = function(t, cb, iter)
+  iter = iter or ipairs
 
--- If you need to find multiple values in the same table, and each of them only occurs once,
--- it will be more efficient to just copy the table with Table.table_invert and check by key.
-Table.table_find = function(t, find, f)
-    local iter = f or ipairs
+  local result
+  for k, v in iter(t) do
+    result = cb(v)
 
-    for k, v in iter(t) do
-        if string.match(tostring(v), find) then return k end
-    end
-
+    if result then return result end
+  end
 end
 
+
+-- Returns true if cb(v, k, t) is truthy for all values in the table
+Table.all = function(t, cb)
+  for k, v in pairs(t) do
+    if not cb(v, k, t) then return false end
+  end
+
+  return true
+end
+
+-- Returns true if cb(v, k, t) is falsy for all values in the table
+Table.none = function(t, cb)
+  for k, v in pairs(t) do
+    if cb(v, k, t) then return false end
+  end
+
+  return true
+end
 
 -- Returns the length of a table, counting both indexed and keyed elements
-Table.table_length = function(t)
+Table.length = function(t)
+  local len = 0
+  for k in pairs(t) do
+      len = len + 1
+  end
 
-    local len = 0
-    for k in pairs(t) do
-        len = len + 1
-    end
-
-    return len
-
+  return len
 end
 
-return Table
+return Table, T

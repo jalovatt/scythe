@@ -1282,7 +1282,7 @@ function GUI.Element:Msg(...)
 
         if type(self[arg[i]]) == "table" then
             strs[#strs] = strs[#strs] .. "table:"
-            strs[#strs + 1] = Table.table_list(self[arg[i]], nil, 1)
+            strs[#strs + 1] = Table.stringify(self[arg[i]], nil, 1)
         else
             strs[#strs] = strs[#strs] .. tostring(self[arg[i]])
         end
@@ -2380,7 +2380,7 @@ function GUI.tab_to_next(elm)
     table.sort(indices)
 
     local new
-    local cur = Table.table_find(indices, elm.tab_idx)
+    local cur = Table.find(indices, elm.tab_idx)
 
     if cur == 1 and inc == -1 then
         new = #indices
