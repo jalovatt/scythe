@@ -273,4 +273,4 @@ Table.length = function(t)
   return len
 end
 
-return Table, T
+return T{Table, T}

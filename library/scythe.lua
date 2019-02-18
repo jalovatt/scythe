@@ -29,7 +29,9 @@ end
 
 package.path = package.path .. ";" .. GUI.lib_path:match("(.*".."/"..")") .. "?.lua"
 
-local Table = require("public.table")
+local Table, T = require("public.table"):unpack()
+
+
 
 GUI.get_version = function()
 
@@ -88,13 +90,12 @@ GUI.crash = function (errObject, skipMsg)
                             or  "Couldn't get error message."
 
     local trace = debug.traceback()
-    local tmp = {}
+    local stack = {}
     for line in string.gmatch(trace, by_line) do
 
         local str = string.match(line, trim_path) or line
 
-        tmp[#tmp + 1] = str
-
+        stack[#stack + 1] = str
     end
 
     local name = ({reaper.get_action_context()})[2]:match("([^/\\_]+)$")
@@ -281,10 +282,14 @@ GUI.Init = function ()
 
 
         -- Convert color presets from 0..255 to 0..1
-        for i, col in pairs(GUI.colors) do
-            col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
-                                                col[3] / 255, col[4] / 255
-        end
+        -- for i, col in pairs(GUI.colors) do
+        --     col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
+        --                                         col[3] / 255, col[4] / 255
+        -- end
+
+        GUI.colors = GUI.colors:map(function(col, i)
+          return {col[1] / 255, col[2] / 255, col[3] / 255, col[4] / 255}
+        end)
 
         -- Initialize the tables for our z-order functions
         GUI.update_elms_list(true)
@@ -1455,7 +1460,7 @@ GUI.fonts = {
 
 
 
-GUI.colors = {
+GUI.colors = T{
 
     -- Element colors
     wnd_bg = {64, 64, 64, 255},			-- Window BG
