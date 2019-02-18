@@ -10,6 +10,7 @@
 
 ]]--
 
+local Element = require("gui.element")
 
 if not GUI then
   reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
@@ -17,7 +18,7 @@ if not GUI then
   return 0
 end
 
-GUI.Slider = GUI.Element:new()
+GUI.Slider = Element:new()
 
 function GUI.Slider:new(name, z, x, y, w, caption, min, max, defaults, inc, dir)
 

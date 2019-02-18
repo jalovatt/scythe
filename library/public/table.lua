@@ -244,6 +244,13 @@ Table.find = function(t, cb, iter)
   end
 end
 
+Table.any = function(t, cb)
+  for k, v in pairs(t) do
+    if cb(v, k, t) then return true end
+  end
+
+  return true
+end
 
 -- Returns true if cb(v, k, t) is truthy for all values in the table
 Table.all = function(t, cb)

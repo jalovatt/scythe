@@ -10,6 +10,8 @@
 
 ]]--
 
+local Element = require("gui.element")
+
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
@@ -17,7 +19,7 @@ if not GUI then
 end
 
 
-GUI.Menubar = GUI.Element:new()
+GUI.Menubar = Element:new()
 function GUI.Menubar:new(name, z, x, y, menus, w, h, pad) -- Add your own params here
 
 	local mnu = (not x and type(z) == "table") and z or {}
@@ -231,7 +233,7 @@ end
 -- Make sure to disable the highlight if the mouse leaves
 function GUI.Menubar:onupdate()
 
-    if self.mousemnu and not GUI.IsInside(self, GUI.mouse.x, GUI.mouse.y) then
+    if self.mousemnu and not self:isInside(GUI.mouse.x, GUI.mouse.y) then
         self.mousemnu = nil
         self.mousemnu_x = nil
         self:redraw()

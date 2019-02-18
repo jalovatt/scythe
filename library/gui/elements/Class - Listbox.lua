@@ -10,6 +10,8 @@
 
 ]]--
 
+local Element = require("gui.element")
+
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
@@ -17,7 +19,7 @@ if not GUI then
 end
 
 -- Listbox - New
-GUI.Listbox = GUI.Element:new()
+GUI.Listbox = Element:new()
 function GUI.Listbox:new(name, z, x, y, w, h, list, multi, caption, pad)
 
 	local lst = (not x and type(z) == "table") and z or {}

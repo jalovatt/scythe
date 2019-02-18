@@ -10,6 +10,8 @@
 
 ]]--
 
+local Element = require("gui.element")
+
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
@@ -18,7 +20,7 @@ end
 
 
 -- Label - New
-GUI.Label = GUI.Element:new()
+GUI.Label = Element:new()
 function GUI.Label:new(name, z, x, y, caption, shadow, font, color, bg)
 
 	local label = (not x and type(z) == "table") and z or {}

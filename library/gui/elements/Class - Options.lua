@@ -19,6 +19,8 @@
 
 ]]--
 
+local Element = require("gui.element")
+
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
@@ -26,7 +28,7 @@ if not GUI then
 end
 
 
-local Option = GUI.Element:new()
+local Option = Element:new()
 
 function Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
 
@@ -364,7 +366,7 @@ function GUI.Radio:onmouseup()
 
 	-- Set the new option, or revert to the original if the cursor
     -- isn't inside the list anymore
-	if GUI.IsInside(self, GUI.mouse.x, GUI.mouse.y) then
+	if self:isInside(GUI.mouse.x, GUI.mouse.y) then
 		self.retval = self.state
 	else
 		self.state = self.retval

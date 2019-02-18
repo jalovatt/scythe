@@ -10,6 +10,8 @@
 
 ]]--
 
+local Element = require("gui.element")
+
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
@@ -17,7 +19,7 @@ if not GUI then
 end
 
 
-GUI.TextEditor = GUI.Element:new()
+GUI.TextEditor = Element:new()
 function GUI.TextEditor:new(name, z, x, y, w, h, text, caption, pad)
 
 	local txt = (not x and type(z) == "table") and z or {}
@@ -1406,4 +1408,3 @@ function GUI.TextEditor:SWS_clipboard()
 	end
 
 end
-

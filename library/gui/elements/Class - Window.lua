@@ -10,6 +10,8 @@
 
 ]]--
 
+local Element = require("gui.element")
+
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
@@ -17,7 +19,7 @@ if not GUI then
 end
 
 
-GUI.Window = GUI.Element:new()
+GUI.Window = Element:new()
 function GUI.Window:new(name, z, x, y, w, h, caption, z_set, center) -- Add your own params here
 
 	local wnd = (not x and type(z) == "table") and z or {}
@@ -298,7 +300,7 @@ end
 
 function GUI.Window:mouseoverclose()
 
-    if GUI.IsInside(   {x = self.x + self.w - self.title_height - 4,
+    if Element.IsInside(   {x = self.x + self.w - self.title_height - 4,
                         y = self.y,
                         w = self.title_height + 4,
                         h = self.title_height + 4},
