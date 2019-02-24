@@ -312,7 +312,7 @@ function GUI.Tabs:update_sets(init)
         if i ~= state then
             for _, z in pairs(z_sets[i]) do
 
-                GUI.elms_hide[z] = true
+                GUI.Elements_hide[z] = true
 
             end
         end
@@ -321,7 +321,7 @@ function GUI.Tabs:update_sets(init)
 
     for _, z in pairs(z_sets[state]) do
 
-        GUI.elms_hide[z] = false
+        GUI.Elements_hide[z] = false
 
     end
 

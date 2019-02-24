@@ -32,7 +32,7 @@ function Element:draw() end
 
 -- Ask for a redraw on the next update
 function Element:redraw()
-    GUI.redraw_z[self.z] = true
+    self.layer.needsRedraw = true
 end
 
 -- Called on every update loop, unless the element is hidden or frozen
@@ -41,7 +41,7 @@ function Element:onupdate() end
 function Element:delete()
 
     self.ondelete(self)
-    GUI.elms[self.name] = nil
+    GUI.Elements[self.name] = nil
 
 end
 

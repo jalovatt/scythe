@@ -10,139 +10,124 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Slider = require("gui.element"):new()
 
-if not GUI then
-  reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-  missing_lib = true
-  return 0
-end
+function Slider:new(props)
+--name, z, x, y, w, caption, min, max, defaults, inc, dir
+  local slider = props
 
-GUI.Slider = Element:new()
+  slider.type = "slider"
 
-function GUI.Slider:new(name, z, x, y, w, caption, min, max, defaults, inc, dir)
+  slider.x = slider.x or x
+  slider.y = slider.y or y
 
-  local Slider = (not x and type(z) == "table") and z or {}
+  slider.dir = slider.dir or dir or "h"
 
-  Slider.name = name
-  Slider.type = "Slider"
+  slider.w, slider.h = table.unpack(slider.dir ~= "v"
+                                and {slider.w or w, 8}
+                                or  {8, slider.w or w} )
 
-  Slider.z = Slider.z or z
+  slider.caption = slider.caption or caption
+  slider.bg = slider.bg or "wnd_bg"
 
-  Slider.x = Slider.x or x
-    Slider.y = Slider.y or y
+  slider.font_a = slider.font_a or 3
+  slider.font_b = slider.font_b or 4
 
-  Slider.dir = Slider.dir or dir or "h"
-
-    Slider.w, Slider.h = table.unpack(Slider.dir ~= "v"
-                        and {Slider.w or w, 8}
-                        or  {8, Slider.w or w} )
-
-  Slider.caption = Slider.caption or caption
-  Slider.bg = Slider.bg or "wnd_bg"
-
-  Slider.font_a = Slider.font_a or 3
-  Slider.font_b = Slider.font_b or 4
-
-  Slider.col_txt = Slider.col_txt or "txt"
-  Slider.col_hnd = Slider.col_hnd or "elm_frame"
-  Slider.col_fill = Slider.col_fill or "elm_fill"
+  slider.col_txt = slider.col_txt or "txt"
+  slider.col_hnd = slider.col_hnd or "elm_frame"
+  slider.col_fill = slider.col_fill or "elm_fill"
 
 
 
-    if Slider.show_handles == nil then
-        Slider.show_handles = true
-    end
-    if Slider.show_values == nil then
-        Slider.show_values = true
-    end
+  if slider.show_handles == nil then
+    slider.show_handles = true
+  end
+  if slider.show_values == nil then
+    slider.show_values = true
+  end
 
-  Slider.cap_x = Slider.cap_x or 0
-  Slider.cap_y = Slider.cap_y or 0
+  slider.cap_x = slider.cap_x or 0
+  slider.cap_y = slider.cap_y or 0
 
-    local min = Slider.min or min
-    local max = Slider.max or max
+  local min = slider.min or min
+  local max = slider.max or max
 
-    if min > max then
-        min, max = max, min
-    elseif min == max then
-        max = max + 1
-    end
+  if min > max then
+    min, max = max, min
+  elseif min == max then
+    max = max + 1
+  end
 
-  if Slider.dir == "v" then
+  if slider.dir == "v" then
     min, max = max, min
   end
 
-  Slider.align_values = Slider.align_values or 0
+  slider.align_values = slider.align_values or 0
 
-  Slider.min, Slider.max = min, max
-    Slider.inc = inc or 1
+  slider.min, slider.max = min, max
+  slider.inc = inc or 1
 
-    function Slider:formatretval(val)
+  function slider:formatretval(val)
 
-        local decimal = tonumber(string.match(val, "%.(.*)") or 0)
-        local places = decimal ~= 0 and string.len( decimal) or 0
-        return string.format("%." .. places .. "f", val)
+    local decimal = tonumber(string.match(val, "%.(.*)") or 0)
+    local places = decimal ~= 0 and string.len( decimal) or 0
+    return string.format("%." .. places .. "f", val)
 
-    end
+  end
 
-    Slider.defaults = Slider.defaults or defaults
+  slider.defaults = slider.defaults or defaults
 
   -- If the user only asked for one handle
-  if type(Slider.defaults) == "number" then Slider.defaults = {Slider.defaults} end
+  if type(slider.defaults) == "number" then slider.defaults = {slider.defaults} end
 
+  function slider:init_handles()
 
+    self.steps = math.abs(self.max - self.min) / self.inc
 
-    function Slider:init_handles()
+    -- Make sure the handles are all valid
+    for i = 1, #self.defaults do
+      self.defaults[i] = math.floor( GUI.clamp(0, tonumber(self.defaults[i]), self.steps) )
+    end
 
-      self.steps = math.abs(self.max - self.min) / self.inc
+    self.handles = {}
+    local step
+    for i = 1, #self.defaults do
 
-        -- Make sure the handles are all valid
-        for i = 1, #self.defaults do
-            self.defaults[i] = math.floor( GUI.clamp(0, tonumber(self.defaults[i]), self.steps) )
-        end
+      step = self.defaults[i]
 
-        self.handles = {}
-        local step
-        for i = 1, #self.defaults do
-
-            step = self.defaults[i]
-
-            self.handles[i] = {}
-            self.handles[i].default = (self.dir ~= "v" and step or (self.steps - step))
-            self.handles[i].curstep = step
-            self.handles[i].curval = step / self.steps
-            self.handles[i].retval = self:formatretval( ((self.max - self.min) / self.steps)
-                                                        * step + self.min)
-
-        end
+      self.handles[i] = {}
+      self.handles[i].default = (self.dir ~= "v" and step or (self.steps - step))
+      self.handles[i].curstep = step
+      self.handles[i].curval = step / self.steps
+      self.handles[i].retval = self:formatretval( ((self.max - self.min) / self.steps)
+                                                  * step + self.min)
 
     end
 
-    Slider:init_handles(defaults)
+  end
 
-  GUI.redraw_z[Slider.z] = true
+  slider:init_handles(defaults)
 
-  setmetatable(Slider, self)
+  setmetatable(slider, self)
   self.__index = self
-  return Slider
+  return slider
 
 end
 
 
-function GUI.Slider:init()
+function Slider:init()
 
   self.buffs = self.buffs or GUI.GetBuffer(2)
 
-    -- In case we were given a new set of handles without involving GUI.Val
-    if not self.handles[1].default then self:init_handles() end
+  -- In case we were given a new set of handles without involving GUI.Val
+  if not self.handles[1].default then self:init_handles() end
 
-    local w, h = self.w, self.h
+  local w, h = self.w, self.h
 
-    -- Track
-    gfx.dest = self.buffs[1]
-    gfx.setimgdim(self.buffs[1], -1, -1)
-    gfx.setimgdim(self.buffs[1], w + 4, h + 4)
+  -- Track
+  gfx.dest = self.buffs[1]
+  gfx.setimgdim(self.buffs[1], -1, -1)
+  gfx.setimgdim(self.buffs[1], w + 4, h + 4)
 
   GUI.color("elm_bg")
   GUI.roundrect(2, 2, w, h, 4, 1, 1)
@@ -170,14 +155,14 @@ function GUI.Slider:init()
 end
 
 
-function GUI.Slider:ondelete()
+function Slider:ondelete()
 
   GUI.FreeBuffer(self.buffs)
 
 end
 
 
-function GUI.Slider:draw()
+function Slider:draw()
 
     local x, y, w, h = self.x, self.y, self.w, self.h
 
@@ -211,7 +196,7 @@ function GUI.Slider:draw()
 end
 
 
-function GUI.Slider:val(newvals)
+function Slider:val(newvals)
 
   if newvals then
 
@@ -256,7 +241,7 @@ end
 ------------------------------------
 
 
-function GUI.Slider:onmousedown()
+function Slider:onmousedown()
 
   -- Snap the nearest slider to the nearest value
 
@@ -273,7 +258,7 @@ function GUI.Slider:onmousedown()
 end
 
 
-function GUI.Slider:ondrag()
+function Slider:ondrag()
 
   local mouse_val, n, ln = table.unpack(self.dir == "h"
           and {(GUI.mouse.x - self.x) / self.w, GUI.mouse.x, GUI.mouse.lx}
@@ -298,7 +283,7 @@ function GUI.Slider:ondrag()
 end
 
 
-function GUI.Slider:onwheel()
+function Slider:onwheel()
 
   local mouse_val = self.dir == "h"
           and (GUI.mouse.x - self.x) / self.w
@@ -324,7 +309,7 @@ function GUI.Slider:onwheel()
 end
 
 
-function GUI.Slider:ondoubleclick()
+function Slider:ondoubleclick()
 
     -- Ctrl+click - Only reset the closest slider to the mouse
   if GUI.mouse.cap & 4 == 4 then
@@ -366,7 +351,7 @@ end
 ------------------------------------
 
 
-function GUI.Slider:updatehandlecoords(x, handle_y, inc)
+function Slider:updatehandlecoords(x, handle_y, inc)
 
     local min, max
 
@@ -385,7 +370,7 @@ function GUI.Slider:updatehandlecoords(x, handle_y, inc)
 end
 
 
-function GUI.Slider:drawfill(x, y, h, min, max, inc)
+function Slider:drawfill(x, y, h, min, max, inc)
 
     -- Get the color
   if (#self.handles > 1)
@@ -412,7 +397,7 @@ function GUI.Slider:drawfill(x, y, h, min, max, inc)
 end
 
 
-function GUI.Slider:setfill()
+function Slider:setfill()
 
     -- If the user has given us two colors to make a gradient with
     if self.col_fill_a and #self.handles == 1 then
@@ -433,7 +418,7 @@ function GUI.Slider:setfill()
 end
 
 
-function GUI.Slider:drawsliders()
+function Slider:drawsliders()
 
     GUI.color(self.col_txt)
     GUI.font(self.font_b)
@@ -471,7 +456,7 @@ function GUI.Slider:drawsliders()
 end
 
 
-function GUI.Slider:drawslidervalue(x, y, sldr)
+function Slider:drawslidervalue(x, y, sldr)
 
     local output = self.handles[sldr].retval
 
@@ -495,7 +480,7 @@ function GUI.Slider:drawslidervalue(x, y, sldr)
 end
 
 
-function GUI.Slider:drawsliderhandle(hx, hy, hw, hh)
+function Slider:drawsliderhandle(hx, hy, hw, hh)
 
     for j = 1, GUI.shadow_dist do
 
@@ -510,7 +495,7 @@ function GUI.Slider:drawsliderhandle(hx, hy, hw, hh)
 end
 
 
-function GUI.Slider:drawcaption()
+function Slider:drawcaption()
 
   GUI.font(self.font_a)
 
@@ -531,7 +516,7 @@ end
 ------------------------------------
 
 
-function GUI.Slider:getnearesthandle(val)
+function Slider:getnearesthandle(val)
 
   local small_diff, small_idx
 
@@ -552,7 +537,7 @@ function GUI.Slider:getnearesthandle(val)
 end
 
 
-function GUI.Slider:setcurstep(sldr, step)
+function Slider:setcurstep(sldr, step)
 
     self.handles[sldr].curstep = step
     self.handles[sldr].curval = self.handles[sldr].curstep / self.steps
@@ -562,7 +547,7 @@ function GUI.Slider:setcurstep(sldr, step)
 end
 
 
-function GUI.Slider:setcurval(sldr, val)
+function Slider:setcurval(sldr, val)
 
     self.handles[sldr].curval = val
     self.handles[sldr].curstep = GUI.round(val * self.steps)
@@ -571,7 +556,7 @@ function GUI.Slider:setcurval(sldr, val)
 end
 
 
-function GUI.Slider:setretval(sldr)
+function Slider:setretval(sldr)
 
     local val = self.dir == "h" and self.inc * self.handles[sldr].curstep + self.min
                                 or self.min - self.inc * self.handles[sldr].curstep
@@ -579,3 +564,5 @@ function GUI.Slider:setretval(sldr)
     self.handles[sldr].retval = self:formatretval(val)
 
 end
+
+return Slider

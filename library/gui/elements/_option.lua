@@ -19,16 +19,13 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Option = require("gui.element"):new()
 
 if not GUI then
 	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
 	missing_lib = true
 	return 0
 end
-
-
-local Option = Element:new()
 
 function Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
 
@@ -298,10 +295,10 @@ end
 ------------------------------------
 
 
-GUI.Radio = {}
-setmetatable(GUI.Radio, {__index = Option})
+local Radio = {}
+setmetatable(Radio, {__index = Option})
 
-function GUI.Radio:new(name, z, x, y, w, h, caption, opts, dir, pad)
+function Radio:new(name, z, x, y, w, h, caption, opts, dir, pad)
 
     local radio = Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
 
@@ -316,7 +313,7 @@ function GUI.Radio:new(name, z, x, y, w, h, caption, opts, dir, pad)
 end
 
 
-function GUI.Radio:initoptions()
+function Radio:initoptions()
 
 	local r = self.opt_size / 2
 
@@ -334,7 +331,7 @@ function GUI.Radio:initoptions()
 end
 
 
-function GUI.Radio:val(newval)
+function Radio:val(newval)
 
 	if newval then
 		self.retval = newval
@@ -347,7 +344,7 @@ function GUI.Radio:val(newval)
 end
 
 
-function GUI.Radio:onmousedown()
+function Radio:onmousedown()
 
 	self.state = self:getmouseopt() or self.state
 
@@ -356,7 +353,7 @@ function GUI.Radio:onmousedown()
 end
 
 
-function GUI.Radio:onmouseup()
+function Radio:onmouseup()
 
     -- Bypass option for GUI Builder
     if not self.focus then
@@ -378,7 +375,7 @@ function GUI.Radio:onmouseup()
 end
 
 
-function GUI.Radio:ondrag()
+function Radio:ondrag()
 
 	self:onmousedown()
 
@@ -387,7 +384,7 @@ function GUI.Radio:ondrag()
 end
 
 
-function GUI.Radio:onwheel()
+function Radio:onwheel()
 --[[
 	state = GUI.round(self.state +     (self.dir == "h" and 1 or -1)
                                     *   GUI.mouse.inc)
@@ -407,14 +404,14 @@ function GUI.Radio:onwheel()
 end
 
 
-function GUI.Radio:isoptselected(opt)
+function Radio:isoptselected(opt)
 
    return opt == self.state
 
 end
 
 
-function GUI.Radio:getnextoption(dir)
+function Radio:getnextoption(dir)
 
     local j = dir > 0 and #self.optarray or 1
 
@@ -427,101 +424,5 @@ function GUI.Radio:getnextoption(dir)
     end
 
     return self.state
-
-end
-
-
-
-
-------------------------------------
--------- Checklist methods ---------
-------------------------------------
-
-
-GUI.Checklist = {}
-setmetatable(GUI.Checklist, {__index = Option})
-
-function GUI.Checklist:new(name, z, x, y, w, h, caption, opts, dir, pad)
-
-    local checklist = Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
-
-    checklist.type = "Checklist"
-
-    checklist.optsel = {}
-
-    setmetatable(checklist, self)
-    self.__index = self
-    return checklist
-
-end
-
-
-function GUI.Checklist:initoptions()
-
-	local size = self.opt_size
-
-	-- Option bubble
-	GUI.color("elm_frame")
-	gfx.rect(1, 1, size, size, 0)
-    gfx.rect(size + 3, 1, size, size, 0)
-
-	GUI.color(self.col_fill)
-	gfx.rect(size + 3 + 0.25*size, 1 + 0.25*size, 0.5*size, 0.5*size, 1)
-
-end
-
-
-function GUI.Checklist:val(newval)
-
-	if newval then
-		if type(newval) == "table" then
-			for k, v in pairs(newval) do
-				self.optsel[tonumber(k)] = v
-			end
-			self:redraw()
-        elseif type(newval) == "boolean" and #self.optarray == 1 then
-
-            self.optsel[1] = newval
-            self:redraw()
-		end
-	else
-        if #self.optarray == 1 then
-            return self.optsel[1]
-        else
-            local tmp = {}
-            for i = 1, #self.optarray do
-                tmp[i] = not not self.optsel[i]
-            end
-            return tmp
-        end
-		--return #self.optarray > 1 and self.optsel or self.optsel[1]
-	end
-
-end
-
-
-function GUI.Checklist:onmouseup()
-
-    -- Bypass option for GUI Builder
-    if not self.focus then
-        self:redraw()
-        return
-    end
-
-    local mouseopt = self:getmouseopt()
-
-    if not mouseopt then return end
-
-	self.optsel[mouseopt] = not self.optsel[mouseopt]
-
-    self.focus = false
-	self:redraw()
-
-end
-
-
-function GUI.Checklist:isoptselected(opt)
-
-   return self.optsel[opt]
 
 end

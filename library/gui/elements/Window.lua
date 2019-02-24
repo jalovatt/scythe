@@ -284,7 +284,7 @@ function GUI.Window:adjustchildelms(force)
 
         if not self.noadjust[k] then
 
-            self:adjustelm(GUI.elms[k], force)
+            self:adjustelm(GUI.Elements[k], force)
 
         end
 
@@ -331,15 +331,15 @@ function GUI.Window:hidelayers()
     -- Store the actual hidden layers, and then hide everything...
     local elms_hide = {}
     for i = 1, GUI.z_max do
-        if GUI.elms_hide[i] then elms_hide[i] = true end
-        GUI.elms_hide[i] = true
+        if GUI.Elements_hide[i] then elms_hide[i] = true end
+        GUI.Elements_hide[i] = true
     end
     self.elms_hide = elms_hide
 
     -- ...except the window and its child layers
-    GUI.elms_hide[self.z] = false
+    GUI.Elements_hide[self.z] = false
     for k, v in pairs(self.z_set) do
-        GUI.elms_hide[v] = false
+        GUI.Elements_hide[v] = false
     end
 
 end
@@ -349,13 +349,13 @@ function GUI.Window:showlayers()
 
     -- Set the layer visibility back to where it was
     for i = 1, GUI.z_max do
-        GUI.elms_hide[i] = self.elms_hide[i]
+        GUI.Elements_hide[i] = self.elms_hide[i]
     end
 
     -- Hide the window and its child layers
-    GUI.elms_hide[self.z] = true
+    GUI.Elements_hide[self.z] = true
     for k, v in pairs(self.z_set) do
-        GUI.elms_hide[v] = true
+        GUI.Elements_hide[v] = true
     end
 
 end
@@ -366,8 +366,8 @@ function GUI.Window:getchildelms()
     local elms = {}
     for _, n in pairs(self.z_set) do
 
-        if GUI.elms_list[n] then
-            for k, v in pairs(GUI.elms_list[n]) do
+        if GUI.Elements_list[n] then
+            for k, v in pairs(GUI.Elements_list[n]) do
                 if v ~= self.name then elms[v] = true end
             end
         end

@@ -30,6 +30,7 @@ end
 package.path = package.path .. ";" .. GUI.lib_path:match("(.*".."/"..")") .. "?.lua"
 
 local Table, T = require("public.table"):unpack()
+local Layer = require("gui.layer")
 local Element = require("gui.element")
 
 
@@ -169,67 +170,24 @@ end
 -------- Main functions ------------
 ------------------------------------
 
+GUI.Layers = {}
+GUI.Elements = {}
 
--- All elements are stored here. Don't put them anywhere else, or
--- Main will never find them.
-GUI.elms = {}
+-- Loaded classes
+GUI.elementClasses = {}
 
--- On each draw loop, only layers that are set to true in this table
--- will be redrawn; if false, it will just copy them from the buffer
--- Set [0] = true to redraw everything.
-GUI.redraw_z = T{}
+-- Returns a dense array of layers sorted in ascending z-order
+GUI.sortLayers = function (layers)
+    local sorted = T{}
 
--- Maintain a list of all GUI elements, sorted by their z order
--- Also removes any elements with z = -1, for automatically
--- cleaning things up.
-GUI.elms_list = {}
-GUI.z_max = 0
-GUI.update_elms_list = function (init)
-
-    local z_table = {}
-    GUI.z_max = 0
-
-    for key, __ in pairs(GUI.elms) do
-
-        local z = GUI.elms[key].z or 5
-
-        -- Delete elements if the script asked to
-        if z == -1 then
-
-            GUI.elms[key]:ondelete()
-            GUI.elms[key] = nil
-
-        else
-
-            if z_table[z] then
-                table.insert(z_table[z], key)
-
-            else
-                z_table[z] = {key}
-
-            end
-
-        end
-
-        if init then
-
-            GUI.elms[key]:init()
-
-        end
-
-        GUI.z_max = math.max(z, GUI.z_max)
-
+    for z in pairs(GUI.Layers) do
+      sorted[#sorted + 1] = z
     end
 
-    GUI.elms_list = z_table
+    sorted:sort( function(a, b) return a.z < b.z end )
 
+    return sorted:map(function(z) return GUI.Layers[z] end)
 end
-
-GUI.elms_hide = {}
-GUI.elms_freeze = {}
-
-
-
 
 GUI.Init = function ()
     xpcall( function()
@@ -281,21 +239,19 @@ GUI.Init = function ()
 
 
         -- Convert color presets from 0..255 to 0..1
-        -- for i, col in pairs(GUI.colors) do
-        --     col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
-        --                                         col[3] / 255, col[4] / 255
-        -- end
-
-        GUI.colors = GUI.colors:map(function(col, i)
-          return {col[1] / 255, col[2] / 255, col[3] / 255, col[4] / 255}
-        end)
-
-        -- Initialize the tables for our z-order functions
-        GUI.update_elms_list(true)
+        for i, col in pairs(GUI.colors) do
+            col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
+                                                col[3] / 255, col[4] / 255
+        end
 
         if GUI.exit then reaper.atexit(GUI.exit) end
 
         GUI.gfx_open = true
+
+        GUI.sortedLayers = GUI.sortLayers(GUI.Layers)
+        for _, layer in pairs(GUI.Layers) do
+          layer:init()
+        end
 
     end, GUI.crash)
 end
@@ -321,8 +277,7 @@ GUI.Main = function ()
 
 
         -- Maintain a list of elms and zs in case any have been moved or deleted
-        GUI.update_elms_list()
-
+        GUI.sortedLayers = GUI.sortLayers(GUI.Layers)
 
         GUI.Main_Draw()
 
@@ -433,16 +388,8 @@ GUI.Main_Update_Elms = function ()
     end
 
 
-    for i = 0, GUI.z_max do
-        if  GUI.elms_list[i] and #GUI.elms_list[i] > 0
-        and not (GUI.elms_hide[i] or GUI.elms_freeze[i]) then
-            for __, elm in pairs(GUI.elms_list[i]) do
-
-                if elm and GUI.elms[elm] then GUI.elms[elm]:Update(GUI) end
-
-            end
-        end
-
+    for i = 1, #GUI.sortedLayers do
+      GUI.sortedLayers[i]:update(GUI)
     end
 
     -- Just in case any user functions want to know...
@@ -458,12 +405,11 @@ GUI.Main_Draw = function ()
     local w, h = GUI.cur_w, GUI.cur_h
 
     local need_redraw, global_redraw
-    if GUI.redraw_z[0] then
-        global_redraw = true
-        GUI.redraw_z[0] = false
-    else
-        need_redraw = GUI.redraw_z:any(function(b) return b == true end)
-    end
+    -- if GUI.redraw_z[0] then
+    --     global_redraw = true
+    --     GUI.redraw_z[0] = false
+    -- else
+    need_redraw = Table.any(GUI.Layers, function(l) return l.needsRedraw end)
 
     if need_redraw or global_redraw then
 
@@ -478,15 +424,14 @@ GUI.Main_Draw = function ()
         GUI.color("wnd_bg")
         gfx.rect(0, 0, w, h, 1)
 
-        for i = GUI.z_max, 0, -1 do
-            if  GUI.elms_list[i] and #GUI.elms_list[i] > 0
-            and not GUI.elms_hide[i] then
-
-                if global_redraw or GUI.redraw_z[i] then
-                  GUI.Draw_Z(i)
+        for i = #GUI.sortedLayers, 1, -1 do
+          local layer = GUI.sortedLayers[i]
+            if  (layer.elementCount > 0 and not layer.hidden) then
+                if global_redraw or layer.needsRedraw then
+                  layer:redraw(GUI)
                 end
 
-                gfx.blit(i, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
+                gfx.blit(layer.z, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
             end
         end
 
@@ -522,9 +467,9 @@ GUI.Draw_Z = function(z)
   gfx.dest = z
 
   for __, elm in pairs(GUI.elms_list[z]) do
-      if not GUI.elms[elm] then
+      if not GUI.Elements[elm] then
           reaper.MB(  "Error: Tried to update a GUI element that doesn't exist:"..
-                      "\nGUI.elms." .. tostring(elm), "Whoops!", 0)
+                      "\nGUI.Elements." .. tostring(elm), "Whoops!", 0)
       end
 
       -- Reset these just in case an element or some user code forgot to,
@@ -532,7 +477,7 @@ GUI.Draw_Z = function(z)
       gfx.mode = 0
       gfx.set(0, 0, 0, 1)
 
-      GUI.elms[elm]:draw()
+      GUI.Elements[elm]:draw()
   end
 
   gfx.dest = 0
@@ -560,6 +505,52 @@ GUI.Draw_Version = function ()
     gfx.drawstr(str)
 
 end
+
+-- Draws a grid overlay and some developer hints
+-- Toggled via Ctrl+Shift+Alt+Z, or by setting GUI.dev_mode = true
+GUI.Draw_Dev = function ()
+
+    -- Draw a grid for placing elements
+    GUI.color("magenta")
+    gfx.setfont("Courier New", 10)
+
+    for i = 0, GUI.w, GUI.dev.grid_b do
+
+        local a = (i == 0) or (i % GUI.dev.grid_a == 0)
+        gfx.a = a and 1 or 0.3
+        gfx.line(i, 0, i, GUI.h)
+        gfx.line(0, i, GUI.w, i)
+        if a then
+            gfx.x, gfx.y = i + 4, 4
+            gfx.drawstr(i)
+            gfx.x, gfx.y = 4, i + 4
+            gfx.drawstr(i)
+        end
+
+    end
+
+    local str = "Mouse: "..math.modf(GUI.mouse.x)..", "..math.modf(GUI.mouse.y).." "
+    local str_w, str_h = gfx.measurestr(str)
+    gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - 2*str_h - 2
+
+    GUI.color("black")
+    gfx.rect(gfx.x - 2, gfx.y - 2, str_w + 4, 2*str_h + 4, true)
+
+    GUI.color("white")
+    gfx.drawstr(str)
+
+    local snap_x, snap_y = GUI.nearestmultiple(GUI.mouse.x, GUI.dev.grid_b),
+                            GUI.nearestmultiple(GUI.mouse.y, GUI.dev.grid_b)
+
+    gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - str_h - 2
+    gfx.drawstr(" Snap: "..snap_x..", "..snap_y)
+
+    gfx.a = 1
+
+    GUI.redraw_z[0] = true
+
+end
+
 
 
 
@@ -629,7 +620,8 @@ GUI.GetBuffer = function (num)
 
         else
 
-            for j = 1023, GUI.z_max + 1, -1 do
+            local z_max = GUI.sortedLayers[#GUI.sortedLayers].z
+            for j = 1023, z_max, -1 do
             --for j = (not prev and 1023 or prev - 1), 0, -1 do
 
                 if not GUI.buffers[j] then
@@ -642,7 +634,7 @@ GUI.GetBuffer = function (num)
             end
 
             -- Something bad happened, probably my fault
-            GUI.error_message = "Couldn't get a new graphics buffer - buffer would overlap element space. z = " .. GUI.z_max
+            GUI.error_message = "Couldn't get a new graphics buffer - buffer would overlap element space. z = " .. z_max
 
             ::skip::
         end
@@ -674,125 +666,51 @@ end
 -------- Element functions ---------
 ------------------------------------
 
+GUI.addElementClass = function(type)
+  local class = require("gui.elements."..type)
 
---[[
-    Wrapper for creating new elements, allows them to know their own name
-    If called after the script window has opened, will also run their :init
-    method.
-    Can be given a user class directly by passing the class itself as 'elm',
-    or if 'elm' is a string will look for a class in GUI[elm]
+  if not class then
+    reaper.ShowMessageBox("Couldn't load element class: " .. type, "Oops", 4)
+    return nil
+  end
 
-    Elements can be created in two ways:
+  GUI.elementClasses[type] = class
+  return class
+end
 
-        ex. Label:  name, z, x, y, caption[, shadow, font, color, bg]
+GUI.createElement = function (props)
 
-    1. Function arguments
+    local class = GUI.elementClasses[props.type] or GUI.addElementClass(props.type)
+    if not class then return nil end
 
-                name        type
-        GUI.New("my_label", "Label", 1, 16, 16, "Hello!", true, 1, "red", "white")
-
-
-    2. Keyed tables
-
-        GUI.New({
-            name = "my_label",
-            type = "Label",
-            z = 1,
-            x = 16,
-            y = 16,
-            caption = "Hello!",
-            shadow = true,
-            font = 1,
-            color = "red",
-            bg = "white"
-        })
-
-    The only functional difference is that, when using a keyed table, additional parameters can
-    be specified beyond the basic creation parameters given for that class. When using method 1,
-    any additional parameters simply have to be specified afterward via:
-
-        GUI.elms.my_label.shadow = false
-
-    See the class documentation for more detail.
-]]--
-GUI.New = function (name, elm, ...)
-
-    -- Support for passing all of the element params as a single keyed table
-    local name = name
-    local elm = elm
-    local params
-    if not elm and type(name) == "table" then
-
-        -- Copy the table so we can pass it on
-        params = name
-
-        -- Grab the name and type
-        elm = name.type
-        name = name.name
-
-    end
-
-
-    -- Support for passing element classes directly as a table
-    local elm = type(elm) == "string"   and GUI[elm]
-                                        or  elm
-
-    -- If we don't have an elm at this point there's a problem
-    if not elm or type(elm) ~= "table" then
-        reaper.ShowMessageBox(  "Unable to create element '"..tostring(name)..
-                                "'.\nClass '"..tostring(elm).."' isn't available.",
-                                "GUI Error", 0)
-        GUI.quit = true
-        return nil
-    end
+    local elm = class:new(props)
 
     -- If we're overwriting a previous elm, make sure it frees its buffers, etc
-    if GUI.elms[name] and GUI.elms[name].type then GUI.elms[name]:delete() end
+    if GUI.Elements[props.name] then GUI.Elements[props.name]:delete() end
 
-    GUI.elms[name] = params and elm:new(name, params) or elm:new(name, ...)
-    --GUI.elms[name] = elm:new(name, params or ...)
+    GUI.Elements[props.name] = elm
 
-    if GUI.gfx_open then GUI.elms[name]:init() end
+    if GUI.gfx_open then elm:init() end
 
-    -- Return this so (I think) a bunch of new elements could be created
-    -- within a table that would end up holding their names for easy bulk
-    -- processing.
-
-    return name
-
+    return elm
 end
 
 
---  Create multiple elms at once
---[[
-    Pass a table of keyed tables for each element:
+GUI.createLayer = function (name, z)
+  local layer = Layer:new(name, z)
+  GUI.Layers[name] = layer
 
-    local elms = {}
-    elms.my_label = {
-        type = "Label"
-        x = 16
-        ...
-    }
-    elms.my_button = {
-        type = "Button"
-        ...
-    }
-
-    GUI.CreateElms(elms)
-
-
-]]--
-function GUI.CreateElms(elms)
-
-    for name, params in pairs(elms) do
-        params.name = name
-        GUI.New(params)
-    end
-
+  return layer
 end
 
 
+GUI.findElementByName = function (name, layers)
+  layers = layers or GUI.Layers
 
+  for _, layer in pairs(layers) do
+    if layer[name] then return layer[name] end
+  end
+end
 
 --[[	Return or change an element's value
 
@@ -803,12 +721,12 @@ end
 ]]--
 GUI.Val = function (elm, newval)
 
-    if not GUI.elms[elm] then return nil end
+    if not GUI.Elements[elm] then return nil end
 
     if newval then
-        GUI.elms[elm]:val(newval)
+        GUI.Elements[elm]:val(newval)
     else
-        return GUI.elms[elm]:val()
+        return GUI.Elements[elm]:val()
     end
 
 end
@@ -843,7 +761,7 @@ end
 
 -- Returns the specified parameters for a given element.
 -- If nothing is specified, returns all of the element's properties.
--- ex. local str = GUI.elms.my_element:Msg("x", "y", "caption", "col_txt")
+-- ex. local str = GUI.Elements.my_element:Msg("x", "y", "caption", "col_txt")
 function Element:Msg(...)
 
     local arg = {...}
@@ -888,51 +806,6 @@ GUI.dev = {
 
 }
 
-
--- Draws a grid overlay and some developer hints
--- Toggled via Ctrl+Shift+Alt+Z, or by setting GUI.dev_mode = true
-GUI.Draw_Dev = function ()
-
-    -- Draw a grid for placing elements
-    GUI.color("magenta")
-    gfx.setfont("Courier New", 10)
-
-    for i = 0, GUI.w, GUI.dev.grid_b do
-
-        local a = (i == 0) or (i % GUI.dev.grid_a == 0)
-        gfx.a = a and 1 or 0.3
-        gfx.line(i, 0, i, GUI.h)
-        gfx.line(0, i, GUI.w, i)
-        if a then
-            gfx.x, gfx.y = i + 4, 4
-            gfx.drawstr(i)
-            gfx.x, gfx.y = 4, i + 4
-            gfx.drawstr(i)
-        end
-
-    end
-
-    local str = "Mouse: "..math.modf(GUI.mouse.x)..", "..math.modf(GUI.mouse.y).." "
-    local str_w, str_h = gfx.measurestr(str)
-    gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - 2*str_h - 2
-
-    GUI.color("black")
-    gfx.rect(gfx.x - 2, gfx.y - 2, str_w + 4, 2*str_h + 4, true)
-
-    GUI.color("white")
-    gfx.drawstr(str)
-
-    local snap_x, snap_y = GUI.nearestmultiple(GUI.mouse.x, GUI.dev.grid_b),
-                            GUI.nearestmultiple(GUI.mouse.y, GUI.dev.grid_b)
-
-    gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - str_h - 2
-    gfx.drawstr(" Snap: "..snap_x..", "..snap_y)
-
-    gfx.a = 1
-
-    GUI.redraw_z[0] = true
-
-end
 
 
 

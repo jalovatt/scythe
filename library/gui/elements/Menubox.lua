@@ -10,32 +10,20 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Menubox = require("gui.element"):new()
 
-if not GUI then
-  reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-  missing_lib = true
-  return 0
-end
+function Menubox:new(props)
+  -- name, z, x, y, w, h, caption, opts, pad, noarrow
+  local menu = props
 
-
-GUI.Menubox = Element:new()
-function GUI.Menubox:new(name, z, x, y, w, h, caption, opts, pad, noarrow)
-
-  local menu = (not x and type(z) == "table") and z or {}
-
-  menu.name = name
   menu.type = "Menubox"
 
-  menu.z = menu.z or z
+  menu.x = menu.x or 0
+  menu.y = menu.y or 0
+  menu.w = menu.w or 96
+  menu.h = menu.h or 24
 
-
-  menu.x = menu.x or x
-    menu.y = menu.y or y
-    menu.w = menu.w or w
-    menu.h = menu.h or h
-
-  menu.caption = menu.caption or caption
+  menu.caption = menu.caption or "Menubox:"
   menu.bg = menu.bg or "wnd_bg"
 
   menu.font_a = menu.font_a or 3
@@ -44,48 +32,21 @@ function GUI.Menubox:new(name, z, x, y, w, h, caption, opts, pad, noarrow)
   menu.col_cap = menu.col_cap or "txt"
   menu.col_txt = menu.col_txt or "txt"
 
-  menu.pad = menu.pad or pad or 4
+  menu.pad = menu.pad or 4
 
-  if menu.noarrow == nil then
-
-      menu.noarrow = noarrow or false
-
-  end
   menu.align = menu.align or 0
 
   menu.retval = menu.retval or 1
 
-  local opts = menu.opts or opts
-
-  if not opts then
-
-    menu.optarray = menu.optarray or {" "}
-
-  elseif type(opts) == "string" then
-
-    if opts == "" then opts = " " end
-
-    -- Parse the string of options into a table
-    menu.optarray = {}
-
-    for word in string.gmatch(opts, '([^,]*)') do
-        menu.optarray[#menu.optarray+1] = word
-    end
-  elseif type(opts) == "table" then
-      menu.optarray = opts
-      if #menu.optarray == 0 then menu.optarray = {" "} end
-  end
-
-  GUI.redraw_z[menu.z] = true
+  menu.options = menu.options or {1, 2, 3}
 
   setmetatable(menu, self)
-    self.__index = self
-    return menu
-
+  self.__index = self
+  return menu
 end
 
 
-function GUI.Menubox:init()
+function Menubox:init()
 
   local w, h = self.w, self.h
 
@@ -95,21 +56,21 @@ function GUI.Menubox:init()
   gfx.setimgdim(self.buff, -1, -1)
   gfx.setimgdim(self.buff, 2*w + 4, 2*h + 4)
 
-    self:drawframe()
+  self:drawframe()
 
-    if not self.noarrow then self:drawarrow() end
+  if not self.noarrow then self:drawarrow() end
 
 end
 
 
-function GUI.Menubox:ondelete()
+function Menubox:ondelete()
 
 	GUI.FreeBuffer(self.buff)
 
 end
 
 
-function GUI.Menubox:draw()
+function Menubox:draw()
 
   local x, y, w, h = self.x, self.y, self.w, self.h
 
@@ -128,19 +89,19 @@ function GUI.Menubox:draw()
 
   gfx.blit(self.buff, 1, 0, 0, (focus and (h + 2) or 0) , w + 2, h + 2, x - 1, y - 1)
 
-    -- Draw the text
-    self:drawtext()
+  -- Draw the text
+  self:drawtext()
 
 end
 
 
-function GUI.Menubox:val(newval)
+function Menubox:val(newval)
 
   if newval then
     self.retval = newval
     self:redraw()
   else
-    return math.floor(self.retval), self.optarray[self.retval]
+    return math.floor(self.retval), self.options[self.retval]
   end
 
 end
@@ -151,7 +112,7 @@ end
 ------------------------------------
 
 
-function GUI.Menubox:onmouseup()
+function Menubox:onmouseup()
 
     -- Bypass option for GUI Builder
     if not self.focus then
@@ -176,15 +137,15 @@ end
 
 
 -- This is only so that the box will light up
-function GUI.Menubox:onmousedown()
+function Menubox:onmousedown()
   self:redraw()
 end
 
 
-function GUI.Menubox:onwheel()
+function Menubox:onwheel()
 
   -- Avert a crash if there aren't at least two items in the menu
-  --if not self.optarray[2] then return end
+  --if not self.options[2] then return end
 
   -- Check for illegal values, separators, and submenus
     self.retval = self:validateoption(  GUI.round(self.retval - GUI.mouse.inc),
@@ -200,9 +161,9 @@ end
 ------------------------------------
 
 
-function GUI.Menubox:drawframe()
+function Menubox:drawframe()
 
-    local x, y, w, h = self.x, self.y, self.w, self.h
+  local x, y, w, h = self.x, self.y, self.w, self.h
   local r, g, b, a = table.unpack(GUI.colors["shadow"])
   gfx.set(r, g, b, 1)
   gfx.rect(w + 3, 1, w, h, 1)
@@ -223,7 +184,7 @@ function GUI.Menubox:drawframe()
 end
 
 
-function GUI.Menubox:drawarrow()
+function Menubox:drawarrow()
 
     local x, y, w, h = self.x, self.y, self.w, self.h
     gfx.rect(1 + w - h, h + 3, h, h, 1)
@@ -254,27 +215,27 @@ function GUI.Menubox:drawarrow()
 end
 
 
-function GUI.Menubox:drawcaption()
+function Menubox:drawcaption()
 
-    GUI.font(self.font_a)
-    local str_w, str_h = gfx.measurestr(self.caption)
+  GUI.font(self.font_a)
+  local str_w, str_h = gfx.measurestr(self.caption)
 
-    gfx.x = self.x - str_w - self.pad
-    gfx.y = self.y + (self.h - str_h) / 2
+  gfx.x = self.x - str_w - self.pad
+  gfx.y = self.y + (self.h - str_h) / 2
 
-    GUI.text_bg(self.caption, self.bg)
-    GUI.shadow(self.caption, self.col_cap, "shadow")
+  GUI.text_bg(self.caption, self.bg)
+  GUI.shadow(self.caption, self.col_cap, "shadow")
 
 end
 
 
-function GUI.Menubox:drawtext()
+function Menubox:drawtext()
 
-    -- Make sure retval hasn't been accidentally set to something illegal
-    self.retval = self:validateoption(tonumber(self.retval) or 1)
+  -- Make sure retval hasn't been accidentally set to something illegal
+  self.retval = self:validateoption(tonumber(self.retval) or 1)
 
-    -- Strip gfx.showmenu's special characters from the displayed value
-  local text = string.match(self.optarray[self.retval], "^[<!#]?(.+)")
+  -- Strip gfx.showmenu's special characters from the displayed value
+  local text = string.match(self.options[self.retval], "^[<!#]?(.+)")
 
   -- Draw the text
   GUI.font(self.font_b)
@@ -282,27 +243,27 @@ function GUI.Menubox:drawtext()
 
   --if self.output then text = self.output(text) end
 
-    if self.output then
-        local t = type(self.output)
+  if self.output then
+    local t = type(self.output)
 
-        if t == "string" or t == "number" then
-            text = self.output
-        elseif t == "table" then
-            text = self.output[text]
-        elseif t == "function" then
-            text = self.output(text)
-        end
+    if t == "string" or t == "number" then
+        text = self.output
+    elseif t == "table" then
+        text = self.output[text]
+    elseif t == "function" then
+        text = self.output(text)
     end
+  end
 
-    -- Avoid any crashes from weird user data
-    text = tostring(text)
+  -- Avoid any crashes from weird user data
+  text = tostring(text)
 
-    str_w, str_h = gfx.measurestr(text)
+  str_w, str_h = gfx.measurestr(text)
   gfx.x = self.x + 4
   gfx.y = self.y + (self.h - str_h) / 2
 
-    local r = gfx.x + self.w - 8 - (self.noarrow and 0 or self.h)
-    local b = gfx.y + str_h
+  local r = gfx.x + self.w - 8 - (self.noarrow and 0 or self.h)
+  local b = gfx.y + str_h
   gfx.drawstr(text, self.align, r, b)
 
 end
@@ -313,21 +274,21 @@ end
 ------------------------------------
 
 
--- Put together a string for gfx.showmenu from the values in optarray
-function GUI.Menubox:prepmenu()
+-- Put together a string for gfx.showmenu from the values in options
+function Menubox:prepmenu()
 
   local str_arr = {}
-    local sep_arr = {}
-    local menu_str = ""
+  local sep_arr = {}
+  local menu_str = ""
 
-  for i = 1, #self.optarray do
+  for i = 1, #self.options do
 
     -- Check off the currently-selected option
     if i == self.retval then menu_str = menu_str .. "!" end
 
-        table.insert(str_arr, tostring( type(self.optarray[i]) == "table"
-                                            and self.optarray[i][1]
-                                            or  self.optarray[i]
+        table.insert(str_arr, tostring( type(self.options[i]) == "table"
+                                            and self.options[i][1]
+                                            or  self.options[i]
                                       )
                     )
 
@@ -348,7 +309,7 @@ end
 
 
 -- Adjust the menu's returned value to ignore any separators ( --------- )
-function GUI.Menubox:stripseps(curopt, sep_arr)
+function Menubox:stripseps(curopt, sep_arr)
 
     for i = 1, #sep_arr do
         if curopt >= sep_arr[i] then
@@ -363,7 +324,7 @@ function GUI.Menubox:stripseps(curopt, sep_arr)
 end
 
 
-function GUI.Menubox:validateoption(val, dir)
+function Menubox:validateoption(val, dir)
 
     dir = dir or 1
 
@@ -375,14 +336,14 @@ function GUI.Menubox:validateoption(val, dir)
             dir = 1
 
         -- Past the last option, look downward instead
-        elseif val > #self.optarray then
-            val = #self.optarray
+        elseif val > #self.options then
+            val = #self.options
             dir = -1
 
         end
 
         -- Don't stop on separators, folders, or grayed-out options
-        local opt = string.sub(self.optarray[val], 1, 1)
+        local opt = string.sub(self.options[val], 1, 1)
         if opt == "" or opt == ">" or opt == "#" then
             val = val - dir
 
@@ -396,3 +357,5 @@ function GUI.Menubox:validateoption(val, dir)
     return val
 
 end
+
+return Menubox
