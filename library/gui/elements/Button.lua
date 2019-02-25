@@ -12,41 +12,29 @@
 
 local Element = require("gui.element")
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
-
-
 -- Button - New
-GUI.Button = Element:new()
-function GUI.Button:new(name, z, x, y, w, h, caption, func, ...)
+local Button = Element:new()
+function Button:new(props)
 
-	local Button = (not x and type(z) == "table") and z or {}
+	local Button = props
 
-	Button.name = name
 	Button.type = "Button"
 
-	Button.z = Button.z or z
+	Button.x = Button.x or 0
+  Button.y = Button.y or 0
+  Button.w = Button.w or 96
+  Button.h = Button.h or 24
 
-	Button.x = Button.x or x
-    Button.y = Button.y or y
-    Button.w = Button.w or w
-    Button.h = Button.h or h
-
-	Button.caption = Button.caption or caption
+	Button.caption = Button.caption or "Button"
 
 	Button.font = Button.font or 3
 	Button.col_txt = Button.col_txt or "txt"
 	Button.col_fill = Button.col_fill or "elm_frame"
 
 	Button.func = Button.func or func or function () end
-	Button.params = Button.params or {...}
+	Button.params = Button.params or {}
 
 	Button.state = 0
-
-	GUI.redraw_z[Button.z] = true
 
 	setmetatable(Button, self)
 	self.__index = self
@@ -55,7 +43,7 @@ function GUI.Button:new(name, z, x, y, w, h, caption, func, ...)
 end
 
 
-function GUI.Button:init()
+function Button:init()
 
 	self.buff = self.buff or GUI.GetBuffer()
 
@@ -78,7 +66,7 @@ function GUI.Button:init()
 end
 
 
-function GUI.Button:ondelete()
+function Button:ondelete()
 
 	GUI.FreeBuffer(self.buff)
 
@@ -87,7 +75,7 @@ end
 
 
 -- Button - Draw.
-function GUI.Button:draw()
+function Button:draw()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
 	local state = self.state
@@ -121,7 +109,7 @@ end
 
 
 -- Button - Mouse down.
-function GUI.Button:onmousedown()
+function Button:onmousedown()
 
 	self.state = 1
 	self:redraw()
@@ -130,7 +118,7 @@ end
 
 
 -- Button - Mouse up.
-function GUI.Button:onmouseup()
+function Button:onmouseup()
 
 	self.state = 0
 
@@ -144,7 +132,7 @@ function GUI.Button:onmouseup()
 
 end
 
-function GUI.Button:ondoubleclick()
+function Button:ondoubleclick()
 
 	self.state = 0
 
@@ -152,7 +140,7 @@ function GUI.Button:ondoubleclick()
 
 
 -- Button - Right mouse up
-function GUI.Button:onmouser_up()
+function Button:onmouser_up()
 
 	if self:isInside(GUI.mouse.x, GUI.mouse.y) and self.r_func then
 
@@ -164,7 +152,7 @@ end
 
 -- Button - Execute (extra method)
 -- Used for allowing hotkeys to press a button
-function GUI.Button:exec(r)
+function Button:exec(r)
 
 	if r then
 		self.r_func(table.unpack(self.r_params))
@@ -173,3 +161,5 @@ function GUI.Button:exec(r)
 	end
 
 end
+
+return Button

@@ -3,12 +3,13 @@
 ----- + all default methods --------
 ------------------------------------
 
+local Table, T = require("public.table"):unpack()
 
 --[[
     All classes will use this as their template, so that
     elements are initialized with every method available.
 ]]--
-local Element = {}
+local Element = T{}
 function Element:new(name)
 
     local elm = {}

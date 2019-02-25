@@ -1,4 +1,6 @@
-local Layer = {}
+local Table, T = require("public.table"):unpack()
+
+local Layer = T{}
 function Layer:new(name, z)
   local layer = {}
 

@@ -105,19 +105,19 @@ layer:add(
     h = 20,
     caption = "Mode:",
     options = {"Auto","Punch","Step"}
-  })
-  -- GUI.createElement({
-  --   name = "chk_opts",
-  --   type =	"Checklist",
-  --   x = 192,
-  --   y = 32,
-  --   w = 192,
-  --   h = 96,
-  --   caption = "Options",
-  --   options = "Only in time selection,Only on selected track,Glue items when finished",
-  --   dir = "v",
-  --   pad = 4
-  -- })
+  }),
+  GUI.createElement({
+    name = "chk_opts",
+    type =	"Checklist",
+    x = 192,
+    y = 32,
+    w = 192,
+    h = 96,
+    caption = "Options",
+    options = {"Only in time selection", "Only on selected track", "Glue items when finished"},
+    dir = "v",
+    pad = 4
+  }),
   -- GUI.createElement({
   --   name = "sldr_thresh",
   --   type = "Slider",
@@ -131,16 +131,16 @@ layer:add(
   --   inc = nil,
   --   dir = "h"
   -- })
-  -- GUI.createElement({
-  --   name = "btn_go",
-  --   type =	"Button",
-  --   x = 168,
-  --   y = 152,
-  --   w = 64,
-  --   h = 24,
-  --   caption = "Go!",
-  --   func = btn_click
-  -- })
+  GUI.createElement({
+    name = "btn_go",
+    type =	"Button",
+    x = 168,
+    y = 152,
+    w = 64,
+    h = 24,
+    caption = "Go!",
+    func = btn_click
+  })
 )
 
 GUI.Init()

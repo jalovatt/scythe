@@ -8,7 +8,7 @@ local Checklist = setmetatable({}, {__index = Option})
 
 function Checklist:new(props)
 --name, z, x, y, w, h, caption, opts, dir, pad
-    local checklist = Option:new(props.name, props.x, props.y, props.w, props.h, props.caption, props.opts, props.dir, props.pad)
+    local checklist = Option:new(props)
 
     checklist.type = "Checklist"
 
@@ -44,22 +44,22 @@ function Checklist:val(newval)
 				self.optsel[tonumber(k)] = v
 			end
 			self:redraw()
-        elseif type(newval) == "boolean" and #self.optarray == 1 then
+        elseif type(newval) == "boolean" and #self.options == 1 then
 
             self.optsel[1] = newval
             self:redraw()
 		end
 	else
-        if #self.optarray == 1 then
+        if #self.options == 1 then
             return self.optsel[1]
         else
             local tmp = {}
-            for i = 1, #self.optarray do
+            for i = 1, #self.options do
                 tmp[i] = not not self.optsel[i]
             end
             return tmp
         end
-		--return #self.optarray > 1 and self.optsel or self.optsel[1]
+		--return #self.options > 1 and self.optsel or self.optsel[1]
 	end
 
 end

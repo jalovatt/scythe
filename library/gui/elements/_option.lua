@@ -21,31 +21,20 @@
 
 local Option = require("gui.element"):new()
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+function Option:new(props)
 
-function Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
-
-	local option = (not x and type(z) == "table") and z or {}
-
-	option.name = name
-	option.type = "Option"
+	local option = props
 
 	option.z = option.z or z
 
-	option.x = option.x or x
-    option.y = option.y or y
-    option.w = option.w or w
-    option.h = option.h or h
+	option.x = option.x or 0
+  option.y = option.y or 0
+  option.w = option.w or 128
+  option.h = option.h or 128
 
-	option.caption = option.caption or caption
+	option.caption = option.caption or (props.type .. ":")
 
-    if option.frame == nil then
-        option.frame = true
-    end
+  if option.frame == nil then option.frame = true end
 	option.bg = option.bg or "wnd_bg"
 
 	option.dir = option.dir or dir or "v"
@@ -57,41 +46,12 @@ function Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
 	option.font_a = option.font_a or 2
 	option.font_b = option.font_b or 3
 
-    if option.shadow == nil then
-        option.shadow = true
-    end
-
-    if option.shadow == nil then
-        option.swap = false
-    end
+  if option.shadow == nil then option.shadow = true end
 
 	-- Size of the option bubbles
 	option.opt_size = option.opt_size or 20
 
-	-- Parse the string of options into a table
-    if not option.optarray then
-        option.optarray = {}
-
-        local opts = option.opts or opts
-
-        if type(opts) == "table" then
-
-            for i = 1, #opts do
-                option.optarray[i] = opts[i]
-            end
-
-        else
-
-            local tempidx = 1
-            for word in string.gmatch(opts, '([^,]*)') do
-                option.optarray[tempidx] = word
-                tempidx = tempidx + 1
-            end
-
-        end
-    end
-
-	GUI.redraw_z[option.z] = true
+  option.options = option.options or {"Option 1", "Option 2", "Option 3"}
 
 	setmetatable(option, self)
     self.__index = self
@@ -168,7 +128,7 @@ end
 
 function Option:getmouseopt()
 
-    local len = #self.optarray
+    local len = #self.options
 
 	-- See which option it's on
 	local mouseopt = self.dir == "h"
@@ -178,7 +138,7 @@ function Option:getmouseopt()
 	mouseopt = mouseopt / ((self.opt_size + self.pad) * len)
 	mouseopt = GUI.clamp( math.floor(mouseopt * len) + 1 , 1, len )
 
-    return self.optarray[mouseopt] ~= "_" and mouseopt or false
+    return self.options[mouseopt] ~= "_" and mouseopt or false
 
 end
 
@@ -224,9 +184,9 @@ function Option:drawoptions()
 
     local str, opt_x, opt_y
 
-	for i = 1, #self.optarray do
+	for i = 1, #self.options do
 
-		str = self.optarray[i]
+		str = self.options[i]
 		if str ~= "_" then
 
             opt_x = x + (horz   and (i - 1) * adj + pad
@@ -278,7 +238,7 @@ function Option:drawvalue(opt_x, opt_y, size, str)
     end
 
     GUI.text_bg(str, self.bg)
-    if #self.optarray == 1 or self.shadow then
+    if #self.options == 1 or self.shadow then
         GUI.shadow(str, self.col_txt, "shadow")
     else
         GUI.color(self.col_txt)
@@ -287,142 +247,4 @@ function Option:drawvalue(opt_x, opt_y, size, str)
 
 end
 
-
-
-
-------------------------------------
--------- Radio methods -------------
-------------------------------------
-
-
-local Radio = {}
-setmetatable(Radio, {__index = Option})
-
-function Radio:new(name, z, x, y, w, h, caption, opts, dir, pad)
-
-    local radio = Option:new(name, z, x, y, w, h, caption, opts, dir, pad)
-
-    radio.type = "Radio"
-
-    radio.retval, radio.state = 1, 1
-
-    setmetatable(radio, self)
-    self.__index = self
-    return radio
-
-end
-
-
-function Radio:initoptions()
-
-	local r = self.opt_size / 2
-
-	-- Option bubble
-	GUI.color(self.bg)
-	gfx.circle(r + 1, r + 1, r + 2, 1, 0)
-	gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
-	GUI.color("elm_frame")
-	gfx.circle(r + 1, r + 1, r, 0)
-	gfx.circle(3*r + 3, r + 1, r, 0)
-	GUI.color(self.col_fill)
-	gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
-
-
-end
-
-
-function Radio:val(newval)
-
-	if newval then
-		self.retval = newval
-		self.state = newval
-		self:redraw()
-	else
-		return self.retval
-	end
-
-end
-
-
-function Radio:onmousedown()
-
-	self.state = self:getmouseopt() or self.state
-
-	self:redraw()
-
-end
-
-
-function Radio:onmouseup()
-
-    -- Bypass option for GUI Builder
-    if not self.focus then
-        self:redraw()
-        return
-    end
-
-	-- Set the new option, or revert to the original if the cursor
-    -- isn't inside the list anymore
-	if self:isInside(GUI.mouse.x, GUI.mouse.y) then
-		self.retval = self.state
-	else
-		self.state = self.retval
-	end
-
-    self.focus = false
-	self:redraw()
-
-end
-
-
-function Radio:ondrag()
-
-	self:onmousedown()
-
-	self:redraw()
-
-end
-
-
-function Radio:onwheel()
---[[
-	state = GUI.round(self.state +     (self.dir == "h" and 1 or -1)
-                                    *   GUI.mouse.inc)
-]]--
-
-    self.state = self:getnextoption(    GUI.xor( GUI.mouse.inc > 0, self.dir == "h" )
-                                        and -1
-                                        or 1 )
-
-	--if self.state < 1 then self.state = 1 end
-	--if self.state > #self.optarray then self.state = #self.optarray end
-
-	self.retval = self.state
-
-	self:redraw()
-
-end
-
-
-function Radio:isoptselected(opt)
-
-   return opt == self.state
-
-end
-
-
-function Radio:getnextoption(dir)
-
-    local j = dir > 0 and #self.optarray or 1
-
-    for i = self.state + dir, j, dir do
-
-        if self.optarray[i] ~= "_" then
-            return i
-        end
-
-    end
-
-    return self.state
-
-end
+return Option
