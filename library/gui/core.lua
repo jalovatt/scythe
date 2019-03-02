@@ -7,7 +7,7 @@ GUI = {}
 
 local Table, T = require("public.table"):unpack()
 local Layer = require("gui.layer")
-local Element = require("gui.element")
+-- local Element = require("gui.element")
 
 -- ReaPack version info
 GUI.get_script_version = function()
@@ -130,7 +130,7 @@ end
 ------------------------------------
 
 GUI.Layers = T{}
-GUI.Elements = T{}
+-- GUI.Elements = T{}
 
 -- Loaded classes
 GUI.elementClasses = {}
@@ -651,9 +651,9 @@ GUI.createElement = function (props)
   local elm = class:new(props)
 
   -- If we're overwriting a previous elm, make sure it frees its buffers, etc
-  if GUI.Elements[props.name] then GUI.Elements[props.name]:delete() end
+  -- if GUI.Elements[props.name] then GUI.Elements[props.name]:delete() end
 
-  GUI.Elements[props.name] = elm
+  -- GUI.Elements[props.name] = elm
 
   if GUI.gfx_open then elm:init() end
 
@@ -689,39 +689,24 @@ end
 
 --[[	Return or change an element's value
 
+    *** DEPRECATED ***
+    This is now just a wrapper for GUI.findElementByName("elm"):val(newval)
+
     For use with external user functions. Returns the given element's current
     value or, if specified, sets a new one.	Changing values with this is often
     preferable to setting them directly, as most :val methods will also update
     some internal parameters and redraw the element when called.
 ]]--
-GUI.Val = function (elm, newval)
+GUI.Val = function (elmName, newval)
+    local elm = GUI.findElementByName(elmName)
+    if not elm then return nil end
 
-    if not GUI.Elements[elm] then return nil end
-
-    if newval then
-        GUI.Elements[elm]:val(newval)
+    if newval ~= nil then
+        elm:val(newval)
     else
-        return GUI.Elements[elm]:val()
+        return elm:val()
     end
-
 end
-
-
--- Returns the x,y that would center elm1 within elm2.
--- Axis can be "x", "y", or "xy".
-GUI.center = function (elm1, elm2)
-
-    elm2 = elm2 or {x = 0, y = 0, w = GUI.cur_w, h = GUI.cur_h}
-
-    if not (    elm2.x and elm2.y and elm2.w and elm2.h
-            and elm1.x and elm1.y and elm1.w and elm1.h) then return end
-
-    return (elm2.x + (elm2.w - elm1.w) / 2), (elm2.y + (elm2.h - elm1.h) / 2)
-
-
-end
-
-
 
 ------------------------------------
 -------- Developer stuff -----------
@@ -732,43 +717,6 @@ end
 GUI.Msg = function (str)
     reaper.ShowConsoleMsg(tostring(str).."\n")
 end
-
--- Returns the specified parameters for a given element.
--- If nothing is specified, returns all of the element's properties.
--- ex. local str = GUI.Elements.my_element:Msg("x", "y", "caption", "col_txt")
-function Element:Msg(...)
-
-    local arg = {...}
-
-    if #arg == 0 then
-        arg = {}
-        for k in Table.kpairs(self, "full") do
-            arg[#arg+1] = k
-        end
-    end
-
-    if not self or not self.type then return end
-    local pre = tostring(self.name) .. "."
-    local strs = {}
-
-    for i = 1, #arg do
-
-        strs[#strs + 1] = pre .. tostring(arg[i]) .. " = "
-
-        if type(self[arg[i]]) == "table" then
-            strs[#strs] = strs[#strs] .. "table:"
-            strs[#strs + 1] = Table.stringify(self[arg[i]], nil, 1)
-        else
-            strs[#strs] = strs[#strs] .. tostring(self[arg[i]])
-        end
-
-    end
-
-    --reaper.ShowConsoleMsg( "\n" .. table.concat(strs, "\n") .. "\n")
-    return table.concat(strs, "\n")
-
-end
-
 
 -- Developer mode settings
 GUI.dev = {
@@ -1666,7 +1614,7 @@ if not os then
         -- luacheck: push ignore 631
         reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
                     "\n\nThe script was NOT necessarily doing something malicious - restricted scripts are unable " ..
-                    "to access a number of basic functions such as reading and writing files." ..
+                    "to execute system-level tasks such as reading and writing files." ..
                     "\n\nPlease let the script's author know, or consider running the script without restrictions if you feel comfortable.",
                     "Script Error", 0)
         -- luacheck: pop
@@ -1801,7 +1749,7 @@ GUI.cleartooltip = function()
 
 end
 
-
+-- THIS NEEDS TO MOVED TO THE ELEMENT OR LAYER MODULES SOMEHOW
 -- Tab forward (or backward, if Shift is down) to the next element with .tab_idx = number.
 -- Removes focus from the given element, and gives it to the new element.
 function GUI.tab_to_next(elm)

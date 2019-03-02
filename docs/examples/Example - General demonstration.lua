@@ -280,12 +280,11 @@ end
 -- Make sure it shows the value right away
 my_knob:redraw()
 
-
-GUI.Val("my_frm",   "this is a really long string of text with no carriage returns so hopefully "..
-                    "it will be wrapped correctly to fit inside this frame")
-GUI.findElementByName("my_frm").bg = "elm_bg"
-
-
+local my_frm = GUI.findElementByName("my_frm")
+my_frm:val( "this is a really long string of text with no carriage returns so hopefully "..
+            "it will be wrapped correctly to fit inside this frame"
+          )
+my_frm.bg = "elm_bg"
 
 
 -- ------------------------------------
