@@ -21,6 +21,16 @@ function Layer:new(name, z)
   return layer
 end
 
+function Layer:hide()
+  self.hidden = true
+  self.needsRedraw = true
+end
+
+function Layer:show()
+  self.hidden = false
+  self.needsRedraw = true
+end
+
 function Layer:add(...)
   for k, elm in pairs({...}) do
     self.elements[elm.name] = elm

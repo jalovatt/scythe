@@ -16,7 +16,7 @@ function Slider:new(props)
 --name, z, x, y, w, caption, min, max, defaults, inc, dir
   local slider = props
 
-  slider.type = "slider"
+  slider.type = "Slider"
 
   slider.x = slider.x or x
   slider.y = slider.y or y

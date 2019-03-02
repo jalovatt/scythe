@@ -10,48 +10,32 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Label = require("gui.element"):new()
+function Label:new(props)
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+	local label = props
 
-
--- Label - New
-GUI.Label = Element:new()
-function GUI.Label:new(name, z, x, y, caption, shadow, font, color, bg)
-
-	local label = (not x and type(z) == "table") and z or {}
-
-	label.name = name
 	label.type = "Label"
 
-	label.z = label.z or z
-	label.x = label.x or x
-    label.y = label.y or y
+	label.x = label.x or 0
+  label.y = label.y or 0
 
     -- Placeholders; we'll get these at runtime
 	label.w, label.h = 0, 0
 
-	label.caption = label.caption   or caption
-	label.shadow =  label.shadow    or shadow   or false
-	label.font =    label.font      or font     or 2
-	label.color =   label.color     or color    or "txt"
-	label.bg =      label.bg        or bg       or "wnd_bg"
-
-
-	GUI.redraw_z[label.z] = true
+	label.caption = label.caption   or "Label"
+	label.shadow =  label.shadow    or false
+	label.font =    label.font      or 2
+	label.color =   label.color     or "txt"
+	label.bg =      label.bg        or "wnd_bg"
 
 	setmetatable(label, self)
     self.__index = self
     return label
-
 end
 
 
-function GUI.Label:init(open)
+function Label:init(open)
 
     -- We can't do font measurements without an open window
     if gfx.w == 0 then return end
@@ -101,14 +85,14 @@ function GUI.Label:init(open)
 end
 
 
-function GUI.Label:ondelete()
+function Label:ondelete()
 
 	GUI.FreeBuffer(self.buffs)
 
 end
 
 
-function GUI.Label:fade(len, z_new, z_end, curve)
+function Label:fade(len, z_new, z_end, curve)
 
 	self.z = z_new
 	self.fade_arr = { len, z_end, reaper.time_precise(), curve or 3 }
@@ -117,7 +101,7 @@ function GUI.Label:fade(len, z_new, z_end, curve)
 end
 
 
-function GUI.Label:draw()
+function Label:draw()
 
     -- Font stuff doesn't work until we definitely have a gfx window
 	if self.w == 0 then self:init() end
@@ -140,7 +124,7 @@ function GUI.Label:draw()
 end
 
 
-function GUI.Label:val(newval)
+function Label:val(newval)
 
 	if newval then
 		self.caption = newval
@@ -153,7 +137,7 @@ function GUI.Label:val(newval)
 end
 
 
-function GUI.Label:getalpha()
+function Label:getalpha()
 
     local sign = self.fade_arr[4] > 0 and 1 or -1
 
@@ -177,3 +161,5 @@ function GUI.Label:getalpha()
     return a
 
 end
+
+return Label

@@ -10,93 +10,90 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Tabs = require("gui.element"):new()
+function Tabs:new(props)
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+	local tab = props
 
-GUI.Tabs = Element:new()
-function GUI.Tabs:new(name, z, x, y, tab_w, tab_h, opts, pad)
+	tab.type = "Tabs"
 
-	local Tab = (not x and type(z) == "table") and z or {}
+	tab.x = tab.x or 0
+  tab.y = tab.y or 0
+	tab.tab_w = tab.tab_w or 48
+  tab.tab_h = tab.tab_h or 20
 
-	Tab.name = name
-	Tab.type = "Tabs"
+	tab.font_a = tab.font_a or 3
+  tab.font_b = tab.font_b or 4
 
-	Tab.z = Tab.z or z
+	tab.bg = tab.bg or "elm_bg"
+	tab.col_txt = tab.col_txt or "txt"
+	tab.col_tab_a = tab.col_tab_a or "wnd_bg"
+	tab.col_tab_b = tab.col_tab_b or "tab_bg"
 
-	Tab.x = Tab.x or x
-    Tab.y = Tab.y or y
-	Tab.tab_w = Tab.tab_w or tab_w or 48
-    Tab.tab_h = Tab.tab_h or tab_h or 20
+  -- Placeholder for if I ever figure out downward tabs
+	tab.dir = tab.dir or "u"
 
-	Tab.font_a = Tab.font_a or 3
-    Tab.font_b = Tab.font_b or 4
+	tab.pad = tab.pad or 8
 
-	Tab.bg = Tab.bg or "elm_bg"
-	Tab.col_txt = Tab.col_txt or "txt"
-	Tab.col_tab_a = Tab.col_tab_a or "wnd_bg"
-	Tab.col_tab_b = Tab.col_tab_b or "tab_bg"
+  --[[
+    Data shape:
 
-    -- Placeholder for if I ever figure out downward tabs
-	Tab.dir = Tab.dir or "u"
-
-	Tab.pad = Tab.pad or pad or 8
-
+    tab.tabs = {
+      {label = "First", layers = { layer1, layer2, layer3 },
+      {label = "Second", layers = { layer4, layer5, layer6 },
+    }
+  ]]--
 	-- Parse the string of options into a table
-    if not Tab.optarray then
-        local opts = Tab.opts or opts
+  --   if not tab.optarray then
+  --       local opts = tab.opts or opts
 
-        Tab.optarray = {}
-        if type(opts) == "string" then
-            for word in string.gmatch(opts, '([^,]+)') do
-                Tab.optarray[#Tab.optarray + 1] = word
-            end
-        elseif type(opts) == "table" then
-            Tab.optarray = opts
-        end
-    end
+  --       tab.optarray = {}
+  --       if type(opts) == "string" then
+  --           for word in string.gmatch(opts, '([^,]+)') do
+  --               tab.optarray[#tab.optarray + 1] = word
+  --           end
+  --       elseif type(opts) == "table" then
+  --           tab.optarray = opts
+  --       end
+  --   end
 
-	Tab.z_sets = {}
-	for i = 1, #Tab.optarray do
-		Tab.z_sets[i] = {}
-	end
+	-- tab.z_sets = {}
+	-- for i = 1, #tab.optarray do
+	-- 	tab.z_sets[i] = {}
+  -- end
 
-	-- Figure out the total size of the Tab frame now that we know the
+
+
+	-- Figure out the total size of the tab frame now that we know the
     -- number of buttons, so we can do the math for clicking on it
-	Tab.w, Tab.h = (Tab.tab_w + Tab.pad) * #Tab.optarray + 2*Tab.pad + 12, Tab.tab_h
+	tab.w, tab.h = (tab.tab_w + tab.pad) * #tab.tabs + 2*tab.pad + 12, tab.tab_h
 
-    if Tab.fullwidth == nil then
-        Tab.fullwidth = true
-    end
+  if tab.fullwidth == nil then
+    tab.fullwidth = true
+  end
 
 	-- Currently-selected option
-	Tab.retval = Tab.retval or 1
-    Tab.state = Tab.retval or 1
+	tab.retval = tab.retval or 1
+  tab.state = tab.retval or 1
 
-	GUI.redraw_z[Tab.z] = true
-
-	setmetatable(Tab, self)
+	setmetatable(tab, self)
 	self.__index = self
-	return Tab
+	return tab
 
 end
 
 
-function GUI.Tabs:init()
+function Tabs:init()
 
     self:update_sets()
 
 end
 
 
-function GUI.Tabs:draw()
+function Tabs:draw()
 
 	local x, y = self.x + 16, self.y
-    local tab_w, tab_h = self.tab_w, self.tab_h
+  local tab_w, tab_h = self.tab_w, self.tab_h
 	local pad = self.pad
 	local font = self.font_b
 	local dir = self.dir
@@ -104,7 +101,7 @@ function GUI.Tabs:draw()
 
     -- Make sure w is at least the size of the tabs.
     -- (GUI builder will let you try to set it lower)
-    self.w = self.fullwidth and (GUI.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.optarray + 2*pad + 12)
+    self.w = self.fullwidth and (GUI.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
 
 	GUI.color(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
@@ -112,20 +109,20 @@ function GUI.Tabs:draw()
 	local x_adj = tab_w + pad
 
 	-- Draw the inactive tabs first
-	for i = #self.optarray, 1, -1 do
+	for i = #self.tabs, 1, -1 do
 
 		if i ~= state then
 			--
 			local tab_x, tab_y = x + GUI.shadow_dist + (i - 1) * x_adj,
 								 y + GUI.shadow_dist * (dir == "u" and 1 or -1)
 
-			self:draw_tab(tab_x, tab_y, tab_w, tab_h, dir, font, self.col_txt, self.col_tab_b, self.optarray[i])
+			self:draw_tab(tab_x, tab_y, tab_w, tab_h, dir, font, self.col_txt, self.col_tab_b, self.tabs[i].label)
 
 		end
 
 	end
 
-	self:draw_tab(x + (state - 1) * x_adj, y, tab_w, tab_h, dir, self.font_a, self.col_txt, self.col_tab_a, self.optarray[state])
+	self:draw_tab(x + (state - 1) * x_adj, y, tab_w, tab_h, dir, self.font_a, self.col_txt, self.col_tab_a, self.tabs[state].label)
 
     -- Keep the active tab's top separate from the window background
 	GUI.color(self.bg)
@@ -139,7 +136,7 @@ function GUI.Tabs:draw()
 end
 
 
-function GUI.Tabs:val(newval)
+function Tabs:val(newval)
 
 	if newval then
 		self.state = newval
@@ -154,7 +151,7 @@ function GUI.Tabs:val(newval)
 end
 
 
-function GUI.Tabs:onresize()
+function Tabs:onresize()
 
     if self.fullwidth then self:redraw() end
 
@@ -166,14 +163,14 @@ end
 ------------------------------------
 
 
-function GUI.Tabs:onmousedown()
+function Tabs:onmousedown()
 
     -- Offset for the first tab
 	local adj = 0.75*self.h
 
-	local mouseopt = (GUI.mouse.x - (self.x + adj)) / (#self.optarray * (self.tab_w + self.pad))
+	local mouseopt = (GUI.mouse.x - (self.x + adj)) / (#self.tabs * (self.tab_w + self.pad))
 
-	mouseopt = GUI.clamp((math.floor(mouseopt * #self.optarray) + 1), 1, #self.optarray)
+	mouseopt = GUI.clamp((math.floor(mouseopt * #self.tabs) + 1), 1, #self.tabs)
 
 	self.state = mouseopt
 
@@ -182,7 +179,7 @@ function GUI.Tabs:onmousedown()
 end
 
 
-function GUI.Tabs:onmouseup()
+function Tabs:onmouseup()
 
 	-- Set the new option, or revert to the original if the cursor isn't inside the list anymore
 	if self:isInside(GUI.mouse.x, GUI.mouse.y) then
@@ -199,7 +196,7 @@ function GUI.Tabs:onmouseup()
 end
 
 
-function GUI.Tabs:ondrag()
+function Tabs:ondrag()
 
 	self:onmousedown()
 	self:redraw()
@@ -207,12 +204,12 @@ function GUI.Tabs:ondrag()
 end
 
 
-function GUI.Tabs:onwheel()
+function Tabs:onwheel()
 
 	self.state = GUI.round(self.state + GUI.mouse.inc)
 
 	if self.state < 1 then self.state = 1 end
-	if self.state > #self.optarray then self.state = #self.optarray end
+	if self.state > #self.tabs then self.state = #self.tabs end
 
 	self.retval = self.state
 	self:update_sets()
@@ -228,7 +225,7 @@ end
 ------------------------------------
 
 
-function GUI.Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
+function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
 	local dist = GUI.shadow_dist
     local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
@@ -236,7 +233,7 @@ function GUI.Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
 	GUI.color("shadow")
 
-    -- Tab shadow
+    -- tab shadow
     for i = 1, dist do
 
         gfx.rect(x + i, y, w, h, true)
@@ -286,43 +283,35 @@ end
 
 
 ------------------------------------
--------- Tab helpers ---------------
+-------- tab helpers ---------------
 ------------------------------------
 
 
 -- Updates visibility for any layers assigned to the tabs
-function GUI.Tabs:update_sets(init)
+function Tabs:update_sets(init)
 
 	local state = self.state
 
 	if init then
-		self.z_sets = init
+		self.tabs = init
 	end
 
-	local z_sets = self.z_sets
+	local tabs = self.tabs
 
-	if not z_sets or #z_sets[1] < 1 then
-		--reaper.ShowMessageBox("GUI element '"..self.name.."':\nNo z sets found.", "Library error", 0)
-		--GUI.quit = true
-		return 0
-	end
+	if not tabs or #tabs[1].layers < 1 then return end
 
-	for i = 1, #z_sets do
-
-        if i ~= state then
-            for _, z in pairs(z_sets[i]) do
-
-                GUI.Elements_hide[z] = true
-
-            end
+	for i = 1, #tabs do
+    if i ~= state then
+        for _, layer in pairs(tabs[i].layers) do
+            layer:hide()
         end
-
+    end
 	end
 
-    for _, z in pairs(z_sets[state]) do
-
-        GUI.Elements_hide[z] = false
-
-    end
+  for _, layer in pairs(tabs[state].layers) do
+    layer:show()
+  end
 
 end
+
+return Tabs

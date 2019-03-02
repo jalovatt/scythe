@@ -10,38 +10,27 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Textbox = require("gui.element"):new()
+function Textbox:new(props)
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+	local txt = props
 
-
-GUI.Textbox = Element:new()
-function GUI.Textbox:new(name, z, x, y, w, h, caption, pad)
-
-	local txt = (not x and type(z) == "table") and z or {}
-
-	txt.name = name
 	txt.type = "Textbox"
 
-	txt.z = txt.z or z
+	txt.x = txt.x or 0
+  txt.y = txt.y or 0
+  txt.w = txt.w or 96
+  txt.h = txt.h or 24
 
-	txt.x = txt.x or x
-    txt.y = txt.y or y
-    txt.w = txt.w or w
-    txt.h = txt.h or h
+  txt.retval = txt.retval or ""
 
-    txt.retval = txt.retval or ""
+  txt.caption = txt.caption or "Textbox"
+  txt.pad = txt.pad or 4
 
-	txt.caption = txt.caption or caption or ""
-	txt.pad = txt.pad or pad or 4
+  if txt.shadow == nil then
+      txt.shadow = true
+  end
 
-    if txt.shadow == nil then
-        txt.shadow = true
-    end
 	txt.bg = txt.bg or "wnd_bg"
 	txt.color = txt.color or "txt"
 
@@ -49,24 +38,22 @@ function GUI.Textbox:new(name, z, x, y, w, h, caption, pad)
 
 	txt.font_b = txt.font_b or "monospace"
 
-    txt.cap_pos = txt.cap_pos or "left"
+  txt.cap_pos = txt.cap_pos or "left"
 
-    txt.undo_limit = txt.undo_limit or 20
+  txt.undo_limit = txt.undo_limit or 20
 
-    txt.undo_states = {}
-    txt.redo_states = {}
+  txt.undo_states = {}
+  txt.redo_states = {}
 
-    txt.wnd_pos = 0
+  txt.wnd_pos = 0
 	txt.caret = 0
 	txt.sel_s, txt.sel_e = nil, nil
 
-    txt.char_h, txt.wnd_h, txt.wnd_w, txt.char_w = nil, nil, nil, nil
+  txt.char_h, txt.wnd_h, txt.wnd_w, txt.char_w = nil, nil, nil, nil
 
 	txt.focus = false
 
 	txt.blink = 0
-
-	GUI.redraw_z[txt.z] = true
 
 	setmetatable(txt, self)
 	self.__index = self
@@ -75,7 +62,7 @@ function GUI.Textbox:new(name, z, x, y, w, h, caption, pad)
 end
 
 
-function GUI.Textbox:init()
+function Textbox:init()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
 
@@ -102,14 +89,14 @@ function GUI.Textbox:init()
 end
 
 
-function GUI.Textbox:ondelete()
+function Textbox:ondelete()
 
 	GUI.FreeBuffer(self.buff)
 
 end
 
 
-function GUI.Textbox:draw()
+function Textbox:draw()
 
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
@@ -135,7 +122,7 @@ function GUI.Textbox:draw()
 end
 
 
-function GUI.Textbox:val(newval)
+function Textbox:val(newval)
 
 	if newval then
         self:seteditorstate(tostring(newval))
@@ -148,7 +135,7 @@ end
 
 
 -- Just for making the caret blink
-function GUI.Textbox:onupdate()
+function Textbox:onupdate()
 
 	if self.focus then
 
@@ -166,7 +153,7 @@ function GUI.Textbox:onupdate()
 end
 
 -- Make sure the box highlight goes away
-function GUI.Textbox:lostfocus()
+function Textbox:lostfocus()
 
     self:redraw()
 
@@ -179,7 +166,7 @@ end
 ------------------------------------
 
 
-function GUI.Textbox:onmousedown()
+function Textbox:onmousedown()
 
     self.caret = self:getcaret(GUI.mouse.x)
 
@@ -202,14 +189,14 @@ function GUI.Textbox:onmousedown()
 end
 
 
-function GUI.Textbox:ondoubleclick()
+function Textbox:ondoubleclick()
 
 	self:selectword()
 
 end
 
 
-function GUI.Textbox:ondrag()
+function Textbox:ondrag()
 
 	self.sel_s = self:getcaret(GUI.mouse.ox, GUI.mouse.oy)
     self.sel_e = self:getcaret(GUI.mouse.x, GUI.mouse.y)
@@ -219,7 +206,7 @@ function GUI.Textbox:ondrag()
 end
 
 
-function GUI.Textbox:ontype()
+function Textbox:ontype()
 
 	local char = GUI.char
 
@@ -265,7 +252,7 @@ function GUI.Textbox:ontype()
 end
 
 
-function GUI.Textbox:onwheel(inc)
+function Textbox:onwheel(inc)
 
    local len = string.len(self.retval)
 
@@ -287,7 +274,7 @@ end
 ------------------------------------
 
 
-function GUI.Textbox:drawcaption()
+function Textbox:drawcaption()
 
     local caption = self.caption
 
@@ -325,7 +312,7 @@ function GUI.Textbox:drawcaption()
 end
 
 
-function GUI.Textbox:drawtext()
+function Textbox:drawtext()
 
 	GUI.color(self.color)
 	GUI.font(self.font_b)
@@ -344,7 +331,7 @@ function GUI.Textbox:drawtext()
 end
 
 
-function GUI.Textbox:drawcaret()
+function Textbox:drawcaret()
 
     local caret_wnd = self:adjusttowindow(self.caret)
 
@@ -364,7 +351,7 @@ function GUI.Textbox:drawcaret()
 end
 
 
-function GUI.Textbox:drawselection()
+function Textbox:drawselection()
 
     local x, w
 
@@ -407,7 +394,7 @@ function GUI.Textbox:drawselection()
 end
 
 
-function GUI.Textbox:drawgradient()
+function Textbox:drawgradient()
 
     local left, right = self.wnd_pos > 0, self.wnd_pos < (string.len(self.retval) - self.wnd_w + 2)
     if not (left or right) then return end
@@ -445,7 +432,7 @@ end
 
 
 -- Make sure at least part of the selection is visible
-function GUI.Textbox:selectionvisible(x, w)
+function Textbox:selectionvisible(x, w)
 
 	return 		w > 0                   -- Selection has width,
 			and x + w > self.wnd_pos    -- doesn't end to the left
@@ -454,7 +441,7 @@ function GUI.Textbox:selectionvisible(x, w)
 end
 
 
-function GUI.Textbox:selectall()
+function Textbox:selectall()
 
     self.sel_s = 0
     self.caret = 0
@@ -463,7 +450,7 @@ function GUI.Textbox:selectall()
 end
 
 
-function GUI.Textbox:selectword()
+function Textbox:selectword()
 
     local str = self.retval
 
@@ -477,7 +464,7 @@ function GUI.Textbox:selectword()
 end
 
 
-function GUI.Textbox:deleteselection()
+function Textbox:deleteselection()
 
     if not (self.sel_s and self.sel_e) then return 0 end
 
@@ -501,7 +488,7 @@ function GUI.Textbox:deleteselection()
 end
 
 
-function GUI.Textbox:getselectedtext()
+function Textbox:getselectedtext()
 
     local s, e= self.sel_s, self.sel_e
 
@@ -512,7 +499,7 @@ function GUI.Textbox:getselectedtext()
 end
 
 
-function GUI.Textbox:toclipboard(cut)
+function Textbox:toclipboard(cut)
 
     if self.sel_s and self:SWS_clipboard() then
 
@@ -525,7 +512,7 @@ function GUI.Textbox:toclipboard(cut)
 end
 
 
-function GUI.Textbox:fromclipboard()
+function Textbox:fromclipboard()
 
     if self:SWS_clipboard() then
 
@@ -548,7 +535,7 @@ end
 ------------------------------------
 
 
-function GUI.Textbox:wnd_recalc()
+function Textbox:wnd_recalc()
 
     GUI.font(self.font_b)
 
@@ -562,7 +549,7 @@ function GUI.Textbox:wnd_recalc()
 end
 
 
-function GUI.Textbox:wnd_right()
+function Textbox:wnd_right()
 
    return self.wnd_pos + self.wnd_w
 
@@ -572,7 +559,7 @@ end
 -- See if a given position is in the visible window
 -- If so, adjust it from absolute to window-relative
 -- If not, returns nil
-function GUI.Textbox:adjusttowindow(x)
+function Textbox:adjusttowindow(x)
 
     return ( GUI.clamp(self.wnd_pos, x, self:wnd_right() - 1) == x )
         and x - self.wnd_pos
@@ -581,7 +568,7 @@ function GUI.Textbox:adjusttowindow(x)
 end
 
 
-function GUI.Textbox:windowtocaret()
+function Textbox:windowtocaret()
 
     if self.caret < self.wnd_pos + 1 then
         self.wnd_pos = math.max(0, self.caret - 1)
@@ -592,7 +579,7 @@ function GUI.Textbox:windowtocaret()
 end
 
 
-function GUI.Textbox:getcaret(x)
+function Textbox:getcaret(x)
 
     x = math.floor(  ((x - self.x) / self.w) * self.wnd_w) + self.wnd_pos
     return GUI.clamp(0, x, string.len(self.retval or ""))
@@ -607,7 +594,7 @@ end
 ------------------------------------
 
 
-function GUI.Textbox:insertstring(str, move_caret)
+function Textbox:insertstring(str, move_caret)
 
     self:storeundostate()
 
@@ -627,7 +614,7 @@ function GUI.Textbox:insertstring(str, move_caret)
 end
 
 
-function GUI.Textbox:insertchar(char)
+function Textbox:insertchar(char)
 
     self:storeundostate()
 
@@ -640,7 +627,7 @@ function GUI.Textbox:insertchar(char)
 end
 
 
-function GUI.Textbox:carettoend()
+function Textbox:carettoend()
 
    return string.len(self.retval or "")
 
@@ -648,7 +635,7 @@ end
 
 
 -- Replace any characters that we're unable to reproduce properly
-function GUI.Textbox:sanitizetext(str)
+function Textbox:sanitizetext(str)
 
     str = tostring(str)
     str = str:gsub("\t", "    ")
@@ -658,7 +645,7 @@ function GUI.Textbox:sanitizetext(str)
 end
 
 
-function GUI.Textbox:ctrlchar(func, ...)
+function Textbox:ctrlchar(func, ...)
 
     if GUI.mouse.cap & 4 == 4 then
         func(self, ... and table.unpack({...}))
@@ -675,7 +662,7 @@ end
 -- Non-typing key commands
 -- A table of functions is more efficient to access than using really
 -- long if/then/else structures.
-GUI.Textbox.keys = {
+Textbox.keys = {
 
     [GUI.chars.LEFT] = function(self)
 
@@ -825,7 +812,7 @@ GUI.Textbox.keys = {
 ------------------------------------
 
 
-function GUI.Textbox:undo()
+function Textbox:undo()
 
 	if #self.undo_states == 0 then return end
 	table.insert(self.redo_states, self:geteditorstate() )
@@ -839,7 +826,7 @@ function GUI.Textbox:undo()
 end
 
 
-function GUI.Textbox:redo()
+function Textbox:redo()
 
 	if #self.redo_states == 0 then return end
 	table.insert(self.undo_states, self:geteditorstate() )
@@ -853,7 +840,7 @@ function GUI.Textbox:redo()
 end
 
 
-function GUI.Textbox:storeundostate()
+function Textbox:storeundostate()
 
 table.insert(self.undo_states, self:geteditorstate() )
 	if #self.undo_states > self.undo_limit then table.remove(self.undo_states, 1) end
@@ -862,14 +849,14 @@ table.insert(self.undo_states, self:geteditorstate() )
 end
 
 
-function GUI.Textbox:geteditorstate()
+function Textbox:geteditorstate()
 
 	return { retval = self.retval, caret = self.caret }
 
 end
 
 
-function GUI.Textbox:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
+function Textbox:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
 
     self.retval = retval or ""
     self.caret = math.min(caret and caret or self.caret, string.len(self.retval))
@@ -882,7 +869,7 @@ end
 
 -- See if we have a new-enough version of SWS for the clipboard functions
 -- (v2.9.7 or greater)
-function GUI.Textbox:SWS_clipboard()
+function Textbox:SWS_clipboard()
 
 	if GUI.SWS_exists then
 		return true
@@ -896,3 +883,5 @@ function GUI.Textbox:SWS_clipboard()
 	end
 
 end
+
+return Textbox

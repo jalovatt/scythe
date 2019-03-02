@@ -45,7 +45,7 @@ local function btn_click()
 
 	reaper.ShowMessageBox(
 		"This is where we pretend to perform some sort of fancy operation with the user's settings.\n\n"
-		.."Working in "..tostring(GUI.elms.mnu_mode.optarray[mode])
+		.."Working in "..tostring(GUI.Layers["Layer1"].elements["mnu_mode"].options[mode])
 		.." mode with a threshold of "..tostring(thresh).."db.\n\n"
 		.."Apply only to time selection: "..tostring(time_sel).."\n"
 		.."Apply only to selected track: "..tostring(sel_track).."\n"
@@ -118,19 +118,19 @@ layer:add(
     dir = "v",
     pad = 4
   }),
-  -- GUI.createElement({
-  --   name = "sldr_thresh",
-  --   type = "Slider",
-  --   x = 32,
-  --   y = 96,
-  --   w = 128,
-  --   caption = "Threshold",
-  --   min = -60,
-  --   max = 0,
-  --   defaults = 48,
-  --   inc = nil,
-  --   dir = "h"
-  -- })
+  GUI.createElement({
+    name = "sldr_thresh",
+    type = "Slider",
+    x = 32,
+    y = 96,
+    w = 128,
+    caption = "Threshold",
+    min = -60,
+    max = 0,
+    defaults = 48,
+    inc = nil,
+    dir = "h"
+  }),
   GUI.createElement({
     name = "btn_go",
     type =	"Button",

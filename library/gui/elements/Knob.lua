@@ -10,83 +10,68 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Knob = require("gui.element"):new()
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+function Knob:new(props)
 
--- Knob - New.
-GUI.Knob = Element:new()
-function GUI.Knob:new(name, z, x, y, w, caption, min, max, default, inc, vals)
+	local knob = props
 
-	local Knob = (not x and type(z) == "table") and z or {}
+	knob.type = "Knob"
 
-	Knob.name = name
-	Knob.type = "Knob"
+	knob.x = knob.x or 0
+  knob.y = knob.y or 0
+  knob.w = knob.w or 64
+  knob.h = knob.w
 
-	Knob.z = Knob.z or z
+	knob.caption = knob.caption or "Knob"
+	knob.bg = knob.bg or "wnd_bg"
 
-	Knob.x = Knob.x or x
-    Knob.y = Knob.y or y
-    Knob.w = Knob.w or w
-    Knob.h = Knob.w
+  knob.cap_x = knob.cap_x or 0
+  knob.cap_y = knob.cap_y or 0
 
-	Knob.caption = Knob.caption or caption
-	Knob.bg = Knob.bg or "wnd_bg"
+	knob.font_a = knob.font_a or 3
+	knob.font_b = knob.font_b or 4
 
-    Knob.cap_x = Knob.cap_x or 0
-    Knob.cap_y = Knob.cap_y or 0
+	knob.col_txt = knob.col_txt or "txt"
+	knob.col_head = knob.col_head or "elm_fill"
+	knob.col_body = knob.col_body or "elm_frame"
 
-	Knob.font_a = Knob.font_a or 3
-	Knob.font_b = Knob.font_b or 4
-
-	Knob.col_txt = Knob.col_txt or "txt"
-	Knob.col_head = Knob.col_head or "elm_fill"
-	Knob.col_body = Knob.col_body or "elm_frame"
-
-	Knob.min = Knob.min or min
-    Knob.max = Knob.max or max
-    Knob.inc = Knob.inc or inc or 1
+	knob.min = knob.min or 0
+  knob.max = knob.max or 10
+  knob.inc = knob.inc or inc or 1
 
 
-    Knob.steps = math.abs(Knob.max - Knob.min) / Knob.inc
+  knob.steps = math.abs(knob.max - knob.min) / knob.inc
 
-    function Knob:formatretval(val)
+  function knob:formatretval(val)
+    local decimal = tonumber(string.match(val, "%.(.*)") or 0)
+    local places = decimal ~= 0 and string.len( decimal) or 0
+    return string.format("%." .. places .. "f", val)
+  end
 
-        local decimal = tonumber(string.match(val, "%.(.*)") or 0)
-        local places = decimal ~= 0 and string.len( decimal) or 0
-        return string.format("%." .. places .. "f", val)
-
-    end
-
-	Knob.vals = Knob.vals or vals
+	knob.vals = knob.vals or (knob.vals == nil and true)
 
 	-- Determine the step angle
-	Knob.stepangle = (3 / 2) / Knob.steps
+	knob.stepangle = (3 / 2) / knob.steps
 
-	Knob.default = Knob.default or default
-    Knob.curstep = Knob.default
+	knob.default = knob.default or 5
+  knob.curstep = knob.default
 
-	Knob.curval = Knob.curstep / Knob.steps
+	knob.curval = knob.curstep / knob.steps
 
-    Knob.retval = Knob:formatretval(
-                ((Knob.max - Knob.min) / Knob.steps) * Knob.curstep + Knob.min
+  knob.retval = knob:formatretval(
+              ((knob.max - knob.min) / knob.steps) * knob.curstep + knob.min
                                     )
 
-
-	GUI.redraw_z[Knob.z] = true
-
-	setmetatable(Knob, self)
+  knob.prototype = Knob
+	setmetatable(knob, self)
 	self.__index = self
-	return Knob
+	return knob
 
 end
 
 
-function GUI.Knob:init()
+function Knob:init()
 
 	self.buff = self.buff or GUI.GetBuffer()
 
@@ -129,7 +114,7 @@ function GUI.Knob:init()
 end
 
 
-function GUI.Knob:ondelete()
+function Knob:ondelete()
 
 	GUI.FreeBuffer(self.buff)
 
@@ -137,7 +122,7 @@ end
 
 
 -- Knob - Draw
-function GUI.Knob:draw()
+function Knob:draw()
 
 	local x, y = self.x, self.y
 
@@ -175,7 +160,7 @@ end
 
 
 -- Knob - Get/set value
-function GUI.Knob:val(newval)
+function Knob:val(newval)
 
 	if newval then
 
@@ -191,7 +176,7 @@ end
 
 
 -- Knob - Dragging.
-function GUI.Knob:ondrag()
+function Knob:ondrag()
 
 	local y = GUI.mouse.y
 	local ly = GUI.mouse.ly
@@ -222,7 +207,7 @@ end
 
 
 -- Knob - Doubleclick
-function GUI.Knob:ondoubleclick()
+function Knob:ondoubleclick()
 	--[[
 	self.curstep = self.default
 	self.curval = self.curstep / self.steps
@@ -237,7 +222,7 @@ end
 
 
 -- Knob - Mousewheel
-function GUI.Knob:onwheel()
+function Knob:onwheel()
 
 	local ctrl = GUI.mouse.cap&4==4
 
@@ -259,7 +244,7 @@ end
 -------- Drawing methods -----------
 ------------------------------------
 
-function GUI.Knob:drawcaption(o, r)
+function Knob:drawcaption(o, r)
 
     local str = self.caption
 
@@ -273,7 +258,7 @@ function GUI.Knob:drawcaption(o, r)
 end
 
 
-function GUI.Knob:drawvals(o, r)
+function Knob:drawvals(o, r)
 
     for i = 0, self.steps do
 
@@ -326,7 +311,7 @@ end
 -------- Value helpers -------------
 ------------------------------------
 
-function GUI.Knob:setcurstep(step)
+function Knob:setcurstep(step)
 
     self.curstep = step
     self.curval = self.curstep / self.steps
@@ -335,7 +320,7 @@ function GUI.Knob:setcurstep(step)
 end
 
 
-function GUI.Knob:setcurval(val)
+function Knob:setcurval(val)
 
     self.curval = val
     self.curstep = GUI.round(val * self.steps)
@@ -344,8 +329,10 @@ function GUI.Knob:setcurval(val)
 end
 
 
-function GUI.Knob:setretval()
+function Knob:setretval()
 
     self.retval = self:formatretval(self.inc * self.curstep + self.min)
 
 end
+
+return Knob

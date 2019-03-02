@@ -10,59 +10,40 @@
 
 ]]--
 
-local Element = require("gui.element")
+local Frame = require("gui.element"):new()
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+function Frame:new(props)
 
+	local frame = props
 
+	frame.type = "Frame"
 
-GUI.Frame = Element:new()
-function GUI.Frame:new(name, z, x, y, w, h, shadow, fill, color, round)
+	frame.x = frame.x or 0
+  frame.y = frame.y or 0
+  frame.w = frame.w or 256
+  frame.h = frame.h or 256
 
-	local Frame = (not x and type(z) == "table") and z or {}
-	Frame.name = name
-	Frame.type = "Frame"
+	frame.color = frame.color or "elm_frame"
+	frame.round = frame.round or 0
 
-	Frame.z = Frame.z or z
+	frame.text, frame.last_text = frame.text or "", ""
+	frame.txt_indent = frame.txt_indent or 0
+	frame.txt_pad = frame.txt_pad or 0
 
-	Frame.x = Frame.x or x
-    Frame.y = Frame.y or y
-    Frame.w = Frame.w or w
-    Frame.h = Frame.h or h
+	frame.bg = frame.bg or "wnd_bg"
 
-    if Frame.shadow == nil then
-        Frame.shadow = shadow or false
-    end
-    if Frame.fill == nil then
-        Frame.fill = fill or false
-    end
-	Frame.color = Frame.color or color or "elm_frame"
-	Frame.round = Frame.round or round or 0
+	frame.font = frame.font or 4
+	frame.col_txt = frame.col_txt or "txt"
+	frame.pad = frame.pad or 4
 
-	Frame.text, Frame.last_text = Frame.text or "", ""
-	Frame.txt_indent = Frame.txt_indent or 0
-	Frame.txt_pad = Frame.txt_pad or 0
-
-	Frame.bg = Frame.bg or "wnd_bg"
-
-	Frame.font = Frame.font or 4
-	Frame.col_txt = Frame.col_txt or "txt"
-	Frame.pad = Frame.pad or 4
-
-	GUI.redraw_z[Frame.z] = true
-
-	setmetatable(Frame, self)
+	setmetatable(frame, self)
 	self.__index = self
-	return Frame
+	return frame
 
 end
 
 
-function GUI.Frame:init()
+function Frame:init()
 
     self.buff = self.buff or GUI.GetBuffer()
 
@@ -77,14 +58,14 @@ function GUI.Frame:init()
 end
 
 
-function GUI.Frame:ondelete()
+function Frame:ondelete()
 
 	GUI.FreeBuffer(self.buff)
 
 end
 
 
-function GUI.Frame:draw()
+function Frame:draw()
 
     local x, y, w, h = self.x, self.y, self.w, self.h
 
@@ -103,11 +84,11 @@ function GUI.Frame:draw()
 end
 
 
-function GUI.Frame:val(new)
+function Frame:val(new)
 
 	if new then
 		self.text = new
-        self:init()
+    if self.buff then self:init() end
 		self:redraw()
 	else
 		return string.gsub(self.text, "\n", "")
@@ -123,7 +104,7 @@ end
 ------------------------------------
 
 
-function GUI.Frame:drawframe()
+function Frame:drawframe()
 
     local w, h = self.w, self.h
 	local fill = self.fill
@@ -157,7 +138,7 @@ function GUI.Frame:drawframe()
 end
 
 
-function GUI.Frame:drawtext()
+function Frame:drawtext()
 
 	if self.text and self.text:len() > 0 then
 
@@ -185,9 +166,11 @@ end
 ------------------------------------
 
 
-function GUI.Frame:wrap_text(text)
+function Frame:wrap_text(text)
 
     return GUI.word_wrap(   text, self.font, self.w - 2*self.pad,
                             self.txt_indent, self.txt_pad)
 
 end
+
+return Frame

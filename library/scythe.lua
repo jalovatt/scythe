@@ -180,13 +180,13 @@ GUI.elementClasses = {}
 GUI.sortLayers = function (layers)
     local sorted = T{}
 
-    for z in pairs(GUI.Layers) do
-      sorted[#sorted + 1] = z
+    for _, layer in pairs(GUI.Layers) do
+      sorted[#sorted + 1] = layer
     end
 
     sorted:sort( function(a, b) return a.z < b.z end )
 
-    return sorted:map(function(z) return GUI.Layers[z] end)
+    return sorted
 end
 
 GUI.Init = function ()
@@ -608,7 +608,6 @@ GUI.buffers = {}
 GUI.freed_buffers = {}
 
 GUI.GetBuffer = function (num)
-
     local ret = {}
     --local prev
 
@@ -619,8 +618,7 @@ GUI.GetBuffer = function (num)
             ret[i] = table.remove(GUI.freed_buffers)
 
         else
-
-            local z_max = GUI.sortedLayers[#GUI.sortedLayers].z
+            local z_max = GUI.sortedLayers[#GUI.sortedLayers - 1].z
             for j = 1023, z_max, -1 do
             --for j = (not prev and 1023 or prev - 1), 0, -1 do
 
@@ -679,7 +677,6 @@ GUI.addElementClass = function(type)
 end
 
 GUI.createElement = function (props)
-
     local class = GUI.elementClasses[props.type] or GUI.addElementClass(props.type)
     if not class then return nil end
 
@@ -708,7 +705,7 @@ GUI.findElementByName = function (name, layers)
   layers = layers or GUI.Layers
 
   for _, layer in pairs(layers) do
-    if layer[name] then return layer[name] end
+    if layer.elements[name] then return layer.elements[name] end
   end
 end
 
