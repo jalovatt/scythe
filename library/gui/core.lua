@@ -1,66 +1,18 @@
 -- NoIndex: true
 
--- local info = debug.getinfo(1,'S');
--- local full_script_path = info.source
--- local script_path = full_script_path:sub(2,-5) -- remove "@" and "file extension" from file name
--- if reaper.GetOS() == "Win64" or reaper.GetOS() == "Win32" then
---   package.path = package.path .. ";" .. script_path:match("(.*".."\\"..")") .. "..\\Functions\\?.lua"
--- else
---   package.path = package.path .. ";" .. script_path:match("(.*".."/"..")") .. "../Functions/?.lua"
--- end
--- require("X-Raym_Functions - console debug messages")
-
 local Scythe
+
+-- luacheck: globals GUI
 GUI = {}
-
-------------------------------------
--------- Basic script info ---------
-------------------------------------
-
-
--- GUI.script_path, GUI.script_name = ({reaper.get_action_context()})[2]:match("(.-)([^/\\]+).lua$")
-
-
--- GUI.lib_path = reaper.GetExtState("Scythe", "lib_path_v3")
--- if not GUI.lib_path or GUI.lib_path == "" then
---     reaper.MB("Couldn't find the Scythe library. Please run 'Set Scythe library path' in your Action List.", "Whoops!", 0)
---     return
--- end
-
--- package.path = package.path .. ";" .. GUI.lib_path:match("(.*".."/"..")") .. "?.lua"
 
 local Table, T = require("public.table"):unpack()
 local Layer = require("gui.layer")
 local Element = require("gui.element")
 
-
--- GUI.get_version = function()
-
---     local file = GUI.lib_path .. "/scythe.lua"
---     if not reaper.ReaPack_GetOwner then
---         return "(" .. "ReaPack not found" .. ")"
---     else
---         local package, err = reaper.ReaPack_GetOwner(file)
---         if not package or package == "" then
---             return "(" .. tostring(err) .. ")"
---         else
---             local ret, repo, cat, pkg, desc, type, ver, author, pinned, fileCount = reaper.ReaPack_GetEntryInfo(package)
---             if ret then
---                 return "v" .. tostring(ver)
---             else
---                 return "(version error)"
---             end
---         end
---     end
-
--- end
--- GUI.version = GUI.get_version()
-
-
 -- ReaPack version info
 GUI.get_script_version = function()
 
-  local package, err = reaper.ReaPack_GetOwner(({reaper.get_action_context()})[2])
+  local package = reaper.ReaPack_GetOwner(({reaper.get_action_context()})[2])
   if not package then return "(version error)" end
 
   --ret, repo, cat, pkg, desc, type, ver, author, pinned, fileCount = reaper.ReaPack_GetEntryInfo( entry )
@@ -101,18 +53,25 @@ GUI.crash = function (errObject, skipMsg)
 
     local name = ({reaper.get_action_context()})[2]:match("([^/\\_]+)$")
 
-    local ret = skipMsg and 6 or reaper.ShowMessageBox(name.." has crashed!\n\n"..
-                                "Would you like to have a crash report printed "..
-                                "to the Reaper console?",
-                                "Oops", 4)
+    local ret = skipMsg
+      and 6
+      or reaper.ShowMessageBox(
+        name.." has crashed!\n\n"..
+        "Would you like to have a crash report printed "..
+        "to the Reaper console?",
+        "Oops",
+        4
+      )
 
     if ret == 6 then
-        reaper.ShowConsoleMsg(  "Error: "..err.."\n\n"..
-                                (GUI.error_message and tostring(GUI.error_message).."\n\n" or "") ..
-                                "Stack traceback:\n\t"..table.concat(stack, "\n\t", 2).."\n\n"..
-                                "Scythe:\t".. Scythe.version.."\n"..
-                                "Reaper:       \t"..reaper.GetAppVersion().."\n"..
-                                "Platform:     \t"..reaper.GetOS())
+      reaper.ShowConsoleMsg(
+        "Error: "..err.."\n\n"..
+        (GUI.error_message and tostring(GUI.error_message).."\n\n" or "") ..
+        "Stack traceback:\n\t"..table.concat(stack, "\n\t", 2).."\n\n"..
+        "Scythe:\t".. Scythe.version.."\n"..
+        "Reaper:       \t"..reaper.GetAppVersion().."\n"..
+        "Platform:     \t"..reaper.GetOS()
+      )
     end
 
     GUI.quit = true
@@ -127,41 +86,41 @@ end
 ------------------------------------
 
 
--- I hate working with 'requires', so I've opted to do it this way.
--- This also works much more easily with my Script Compiler.
-GUI.req = function(file)
+-- -- I hate working with 'requires', so I've opted to do it this way.
+-- -- This also works much more easily with my Script Compiler.
+-- GUI.req = function(file)
 
-    if missing_lib then return function () end end
+--     if missing_lib then return function () end end
 
-    local file_path = ( (file:sub(2, 2) == ":" or file:sub(1, 1) == "/") and ""
-                                                                          or  Scythe.lib_path )
-                        .. file
+--     local file_path = ( (file:sub(2, 2) == ":" or file:sub(1, 1) == "/") and ""
+--                                                                           or  Scythe.lib_path )
+--                         .. file
 
-    local ret, err = loadfile(file_path)
-    if not ret then
-        local ret = reaper.ShowMessageBox(  "Couldn't load " .. file ..
-                                "\n\n" ..
-                                "Error message:\n" .. tostring(err) ..
-                                "\n\n" ..
-                                "Please make sure you have the newest version of Lokasenna_GUI. " ..
-                                "If you're using ReaPack, select Extensions -> ReaPack -> Synchronize Packages. " ..
-                                "\n\n" ..
-                                "If this error persists, contact the script author." ..
-                                "\n\n" ..
-                                "Would you like to have a crash report printed "..
-                                "to the Reaper console?"
-                                , "Library error", 4
-                            )
-        GUI.error_message = tostring(err)
-        if ret == 6 then GUI.crash(nil, true) end
-        missing_lib = true
-        return function () end
+--     local ret, err = loadfile(file_path)
+--     if not ret then
+--         local ret = reaper.ShowMessageBox(  "Couldn't load " .. file ..
+--                                 "\n\n" ..
+--                                 "Error message:\n" .. tostring(err) ..
+--                                 "\n\n" ..
+--                                 "Please make sure you have the newest version of Lokasenna_GUI. " ..
+--                                 "If you're using ReaPack, select Extensions -> ReaPack -> Synchronize Packages. " ..
+--                                 "\n\n" ..
+--                                 "If this error persists, contact the script author." ..
+--                                 "\n\n" ..
+--                                 "Would you like to have a crash report printed "..
+--                                 "to the Reaper console?"
+--                                 , "Library error", 4
+--                             )
+--         GUI.error_message = tostring(err)
+--         if ret == 6 then GUI.crash(nil, true) end
+--         missing_lib = true
+--         return function () end
 
-    else
-        return ret
-    end
+--     else
+--         return ret
+--     end
 
-end
+-- end
 
 
 
@@ -180,7 +139,7 @@ GUI.elementClasses = {}
 GUI.sortLayers = function (layers)
     local sorted = T{}
 
-    for _, layer in pairs(GUI.Layers) do
+    for _, layer in pairs(layers) do
       sorted[#sorted + 1] = layer
     end
 
@@ -212,8 +171,8 @@ GUI.Init = function ()
         GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
 
         -- Measure the window's title bar, in case we need it
-        local __, __, wnd_y, __, __ = gfx.dock(-1, 0, 0, 0, 0)
-        local __, gui_y = gfx.clienttoscreen(0, 0)
+        local _, _, wnd_y, _, _ = gfx.dock(-1, 0, 0, 0, 0)
+        local _, gui_y = gfx.clienttoscreen(0, 0)
         GUI.title_height = gui_y - wnd_y
 
 
@@ -239,7 +198,7 @@ GUI.Init = function ()
 
 
         -- Convert color presets from 0..255 to 0..1
-        for i, col in pairs(GUI.colors) do
+        for _, col in pairs(GUI.colors) do
             col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
                                                 col[3] / 255, col[4] / 255
         end
@@ -329,7 +288,9 @@ GUI.Main_Update_State = function()
         GUI.cleartooltip()
         return 0
     else
-        if GUI.char == 27 and GUI.escape_bypass then GUI.escape_bypass = "close" end
+        if GUI.char == 27 and GUI.escape_bypass then
+          GUI.escape_bypass = "close"
+        end
         reaper.defer(GUI.Main)
     end
 
@@ -373,11 +334,12 @@ GUI.Main_Update_Elms = function ()
 
 
     -- Mouse was moved? Clear the tooltip
-    if GUI.tooltip and (GUI.mouse.x - GUI.mouse.lx > 0 or GUI.mouse.y - GUI.mouse.ly > 0) then
+    if GUI.tooltip
+      and (   GUI.mouse.x - GUI.mouse.lx > 0
+           or GUI.mouse.y - GUI.mouse.ly > 0) then
 
         GUI.mouseover_elm = nil
         GUI.cleartooltip()
-
     end
 
 
@@ -404,7 +366,7 @@ GUI.Main_Draw = function ()
     -- Redraw all of the elements, starting from the bottom up.
     local w, h = GUI.cur_w, GUI.cur_h
 
-    local need_redraw, global_redraw
+    local need_redraw, global_redraw -- luacheck: ignore 221
     -- if GUI.redraw_z[0] then
     --     global_redraw = true
     --     GUI.redraw_z[0] = false
@@ -529,7 +491,10 @@ GUI.Draw_Dev = function ()
 
     end
 
-    local str = "Mouse: "..math.modf(GUI.mouse.x)..", "..math.modf(GUI.mouse.y).." "
+    local str = "Mouse: "..
+      math.modf(GUI.mouse.x)..", "..
+      math.modf(GUI.mouse.y).." "
+
     local str_w, str_h = gfx.measurestr(str)
     gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - 2*str_h - 2
 
@@ -632,7 +597,8 @@ GUI.GetBuffer = function (num)
             end
 
             -- Something bad happened, probably my fault
-            GUI.error_message = "Couldn't get a new graphics buffer - buffer would overlap element space. z = " .. z_max
+            GUI.error_message = "Couldn't get a new graphics buffer - " ..
+              "buffer would overlap element space. z = " .. z_max
 
             ::skip::
         end
@@ -650,7 +616,7 @@ GUI.FreeBuffer = function (num)
     if type(num) == "number" then
         table.insert(GUI.freed_buffers, num)
     else
-        for k, v in pairs(num) do
+        for _, v in pairs(num) do
             table.insert(GUI.freed_buffers, v)
         end
     end
@@ -677,7 +643,9 @@ GUI.addElementClass = function(type)
 end
 
 GUI.createElement = function (props)
-  local class = GUI.elementClasses[props.type] or GUI.addElementClass(props.type)
+  local class = GUI.elementClasses[props.type]
+             or GUI.addElementClass(props.type)
+
   if not class then return nil end
 
   local elm = class:new(props)
@@ -743,8 +711,7 @@ end
 -- Axis can be "x", "y", or "xy".
 GUI.center = function (elm1, elm2)
 
-    local elm2 = elm2   and elm2
-                        or  {x = 0, y = 0, w = GUI.cur_w, h = GUI.cur_h}
+    elm2 = elm2 or {x = 0, y = 0, w = GUI.cur_w, h = GUI.cur_h}
 
     if not (    elm2.x and elm2.y and elm2.w and elm2.h
             and elm1.x and elm1.y and elm1.w and elm1.h) then return end
@@ -1083,7 +1050,7 @@ end
 -- then returns both the trimmed string and the excess
 GUI.fit_txt_width = function (str, font, w)
 
-    local len = string.len(str)
+    -- local len = string.len(str)
 
     -- Assuming 'i' is the narrowest character, get an upper limit
     local max_end = math.floor( w / GUI.txt_width[font][string.byte("i")] )
@@ -1150,11 +1117,11 @@ GUI.word_wrap = function (str, font, w, indent, pad)
         table.insert(ret_str, new_para)
 
         -- Check for leading spaces and tabs
-        local leading, line = string.match(line, "^([%s\t]*)(.*)$")
+        local leading, rest = string.match(line, "^([%s\t]*)(.*)$")
         if leading then table.insert(ret_str, leading) end
 
         w_left = w
-        for word in string.gmatch(line,  "([^%s]+)") do
+        for word in string.gmatch(rest,  "([^%s]+)") do
 
             w_word = GUI.get_txt_width(word, font)
             if (w_word + space) > w_left then
@@ -1408,12 +1375,25 @@ end
 ]]--
 GUI.gradient = function (col_a, col_b, pos)
 
-    local col_a = {GUI.rgb2hsv( table.unpack( type(col_a) == "table"
-                                                and col_a
-                                                or  GUI.colors(col_a) )) }
-    local col_b = {GUI.rgb2hsv( table.unpack( type(col_b) == "table"
-                                                and col_b
-                                                or  GUI.colors(col_b) )) }
+    col_a = {
+      GUI.rgb2hsv(
+        table.unpack(
+          type(col_a) == "table"
+            and col_a
+            or  GUI.colors(col_a)
+        )
+      )
+    }
+
+    col_b = {
+      GUI.rgb2hsv(
+        table.unpack(
+          type(col_b) == "table"
+            and col_b
+            or  GUI.colors(col_b)
+        )
+      )
+    }
 
     local h = math.abs(col_a[1] + (pos * (col_b[1] - col_a[1])))
     local s = math.abs(col_a[2] + (pos * (col_b[2] - col_a[2])))
@@ -1472,23 +1452,17 @@ end
 
 -- Returns an ordinal string (i.e. 30 --> 30th)
 GUI.ordinal = function (num)
-
-    rem = num % 10
+    local rem = num % 10
     num = GUI.round(num)
-    if num == 1 then
-        str = num.."st"
-    elseif rem == 2 then
-        str = num.."nd"
-    elseif num == 13 then
-        str = num.."th"
-    elseif rem == 3 then
-        str = num.."rd"
-    else
-        str = num.."th"
-    end
 
-    return str
+    local endings = {
+      [1] = "st",
+      [2] = "nd",
+      [13] = "th",
+      [3] = "rd",
+    }
 
+    return num .. (endings[rem] or "")
 end
 
 
@@ -1499,9 +1473,9 @@ end
 ]]--
 GUI.polar2cart = function (angle, radius, ox, oy)
 
-    local angle = angle * GUI.pi
-    local x = radius * math.cos(angle)
-    local y = radius * math.sin(angle)
+    local theta = angle * GUI.pi
+    local x = radius * math.cos(theta)
+    local y = radius * math.sin(theta)
 
 
     if ox and oy then x, y = x + ox, y + oy end
@@ -1658,7 +1632,9 @@ GUI.load_window_state = function (name, title)
     local str = reaper.GetExtState(name, title or "window")
     if not str or str == "" then return end
 
-    local dock, x, y, w, h = string.match(str, "([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
+    local dock, x, y, w, h =
+      str:match("([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
+
     if not (dock and x and y and w and h) then return end
     GUI.dock, GUI.x, GUI.y, GUI.w, GUI.h = dock, x, y, w, h
 
@@ -1687,11 +1663,13 @@ if not os then
 
     GUI.error_restricted = function()
 
+        -- luacheck: push ignore 631
         reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
                     "\n\nThe script was NOT necessarily doing something malicious - restricted scripts are unable " ..
                     "to access a number of basic functions such as reading and writing files." ..
                     "\n\nPlease let the script's author know, or consider running the script without restrictions if you feel comfortable.",
                     "Script Error", 0)
+        -- luacheck: pop
 
         GUI.quit = true
         GUI.error_message = "(Restricted permissions error)"
@@ -1700,8 +1678,8 @@ if not os then
 
     end
 
-    os = setmetatable({}, { __index = GUI.error_restricted })
-    io = setmetatable({}, { __index = GUI.error_restricted })
+    os = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
+    io = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
 
 end
 
@@ -1732,8 +1710,8 @@ GUI.get_window_pos = function (x, y, w, h, anchor, corner)
 
     local ax, ay, aw, ah = 0, 0, 0 ,0
 
-    local __, __, scr_w, scr_h = reaper.my_getViewport(x, y, x + w, y + h,
-                                                        x, y, x + w, y + h, 1)
+    local _, _, scr_w, scr_h = reaper.my_getViewport( x, y, x + w, y + h,
+                                                      x, y, x + w, y + h, 1)
 
     if anchor == "screen" then
         aw, ah = scr_w, scr_h
@@ -1803,7 +1781,12 @@ GUI.settooltip = function(str)
     --displays tooltip at location, or removes if empty string
     local x, y = gfx.clienttoscreen(0, 0)
 
-    reaper.TrackCtl_SetToolTip(str, x + GUI.mouse.x + 16, y + GUI.mouse.y + 16, true)
+    reaper.TrackCtl_SetToolTip(
+      str,
+      x + GUI.mouse.x + 16,
+      y + GUI.mouse.y + 16,
+      true
+    )
     GUI.tooltip = str
 
 

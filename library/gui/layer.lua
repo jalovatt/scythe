@@ -1,4 +1,4 @@
-local Table, T = require("public.table"):unpack()
+local _, T = require("public.table"):unpack()
 
 local Layer = T{}
 function Layer:new(name, z)
@@ -32,7 +32,7 @@ function Layer:show()
 end
 
 function Layer:add(...)
-  for k, elm in pairs({...}) do
+  for _, elm in pairs({...}) do
     self.elements[elm.name] = elm
     elm.layer = self
     self.elementCount = self.elementCount + 1
@@ -80,7 +80,7 @@ function Layer:redraw(GUI)
 
   gfx.dest = self.z
 
-  for __, elm in pairs(self.elements) do
+  for _, elm in pairs(self.elements) do
       -- if not GUI.Elements[elm] then
       --     reaper.MB(  "Error: Tried to update a GUI element that doesn't exist:"..
       --                 "\nGUI.Elements." .. tostring(elm), "Whoops!", 0)

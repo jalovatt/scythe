@@ -3,7 +3,7 @@
 ----- + all default methods --------
 ------------------------------------
 
-local Table, T = require("public.table"):unpack()
+local _, T = require("public.table"):unpack()
 
 --[[
     All classes will use this as their template, so that
@@ -99,7 +99,6 @@ function Element:Update(state)
 
   local x, y = state.mouse.x, state.mouse.y
   local x_delta, y_delta = x-state.mouse.lx, y-state.mouse.ly
-  local wheel = state.mouse.wheel
   local inside = self:isInside(x, y)
 
   local skip = self:onupdate() or false
@@ -142,7 +141,7 @@ function Element:Update(state)
 
                   -- Double clicked?
                   if state.mouse.downtime
-                  and reaper.time_precise() - GUI.mouse.downtime < 0.10
+                  and reaper.time_precise() - state.mouse.downtime < 0.10
                   then
 
                       state.mouse.downtime = nil
@@ -374,14 +373,12 @@ function Element:Update(state)
           state.mouseover_time = reaper.time_precise()
 
       -- Display a tooltip
-      elseif (reaper.time_precise() - state.mouseover_time) >= state.tooltip_time then
+      elseif (reaper.time_precise() - state.mouseover_time)
+        >= state.tooltip_time then
 
           state.settooltip(self.tooltip)
 
       end
-      --self.mouseover = true
-  else
-      --self.mouseover = false
 
   end
 
