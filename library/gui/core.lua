@@ -677,19 +677,29 @@ GUI.addElementClass = function(type)
 end
 
 GUI.createElement = function (props)
-    local class = GUI.elementClasses[props.type] or GUI.addElementClass(props.type)
-    if not class then return nil end
+  local class = GUI.elementClasses[props.type] or GUI.addElementClass(props.type)
+  if not class then return nil end
 
-    local elm = class:new(props)
+  local elm = class:new(props)
 
-    -- If we're overwriting a previous elm, make sure it frees its buffers, etc
-    if GUI.Elements[props.name] then GUI.Elements[props.name]:delete() end
+  -- If we're overwriting a previous elm, make sure it frees its buffers, etc
+  if GUI.Elements[props.name] then GUI.Elements[props.name]:delete() end
 
-    GUI.Elements[props.name] = elm
+  GUI.Elements[props.name] = elm
 
-    if GUI.gfx_open then elm:init() end
+  if GUI.gfx_open then elm:init() end
 
-    return elm
+  return elm
+end
+
+GUI.createElements = function (...)
+  local elms = {}
+
+  for _, props in pairs({...}) do
+    elms[#elms + 1] = GUI.createElement(props)
+  end
+
+  return table.unpack(elms)
 end
 
 

@@ -133,8 +133,8 @@ local layer3 = GUI.createLayer("Layer3", 3)
 local layer4 = GUI.createLayer("Layer4", 4)
 local layer5 = GUI.createLayer("Layer5", 5)
 
-layer1:add(
-  GUI.createElement({
+layer1:add( GUI.createElements(
+  {
     name = "tabs",
     type = "Tabs",
     x = 0,
@@ -156,8 +156,8 @@ layer1:add(
       }
     },
     pad = 16
-  }),
-  GUI.createElement({
+  },
+  {
     name = "my_btn",
     type = "Button",
     x = 168,
@@ -166,27 +166,27 @@ layer1:add(
     h = 20,
     caption = "Go!",
     func = btn_click
-  }),
-  GUI.createElement({
+  },
+  {
     name = "btn_frm",
     type = "Frame",
     x = 0,
     y = 56,
     w = GUI.w,
     h = 4,
-  })
-)
+  }
+))
 
-layer2:add(
-  GUI.createElement({
+layer2:add( GUI.createElement(
+  {
     name = "tab_bg",
     type = "Frame",
     x = 0,
     y = 0,
     w = 448,
     h = 20, -- false, true, "elm_bg", 0)
-  })
-)
+  }
+))
 
 
 -- -- Telling the tabs which z layers to display
@@ -210,23 +210,23 @@ layer2:add(
 -------- Tab 1 Elements ------------
 ------------------------------------
 
-layer3:add(
-  GUI.createElement({
+layer3:add( GUI.createElements(
+  {
     name = "my_lbl",
     type = "Label",
     x = 256,
     y = 96,
     caption = "Label!"
-  }),
-  GUI.createElement({
+  },
+  {
     name = "my_knob",
     type = "Knob",
     x = 64,
     y = 112,
     w = 48,
     caption = "Volume",
-  }),
-  GUI.createElement({
+  },
+  {
     name = "my_mnu",
     type = "Menubox",
     x = 256,
@@ -235,8 +235,8 @@ layer3:add(
     h = 20,
     caption = "Options:",
     options = {"1","2","3","4","5","6.12435213613"}
-  }),
-  GUI.createElement({
+  },
+  {
     name = "my_btn2",
     type = "Button",
     x = 256,
@@ -245,8 +245,8 @@ layer3:add(
     h = 20,
     caption = "Click me!",
     func = fade_lbl
-  }),
-  GUI.createElement({
+  },
+  {
     name = "my_txt",
     type = "Textbox",
     x = 96,
@@ -254,16 +254,16 @@ layer3:add(
     w = 96,
     h = 20,
     caption = "Text:"
-  }),
-  GUI.createElement({
+  },
+  {
     name = "my_frm",
     type = "Frame",
     x = 16,
     y = 288,
     w = 192,
     h = 128
-  })
-)
+  }
+))
 
 -- We have too many values to be legible if we draw them all; we'll disable them, and
 -- have the knob's caption update itself to show the value instead.
