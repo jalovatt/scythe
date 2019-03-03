@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Menubox = require("gui.element"):new()
 
 function Menubox:new(props)
@@ -217,7 +218,7 @@ end
 
 function Menubox:drawcaption()
 
-  GUI.font(self.font_a)
+  Font.set(self.font_a)
   local str_w, str_h = gfx.measurestr(self.caption)
 
   gfx.x = self.x - str_w - self.pad
@@ -238,7 +239,7 @@ function Menubox:drawtext()
   local text = string.match(self.options[self.retval], "^[<!#]?(.+)")
 
   -- Draw the text
-  GUI.font(self.font_b)
+  Font.set(self.font_b)
   GUI.color(self.col_txt)
 
   --if self.output then text = self.output(text) end

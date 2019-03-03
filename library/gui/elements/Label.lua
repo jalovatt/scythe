@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Label = require("gui.element"):new()
 function Label:new(props)
 
@@ -42,7 +43,7 @@ function Label:init()
 
     self.buffs = self.buffs or GUI.GetBuffer(2)
 
-    GUI.font(self.font)
+    Font.set(self.font)
     self.w, self.h = gfx.measurestr(self.caption)
 
     local w, h = self.w + 4, self.h + 4

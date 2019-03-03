@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Knob = require("gui.element"):new()
 
 function Knob:new(props)
@@ -248,7 +249,7 @@ function Knob:drawcaption(o, r)
 
     local str = self.caption
 
-	GUI.font(self.font_a)
+	Font.set(self.font_a)
 	local cx, cy = GUI.polar2cart(1/2, r * 2, o.x, o.y)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x, gfx.y = cx - str_w / 2 + self.cap_x, cy - str_h / 2  + 8 + self.cap_y
@@ -267,10 +268,10 @@ function Knob:drawvals(o, r)
         -- Highlight the current value
         if i == self.curstep then
             GUI.color(self.col_head)
-            GUI.font({GUI.fonts[self.font_b][1], GUI.fonts[self.font_b][2] * 1.2, "b"})
+            Font.set({Font.fonts[self.font_b][1], Font.fonts[self.font_b][2] * 1.2, "b"})
         else
             GUI.color(self.col_txt)
-            GUI.font(self.font_b)
+            Font.set(self.font_b)
         end
 
         --local output = (i * self.inc) + self.min

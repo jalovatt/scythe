@@ -19,6 +19,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Option = require("gui.element"):new()
 
 function Option:new(props)
@@ -84,7 +85,7 @@ function Option:init()
 
 
 	if self.caption and self.caption ~= "" then
-		GUI.font(self.font_a)
+		Font.set(self.font_a)
 		local str_w, str_h = gfx.measurestr(self.caption)
 		self.cap_h = 0.5*str_h
 		self.cap_x = self.x + (self.w - str_w) / 2
@@ -150,7 +151,7 @@ end
 
 function Option:drawcaption()
 
-    GUI.font(self.font_a)
+    Font.set(self.font_a)
 
     gfx.x = self.cap_x
     gfx.y = self.y - self.cap_h
@@ -221,7 +222,7 @@ function Option:drawvalue(opt_x, opt_y, size, str)
 
     if not str or str == "" then return end
 
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 
     local str_w, str_h = gfx.measurestr(str)
 

@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Element = require("gui.element")
 
 if not GUI then
@@ -87,7 +88,7 @@ function GUI.Window:init()
     gfx.setimgdim(self.buffs[2], -1, -1)
     gfx.setimgdim(self.buffs[2], 2*cs, cs)
 
-    GUI.font(2)
+    Font.set(2)
     local str_w, str_h = gfx.measurestr("x")
 
     local function draw_x(x, y, w)
@@ -219,7 +220,7 @@ end
 
 function GUI.Window:drawcaption()
 
-    GUI.font(2)
+    Font.set(2)
     GUI.color("txt")
     local str_w, str_h = gfx.measurestr(self.caption)
     gfx.x = self.x + (self.w - str_w) / 2

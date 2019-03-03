@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Frame = require("gui.element"):new()
 
 function Frame:new(props)
@@ -147,7 +148,7 @@ function Frame:drawtext()
             self.last_text = self.text
         end
 
-		GUI.font(self.font)
+		Font.set(self.font)
 		GUI.color(self.col_txt)
 
 		gfx.x, gfx.y = self.pad + 1, self.pad + 1

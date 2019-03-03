@@ -10,6 +10,8 @@
 
 ]]--
 
+local Font = require("public.font")
+
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
 
@@ -278,7 +280,7 @@ function Textbox:drawcaption()
 
     local caption = self.caption
 
-    GUI.font(self.font_a)
+    Font.set(self.font_a)
 
     local str_w, str_h = gfx.measurestr(caption)
 
@@ -315,7 +317,7 @@ end
 function Textbox:drawtext()
 
 	GUI.color(self.color)
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 
     local str = string.sub(self.retval, self.wnd_pos + 1)
 
@@ -537,7 +539,7 @@ end
 
 function Textbox:wnd_recalc()
 
-    GUI.font(self.font_b)
+    Font.set(self.font_b)
 
     --[[
     self.char_h = gfx.texth

@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Slider = require("gui.element"):new()
 
 function Slider:new(props)
@@ -421,7 +422,7 @@ end
 function Slider:drawsliders()
 
     GUI.color(self.col_txt)
-    GUI.font(self.font_b)
+    Font.set(self.font_b)
 
     -- Drawing them in reverse order so overlaps match the shadow direction
     for i = #self.handles, 1, -1 do
@@ -497,7 +498,7 @@ end
 
 function Slider:drawcaption()
 
-  GUI.font(self.font_a)
+  Font.set(self.font_a)
 
   local str_w, str_h = gfx.measurestr(self.caption)
 

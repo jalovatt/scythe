@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Element = require("gui.element")
 
 -- Button - New
@@ -95,7 +96,7 @@ function Button:draw()
 
 	-- Draw the caption
 	GUI.color(self.col_txt)
-	GUI.font(self.font)
+	Font.set(self.font)
 
     local str = self.caption
     str = str:gsub([[\n]],"\n")

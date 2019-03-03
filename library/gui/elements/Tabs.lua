@@ -10,6 +10,8 @@
 
 ]]--
 
+local Font = require("public.font")
+
 local Tabs = require("gui.element"):new()
 function Tabs:new(props)
 
@@ -270,7 +272,7 @@ function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
 	-- Draw the tab's label
 	GUI.color(col_txt)
-	GUI.font(font)
+	Font.set(font)
 
 	local str_w, str_h = gfx.measurestr(lbl)
 	gfx.x = x + ((w - str_w) / 2)

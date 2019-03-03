@@ -6,6 +6,7 @@ local Scythe
 GUI = {}
 
 local Table, T = require("public.table"):unpack()
+local Font = require("public.font")
 local Layer = require("gui.layer")
 -- local Element = require("gui.element")
 
@@ -454,7 +455,7 @@ GUI.Draw_Version = function ()
 
     local str = "Scythe "..Scythe.version
 
-    GUI.font("version")
+    Font.set("version")
     GUI.color("txt")
 
     local str_w, str_h = gfx.measurestr(str)
@@ -771,67 +772,6 @@ GUI.chars = {
 }
 
 
---[[	Font and color presets
-
-    Can be set using the accompanying functions GUI.font
-    and GUI.color. i.e.
-
-    GUI.font(2)				applies the Header preset
-    GUI.color("elm_fill")	applies the Element Fill color preset
-
-    Colors are converted from 0-255 to 0-1 when GUI.Init() runs,
-    so if you need to access the values directly at any point be
-    aware of which format you're getting in return.
-
-]]--
-
-GUI.OS_fonts = {
-
-    Windows = {
-        sans = "Calibri",
-        mono = "Lucida Console"
-    },
-
-    OSX = {
-        sans = "Helvetica Neue",
-        mono = "Andale Mono"
-    },
-
-    Linux = {
-        sans = "Arial",
-        mono = "DejaVuSansMono"
-    }
-
-}
-
-GUI.get_OS_fonts = function()
-
-    local os = reaper.GetOS()
-    if os:match("Win") then
-        return GUI.OS_fonts.Windows
-    elseif os:match("OSX") then
-        return GUI.OS_fonts.OSX
-    else
-        return GUI.OS_fonts.Linux
-    end
-
-end
-
-local fonts = GUI.get_OS_fonts()
-GUI.fonts = {
-
-                -- Font, size, bold/italics/underline
-                -- 				^ One string: "b", "iu", etc.
-                {fonts.sans, 32},	-- 1. Title
-                {fonts.sans, 20},	-- 2. Header
-                {fonts.sans, 16},	-- 3. Label
-                {fonts.sans, 16},	-- 4. Value
-    monospace = {fonts.mono, 14},
-    version = 	{fonts.sans, 12, "i"},
-
-}
-
-
 
 GUI.colors = T{
 
@@ -902,37 +842,6 @@ GUI.tooltip_time = 0.8
 ------------------------------------
 
 
---[[	Apply a font preset
-
-    fnt			Font preset number
-                or
-                A preset table -> GUI.font({"Arial", 10, "i"})
-
-]]--
-GUI.font = function (fnt)
-
-    local font, size, str = table.unpack( type(fnt) == "table"
-                                            and fnt
-                                            or  GUI.fonts[fnt])
-
-    -- Different OSes use different font sizes, for some reason
-    -- This should give a similar size on Mac/Linux as on Windows
-    if not string.match( reaper.GetOS(), "Win") then
-        size = math.floor(size * 0.8)
-    end
-
-    -- Cheers to Justin and Schwa for this
-    local flags = 0
-    if str then
-        for i = 1, str:len() do
-            flags = flags * 256 + string.byte(str, i)
-        end
-    end
-
-    gfx.setfont(1, font, size, flags)
-
-end
-
 
 --[[	Prepares a table of character widths
 
@@ -954,9 +863,9 @@ GUI.init_txt_width = function ()
 
     GUI.txt_width = {}
     local arr
-    for k in pairs(GUI.fonts) do
+    for k in pairs(Font.fonts) do
 
-        GUI.font(k)
+        Font.set(k)
         GUI.txt_width[k] = {}
         arr = {}
 
@@ -1152,7 +1061,7 @@ end
     Call with your position, font, and color already set:
 
     gfx.x, gfx.y = self.x, self.y
-    GUI.font(self.font)
+    Font.set(self.font)
     GUI.color(self.col)
 
     GUI.text_bg(self.text)

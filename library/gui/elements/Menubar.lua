@@ -10,6 +10,7 @@
 
 ]]--
 
+local Font = require("public.font")
 local Element = require("gui.element")
 
 if not GUI then
@@ -77,7 +78,7 @@ function GUI.Menubar:init()
 
 
     -- Store some text measurements
-    GUI.font(self.font)
+    Font.set(self.font)
 
     self.tab = gfx.measurestr(" ") * 4
 
@@ -186,7 +187,7 @@ function GUI.Menubar:drawtitles()
 
     local x = self.x
 
-    GUI.font(self.font)
+    Font.set(self.font)
     GUI.color(self.col_txt)
 
     for i = 1, #self.menus do

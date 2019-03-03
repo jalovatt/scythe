@@ -10,6 +10,8 @@
 
 ]]--
 
+local Font = require("public.font")
+
 local Element = require("gui.element")
 
 if not GUI then
@@ -263,7 +265,7 @@ function GUI.Listbox:drawcaption()
 
 	local str = self.caption
 
-	GUI.font(self.font_a)
+	Font.set(self.font_a)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
@@ -282,7 +284,7 @@ end
 function GUI.Listbox:drawtext()
 
 	GUI.color(self.color)
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 
 	local tmp = {}
 	for i = self.wnd_y, math.min(self:wnd_bottom() - 1, #self.list) do
@@ -369,7 +371,7 @@ end
 -- Updates internal values for the window size
 function GUI.Listbox:wnd_recalc()
 
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 
     self.char_w, self.char_h = gfx.measurestr("_")
 	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
@@ -391,7 +393,7 @@ function GUI.Listbox:getitem(y)
 
 	--local item = math.floor( ( (y - self.y) / self.h ) * self.wnd_h) + self.wnd_y
 
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 
 	local item = math.floor(	(y - (self.y + self.pad))
 								/	self.char_h)

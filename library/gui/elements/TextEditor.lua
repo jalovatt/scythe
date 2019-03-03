@@ -10,6 +10,8 @@
 
 ]]--
 
+local Font = require("public.font")
+
 local Element = require("gui.element")
 
 if not GUI then
@@ -375,7 +377,7 @@ function GUI.TextEditor:drawcaption()
 
 	local str = self.caption
 
-	GUI.font(self.font_a)
+	Font.set(self.font_a)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
@@ -394,7 +396,7 @@ end
 function GUI.TextEditor:drawtext()
 
 	GUI.color(self.color)
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 
 	local tmp = {}
 	for i = self.wnd_pos.y, math.min(self:wnd_bottom() - 1, #self.retval) do
@@ -784,7 +786,7 @@ end
 -- Updates internal values for the window size
 function GUI.TextEditor:wnd_recalc()
 
-	GUI.font(self.font_b)
+	Font.set(self.font_b)
 	self.char_w, self.char_h = gfx.measurestr("i")
 	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
 	self.wnd_w = math.floor(self.w / self.char_w)
