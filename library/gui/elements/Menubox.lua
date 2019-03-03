@@ -13,6 +13,8 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local GFX = require("public.gfx")
+local Text = require("public.text")
 
 local Menubox = require("gui.element"):new()
 
@@ -87,7 +89,7 @@ function Menubox:draw()
 
 
     -- Blit the shadow + frame
-  for i = 1, GUI.shadow_dist do
+  for i = 1, Text.drawWithShadow_dist do
     gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
   end
 
@@ -206,7 +208,7 @@ function Menubox:drawarrow()
     local Bx, By = Math.polar2cart(0, r, ox, oy)
     local Cx, Cy = Math.polar2cart(1, r, ox, oy)
 
-    GUI.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
+    GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
     oy = oy + h + 2
 
@@ -214,7 +216,7 @@ function Menubox:drawarrow()
     Bx, By = Math.polar2cart(0, r, ox, oy)
     Cx, Cy = Math.polar2cart(1, r, ox, oy)
 
-    GUI.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
+    GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
 end
 
@@ -227,8 +229,8 @@ function Menubox:drawcaption()
   gfx.x = self.x - str_w - self.pad
   gfx.y = self.y + (self.h - str_h) / 2
 
-  GUI.text_bg(self.caption, self.bg)
-  GUI.shadow(self.caption, self.col_cap, "shadow")
+  Text.text_bg(self.caption, self.bg)
+  Text.drawWithShadow(self.caption, self.col_cap, "shadow")
 
 end
 

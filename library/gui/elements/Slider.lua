@@ -13,6 +13,8 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local GFX = require("public.gfx")
+local Text = require("public.text")
 
 local Slider = require("gui.element"):new()
 
@@ -134,9 +136,9 @@ function Slider:init()
   gfx.setimgdim(self.buffs[1], w + 4, h + 4)
 
   Color.set("elm_bg")
-  GUI.roundrect(2, 2, w, h, 4, 1, 1)
+  GFX.roundrect(2, 2, w, h, 4, 1, 1)
   Color.set("elm_outline")
-  GUI.roundrect(2, 2, w, h, 4, 1, 0)
+  GFX.roundrect(2, 2, w, h, 4, 1, 0)
 
 
     -- Handle
@@ -147,13 +149,13 @@ function Slider:init()
   gfx.setimgdim(self.buffs[2], 2 * hw + 4, hh + 2)
 
   Color.set(self.col_hnd)
-  GUI.roundrect(1, 1, hw, hh, 2, 1, 1)
+  GFX.roundrect(1, 1, hw, hh, 2, 1, 1)
   Color.set("elm_outline")
-  GUI.roundrect(1, 1, hw, hh, 2, 1, 0)
+  GFX.roundrect(1, 1, hw, hh, 2, 1, 0)
 
   local r, g, b, a = table.unpack(Color.colors["shadow"])
   gfx.set(r, g, b, 1)
-  GUI.roundrect(hw + 2, 1, hw, hh, 2, 1, 1)
+  GFX.roundrect(hw + 2, 1, hw, hh, 2, 1, 1)
   gfx.muladdrect(hw + 2, 1, hw + 2, hh + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 end
@@ -478,7 +480,7 @@ function Slider:drawslidervalue(x, y, sldr)
 
     gfx.x, gfx.y = x, y
 
-    GUI.text_bg(output, self.bg, self.align_values + 256)
+    Text.text_bg(output, self.bg, self.align_values + 256)
     gfx.drawstr(output, self.align_values + 256, gfx.x, gfx.y)
 
 end
@@ -486,7 +488,7 @@ end
 
 function Slider:drawsliderhandle(hx, hy, hw, hh)
 
-    for j = 1, GUI.shadow_dist do
+    for j = 1, Text.drawWithShadow_dist do
 
         gfx.blit(self.buffs[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
 
@@ -507,8 +509,8 @@ function Slider:drawcaption()
 
   gfx.x = self.x + (self.w - str_w) / 2 + self.cap_x
   gfx.y = self.y - (self.dir ~= "v" and self.h or self.w) - str_h + self.cap_y
-  GUI.text_bg(self.caption, self.bg)
-  GUI.shadow(self.caption, self.col_txt, "shadow")
+  Text.text_bg(self.caption, self.bg)
+  Text.drawWithShadow(self.caption, self.col_txt, "shadow")
 
 end
 

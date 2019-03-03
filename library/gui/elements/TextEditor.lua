@@ -13,6 +13,8 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local GFX = require("public.gfx")
+local Text = require("public.text")
 
 local Element = require("gui.element")
 
@@ -383,10 +385,10 @@ function GUI.TextEditor:drawcaption()
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
-	GUI.text_bg(str, self.cap_bg)
+	Text.text_bg(str, self.cap_bg)
 
 	if self.shadow then
-		GUI.shadow(str, self.color, "shadow")
+		Text.drawWithShadow(str, self.color, "shadow")
 	else
 		Color.set(self.color)
 		gfx.drawstr(str)
@@ -532,11 +534,11 @@ function GUI.TextEditor:drawscrollbars()
 
 	-- Draw slider track
 	Color.set("tab_bg")
-	GUI.roundrect(vx, vy, vw, vh, 4, 1, 1)
-	GUI.roundrect(hx, hy, hw, hh, 4, 1, 1)
+	GFX.roundrect(vx, vy, vw, vh, 4, 1, 1)
+	GFX.roundrect(hx, hy, hw, hh, 4, 1, 1)
 	Color.set("elm_outline")
-	GUI.roundrect(vx, vy, vw, vh, 4, 1, 0)
-	GUI.roundrect(hx, hy, hw, hh, 4, 1, 0)
+	GFX.roundrect(vx, vy, vw, vh, 4, 1, 0)
+	GFX.roundrect(hx, hy, hw, hh, 4, 1, 0)
 
 
 	-- Draw slider fill
@@ -547,7 +549,7 @@ function GUI.TextEditor:drawscrollbars()
 		if fh < 4 then fh = 4 end
 		local fy = vy + ((self.wnd_pos.y - 1) / txt_h) * vh + 2
 
-		GUI.roundrect(vx + 2, fy, vw - 4, fh, 2, 1, 1)
+		GFX.roundrect(vx + 2, fy, vw - 4, fh, 2, 1, 1)
 	end
 
 	if horz then
@@ -555,7 +557,7 @@ function GUI.TextEditor:drawscrollbars()
 		if fw < 4 then fw = 4 end
 		local fx = hx + (self.wnd_pos.x / (max_w + 4)) * hw + 2
 
-		GUI.roundrect(fx, hy + 2, fw, hh - 4, 2, 1, 1)
+		GFX.roundrect(fx, hy + 2, fw, hh - 4, 2, 1, 1)
 	end
 
 end

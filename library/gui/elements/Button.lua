@@ -12,6 +12,8 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local GFX = require("public.gfx")
+local Text = require("public.text")
 
 local Element = require("gui.element")
 
@@ -55,14 +57,14 @@ function Button:init()
 	gfx.setimgdim(self.buff, 2*self.w + 4, self.h + 2)
 
 	Color.set(self.col_fill)
-	GUI.roundrect(1, 1, self.w, self.h, 4, 1, 1)
+	GFX.roundrect(1, 1, self.w, self.h, 4, 1, 1)
 	Color.set("elm_outline")
-	GUI.roundrect(1, 1, self.w, self.h, 4, 1, 0)
+	GFX.roundrect(1, 1, self.w, self.h, 4, 1, 0)
 
 
 	local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
-	GUI.roundrect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
+	GFX.roundrect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 
@@ -86,7 +88,7 @@ function Button:draw()
 	-- Draw the shadow if not pressed
 	if state == 0 then
 
-		for i = 1, GUI.shadow_dist do
+		for i = 1, Text.drawWithShadow_dist do
 
 			gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 

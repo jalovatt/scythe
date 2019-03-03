@@ -13,6 +13,8 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local GFX = require("public.gfx")
+local Text = require("public.text")
 
 local Knob = require("gui.element"):new()
 
@@ -101,9 +103,9 @@ function Knob:init()
 
 	-- Head
 	Color.set(self.col_head)
-	GUI.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
+	GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 	Color.set("elm_outline")
-	GUI.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
+	GFX.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
 
 	-- Body
 	Color.set(self.col_body)
@@ -147,7 +149,7 @@ function Knob:draw()
 	local blit_x = 1.5 * r
 
 	-- Shadow
-	for i = 1, GUI.shadow_dist do
+	for i = 1, Text.drawWithShadow_dist do
 
 		gfx.blit(   self.buff, 1, curangle * Math.pi,
                     blit_w + 1, 0, blit_w, blit_w,
@@ -256,8 +258,8 @@ function Knob:drawcaption(o, r)
 	local cx, cy = Math.polar2cart(1/2, r * 2, o.x, o.y)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x, gfx.y = cx - str_w / 2 + self.cap_x, cy - str_h / 2  + 8 + self.cap_y
-	GUI.text_bg(str, self.bg)
-	GUI.shadow(str, self.col_txt, "shadow")
+	Text.text_bg(str, self.bg)
+	Text.drawWithShadow(str, self.col_txt, "shadow")
 
 end
 
@@ -300,7 +302,7 @@ function Knob:drawvals(o, r)
             local str_w, str_h = gfx.measurestr(output)
             local cx, cy = Math.polar2cart(angle, r * 2, o.x, o.y)
             gfx.x, gfx.y = cx - str_w / 2, cy - str_h / 2
-            GUI.text_bg(output, self.bg)
+            Text.text_bg(output, self.bg)
             gfx.drawstr(output)
         end
 

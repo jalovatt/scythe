@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Text = require("public.text")
 
 local Element = require("gui.element")
 
@@ -133,7 +134,7 @@ function GUI.Menubar:draw()
     -- Blit the menu background + shadow
     if self.shadow then
 
-        for i = 1, GUI.shadow_dist do
+        for i = 1, Text.drawWithShadow_dist do
 
             gfx.blit(self.buff, 1, 0, 0, h, w, h, x, y + i, w, h)
 

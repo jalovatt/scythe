@@ -13,6 +13,8 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local GFX = require("public.gfx")
+local Text = require("public.text")
 
 local Element = require("gui.element")
 
@@ -271,10 +273,10 @@ function GUI.Listbox:drawcaption()
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
-	GUI.text_bg(str, self.cap_bg)
+	Text.text_bg(str, self.cap_bg)
 
 	if self.shadow then
-		GUI.shadow(str, self.color, "shadow")
+		Text.drawWithShadow(str, self.color, "shadow")
 	else
 		Color.set(self.color)
 		gfx.drawstr(str)
@@ -350,9 +352,9 @@ function GUI.Listbox:drawscrollbar()
 
 	-- Draw slider track
 	Color.set("tab_bg")
-	GUI.roundrect(sx, sy, sw, sh, 4, 1, 1)
+	GFX.roundrect(sx, sy, sw, sh, 4, 1, 1)
 	Color.set("elm_outline")
-	GUI.roundrect(sx, sy, sw, sh, 4, 1, 0)
+	GFX.roundrect(sx, sy, sw, sh, 4, 1, 0)
 
 	-- Draw slider fill
 	local fh = (self.wnd_h / #self.list) * sh - 4
@@ -360,7 +362,7 @@ function GUI.Listbox:drawscrollbar()
 	local fy = sy + ((self.wnd_y - 1) / #self.list) * sh + 2
 
 	Color.set(self.col_fill)
-	GUI.roundrect(sx + 2, fy, sw - 4, fh, 2, 1, 1)
+	GFX.roundrect(sx + 2, fy, sw - 4, fh, 2, 1, 1)
 
 end
 

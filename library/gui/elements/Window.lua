@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local GFX = require("public.gfx")
 
 local Element = require("gui.element")
 
@@ -77,7 +78,7 @@ function GUI.Window:init()
 
 	Color.set("elm_frame")
     --gfx.rect(0, 0, w, h, true)
-    GUI.roundrect(0, 0, w - 2, h - 2, 4, true, true)
+    GFX.roundrect(0, 0, w - 2, h - 2, 4, true, true)
 
 	Color.set("wnd_bg")
 	gfx.rect(4, th + 4, w - 10, h - (th + 10), true)
@@ -115,7 +116,7 @@ function GUI.Window:init()
 
     -- Mouseover circle
     Color.set("elm_fill")
-    GUI.roundrect(cs, 0, cs - 1, cs - 1, 4, true, true)
+    GFX.roundrect(cs, 0, cs - 1, cs - 1, 4, true, true)
 
     Color.set("wnd_bg")
     draw_x(cs + 2, 2, cs - 4)

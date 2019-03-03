@@ -13,6 +13,7 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local Text = require("public.text")
 
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
@@ -304,10 +305,10 @@ function Textbox:drawcaption()
 
     end
 
-    GUI.text_bg(caption, self.bg)
+    Text.text_bg(caption, self.bg)
 
     if self.shadow then
-        GUI.shadow(caption, self.color, "shadow")
+        Text.drawWithShadow(caption, self.color, "shadow")
     else
         Color.set(self.color)
         gfx.drawstr(caption)

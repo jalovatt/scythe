@@ -22,6 +22,7 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local Text = require("public.text")
 
 local Option = require("gui.element"):new()
 
@@ -159,9 +160,9 @@ function Option:drawcaption()
     gfx.x = self.cap_x
     gfx.y = self.y - self.cap_h
 
-    GUI.text_bg(self.caption, self.bg)
+    Text.text_bg(self.caption, self.bg)
 
-    GUI.shadow(self.caption, self.col_txt, "shadow")
+    Text.drawWithShadow(self.caption, self.col_txt, "shadow")
 
 end
 
@@ -241,9 +242,9 @@ function Option:drawvalue(opt_x, opt_y, size, str)
 
     end
 
-    GUI.text_bg(str, self.bg)
+    Text.text_bg(str, self.bg)
     if #self.options == 1 or self.shadow then
-        GUI.shadow(str, self.col_txt, "shadow")
+        Text.drawWithShadow(str, self.col_txt, "shadow")
     else
         Color.set(self.col_txt)
         gfx.drawstr(str)

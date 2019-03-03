@@ -13,6 +13,7 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
+local Text = require("public.text")
 
 local Tabs = require("gui.element"):new()
 function Tabs:new(props)
@@ -117,8 +118,8 @@ function Tabs:draw()
 
 		if i ~= state then
 			--
-			local tab_x, tab_y = x + GUI.shadow_dist + (i - 1) * x_adj,
-								 y + GUI.shadow_dist * (dir == "u" and 1 or -1)
+			local tab_x, tab_y = x + Text.drawWithShadow_dist + (i - 1) * x_adj,
+								 y + Text.drawWithShadow_dist * (dir == "u" and 1 or -1)
 
 			self:draw_tab(tab_x, tab_y, tab_w, tab_h, dir, font, self.col_txt, self.col_tab_b, self.tabs[i].label)
 
@@ -231,7 +232,7 @@ end
 
 function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
-	local dist = GUI.shadow_dist
+	local dist = Text.drawWithShadow_dist
     local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                            or   {y + h, y})
 

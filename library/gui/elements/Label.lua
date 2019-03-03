@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Text = require("public.text")
 
 local Label = require("gui.element"):new()
 function Label:new(props)
@@ -78,7 +79,7 @@ function Label:init()
     Color.set(self.color)
 
 	if self.shadow then
-        GUI.shadow(self.caption, self.color, "shadow")
+        Text.drawWithShadow(self.caption, self.color, "shadow")
     else
         gfx.drawstr(self.caption)
     end
