@@ -280,4 +280,23 @@ Table.length = function(t)
   return len
 end
 
+
+-- Accepts a table of hashes, returning a dense array of the hashes sorted
+-- by the given key
+Table.sortHashesByKey = function(hashes, key)
+
+  local sorted = T{}
+
+  for _, hash in pairs(hashes) do
+    sorted[#sorted + 1] = hash
+  end
+
+  sorted:sort( function(a, b) return a[key] < b[key] end )
+
+  return sorted
+
+end
+
+
+
 return T{Table, T}

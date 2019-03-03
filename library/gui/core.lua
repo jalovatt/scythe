@@ -10,7 +10,6 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Layer = require("gui.layer")
--- local Element = require("gui.element")
 
 -- ReaPack version info
 GUI.get_script_version = function()
@@ -81,51 +80,35 @@ GUI.crash = function (errObject, skipMsg)
     gfx.quit()
 end
 
+-- Checks for Reaper's "restricted permissions" script mode
+-- GUI.script_restricted will be true if restrictions are in place
+-- Call GUI.error_restricted to display an error message about restricted permissions
+-- and exit the script.
+if not os then
 
+    GUI.script_restricted = true
 
+    GUI.error_restricted = function()
 
-------------------------------------
--------- Module loading ------------
-------------------------------------
+        -- luacheck: push ignore 631
+        reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
+                    "\n\nThe script was NOT necessarily doing something malicious - restricted scripts are unable " ..
+                    "to execute many system-level tasks such as reading and writing files." ..
+                    "\n\nPlease let the script's author know, or consider running the script without restrictions if you feel comfortable.",
+                    "Script Error", 0)
+        -- luacheck: pop
 
+        GUI.quit = true
+        GUI.error_message = "(Restricted permissions error)"
 
--- -- I hate working with 'requires', so I've opted to do it this way.
--- -- This also works much more easily with my Script Compiler.
--- GUI.req = function(file)
+        return nil, "Error: Restricted permissions"
 
---     if missing_lib then return function () end end
+    end
 
---     local file_path = ( (file:sub(2, 2) == ":" or file:sub(1, 1) == "/") and ""
---                                                                           or  Scythe.lib_path )
---                         .. file
+    os = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
+    io = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
 
---     local ret, err = loadfile(file_path)
---     if not ret then
---         local ret = reaper.ShowMessageBox(  "Couldn't load " .. file ..
---                                 "\n\n" ..
---                                 "Error message:\n" .. tostring(err) ..
---                                 "\n\n" ..
---                                 "Please make sure you have the newest version of Lokasenna_GUI. " ..
---                                 "If you're using ReaPack, select Extensions -> ReaPack -> Synchronize Packages. " ..
---                                 "\n\n" ..
---                                 "If this error persists, contact the script author." ..
---                                 "\n\n" ..
---                                 "Would you like to have a crash report printed "..
---                                 "to the Reaper console?"
---                                 , "Library error", 4
---                             )
---         GUI.error_message = tostring(err)
---         if ret == 6 then GUI.crash(nil, true) end
---         missing_lib = true
---         return function () end
-
---     else
---         return ret
---     end
-
--- end
-
-
+end
 
 
 ------------------------------------
@@ -133,23 +116,9 @@ end
 ------------------------------------
 
 GUI.Layers = T{}
--- GUI.Elements = T{}
 
 -- Loaded classes
 GUI.elementClasses = {}
-
--- Returns a dense array of layers sorted in ascending z-order
-GUI.sortLayers = function (layers)
-    local sorted = T{}
-
-    for _, layer in pairs(layers) do
-      sorted[#sorted + 1] = layer
-    end
-
-    sorted:sort( function(a, b) return a.z < b.z end )
-
-    return sorted
-end
 
 GUI.Init = function ()
     xpcall( function()
@@ -210,7 +179,7 @@ GUI.Init = function ()
 
         GUI.gfx_open = true
 
-        GUI.sortedLayers = GUI.sortLayers(GUI.Layers)
+        GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
         for _, layer in pairs(GUI.Layers) do
           layer:init()
         end
@@ -237,9 +206,7 @@ GUI.Main = function ()
             end
         end
 
-
-        -- Maintain a list of elms and zs in case any have been moved or deleted
-        GUI.sortedLayers = GUI.sortLayers(GUI.Layers)
+        GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
 
         GUI.Main_Draw()
 
@@ -421,34 +388,6 @@ GUI.Main_Draw = function ()
 
 end
 
--- GUI.Draw_Z = function(z)
-
---   -- Set this before we redraw, so that elms can call a redraw
---   -- from their own :draw method. e.g. Labels fading out
---   GUI.redraw_z[z] = false
-
---   gfx.setimgdim(z, -1, -1)
---   gfx.setimgdim(z, GUI.cur_w, GUI.cur_h)
---   gfx.dest = z
-
---   for __, elm in pairs(GUI.elms_list[z]) do
---       if not GUI.Elements[elm] then
---           reaper.MB(  "Error: Tried to update a GUI element that doesn't exist:"..
---                       "\nGUI.Elements." .. tostring(elm), "Whoops!", 0)
---       end
-
---       -- Reset these just in case an element or some user code forgot to,
---       -- otherwise we get things like the whole buffer being blitted with a=0.2
---       gfx.mode = 0
---       gfx.set(0, 0, 0, 1)
-
---       GUI.Elements[elm]:draw()
---   end
-
---   gfx.dest = 0
-
--- end
-
 -- Display the GUI version number
 -- Set GUI.version = 0 to hide this
 GUI.Draw_Version = function ()
@@ -527,46 +466,6 @@ end
 -------- Buffer functions ----------
 ------------------------------------
 
-
---[[
-    We'll use this to let elements have their own graphics buffers
-    to do whatever they want in.
-
-    num	=	How many buffers you want, or 1 if not specified.
-
-    Returns a table of buffers, or just a buffer number if num = 1
-
-    i.e.
-
-    -- Assign this element's buffer
-    function GUI.my_element:new(.......)
-
-        ...new stuff...
-
-        my_element.buffers = GUI.GetBuffer(4)
-        -- or
-        my_element.buffer = GUI.GetBuffer()
-
-    end
-
-    -- Draw to the buffer
-    function GUI.my_element:init()
-
-        gfx.dest = self.buffers[1]
-        -- or
-        gfx.dest = self.buffer
-        ...draw stuff...
-
-    end
-
-    -- Copy from the buffer
-    function GUI.my_element:draw()
-        gfx.blit(self.buffers[1], 1, 0)
-        -- or
-        gfx.blit(self.buffer, 1, 0)
-    end
-
-]]--
 
 -- Any used buffers will be marked as True here
 GUI.buffers = {}
@@ -795,13 +694,6 @@ GUI.tooltip_time = 0.8
 -------- File/Storage functions ----
 ------------------------------------
 
-
--- DEPRECATED: All operating systems seem to be fine with "/"
--- Use when working with file paths if you need to add your own /s
---    (Borrowed from X-Raym)
-GUI.file_sep = string.match(reaper.GetOS(), "Win") and "\\" or "/"
-
-
 -- To open files in their default app, or URLs in a browser
 -- Using os.execute because reaper.ExecProcess behaves weird
 -- occasionally stops working entirely on my system.
@@ -860,35 +752,7 @@ end
 ------------------------------------
 
 
--- Checks for Reaper's "restricted permissions" script mode
--- GUI.script_restricted will be true if restrictions are in place
--- Call GUI.error_restricted to display an error message about restricted permissions
--- and exit the script.
-if not os then
 
-    GUI.script_restricted = true
-
-    GUI.error_restricted = function()
-
-        -- luacheck: push ignore 631
-        reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
-                    "\n\nThe script was NOT necessarily doing something malicious - restricted scripts are unable " ..
-                    "to execute system-level tasks such as reading and writing files." ..
-                    "\n\nPlease let the script's author know, or consider running the script without restrictions if you feel comfortable.",
-                    "Script Error", 0)
-        -- luacheck: pop
-
-        GUI.quit = true
-        GUI.error_message = "(Restricted permissions error)"
-
-        return nil, "Error: Restricted permissions"
-
-    end
-
-    os = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
-    io = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
-
-end
 
 
 -- Also might need to know this
@@ -946,21 +810,7 @@ GUI.get_window_pos = function (x, y, w, h, anchor, corner)
     x = x + ax + cx
     y = y + ay + cy
 
---[[
-
-    Disabled until I can figure out the multi-monitor issue
-
-    -- Make sure the window is entirely on-screen
-    local l, t, r, b = x, y, x + w, y + h
-
-    if l < 0 then x = 0 end
-    if r > scr_w then x = (scr_w - w - 16) end
-    if t < 0 then y = 0 end
-    if b > scr_h then y = (scr_h - h - 40) end
-]]--
-
     return x, y
-
 end
 
 
@@ -1008,7 +858,7 @@ GUI.cleartooltip = function()
 
 end
 
--- THIS NEEDS TO MOVED TO THE ELEMENT OR LAYER MODULES SOMEHOW
+-- THIS NEEDS TO BE MOVED TO THE ELEMENT OR LAYER MODULES SOMEHOW
 -- Tab forward (or backward, if Shift is down) to the next element with .tab_idx = number.
 -- Removes focus from the given element, and gives it to the new element.
 function GUI.tab_to_next(elm)
