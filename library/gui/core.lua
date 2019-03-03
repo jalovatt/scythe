@@ -8,6 +8,7 @@ GUI = {}
 local Table, T = require("public.table"):unpack()
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 local Layer = require("gui.layer")
 -- local Element = require("gui.element")
 
@@ -506,8 +507,8 @@ GUI.Draw_Dev = function ()
     Color.set("white")
     gfx.drawstr(str)
 
-    local snap_x, snap_y = GUI.nearestmultiple(GUI.mouse.x, GUI.dev.grid_b),
-                            GUI.nearestmultiple(GUI.mouse.y, GUI.dev.grid_b)
+    local snap_x, snap_y = Math.nearestmultiple(GUI.mouse.x, GUI.dev.grid_b),
+                            Math.nearestmultiple(GUI.mouse.y, GUI.dev.grid_b)
 
     gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - str_h - 2
     gfx.drawstr(" Snap: "..snap_x..", "..snap_y)
@@ -789,11 +790,6 @@ GUI.shadow_dist = 2
 GUI.txt_blink_rate = 16
 
 
--- Odds are you don't need too much precision here
--- If you do, just specify GUI.pi = math.pi() in your code
-GUI.pi = 3.14159
-
-
 -- Delay time when hovering over an element before displaying a tooltip
 GUI.tooltip_time = 0.8
 
@@ -1063,104 +1059,6 @@ GUI.text_bg = function (str, col, align)
     gfx.set(r, g, b, a)
 
 end
-
-
-
-
-
-
-
-------------------------------------
--------- Math/trig functions -------
-------------------------------------
-
-
--- Round a number to the nearest integer (or optional decimal places)
-GUI.round = function (num, places)
-
-    if not places then
-        return num > 0 and math.floor(num + 0.5) or math.ceil(num - 0.5)
-    else
-        places = 10^places
-        return num > 0 and math.floor(num * places + 0.5)
-                        or math.ceil(num * places - 0.5) / places
-    end
-
-end
-
-
--- Returns 'val', rounded to the nearest multiple of 'snap'
-GUI.nearestmultiple = function (val, snap)
-
-    local int, frac = math.modf(val / snap)
-    return (math.floor( frac + 0.5 ) == 1 and int + 1 or int) * snap
-
-end
-
-
-
--- Make sure num is between min and max
--- I think it will return the correct value regardless of what
--- order you provide the values in.
-GUI.clamp = function (num, min, max)
-
-    if min > max then min, max = max, min end
-    return math.min(math.max(num, min), max)
-
-end
-
-
--- Returns an ordinal string (i.e. 30 --> 30th)
-GUI.ordinal = function (num)
-    local rem = num % 10
-    num = GUI.round(num)
-
-    local endings = {
-      [1] = "st",
-      [2] = "nd",
-      [13] = "th",
-      [3] = "rd",
-    }
-
-    return num .. (endings[rem] or "")
-end
-
-
---[[
-    Takes an angle in radians (omit Pi) and a radius, returns x, y
-    Will return coordinates relative to an origin of (0,0), or absolute
-    coordinates if an origin point is specified
-]]--
-GUI.polar2cart = function (angle, radius, ox, oy)
-
-    local theta = angle * GUI.pi
-    local x = radius * math.cos(theta)
-    local y = radius * math.sin(theta)
-
-
-    if ox and oy then x, y = x + ox, y + oy end
-
-    return x, y
-
-end
-
-
---[[
-    Takes cartesian coords, with optional origin coords, and returns
-    an angle (in radians) and radius. The angle is given without reference
-    to Pi; that is, pi/4 rads would return as simply 0.25
-]]--
-GUI.cart2polar = function (x, y, ox, oy)
-
-    local dx, dy = x - (ox or 0), y - (oy or 0)
-
-    local angle = math.atan(dy, dx) / GUI.pi
-    local r = math.sqrt(dx * dx + dy * dy)
-
-    return angle, r
-
-end
-
 
 
 

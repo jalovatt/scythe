@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
@@ -237,7 +238,7 @@ function Textbox:ontype()
         end
 
     -- Typeable chars
-    elseif GUI.clamp(32, char, 254) == char then
+    elseif Math.clamp(32, char, 254) == char then
 
         if self.sel_s then self:deleteselection() end
 
@@ -263,7 +264,7 @@ function Textbox:onwheel(inc)
 
    -- Scroll right/left
    local dir = inc > 0 and 3 or -3
-   self.wnd_pos = GUI.clamp(0, self.wnd_pos + dir, len + 2 - self.wnd_w)
+   self.wnd_pos = Math.clamp(0, self.wnd_pos + dir, len + 2 - self.wnd_w)
 
    self:redraw()
 
@@ -367,8 +368,8 @@ function Textbox:drawselection()
     if e < s then s, e = e, s end
 
 
-    local x = GUI.clamp(self.wnd_pos, s, self:wnd_right())
-    local w = GUI.clamp(x, e, self:wnd_right()) - x
+    local x = Math.clamp(self.wnd_pos, s, self:wnd_right())
+    local w = Math.clamp(x, e, self:wnd_right()) - x
 
     if self:selectionvisible(x, w) then
 
@@ -564,7 +565,7 @@ end
 -- If not, returns nil
 function Textbox:adjusttowindow(x)
 
-    return ( GUI.clamp(self.wnd_pos, x, self:wnd_right() - 1) == x )
+    return ( Math.clamp(self.wnd_pos, x, self:wnd_right() - 1) == x )
         and x - self.wnd_pos
         or nil
 
@@ -585,7 +586,7 @@ end
 function Textbox:getcaret(x)
 
     x = math.floor(  ((x - self.x) / self.w) * self.wnd_w) + self.wnd_pos
-    return GUI.clamp(0, x, string.len(self.retval or ""))
+    return Math.clamp(0, x, string.len(self.retval or ""))
 
 end
 

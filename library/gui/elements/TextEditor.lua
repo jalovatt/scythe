@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Element = require("gui.element")
 
@@ -299,7 +300,7 @@ function GUI.TextEditor:ontype(char, mod)
 		end
 
 	-- Typeable chars
-	elseif GUI.clamp(32, char, 254) == char then
+	elseif Math.clamp(32, char, 254) == char then
 
 		if self.sel_s then self:deleteselection() end
 
@@ -331,7 +332,7 @@ function GUI.TextEditor:onwheel(inc)
 
 		local dir = inc > 0 and 4 or -4
 
-		font[2] = GUI.clamp(8, font[2] + dir, 30)
+		font[2] = Math.clamp(8, font[2] + dir, 30)
 
 		self.font_b = font
 
@@ -347,7 +348,7 @@ function GUI.TextEditor:onwheel(inc)
 
 		-- Scroll right/left
 		local dir = inc > 0 and 3 or -3
-		self.wnd_pos.x = GUI.clamp(0, self.wnd_pos.x + dir, len - self.wnd_w + 4)
+		self.wnd_pos.x = Math.clamp(0, self.wnd_pos.x + dir, len - self.wnd_w + 4)
 
 	-- Vertical scroll
 	else
@@ -358,7 +359,7 @@ function GUI.TextEditor:onwheel(inc)
 
 		-- Scroll up/down
 		local dir = inc > 0 and -3 or 3
-		self.wnd_pos.y = GUI.clamp(1, self.wnd_pos.y + dir, len - self.wnd_h + 1)
+		self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + dir, len - self.wnd_h + 1)
 
 	end
 
@@ -599,8 +600,8 @@ function GUI.TextEditor:getselection()
 	-- Eliminate the easiest case - start and end are the same line
 	if sy == ey then
 
-		x = GUI.clamp(self.wnd_pos.x, sx, self:wnd_right())
-		w = GUI.clamp(x, ex, self:wnd_right()) - x
+		x = Math.clamp(self.wnd_pos.x, sx, self:wnd_right())
+		w = Math.clamp(x, ex, self:wnd_right()) - x
 
 		insert_coords(x, sy, w)
 
@@ -609,7 +610,7 @@ function GUI.TextEditor:getselection()
 	else
 
 		-- Start
-		x = GUI.clamp(self.wnd_pos.x, sx, self:wnd_right())
+		x = Math.clamp(self.wnd_pos.x, sx, self:wnd_right())
 		w = math.min(self:wnd_right(), #(self.retval[sy] or "")) - x
 
 		insert_coords(x, sy, w)
@@ -841,7 +842,7 @@ end
 function GUI.TextEditor:adjusttowindow(coords)
 
 	local x, y = coords.x, coords.y
-	x = (GUI.clamp(self.wnd_pos.x, x, self:wnd_right() - 3) == x)
+	x = (Math.clamp(self.wnd_pos.x, x, self:wnd_right() - 3) == x)
 						and x - self.wnd_pos.x
 						or nil
 
@@ -849,7 +850,7 @@ function GUI.TextEditor:adjusttowindow(coords)
 	-- when the window isn't at x = 0. Not sure why.
 	--x = x and (x + (self.wnd_pos.x == 0 and 0 or 1))
 
-	y = (GUI.clamp(self.wnd_pos.y, y, self:wnd_bottom() - 1) == y)
+	y = (Math.clamp(self.wnd_pos.y, y, self:wnd_bottom() - 1) == y)
 						and y - self.wnd_pos.y
 						or nil
 
@@ -874,7 +875,7 @@ function GUI.TextEditor:windowtocaret()
 			or	(	(self.caret.y >= bot) and 1	)
 			or	(	(bot > self:getwndlength() and -(bot - self:getwndlength() - 1) ) )
 
-	if adj then self.wnd_pos.y = GUI.clamp(1, self.wnd_pos.y + adj, self.caret.y) end
+	if adj then self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + adj, self.caret.y) end
 
 end
 
@@ -890,8 +891,8 @@ function GUI.TextEditor:getcaret(x, y)
 						/	self.char_h)
 			+ self.wnd_pos.y
 
-	tmp.y = GUI.clamp(1, tmp.y, #self.retval)
-	tmp.x = GUI.clamp(0, tmp.x, #(self.retval[tmp.y] or ""))
+	tmp.y = Math.clamp(1, tmp.y, #self.retval)
+	tmp.x = Math.clamp(0, tmp.x, #(self.retval[tmp.y] or ""))
 
 	return tmp
 
@@ -923,9 +924,9 @@ function GUI.TextEditor:setscrollbar(scroll)
     if scroll == "v" then
 
         local len = self:getwndlength()
-        local wnd_c = GUI.round( ((GUI.mouse.y - self.y) / self.h) * len  )
-        self.wnd_pos.y = GUI.round(
-                            GUI.clamp(	1,
+        local wnd_c = Math.round( ((GUI.mouse.y - self.y) / self.h) * len  )
+        self.wnd_pos.y = Math.round(
+                            Math.clamp(	1,
                                         wnd_c - (self.wnd_h / 2),
                                         len - self.wnd_h + 1
                                     )
@@ -936,9 +937,9 @@ function GUI.TextEditor:setscrollbar(scroll)
     --self.caret.x + 4 - self.wnd_w
 
         local len = self:getmaxlength()
-        local wnd_c = GUI.round( ((GUI.mouse.x - self.x) / self.w) * len   )
-        self.wnd_pos.x = GUI.round(
-                            GUI.clamp(	0,
+        local wnd_c = Math.round( ((GUI.mouse.x - self.x) / self.w) * len   )
+        self.wnd_pos.x = Math.round(
+                            Math.clamp(	0,
                                         wnd_c - (self.wnd_w / 2),
                                         len + 4 - self.wnd_w
                                     )
@@ -1175,7 +1176,7 @@ GUI.TextEditor.keys = {
 
 		local caret_off = self.caret and (self.caret.y - self.wnd_pos.y)
 
-		self.wnd_pos.y = GUI.clamp(1, self:getwndlength() - self.wnd_h + 1, self.wnd_pos.y + self.wnd_h)
+		self.wnd_pos.y = Math.clamp(1, self:getwndlength() - self.wnd_h + 1, self.wnd_pos.y + self.wnd_h)
 
 		if caret_off then
 			self.caret.y = self.wnd_pos.y + caret_off

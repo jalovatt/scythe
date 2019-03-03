@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Slider = require("gui.element"):new()
 
@@ -89,7 +90,7 @@ function Slider:new(props)
 
     -- Make sure the handles are all valid
     for i = 1, #self.defaults do
-      self.defaults[i] = math.floor( GUI.clamp(0, tonumber(self.defaults[i]), self.steps) )
+      self.defaults[i] = math.floor( Math.clamp(0, tonumber(self.defaults[i]), self.steps) )
     end
 
     self.handles = {}
@@ -254,7 +255,7 @@ function Slider:onmousedown()
 
     self.cur_handle = self:getnearesthandle(mouse_val)
 
-  self:setcurval(self.cur_handle, GUI.clamp(mouse_val, 0, 1) )
+  self:setcurval(self.cur_handle, Math.clamp(mouse_val, 0, 1) )
 
   self:redraw()
 
@@ -279,7 +280,7 @@ function Slider:ondrag()
   local adj_scale = (self.dir == "h" and self.w or self.h) / 150
   adj = adj * adj_scale
 
-    self:setcurval(cur, GUI.clamp( self.handles[cur].curval + ((n - ln) / adj) , 0, 1 ) )
+    self:setcurval(cur, Math.clamp( self.handles[cur].curval + ((n - ln) / adj) , 0, 1 ) )
 
   self:redraw()
 
@@ -292,7 +293,7 @@ function Slider:onwheel()
           and (GUI.mouse.x - self.x) / self.w
           or  (GUI.mouse.y - self.y) / self.h
 
-  local inc = GUI.round( self.dir == "h" and GUI.mouse.inc
+  local inc = Math.round( self.dir == "h" and GUI.mouse.inc
                       or -GUI.mouse.inc )
 
     local cur = self:getnearesthandle(mouse_val)
@@ -301,11 +302,11 @@ function Slider:onwheel()
 
   -- How many steps per wheel-step
   local fine = 1
-  local coarse = math.max( GUI.round(self.steps / 30), 1)
+  local coarse = math.max( Math.round(self.steps / 30), 1)
 
   local adj = ctrl and fine or coarse
 
-    self:setcurval(cur, GUI.clamp( self.handles[cur].curval + (inc * adj / self.steps) , 0, 1) )
+    self:setcurval(cur, Math.clamp( self.handles[cur].curval + (inc * adj / self.steps) , 0, 1) )
 
   self:redraw()
 
@@ -429,7 +430,7 @@ function Slider:drawsliders()
     -- Drawing them in reverse order so overlaps match the shadow direction
     for i = #self.handles, 1, -1 do
 
-        local handle_x, handle_y = GUI.round(self.handles[i].x) - 1, GUI.round(self.handles[i].y) - 1
+        local handle_x, handle_y = Math.round(self.handles[i].x) - 1, Math.round(self.handles[i].y) - 1
 
         if self.show_values then
 
@@ -553,7 +554,7 @@ end
 function Slider:setcurval(sldr, val)
 
     self.handles[sldr].curval = val
-    self.handles[sldr].curstep = GUI.round(val * self.steps)
+    self.handles[sldr].curstep = Math.round(val * self.steps)
     self:setretval(sldr)
 
 end

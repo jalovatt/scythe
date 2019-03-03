@@ -97,7 +97,7 @@ end
 
 function Radio:onwheel()
 --[[
-	state = GUI.round(self.state +     (self.dir == "h" and 1 or -1)
+	state = Math.round(self.state +     (self.dir == "h" and 1 or -1)
                                     *   GUI.mouse.inc)
 ]]--
 

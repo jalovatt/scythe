@@ -21,6 +21,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Option = require("gui.element"):new()
 
@@ -139,7 +140,7 @@ function Option:getmouseopt()
 					or	(GUI.mouse.y - (self.y + self.cap_h + 1.5*self.pad) )
 
 	mouseopt = mouseopt / ((self.opt_size + self.pad) * len)
-	mouseopt = GUI.clamp( math.floor(mouseopt * len) + 1 , 1, len )
+	mouseopt = Math.clamp( math.floor(mouseopt * len) + 1 , 1, len )
 
     return self.options[mouseopt] ~= "_" and mouseopt or false
 

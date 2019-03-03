@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Knob = require("gui.element"):new()
 
@@ -92,11 +93,11 @@ function Knob:init()
 
 	gfx.setimgdim(self.buff, 2*w, w)
 
-	local side_angle = (math.acos(0.666667) / GUI.pi) * 0.9
+	local side_angle = (math.acos(0.666667) / Math.pi) * 0.9
 
-	local Ax, Ay = GUI.polar2cart(curangle, rp, o, o)
-    local Bx, By = GUI.polar2cart(curangle + side_angle, r - 1, o, o)
-	local Cx, Cy = GUI.polar2cart(curangle - side_angle, r - 1, o, o)
+	local Ax, Ay = Math.polar2cart(curangle, rp, o, o)
+    local Bx, By = Math.polar2cart(curangle + side_angle, r - 1, o, o)
+	local Cx, Cy = Math.polar2cart(curangle - side_angle, r - 1, o, o)
 
 	-- Head
 	Color.set(self.col_head)
@@ -148,14 +149,14 @@ function Knob:draw()
 	-- Shadow
 	for i = 1, GUI.shadow_dist do
 
-		gfx.blit(   self.buff, 1, curangle * GUI.pi,
+		gfx.blit(   self.buff, 1, curangle * Math.pi,
                     blit_w + 1, 0, blit_w, blit_w,
                     o.x - blit_x + i - 1, o.y - blit_x + i - 1)
 
 	end
 
 	-- Body
-	gfx.blit(   self.buff, 1, curangle * GUI.pi,
+	gfx.blit(   self.buff, 1, curangle * Math.pi,
                 0, 0, blit_w, blit_w,
                 o.x - blit_x - 1, o.y - blit_x - 1)
 
@@ -191,7 +192,7 @@ function Knob:ondrag()
 	--					Ctrl	Normal
 	local adj = ctrl and 1200 or 150
 
-    self:setcurval( GUI.clamp(self.curval + ((ly - y) / adj), 0, 1) )
+    self:setcurval( Math.clamp(self.curval + ((ly - y) / adj), 0, 1) )
 
     --[[
 	self.curval = self.curval + ((ly - y) / adj)
@@ -200,9 +201,9 @@ function Knob:ondrag()
 
 
 
-	self.curstep = GUI.round(self.curval * self.steps)
+	self.curstep = Math.round(self.curval * self.steps)
 
-	self.retval = GUI.round(((self.max - self.min) / self.steps) * self.curstep + self.min)
+	self.retval = Math.round(((self.max - self.min) / self.steps) * self.curstep + self.min)
     ]]--
 	self:redraw()
 
@@ -214,7 +215,7 @@ function Knob:ondoubleclick()
 	--[[
 	self.curstep = self.default
 	self.curval = self.curstep / self.steps
-	self.retval = GUI.round(((self.max - self.min) / self.steps) * self.curstep + self.min)
+	self.retval = Math.round(((self.max - self.min) / self.steps) * self.curstep + self.min)
 	]]--
 
     self:setcurstep(self.default)
@@ -231,11 +232,11 @@ function Knob:onwheel()
 
 	-- How many steps per wheel-step
 	local fine = 1
-	local coarse = math.max( GUI.round(self.steps / 30), 1)
+	local coarse = math.max( Math.round(self.steps / 30), 1)
 
 	local adj = ctrl and fine or coarse
 
-    self:setcurval( GUI.clamp( self.curval + (GUI.mouse.inc * adj / self.steps), 0, 1))
+    self:setcurval( Math.clamp( self.curval + (GUI.mouse.inc * adj / self.steps), 0, 1))
 
 	self:redraw()
 
@@ -252,7 +253,7 @@ function Knob:drawcaption(o, r)
     local str = self.caption
 
 	Font.set(self.font_a)
-	local cx, cy = GUI.polar2cart(1/2, r * 2, o.x, o.y)
+	local cx, cy = Math.polar2cart(1/2, r * 2, o.x, o.y)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x, gfx.y = cx - str_w / 2 + self.cap_x, cy - str_h / 2  + 8 + self.cap_y
 	GUI.text_bg(str, self.bg)
@@ -297,7 +298,7 @@ function Knob:drawvals(o, r)
         if output ~= "" then
 
             local str_w, str_h = gfx.measurestr(output)
-            local cx, cy = GUI.polar2cart(angle, r * 2, o.x, o.y)
+            local cx, cy = Math.polar2cart(angle, r * 2, o.x, o.y)
             gfx.x, gfx.y = cx - str_w / 2, cy - str_h / 2
             GUI.text_bg(output, self.bg)
             gfx.drawstr(output)
@@ -326,7 +327,7 @@ end
 function Knob:setcurval(val)
 
     self.curval = val
-    self.curstep = GUI.round(val * self.steps)
+    self.curstep = Math.round(val * self.steps)
     self:setretval()
 
 end

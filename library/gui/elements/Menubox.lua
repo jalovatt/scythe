@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Menubox = require("gui.element"):new()
 
@@ -151,8 +152,8 @@ function Menubox:onwheel()
   --if not self.options[2] then return end
 
   -- Check for illegal values, separators, and submenus
-    self.retval = self:validateoption(  GUI.round(self.retval - GUI.mouse.inc),
-                                        GUI.round((GUI.mouse.inc > 0) and 1 or -1) )
+    self.retval = self:validateoption(  Math.round(self.retval - GUI.mouse.inc),
+                                        Math.round((GUI.mouse.inc > 0) and 1 or -1) )
 
   self:redraw()
 
@@ -201,17 +202,17 @@ function Menubox:drawarrow()
     local ox = (1 + w - h) + h / 2
     local oy = 1 + h / 2 - (r / 2)
 
-    local Ax, Ay = GUI.polar2cart(1/2, r, ox, oy)
-    local Bx, By = GUI.polar2cart(0, r, ox, oy)
-    local Cx, Cy = GUI.polar2cart(1, r, ox, oy)
+    local Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
+    local Bx, By = Math.polar2cart(0, r, ox, oy)
+    local Cx, Cy = Math.polar2cart(1, r, ox, oy)
 
     GUI.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
     oy = oy + h + 2
 
-    Ax, Ay = GUI.polar2cart(1/2, r, ox, oy)
-    Bx, By = GUI.polar2cart(0, r, ox, oy)
-    Cx, Cy = GUI.polar2cart(1, r, ox, oy)
+    Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
+    Bx, By = Math.polar2cart(0, r, ox, oy)
+    Cx, Cy = Math.polar2cart(1, r, ox, oy)
 
     GUI.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 

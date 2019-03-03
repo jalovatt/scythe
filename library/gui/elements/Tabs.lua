@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Tabs = require("gui.element"):new()
 function Tabs:new(props)
@@ -173,7 +174,7 @@ function Tabs:onmousedown()
 
 	local mouseopt = (GUI.mouse.x - (self.x + adj)) / (#self.tabs * (self.tab_w + self.pad))
 
-	mouseopt = GUI.clamp((math.floor(mouseopt * #self.tabs) + 1), 1, #self.tabs)
+	mouseopt = Math.clamp((math.floor(mouseopt * #self.tabs) + 1), 1, #self.tabs)
 
 	self.state = mouseopt
 
@@ -209,7 +210,7 @@ end
 
 function Tabs:onwheel()
 
-	self.state = GUI.round(self.state + GUI.mouse.inc)
+	self.state = Math.round(self.state + GUI.mouse.inc)
 
 	if self.state < 1 then self.state = 1 end
 	if self.state > #self.tabs then self.state = #self.tabs end

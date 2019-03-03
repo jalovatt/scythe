@@ -12,6 +12,7 @@
 
 local Font = require("public.font")
 local Color = require("public.color")
+local Math = require("public.math")
 
 local Element = require("gui.element")
 
@@ -218,8 +219,8 @@ function GUI.Listbox:onmousedown(scroll)
 	-- that was over the scrollbar...
 	if scroll or self:overscrollbar() then
 
-        local wnd_c = GUI.round( ((GUI.mouse.y - self.y) / self.h) * #self.list  )
-		self.wnd_y = math.floor( GUI.clamp(1, wnd_c - (self.wnd_h / 2), #self.list - self.wnd_h + 1) )
+        local wnd_c = Math.round( ((GUI.mouse.y - self.y) / self.h) * #self.list  )
+		self.wnd_y = math.floor( Math.clamp(1, wnd_c - (self.wnd_h / 2), #self.list - self.wnd_h + 1) )
 
 		self:redraw()
 
@@ -250,7 +251,7 @@ function GUI.Listbox:onwheel(inc)
 	local dir = inc > 0 and -1 or 1
 
 	-- Scroll up/down one line
-	self.wnd_y = GUI.clamp(1, self.wnd_y + dir, math.max(#self.list - self.wnd_h + 1, 1))
+	self.wnd_y = Math.clamp(1, self.wnd_y + dir, math.max(#self.list - self.wnd_h + 1, 1))
 
 	self:redraw()
 
@@ -400,7 +401,7 @@ function GUI.Listbox:getitem(y)
 								/	self.char_h)
 				+ self.wnd_y
 
-	item = GUI.clamp(1, item, #self.list)
+	item = Math.clamp(1, item, #self.list)
 
 	return item
 
