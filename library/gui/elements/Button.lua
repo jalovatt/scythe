@@ -16,29 +16,29 @@ local Element = require("gui.element")
 local Button = Element:new()
 function Button:new(props)
 
-	local Button = props
+	local button = props
 
-	Button.type = "Button"
+	button.type = "Button"
 
-	Button.x = Button.x or 0
-  Button.y = Button.y or 0
-  Button.w = Button.w or 96
-  Button.h = Button.h or 24
+	button.x = button.x or 0
+  button.y = button.y or 0
+  button.w = button.w or 96
+  button.h = button.h or 24
 
-	Button.caption = Button.caption or "Button"
+	button.caption = button.caption or "Button"
 
-	Button.font = Button.font or 3
-	Button.col_txt = Button.col_txt or "txt"
-	Button.col_fill = Button.col_fill or "elm_frame"
+	button.font = button.font or 3
+	button.col_txt = button.col_txt or "txt"
+	button.col_fill = button.col_fill or "elm_frame"
 
-	Button.func = Button.func or func or function () end
-	Button.params = Button.params or {}
+	button.func = button.func or function () end
+	button.params = button.params or {}
 
-	Button.state = 0
+	button.state = 0
 
-	setmetatable(Button, self)
+	setmetatable(button, self)
 	self.__index = self
-	return Button
+	return button
 
 end
 

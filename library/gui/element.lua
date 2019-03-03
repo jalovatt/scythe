@@ -487,4 +487,11 @@ function Element:debug(...)
   return table.concat(strs, "\n")
 end
 
+
+function Element:moveToLayer(dest)
+  if self.layer then self.layer:remove(self) end
+  if dest then dest:add(self) end
+end
+
+
 return Element

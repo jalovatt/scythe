@@ -35,7 +35,7 @@ function Label:new(props)
 end
 
 
-function Label:init(open)
+function Label:init()
 
     -- We can't do font measurements without an open window
     if gfx.w == 0 then return end
@@ -92,10 +92,16 @@ function Label:ondelete()
 end
 
 
-function Label:fade(len, z_new, z_end, curve)
+function Label:fade(len, dest, curve)
 
-	self.z = z_new
-	self.fade_arr = { len, z_end, reaper.time_precise(), curve or 3 }
+  if curve < 0 then self:moveToLayer(dest) end
+
+	self.fade_arr = {
+    length = len,
+    dest = dest,
+    start = reaper.time_precise(),
+    curve = (curve or 3)
+  }
 	self:redraw()
 
 end
@@ -139,11 +145,11 @@ end
 
 function Label:getalpha()
 
-    local sign = self.fade_arr[4] > 0 and 1 or -1
+    local sign = self.fade_arr.curve > 0 and 1 or -1
 
-    local diff = (reaper.time_precise() - self.fade_arr[3]) / self.fade_arr[1]
+    local diff = (reaper.time_precise() - self.fade_arr.start) / self.fade_arr.length
     diff = math.floor(diff * 100) / 100
-    diff = diff^(math.abs(self.fade_arr[4]))
+    diff = diff^(math.abs(self.fade_arr.curve))
 
     local a = sign > 0 and (1 - (gfx.a * diff)) or (gfx.a * diff)
 
@@ -151,11 +157,13 @@ function Label:getalpha()
 
     -- Terminate the fade loop at some point
     if sign == 1 and a < 0.02 then
-        self.z = self.fade_arr[2]
+        self:moveToLayer(self.fade_arr.dest)
         self.fade_arr = nil
         return 0
     elseif sign == -1 and a > 0.98 then
+        -- self:moveToLayer(self.fade_arr.dest)
         self.fade_arr = nil
+        return 1
     end
 
     return a
