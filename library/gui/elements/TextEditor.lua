@@ -10,6 +10,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
@@ -89,7 +91,7 @@ function GUI.TextEditor:init()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
 
-	self.buff = GUI.GetBuffer()
+	self.buff = Buffer.get()
 
 	gfx.dest = self.buff
 	gfx.setimgdim(self.buff, -1, -1)
@@ -111,7 +113,7 @@ end
 
 function GUI.TextEditor:ondelete()
 
-	GUI.FreeBuffer(self.buff)
+	Buffer.release(self.buff)
 
 end
 

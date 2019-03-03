@@ -10,6 +10,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
@@ -123,7 +125,7 @@ end
 
 function Slider:init()
 
-  self.buffs = self.buffs or GUI.GetBuffer(2)
+  self.buffs = self.buffs or Buffer.get(2)
 
   -- In case we were given a new set of handles without involving GUI.Val
   if not self.handles[1].default then self:init_handles() end
@@ -163,7 +165,7 @@ end
 
 function Slider:ondelete()
 
-  GUI.FreeBuffer(self.buffs)
+  Buffer.release(self.buffs)
 
 end
 

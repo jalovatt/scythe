@@ -10,6 +10,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
@@ -44,7 +46,7 @@ function Label:init()
     -- We can't do font measurements without an open window
     if gfx.w == 0 then return end
 
-    self.buffs = self.buffs or GUI.GetBuffer(2)
+    self.buffs = self.buffs or Buffer.get(2)
 
     Font.set(self.font)
     self.w, self.h = gfx.measurestr(self.caption)
@@ -91,7 +93,7 @@ end
 
 function Label:ondelete()
 
-	GUI.FreeBuffer(self.buffs)
+	Buffer.release(self.buffs)
 
 end
 

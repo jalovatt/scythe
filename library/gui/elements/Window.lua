@@ -10,6 +10,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
@@ -66,7 +68,7 @@ function GUI.Window:init()
 	local x, y, w, h = self.x, self.y, self.w, self.h
 
     -- buffs[3] will be filled at :open
-	self.buffs = self.buffs or GUI.GetBuffer(3)
+	self.buffs = self.buffs or Buffer.get(3)
 
     local th, cs = self.title_height, self.close_size
 
@@ -126,7 +128,7 @@ end
 
 function GUI.Window:ondelete()
 
-    GUI.FreeBuffer(self.buffs)
+    Buffer.release(self.buffs)
 
 end
 

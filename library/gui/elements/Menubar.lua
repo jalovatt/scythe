@@ -10,6 +10,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
@@ -70,7 +72,7 @@ function GUI.Menubar:init()
 
     if gfx.w == 0 then return end
 
-    self.buff = self.buff or GUI.GetBuffer()
+    self.buff = self.buff or Buffer.get()
 
     -- We'll have to reset this manually since we're not running :init()
     -- until after the window is open
@@ -118,7 +120,7 @@ end
 
 function GUI.Menubar:ondelete()
 
-	GUI.FreeBuffer(self.buff)
+	Buffer.release(self.buff)
 
 end
 

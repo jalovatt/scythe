@@ -31,6 +31,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 if not (GUI and GUI.Window and GUI.Textbox and GUI.Button) then
 	reaper.ShowMessageBox(  "Couldn't access some functions.\n\nUserInputs requires the Lokasenna_GUI "..
                             "Core script and the Window, Textbox, and Button classes.",
@@ -88,7 +90,7 @@ end
 local function clear_UserInputs()
 
     -- Return the buffers we borrowed for our z_set
-    GUI.FreeBuffer(GUI.Elements.UserInputs_wnd.z_set)
+    Buffer.release(GUI.Elements.UserInputs_wnd.z_set)
 
     -- Delete any elms with "UserInput" in their name
     for k in pairs(GUI.Elements) do
@@ -189,7 +191,7 @@ function GUI.GetUserInputs(title, captions, defaults, ret_func, extra_width)
     end
 
 
-    local z_set = GUI.GetBuffer(2)
+    local z_set = Buffer.get(2)
     table.sort(z_set)
 
     -- Set up the window

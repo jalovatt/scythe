@@ -10,6 +10,8 @@
 
 ]]--
 
+local Buffer = require("gui.buffer")
+
 local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
@@ -50,7 +52,7 @@ end
 
 function Frame:init()
 
-    self.buff = self.buff or GUI.GetBuffer()
+    self.buff = self.buff or Buffer.get()
 
     gfx.dest = self.buff
     gfx.setimgdim(self.buff, -1, -1)
@@ -65,7 +67,7 @@ end
 
 function Frame:ondelete()
 
-	GUI.FreeBuffer(self.buff)
+	Buffer.release(self.buff)
 
 end
 
