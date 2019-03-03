@@ -11,6 +11,7 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
 
 local Element = require("gui.element")
 
@@ -91,13 +92,13 @@ function GUI.TextEditor:init()
 	gfx.setimgdim(self.buff, -1, -1)
 	gfx.setimgdim(self.buff, 2*w, h)
 
-	GUI.color(self.bg)
+	Color.set(self.bg)
 	gfx.rect(0, 0, 2*w, h, 1)
 
-	GUI.color("elm_frame")
+	Color.set("elm_frame")
 	gfx.rect(0, 0, w, h, 0)
 
-	GUI.color("elm_fill")
+	Color.set("elm_fill")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
@@ -133,7 +134,7 @@ function GUI.TextEditor:draw()
 	if self.focus then
        --[[
         --Draw line highlight a la NP++ ??
-        GUI.color("elm_bg")
+        Color.set("elm_bg")
         gfx.a = 0.2
         gfx.mode = 1
 
@@ -386,7 +387,7 @@ function GUI.TextEditor:drawcaption()
 	if self.shadow then
 		GUI.shadow(str, self.color, "shadow")
 	else
-		GUI.color(self.color)
+		Color.set(self.color)
 		gfx.drawstr(str)
 	end
 
@@ -395,7 +396,7 @@ end
 
 function GUI.TextEditor:drawtext()
 
-	GUI.color(self.color)
+	Color.set(self.color)
 	Font.set(self.font_b)
 
 	local tmp = {}
@@ -418,7 +419,7 @@ function GUI.TextEditor:drawcaret()
 
 	if caret_wnd.x and caret_wnd.y then
 
-		GUI.color("txt")
+		Color.set("txt")
 
 		gfx.rect(	self.x + self.pad + (caret_wnd.x * self.char_w),
 					self.y + self.pad + (caret_wnd.y * self.char_h),
@@ -435,7 +436,7 @@ function GUI.TextEditor:drawselection()
 	local off_x, off_y = self.x + self.pad, self.y + self.pad
 	local x, y, w, h
 
-	GUI.color("elm_fill")
+	Color.set("elm_fill")
 	gfx.a = 0.5
 	gfx.mode = 1
 
@@ -470,7 +471,7 @@ function GUI.TextEditor:drawselection()
 
 	gfx.mode = 0
 
-	-- Later calls to GUI.color should handle this, but for
+	-- Later calls to Color.set should handle this, but for
 	-- some reason they aren't always.
 	gfx.a = 1
 
@@ -495,7 +496,7 @@ function GUI.TextEditor:drawscrollbars()
 	if not (vert or horz) then goto tracks end
 
 	-- Draw a gradient to fade out the last ~16px of text
-	GUI.color("elm_bg")
+	Color.set("elm_bg")
 	for i = 0, fade_w do
 
 		gfx.a = i/fade_w
@@ -529,16 +530,16 @@ function GUI.TextEditor:drawscrollbars()
     ::tracks::
 
 	-- Draw slider track
-	GUI.color("tab_bg")
+	Color.set("tab_bg")
 	GUI.roundrect(vx, vy, vw, vh, 4, 1, 1)
 	GUI.roundrect(hx, hy, hw, hh, 4, 1, 1)
-	GUI.color("elm_outline")
+	Color.set("elm_outline")
 	GUI.roundrect(vx, vy, vw, vh, 4, 1, 0)
 	GUI.roundrect(hx, hy, hw, hh, 4, 1, 0)
 
 
 	-- Draw slider fill
-	GUI.color(self.col_fill)
+	Color.set(self.col_fill)
 
 	if vert then
 		local fh = (self.wnd_h / txt_h) * vh - 4

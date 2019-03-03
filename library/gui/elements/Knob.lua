@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Knob = require("gui.element"):new()
 
 function Knob:new(props)
@@ -97,20 +99,20 @@ function Knob:init()
 	local Cx, Cy = GUI.polar2cart(curangle - side_angle, r - 1, o, o)
 
 	-- Head
-	GUI.color(self.col_head)
+	Color.set(self.col_head)
 	GUI.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
-	GUI.color("elm_outline")
+	Color.set("elm_outline")
 	GUI.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
 
 	-- Body
-	GUI.color(self.col_body)
+	Color.set(self.col_body)
 	gfx.circle(o, o, r, 1)
-	GUI.color("elm_outline")
+	Color.set("elm_outline")
 	gfx.circle(o, o, r, 0)
 
 	--gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
 	gfx.blit(self.buff, 1, 0, 0, 0, w, w, w + 1, 0)
-	gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, GUI.colors["shadow"][4])
+	gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, Color.colors["shadow"][4])
 
 end
 
@@ -267,10 +269,10 @@ function Knob:drawvals(o, r)
 
         -- Highlight the current value
         if i == self.curstep then
-            GUI.color(self.col_head)
+            Color.set(self.col_head)
             Font.set({Font.fonts[self.font_b][1], Font.fonts[self.font_b][2] * 1.2, "b"})
         else
-            GUI.color(self.col_txt)
+            Color.set(self.col_txt)
             Font.set(self.font_b)
         end
 

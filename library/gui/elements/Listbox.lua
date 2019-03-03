@@ -11,6 +11,7 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
 
 local Element = require("gui.element")
 
@@ -86,10 +87,10 @@ function GUI.Listbox:init()
 	gfx.setimgdim(self.buff, -1, -1)
 	gfx.setimgdim(self.buff, w, h)
 
-	GUI.color(self.bg)
+	Color.set(self.bg)
 	gfx.rect(0, 0, w, h, 1)
 
-	GUI.color("elm_frame")
+	Color.set("elm_frame")
 	gfx.rect(0, 0, w, h, 0)
 
 
@@ -274,7 +275,7 @@ function GUI.Listbox:drawcaption()
 	if self.shadow then
 		GUI.shadow(str, self.color, "shadow")
 	else
-		GUI.color(self.color)
+		Color.set(self.color)
 		gfx.drawstr(str)
 	end
 
@@ -283,7 +284,7 @@ end
 
 function GUI.Listbox:drawtext()
 
-	GUI.color(self.color)
+	Color.set(self.color)
 	Font.set(self.font_b)
 
 	local tmp = {}
@@ -309,7 +310,7 @@ function GUI.Listbox:drawselection()
 
 	w = self.w - 2 * self.pad
 
-	GUI.color("elm_fill")
+	Color.set("elm_fill")
 	gfx.a = 0.5
 	gfx.mode = 1
 	-- for wnd_y, wnd_y + wnd_h do
@@ -338,7 +339,7 @@ function GUI.Listbox:drawscrollbar()
 
 
 	-- Draw a gradient to fade out the last ~16px of text
-	GUI.color("elm_bg")
+	Color.set("elm_bg")
 	for i = 0, 15 do
 		gfx.a = i/15
 		gfx.line(sx + i - 15, y + 2, sx + i - 15, y + h - 4)
@@ -347,9 +348,9 @@ function GUI.Listbox:drawscrollbar()
 	gfx.rect(sx, y + 2, sw + 2, h - 4, true)
 
 	-- Draw slider track
-	GUI.color("tab_bg")
+	Color.set("tab_bg")
 	GUI.roundrect(sx, sy, sw, sh, 4, 1, 1)
-	GUI.color("elm_outline")
+	Color.set("elm_outline")
 	GUI.roundrect(sx, sy, sw, sh, 4, 1, 0)
 
 	-- Draw slider fill
@@ -357,7 +358,7 @@ function GUI.Listbox:drawscrollbar()
 	if fh < 4 then fh = 4 end
 	local fy = sy + ((self.wnd_y - 1) / #self.list) * sh + 2
 
-	GUI.color(self.col_fill)
+	Color.set(self.col_fill)
 	GUI.roundrect(sx + 2, fy, sw - 4, fh, 2, 1, 1)
 
 end

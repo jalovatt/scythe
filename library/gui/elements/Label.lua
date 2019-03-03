@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Label = require("gui.element"):new()
 function Label:new(props)
 
@@ -59,7 +61,7 @@ function Label:init()
     gfx.setimgdim(self.buffs[1], -1, -1)
     gfx.setimgdim(self.buffs[1], w, h)
 
-    GUI.color(self.bg)
+    Color.set(self.bg)
     gfx.rect(0, 0, w, h)
 
     -- Text + shadow
@@ -68,12 +70,12 @@ function Label:init()
     gfx.setimgdim(self.buffs[2], w, h)
 
     -- Text needs a background or the antialiasing will look like shit
-    GUI.color(self.bg)
+    Color.set(self.bg)
     gfx.rect(0, 0, w, h)
 
     gfx.x, gfx.y = 2, 2
 
-    GUI.color(self.color)
+    Color.set(self.color)
 
 	if self.shadow then
         GUI.shadow(self.caption, self.color, "shadow")

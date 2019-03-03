@@ -7,6 +7,7 @@ GUI = {}
 
 local Table, T = require("public.table"):unpack()
 local Font = require("public.font")
+local Color = require("public.color")
 local Layer = require("gui.layer")
 -- local Element = require("gui.element")
 
@@ -154,7 +155,7 @@ GUI.Init = function ()
 
 
         -- Create the window
-        gfx.clear = reaper.ColorToNative(table.unpack(GUI.colors.wnd_bg))
+        gfx.clear = reaper.ColorToNative(table.unpack(Color.colors.wnd_bg))
 
         if not GUI.x then GUI.x = 0 end
         if not GUI.y then GUI.y = 0 end
@@ -199,7 +200,7 @@ GUI.Init = function ()
 
 
         -- Convert color presets from 0..255 to 0..1
-        for _, col in pairs(GUI.colors) do
+        for _, col in pairs(Color.colors) do
             col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
                                                 col[3] / 255, col[4] / 255
         end
@@ -384,7 +385,7 @@ GUI.Main_Draw = function ()
         gfx.setimgdim(0, -1, -1)
         gfx.setimgdim(0, w, h)
 
-        GUI.color("wnd_bg")
+        Color.set("wnd_bg")
         gfx.rect(0, 0, w, h, 1)
 
         for i = #GUI.sortedLayers, 1, -1 do
@@ -456,7 +457,7 @@ GUI.Draw_Version = function ()
     local str = "Scythe "..Scythe.version
 
     Font.set("version")
-    GUI.color("txt")
+    Color.set("txt")
 
     local str_w, str_h = gfx.measurestr(str)
 
@@ -474,7 +475,7 @@ end
 GUI.Draw_Dev = function ()
 
     -- Draw a grid for placing elements
-    GUI.color("magenta")
+    Color.set("magenta")
     gfx.setfont("Courier New", 10)
 
     for i = 0, GUI.w, GUI.dev.grid_b do
@@ -499,10 +500,10 @@ GUI.Draw_Dev = function ()
     local str_w, str_h = gfx.measurestr(str)
     gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - 2*str_h - 2
 
-    GUI.color("black")
+    Color.set("black")
     gfx.rect(gfx.x - 2, gfx.y - 2, str_w + 4, 2*str_h + 4, true)
 
-    GUI.color("white")
+    Color.set("white")
     gfx.drawstr(str)
 
     local snap_x, snap_y = GUI.nearestmultiple(GUI.mouse.x, GUI.dev.grid_b),
@@ -772,45 +773,6 @@ GUI.chars = {
 }
 
 
-
-GUI.colors = T{
-
-    -- Element colors
-    wnd_bg = {64, 64, 64, 255},			-- Window BG
-    tab_bg = {56, 56, 56, 255},			-- Tabs BG
-    elm_bg = {48, 48, 48, 255},			-- Element BG
-    elm_frame = {96, 96, 96, 255},		-- Element Frame
-    elm_fill = {64, 192, 64, 255},		-- Element Fill
-    elm_outline = {32, 32, 32, 255},	-- Element Outline
-    txt = {192, 192, 192, 255},			-- Text
-
-    shadow = {0, 0, 0, 48},				-- Element Shadows
-    faded = {0, 0, 0, 64},
-
-    -- Standard 16 colors
-    black = {0, 0, 0, 255},
-    white = {255, 255, 255, 255},
-    red = {255, 0, 0, 255},
-    lime = {0, 255, 0, 255},
-    blue =  {0, 0, 255, 255},
-    yellow = {255, 255, 0, 255},
-    cyan = {0, 255, 255, 255},
-    magenta = {255, 0, 255, 255},
-    silver = {192, 192, 192, 255},
-    gray = {128, 128, 128, 255},
-    maroon = {128, 0, 0, 255},
-    olive = {128, 128, 0, 255},
-    green = {0, 128, 0, 255},
-    purple = {128, 0, 128, 255},
-    teal = {0, 128, 128, 255},
-    navy = {0, 0, 128, 255},
-
-    none = {0, 0, 0, 0},
-
-
-}
-
-
 -- Global shadow size, in pixels
 GUI.shadow_dist = 2
 
@@ -1015,13 +977,13 @@ GUI.shadow = function (str, col1, col2)
 
     local x, y = gfx.x, gfx.y
 
-    GUI.color(col2 or "shadow")
+    Color.set(col2 or "shadow")
     for i = 1, GUI.shadow_dist do
         gfx.x, gfx.y = x + i, y + i
         gfx.drawstr(str)
     end
 
-    GUI.color(col1)
+    Color.set(col1)
     gfx.x, gfx.y = x, y
     gfx.drawstr(str)
 
@@ -1033,7 +995,7 @@ GUI.outline = function (str, col1, col2)
 
     local x, y = gfx.x, gfx.y
 
-    GUI.color(col2)
+    Color.set(col2)
 
     gfx.x, gfx.y = x + 1, y + 1
     gfx.drawstr(str)
@@ -1044,7 +1006,7 @@ GUI.outline = function (str, col1, col2)
     gfx.x, gfx.y = x + 1, y - 1
     gfx.drawstr(str)
 
-    GUI.color(col1)
+    Color.set(col1)
     gfx.x, gfx.y = x, y
     gfx.drawstr(str)
 
@@ -1062,7 +1024,7 @@ end
 
     gfx.x, gfx.y = self.x, self.y
     Font.set(self.font)
-    GUI.color(self.col)
+    Color.set(self.col)
 
     GUI.text_bg(self.text)
 
@@ -1079,7 +1041,7 @@ GUI.text_bg = function (str, col, align)
 
     col = col or "wnd_bg"
 
-    GUI.color(col)
+    Color.set(col)
 
     local w, h = gfx.measurestr(str)
     w, h = w + 4, h + 4
@@ -1104,165 +1066,6 @@ end
 
 
 
-
-------------------------------------
--------- Color functions -----------
-------------------------------------
-
-
---[[	Apply a color preset
-
-    col			Color preset string -> "elm_fill"
-                or
-                Color table -> {1, 0.5, 0.5[, 1]}
-                                R  G    B  [  A]
-]]--
-GUI.color = function (col)
-
-    -- If we're given a table of color values, just pass it right along
-    if type(col) == "table" then
-
-        gfx.set(col[1], col[2], col[3], col[4] or 1)
-    else
-        gfx.set(table.unpack(GUI.colors[col]))
-    end
-
-end
-
-
--- Convert a hex color RRGGBB to 8-bit values R, G, B
-GUI.hex2rgb = function (num)
-
-    if string.sub(num, 1, 2) == "0x" then
-        num = string.sub(num, 3)
-    end
-
-    local red = string.sub(num, 1, 2)
-    local green = string.sub(num, 3, 4)
-    local blue = string.sub(num, 5, 6)
-
-
-    red = tonumber(red, 16) or 0
-    green = tonumber(green, 16) or 0
-    blue = tonumber(blue, 16) or 0
-
-    return red, green, blue
-
-end
-
-
--- Convert rgb[a] to hsv[a]; useful for gradients
--- Arguments/returns are given as 0-1
-GUI.rgb2hsv = function (r, g, b, a)
-
-    local max = math.max(r, g, b)
-    local min = math.min(r, g, b)
-    local chroma = max - min
-
-    -- Dividing by zero is never a good idea
-    if chroma == 0 then
-        return 0, 0, max, (a or 1)
-    end
-
-    local hue
-    if max == r then
-        hue = ((g - b) / chroma) % 6
-    elseif max == g then
-        hue = ((b - r) / chroma) + 2
-    elseif max == b then
-        hue = ((r - g) / chroma) + 4
-    else
-        hue = -1
-    end
-
-    if hue ~= -1 then hue = hue / 6 end
-
-    local sat = (max ~= 0) 	and	((max - min) / max)
-                            or	0
-
-    return hue, sat, max, (a or 1)
-
-
-end
-
-
--- ...and back the other way
-GUI.hsv2rgb = function (h, s, v, a)
-
-    local chroma = v * s
-
-    local hp = h * 6
-    local x = chroma * (1 - math.abs(hp % 2 - 1))
-
-    local r, g, b
-    if hp <= 1 then
-        r, g, b = chroma, x, 0
-    elseif hp <= 2 then
-        r, g, b = x, chroma, 0
-    elseif hp <= 3 then
-        r, g, b = 0, chroma, x
-    elseif hp <= 4 then
-        r, g, b = 0, x, chroma
-    elseif hp <= 5 then
-        r, g, b = x, 0, chroma
-    elseif hp <= 6 then
-        r, g, b = chroma, 0, x
-    else
-        r, g, b = 0, 0, 0
-    end
-
-    local min = v - chroma
-
-    return r + min, g + min, b + min, (a or 1)
-
-end
-
-
---[[
-    Returns the color for a given position on an HSV gradient
-    between two color presets
-
-    col_a		Tables of {R, G, B[, A]}, values from 0-1
-    col_b
-
-    pos			Position along the gradient, 0 = col_a, 1 = col_b
-
-    returns		r, g, b, a
-
-]]--
-GUI.gradient = function (col_a, col_b, pos)
-
-    col_a = {
-      GUI.rgb2hsv(
-        table.unpack(
-          type(col_a) == "table"
-            and col_a
-            or  GUI.colors(col_a)
-        )
-      )
-    }
-
-    col_b = {
-      GUI.rgb2hsv(
-        table.unpack(
-          type(col_b) == "table"
-            and col_b
-            or  GUI.colors(col_b)
-        )
-      )
-    }
-
-    local h = math.abs(col_a[1] + (pos * (col_b[1] - col_a[1])))
-    local s = math.abs(col_a[2] + (pos * (col_b[2] - col_a[2])))
-    local v = math.abs(col_a[3] + (pos * (col_b[3] - col_a[3])))
-
-    local a = (#col_a == 4)
-        and  (math.abs(col_a[4] + (pos * (col_b[4] - col_a[4]))))
-        or  1
-
-    return GUI.hsv2rgb(h, s, v, a)
-
-end
 
 
 

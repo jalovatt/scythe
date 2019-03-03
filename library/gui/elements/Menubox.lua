@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Menubox = require("gui.element"):new()
 
 function Menubox:new(props)
@@ -165,20 +167,20 @@ end
 function Menubox:drawframe()
 
   local x, y, w, h = self.x, self.y, self.w, self.h
-  local r, g, b, a = table.unpack(GUI.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors["shadow"])
   gfx.set(r, g, b, 1)
   gfx.rect(w + 3, 1, w, h, 1)
   gfx.muladdrect(w + 3, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
-  GUI.color("elm_bg")
+  Color.set("elm_bg")
   gfx.rect(1, 1, w, h)
   gfx.rect(1, w + 3, w, h)
 
-  GUI.color("elm_frame")
+  Color.set("elm_frame")
   gfx.rect(1, 1, w, h, 0)
   if not self.noarrow then gfx.rect(1 + w - h, 1, h, h, 1) end
 
-  GUI.color("elm_fill")
+  Color.set("elm_fill")
   gfx.rect(1, h + 3, w, h, 0)
   gfx.rect(2, h + 4, w - 2, h - 2, 0)
 
@@ -190,7 +192,7 @@ function Menubox:drawarrow()
     local x, y, w, h = self.x, self.y, self.w, self.h
     gfx.rect(1 + w - h, h + 3, h, h, 1)
 
-    GUI.color("elm_bg")
+    Color.set("elm_bg")
 
     -- Triangle size
     local r = 5
@@ -240,7 +242,7 @@ function Menubox:drawtext()
 
   -- Draw the text
   Font.set(self.font_b)
-  GUI.color(self.col_txt)
+  Color.set(self.col_txt)
 
   --if self.output then text = self.output(text) end
 

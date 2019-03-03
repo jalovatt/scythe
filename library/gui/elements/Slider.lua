@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Slider = require("gui.element"):new()
 
 function Slider:new(props)
@@ -130,9 +132,9 @@ function Slider:init()
   gfx.setimgdim(self.buffs[1], -1, -1)
   gfx.setimgdim(self.buffs[1], w + 4, h + 4)
 
-  GUI.color("elm_bg")
+  Color.set("elm_bg")
   GUI.roundrect(2, 2, w, h, 4, 1, 1)
-  GUI.color("elm_outline")
+  Color.set("elm_outline")
   GUI.roundrect(2, 2, w, h, 4, 1, 0)
 
 
@@ -143,12 +145,12 @@ function Slider:init()
   gfx.setimgdim(self.buffs[2], -1, -1)
   gfx.setimgdim(self.buffs[2], 2 * hw + 4, hh + 2)
 
-  GUI.color(self.col_hnd)
+  Color.set(self.col_hnd)
   GUI.roundrect(1, 1, hw, hh, 2, 1, 1)
-  GUI.color("elm_outline")
+  Color.set("elm_outline")
   GUI.roundrect(1, 1, hw, hh, 2, 1, 0)
 
-  local r, g, b, a = table.unpack(GUI.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors["shadow"])
   gfx.set(r, g, b, 1)
   GUI.roundrect(hw + 2, 1, hw, hh, 2, 1, 1)
   gfx.muladdrect(hw + 2, 1, hw + 2, hh + 2, 1, 1, 1, a, 0, 0, 0, 0 )
@@ -404,16 +406,16 @@ function Slider:setfill()
     if self.col_fill_a and #self.handles == 1 then
 
         -- Make a gradient,
-        local col_a = GUI.colors[self.col_fill_a]
-        local col_b = GUI.colors[self.col_fill_b]
+        local col_a = Color.colors[self.col_fill_a]
+        local col_b = Color.colors[self.col_fill_b]
         local grad_step = self.handles[1].curstep / self.steps
 
-        local r, g, b, a = GUI.gradient(col_a, col_b, grad_step)
+        local r, g, b, a = Color.gradient(col_a, col_b, grad_step)
 
         gfx.set(r, g, b, a)
 
     else
-        GUI.color(self.col_fill)
+        Color.set(self.col_fill)
     end
 
 end
@@ -421,7 +423,7 @@ end
 
 function Slider:drawsliders()
 
-    GUI.color(self.col_txt)
+    Color.set(self.col_txt)
     Font.set(self.font_b)
 
     -- Drawing them in reverse order so overlaps match the shadow direction

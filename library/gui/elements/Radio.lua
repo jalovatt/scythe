@@ -3,6 +3,7 @@
 -------- Radio methods -------------
 ------------------------------------
 
+local Color = require("public.color")
 
 local Option = require("gui.elements._option")
 
@@ -28,13 +29,13 @@ function Radio:initoptions()
 	local r = self.opt_size / 2
 
 	-- Option bubble
-	GUI.color(self.bg)
+	Color.set(self.bg)
 	gfx.circle(r + 1, r + 1, r + 2, 1, 0)
 	gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
-	GUI.color("elm_frame")
+	Color.set("elm_frame")
 	gfx.circle(r + 1, r + 1, r, 0)
 	gfx.circle(3*r + 3, r + 1, r, 0)
-	GUI.color(self.col_fill)
+	Color.set(self.col_fill)
 	gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
 
 

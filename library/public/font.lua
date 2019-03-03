@@ -2,10 +2,10 @@
 --[[	Font and color presets
 
     Can be set using the accompanying functions GUI.font
-    and GUI.color. i.e.
+    and Color.set. i.e.
 
     Font.set(2)				applies the Header preset
-    GUI.color("elm_fill")	applies the Element Fill color preset
+    Color.set("elm_fill")	applies the Element Fill color preset
 
     Colors are converted from 0-255 to 0-1 when GUI.Init() runs,
     so if you need to access the values directly at any point be

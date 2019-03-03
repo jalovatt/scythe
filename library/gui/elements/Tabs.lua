@@ -11,6 +11,7 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
 
 local Tabs = require("gui.element"):new()
 function Tabs:new(props)
@@ -105,7 +106,7 @@ function Tabs:draw()
     -- (GUI builder will let you try to set it lower)
     self.w = self.fullwidth and (GUI.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
 
-	GUI.color(self.bg)
+	Color.set(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
 
 	local x_adj = tab_w + pad
@@ -127,11 +128,11 @@ function Tabs:draw()
 	self:draw_tab(x + (state - 1) * x_adj, y, tab_w, tab_h, dir, self.font_a, self.col_txt, self.col_tab_a, self.tabs[state].label)
 
     -- Keep the active tab's top separate from the window background
-	GUI.color(self.bg)
+	Color.set(self.bg)
     gfx.line(x + (state - 1) * x_adj, y, x + state * x_adj, y, 1)
 
 	-- Cover up some ugliness at the bottom of the tabs
-	GUI.color("wnd_bg")
+	Color.set("wnd_bg")
 	gfx.rect(self.x, self.y + (dir == "u" and tab_h or -6), self.w, 6, true)
 
 
@@ -233,7 +234,7 @@ function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
     local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                            or   {y + h, y})
 
-	GUI.color("shadow")
+	Color.set("shadow")
 
     -- tab shadow
     for i = 1, dist do
@@ -254,7 +255,7 @@ function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
     gfx.line(x + dist, y1, x + dist - (h / 2), y2, 1)
     gfx.line(x + dist + w, y1, x + dist + w + (h / 2), y2, 1)
 
-    GUI.color(col_bg)
+    Color.set(col_bg)
 
     gfx.rect(x, y, w, h, true)
 
@@ -271,7 +272,7 @@ function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
 
 	-- Draw the tab's label
-	GUI.color(col_txt)
+	Color.set(col_txt)
 	Font.set(font)
 
 	local str_w, str_h = gfx.measurestr(lbl)

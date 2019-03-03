@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Element = require("gui.element")
 
 -- Button - New
@@ -52,13 +54,13 @@ function Button:init()
 	gfx.setimgdim(self.buff, -1, -1)
 	gfx.setimgdim(self.buff, 2*self.w + 4, self.h + 2)
 
-	GUI.color(self.col_fill)
+	Color.set(self.col_fill)
 	GUI.roundrect(1, 1, self.w, self.h, 4, 1, 1)
-	GUI.color("elm_outline")
+	Color.set("elm_outline")
 	GUI.roundrect(1, 1, self.w, self.h, 4, 1, 0)
 
 
-	local r, g, b, a = table.unpack(GUI.colors["shadow"])
+	local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
 	GUI.roundrect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
@@ -95,7 +97,7 @@ function Button:draw()
 	gfx.blit(self.buff, 1, 0, 0, 0, w + 2, h + 2, x + 2 * state - 1, y + 2 * state - 1)
 
 	-- Draw the caption
-	GUI.color(self.col_txt)
+	Color.set(self.col_txt)
 	Font.set(self.font)
 
     local str = self.caption

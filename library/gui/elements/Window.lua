@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Element = require("gui.element")
 
 if not GUI then
@@ -73,11 +75,11 @@ function GUI.Window:init()
 	gfx.setimgdim(self.buffs[1], -1, -1)
 	gfx.setimgdim(self.buffs[1], w, h)
 
-	GUI.color("elm_frame")
+	Color.set("elm_frame")
     --gfx.rect(0, 0, w, h, true)
     GUI.roundrect(0, 0, w - 2, h - 2, 4, true, true)
 
-	GUI.color("wnd_bg")
+	Color.set("wnd_bg")
 	gfx.rect(4, th + 4, w - 10, h - (th + 10), true)
 
 
@@ -104,18 +106,18 @@ function GUI.Window:init()
     end
 
     -- Background
-    GUI.color("elm_frame")
+    Color.set("elm_frame")
     gfx.rect(0, 0, 2*cs, cs, true)
 
-    GUI.color("txt")
+    Color.set("txt")
     draw_x(2, 2, cs - 4)
 
 
     -- Mouseover circle
-    GUI.color("elm_fill")
+    Color.set("elm_fill")
     GUI.roundrect(cs, 0, cs - 1, cs - 1, 4, true, true)
 
-    GUI.color("wnd_bg")
+    Color.set("wnd_bg")
     draw_x(cs + 2, 2, cs - 4)
 
 end
@@ -195,7 +197,7 @@ function GUI.Window:drawbackground()
 
     gfx.blit(self.buffs[3], 1, 0, 0, 0, GUI.cur_w, GUI.cur_h, 0, 0, GUI.cur_w, GUI.cur_h)
 
-    GUI.color("shadow")
+    Color.set("shadow")
     gfx.a = 0.4
     gfx.rect(0, 0, GUI.cur_w, GUI.cur_h)
     gfx.a = 1
@@ -221,7 +223,7 @@ end
 function GUI.Window:drawcaption()
 
     Font.set(2)
-    GUI.color("txt")
+    Color.set("txt")
     local str_w, str_h = gfx.measurestr(self.caption)
     gfx.x = self.x + (self.w - str_w) / 2
     gfx.y = self.y + (self.title_height - str_h) / 2 + 1 -- extra px looks better

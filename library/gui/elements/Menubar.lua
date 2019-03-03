@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Element = require("gui.element")
 
 if not GUI then
@@ -96,12 +98,12 @@ function GUI.Menubar:init()
     -- Draw the background + shadow
     gfx.setimgdim(self.buff, self.w, self.h * 2)
 
-    GUI.color(self.col_bg)
+    Color.set(self.col_bg)
 
     gfx.rect(0, 0, self.w, self.h, true)
 
-    GUI.color("shadow")
-    local r, g, b, a = table.unpack(GUI.colors["shadow"])
+    Color.set("shadow")
+    local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
     gfx.rect(0, self.h + 1, self.w, self.h, true)
     gfx.muladdrect(0, self.h + 1, self.w, self.h, 1, 1, 1, a, 0, 0, 0, 0 )
@@ -188,7 +190,7 @@ function GUI.Menubar:drawtitles()
     local x = self.x
 
     Font.set(self.font)
-    GUI.color(self.col_txt)
+    Color.set(self.col_txt)
 
     for i = 1, #self.menus do
 
@@ -211,7 +213,7 @@ function GUI.Menubar:drawhighlight()
 
     if self.menus[self.mousemnu].title == "" then return end
 
-    GUI.color(self.col_over)
+    Color.set(self.col_over)
     gfx.mode = 1
     --                                Hover  Click
     gfx.a = GUI.mouse.cap & 1 ~= 1 and 0.3 or 0.5

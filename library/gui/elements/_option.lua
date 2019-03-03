@@ -20,6 +20,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Option = require("gui.element"):new()
 
 function Option:new(props)
@@ -107,7 +109,7 @@ end
 function Option:draw()
 
 	if self.frame then
-		GUI.color("elm_frame")
+		Color.set("elm_frame")
 		gfx.rect(self.x, self.y, self.w, self.h, 0)
 	end
 
@@ -242,7 +244,7 @@ function Option:drawvalue(opt_x, opt_y, size, str)
     if #self.options == 1 or self.shadow then
         GUI.shadow(str, self.col_txt, "shadow")
     else
-        GUI.color(self.col_txt)
+        Color.set(self.col_txt)
         gfx.drawstr(str)
     end
 

@@ -11,6 +11,8 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
+
 local Frame = require("gui.element"):new()
 
 function Frame:new(props)
@@ -113,7 +115,7 @@ function Frame:drawframe()
 
     -- Frame background
     if self.bg then
-        GUI.color(self.bg)
+        Color.set(self.bg)
         if round > 0 then
             GUI.roundrect(1, 1, w, h, round, 1, true)
         else
@@ -122,14 +124,14 @@ function Frame:drawframe()
     end
 
     -- Shadow
-    local r, g, b, a = table.unpack(GUI.colors["shadow"])
+    local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
 	GUI.roundrect(self.w + 2, 1, self.w, self.h, round, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 
     -- Frame
-	GUI.color(self.color)
+	Color.set(self.color)
 	if round > 0 then
 		GUI.roundrect(1, 1, w, h, round, 1, fill)
 	else
@@ -149,7 +151,7 @@ function Frame:drawtext()
         end
 
 		Font.set(self.font)
-		GUI.color(self.col_txt)
+		Color.set(self.col_txt)
 
 		gfx.x, gfx.y = self.pad + 1, self.pad + 1
 		if not fill then GUI.text_bg(self.text, self.bg) end

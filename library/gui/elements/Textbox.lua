@@ -11,6 +11,7 @@
 ]]--
 
 local Font = require("public.font")
+local Color = require("public.color")
 
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
@@ -74,13 +75,13 @@ function Textbox:init()
 	gfx.setimgdim(self.buff, -1, -1)
 	gfx.setimgdim(self.buff, 2*w, h)
 
-	GUI.color("elm_bg")
+	Color.set("elm_bg")
 	gfx.rect(0, 0, 2*w, h, 1)
 
-	GUI.color("elm_frame")
+	Color.set("elm_frame")
 	gfx.rect(0, 0, w, h, 0)
 
-	GUI.color("elm_fill")
+	Color.set("elm_fill")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
@@ -307,7 +308,7 @@ function Textbox:drawcaption()
     if self.shadow then
         GUI.shadow(caption, self.color, "shadow")
     else
-        GUI.color(self.color)
+        Color.set(self.color)
         gfx.drawstr(caption)
     end
 
@@ -316,7 +317,7 @@ end
 
 function Textbox:drawtext()
 
-	GUI.color(self.color)
+	Color.set(self.color)
 	Font.set(self.font_b)
 
     local str = string.sub(self.retval, self.wnd_pos + 1)
@@ -339,7 +340,7 @@ function Textbox:drawcaret()
 
     if caret_wnd then
 
-        GUI.color("txt")
+        Color.set("txt")
 
         local caret_h = self.char_h - 2
 
@@ -357,7 +358,7 @@ function Textbox:drawselection()
 
     local x, w
 
-    GUI.color("elm_fill")
+    Color.set("elm_fill")
     gfx.a = 0.5
     gfx.mode = 1
 
@@ -389,7 +390,7 @@ function Textbox:drawselection()
 
     gfx.mode = 0
 
-	-- Later calls to GUI.color should handle this, but for
+	-- Later calls to Color.set should handle this, but for
 	-- some reason they aren't always.
     gfx.a = 1
 
@@ -404,7 +405,7 @@ function Textbox:drawgradient()
     local x, y, w, h = self.x, self.y, self.w, self.h
     local fade_w = 8
 
-    GUI.color("elm_bg")
+    Color.set("elm_bg")
     for i = 0, fade_w do
 
         gfx.a = i/fade_w

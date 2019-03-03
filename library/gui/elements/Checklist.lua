@@ -2,6 +2,8 @@
 -------- Checklist methods ---------
 ------------------------------------
 
+local Color = require("public.color")
+
 local Option = require("gui.elements._option")
 
 local Checklist = setmetatable({}, {__index = Option})
@@ -26,11 +28,11 @@ function Checklist:initoptions()
 	local size = self.opt_size
 
 	-- Option bubble
-	GUI.color("elm_frame")
+	Color.set("elm_frame")
 	gfx.rect(1, 1, size, size, 0)
   gfx.rect(size + 3, 1, size, size, 0)
 
-	GUI.color(self.col_fill)
+	Color.set(self.col_fill)
 	gfx.rect(size + 3 + 0.25*size, 1 + 0.25*size, 0.5*size, 0.5*size, 1)
 
 end
