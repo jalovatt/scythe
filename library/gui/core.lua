@@ -10,6 +10,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Layer = require("gui.layer")
+local Window = require("gui.window")
 
 -- ReaPack version info
 GUI.get_script_version = function()
@@ -115,7 +116,8 @@ end
 -------- Main functions ------------
 ------------------------------------
 
-GUI.Layers = T{}
+GUI.Windows = T{}
+-- GUI.Layers = T{}
 
 -- Loaded classes
 GUI.elementClasses = {}
@@ -124,49 +126,49 @@ GUI.Init = function ()
     xpcall( function()
 
 
-        -- Create the window
-        gfx.clear = reaper.ColorToNative(table.unpack(Color.colors.wnd_bg))
+        -- -- Create the window
+        -- gfx.clear = reaper.ColorToNative(table.unpack(Color.colors.wnd_bg))
 
-        if not GUI.x then GUI.x = 0 end
-        if not GUI.y then GUI.y = 0 end
-        if not GUI.w then GUI.w = 640 end
-        if not GUI.h then GUI.h = 480 end
+        -- if not GUI.x then GUI.x = 0 end
+        -- if not GUI.y then GUI.y = 0 end
+        -- if not GUI.w then GUI.w = 640 end
+        -- if not GUI.h then GUI.h = 480 end
 
-        if GUI.anchor and GUI.corner then
-            GUI.x, GUI.y = GUI.get_window_pos(  GUI.x, GUI.y, GUI.w, GUI.h,
-                                                GUI.anchor, GUI.corner)
-        end
+        -- if GUI.anchor and GUI.corner then
+        --     GUI.x, GUI.y = GUI.get_window_pos(  GUI.x, GUI.y, GUI.w, GUI.h,
+        --                                         GUI.anchor, GUI.corner)
+        -- end
 
-        gfx.init(GUI.name, GUI.w, GUI.h, GUI.dock or 0, GUI.x, GUI.y)
-
-
-        GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
-
-        -- Measure the window's title bar, in case we need it
-        local _, _, wnd_y, _, _ = gfx.dock(-1, 0, 0, 0, 0)
-        local _, gui_y = gfx.clienttoscreen(0, 0)
-        GUI.title_height = gui_y - wnd_y
+        -- gfx.init(GUI.name, GUI.w, GUI.h, GUI.dock or 0, GUI.x, GUI.y)
 
 
-        -- Initialize a few values
+        -- GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
+
+        -- -- Measure the window's title bar, in case we need it
+        -- local _, _, wnd_y, _, _ = gfx.dock(-1, 0, 0, 0, 0)
+        -- local _, gui_y = gfx.clienttoscreen(0, 0)
+        -- GUI.title_height = gui_y - wnd_y
+
+
+        -- -- Initialize a few values
         GUI.last_time = 0
-        GUI.mouse = {
+        -- GUI.mouse = {
 
-            x = 0,
-            y = 0,
-            cap = 0,
-            down = false,
-            wheel = 0,
-            lwheel = 0
+        --     x = 0,
+        --     y = 0,
+        --     cap = 0,
+        --     down = false,
+        --     wheel = 0,
+        --     lwheel = 0
 
-        }
+        -- }
 
-        -- Store which element the mouse was clicked on.
-        -- This is essential for allowing drag behaviour where dragging affects
-        -- the element position.
-        GUI.mouse_down_elm = nil
-        GUI.rmouse_down_elm = nil
-        GUI.mmouse_down_elm = nil
+        -- -- Store which element the mouse was clicked on.
+        -- -- This is essential for allowing drag behaviour where dragging affects
+        -- -- the element position.
+        -- GUI.mouse_down_elm = nil
+        -- GUI.rmouse_down_elm = nil
+        -- GUI.mmouse_down_elm = nil
 
 
         -- Convert color presets from 0..255 to 0..1
@@ -177,22 +179,40 @@ GUI.Init = function ()
 
         if GUI.exit then reaper.atexit(GUI.exit) end
 
-        GUI.gfx_open = true
+        -- GUI.gfx_open = true
 
-        GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
-        for _, layer in pairs(GUI.Layers) do
-          layer:init()
-        end
+        -- -- GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
+        -- for _, window in pairs(GUI.Windows) do
+        --   window:init()
+        -- end
+
+        -- GUI.update_z_max()
 
     end, GUI.crash)
+end
+
+-- GUI.update_z_max = function ()
+--   local maxes = {}
+
+--   GUI.z_max = math.max(table.unpack(maxes))
+-- end
+
+GUI.update_windows = function()
+  for _, window in pairs(GUI.Windows) do
+    window:update()
+  end
 end
 
 GUI.Main = function ()
     xpcall( function ()
 
-        if GUI.Main_Update_State() == 0 then return end
+        -- if GUI.Main_Update_State() == 0 then return end
+        -- GUI.update_z_max()
+        GUI.update_windows()
 
-        GUI.Main_Update_Elms()
+        if GUI.quit then return end
+
+        -- GUI.Main_Update_Elms()
 
         -- If the user gave us a function to run, check to see if it needs to be
         -- run again, and do so.
@@ -202,69 +222,70 @@ GUI.Main = function ()
             if new_time - GUI.last_time >= (GUI.freq or 1) then
                 GUI.func()
                 GUI.last_time = new_time
-
             end
         end
 
-        GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
+        -- GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
 
         GUI.Main_Draw()
+
+        reaper.defer(GUI.Main)
 
     end, GUI.crash)
 end
 
 
-GUI.Main_Update_State = function()
+-- GUI.Main_Update_State = function()
 
-    -- Update mouse and keyboard state, window dimensions
-    if GUI.mouse.x ~= gfx.mouse_x or GUI.mouse.y ~= gfx.mouse_y then
+--     -- Update mouse and keyboard state, window dimensions
+--     if GUI.mouse.x ~= gfx.mouse_x or GUI.mouse.y ~= gfx.mouse_y then
 
-        GUI.mouse.lx, GUI.mouse.ly = GUI.mouse.x, GUI.mouse.y
-        GUI.mouse.x, GUI.mouse.y = gfx.mouse_x, gfx.mouse_y
+--         GUI.mouse.lx, GUI.mouse.ly = GUI.mouse.x, GUI.mouse.y
+--         GUI.mouse.x, GUI.mouse.y = gfx.mouse_x, gfx.mouse_y
 
-        -- Hook for user code
-        if GUI.onmousemove then GUI.onmousemove() end
+--         -- Hook for user code
+--         if GUI.onmousemove then GUI.onmousemove() end
 
-    else
+--     else
 
-        GUI.mouse.lx, GUI.mouse.ly = GUI.mouse.x, GUI.mouse.y
+--         GUI.mouse.lx, GUI.mouse.ly = GUI.mouse.x, GUI.mouse.y
 
-    end
-    GUI.mouse.wheel = gfx.mouse_wheel
-    GUI.mouse.cap = gfx.mouse_cap
-    GUI.char = gfx.getchar()
+--     end
+--     GUI.mouse.wheel = gfx.mouse_wheel
+--     GUI.mouse.cap = gfx.mouse_cap
+--     GUI.char = gfx.getchar()
 
-    if GUI.cur_w ~= gfx.w or GUI.cur_h ~= gfx.h then
-        GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
+--     if GUI.cur_w ~= gfx.w or GUI.cur_h ~= gfx.h then
+--         GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
 
-        GUI.resized = true
+--         GUI.resized = true
 
-        -- Hook for user code
-        if GUI.onresize then GUI.onresize() end
+--         -- Hook for user code
+--         if GUI.onresize then GUI.onresize() end
 
-    else
-        GUI.resized = false
-    end
+--     else
+--         GUI.resized = false
+--     end
 
-    --	(Escape key)	(Window closed)		(User function says to close)
-    --if GUI.char == 27 or GUI.char == -1 or GUI.quit == true then
-    if (GUI.char == 27 and not (	GUI.mouse.cap & 4 == 4
-                                or 	GUI.mouse.cap & 8 == 8
-                                or 	GUI.mouse.cap & 16 == 16
-                                or  GUI.escape_bypass))
-            or GUI.char == -1
-            or GUI.quit == true then
+--     --	(Escape key)	(Window closed)		(User function says to close)
+--     --if GUI.char == 27 or GUI.char == -1 or GUI.quit == true then
+--     if (GUI.char == 27 and not (	GUI.mouse.cap & 4 == 4
+--                                 or 	GUI.mouse.cap & 8 == 8
+--                                 or 	GUI.mouse.cap & 16 == 16
+--                                 or  GUI.escape_bypass))
+--             or GUI.char == -1
+--             or GUI.quit == true then
 
-        GUI.cleartooltip()
-        return 0
-    else
-        if GUI.char == 27 and GUI.escape_bypass then
-          GUI.escape_bypass = "close"
-        end
-        reaper.defer(GUI.Main)
-    end
+--         GUI.cleartooltip()
+--         return 0
+--     else
+--         if GUI.char == 27 and GUI.escape_bypass then
+--           GUI.escape_bypass = "close"
+--         end
+--         reaper.defer(GUI.Main)
+--     end
 
-end
+-- end
 
 
 --[[
@@ -283,109 +304,58 @@ end
     loop; use this instead to have them automatically cleaned up***
 
 ]]--
-GUI.Main_Update_Elms = function ()
+-- GUI.Main_Update_Elms = function ()
 
-    -- Disabled May 2/2018 to see if it was actually necessary
-    -- GUI.update_elms_list()
+--     -- Disabled May 2/2018 to see if it was actually necessary
+--     -- GUI.update_elms_list()
 
-    -- We'll use this to shorten each elm's update loop if the user did something
-    -- Slightly more efficient, and averts any bugs from false positives
-    GUI.elm_updated = false
+--     -- We'll use this to shorten each elm's update loop if the user did something
+--     -- Slightly more efficient, and averts any bugs from false positives
+--     GUI.elm_updated = false
 
-    -- Check for the dev mode toggle before we get too excited about updating elms
-    if  GUI.char == 282         and GUI.mouse.cap & 4 ~= 0
-    and GUI.mouse.cap & 8 ~= 0  and GUI.mouse.cap & 16 ~= 0 then
+--     -- Check for the dev mode toggle before we get too excited about updating elms
+--     if  GUI.char == 282         and GUI.mouse.cap & 4 ~= 0
+--     and GUI.mouse.cap & 8 ~= 0  and GUI.mouse.cap & 16 ~= 0 then
 
-        GUI.dev_mode = not GUI.dev_mode
-        GUI.elm_updated = true
-        GUI.redraw_z[0] = true
+--         GUI.dev_mode = not GUI.dev_mode
+--         GUI.elm_updated = true
+--         GUI.redraw_z[0] = true
 
-    end
-
-
-    -- Mouse was moved? Clear the tooltip
-    if GUI.tooltip
-      and (   GUI.mouse.x - GUI.mouse.lx > 0
-           or GUI.mouse.y - GUI.mouse.ly > 0) then
-
-        GUI.mouseover_elm = nil
-        GUI.cleartooltip()
-    end
+--     end
 
 
-    -- Bypass for some skip logic to allow tabbing between elements (GUI.tab_to_next)
-    if GUI.newfocus then
-        GUI.newfocus.focus = true
-        GUI.newfocus = nil
-    end
+--     -- Mouse was moved? Clear the tooltip
+--     if GUI.tooltip
+--       and (   GUI.mouse.x - GUI.mouse.lx > 0
+--            or GUI.mouse.y - GUI.mouse.ly > 0) then
+
+--         GUI.mouseover_elm = nil
+--         GUI.cleartooltip()
+--     end
 
 
-    for i = 1, #GUI.sortedLayers do
-      GUI.sortedLayers[i]:update(GUI)
-    end
+--     -- Bypass for some skip logic to allow tabbing between elements (GUI.tab_to_next)
+--     if GUI.newfocus then
+--         GUI.newfocus.focus = true
+--         GUI.newfocus = nil
+--     end
 
-    -- Just in case any user functions want to know...
-    GUI.mouse.last_down = GUI.mouse.down
-    GUI.mouse.last_r_down = GUI.mouse.r_down
 
-end
+--     for i = 1, #GUI.sortedLayers do
+--       GUI.sortedLayers[i]:update(GUI)
+--     end
+
+--     -- Just in case any user functions want to know...
+--     GUI.mouse.last_down = GUI.mouse.down
+--     GUI.mouse.last_r_down = GUI.mouse.r_down
+
+-- end
 
 
 GUI.Main_Draw = function ()
-
-    -- Redraw all of the elements, starting from the bottom up.
-    local w, h = GUI.cur_w, GUI.cur_h
-
-    local need_redraw, global_redraw -- luacheck: ignore 221
-    -- if GUI.redraw_z[0] then
-    --     global_redraw = true
-    --     GUI.redraw_z[0] = false
-    -- else
-    need_redraw = GUI.Layers:any(function(l) return l.needsRedraw end)
-
-    if need_redraw or global_redraw then
-
-        -- All of the layers will be drawn to their own buffer (dest = z), then
-        -- composited in buffer 0. This allows buffer 0 to be blitted as a whole
-        -- when none of the layers need to be redrawn.
-
-        gfx.dest = 0
-        gfx.setimgdim(0, -1, -1)
-        gfx.setimgdim(0, w, h)
-
-        Color.set("wnd_bg")
-        gfx.rect(0, 0, w, h, 1)
-
-        for i = #GUI.sortedLayers, 1, -1 do
-          local layer = GUI.sortedLayers[i]
-            if  (layer.elementCount > 0 and not layer.hidden) then
-                if global_redraw or layer.needsRedraw then
-                  layer:redraw(GUI)
-                end
-
-                gfx.blit(layer.z, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
-            end
-        end
-
-        -- Draw developer hints if necessary
-        if GUI.dev_mode then
-            GUI.Draw_Dev()
-        else
-            GUI.Draw_Version()
-        end
-
+    for _, window in pairs(GUI.Windows) do
+      window:redraw()
     end
-
-
-    -- Reset them again, to be extra sure
-    gfx.mode = 0
-    gfx.set(0, 0, 0, 1)
-
-    gfx.dest = -1
-    gfx.blit(0, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
-
-    gfx.update()
-
 end
 
 -- Display the GUI version number
@@ -503,20 +473,24 @@ GUI.createElements = function (...)
   return table.unpack(elms)
 end
 
-
 GUI.createLayer = function (name, z)
   local layer = Layer:new(name, z)
-  GUI.Layers[name] = layer
+  -- GUI.Layers[name] = layer
 
   return layer
 end
 
+GUI.createWindow = function (props)
+  local window = Window:new(props)
+  GUI.Windows[window.name] = window
 
-GUI.findElementByName = function (name, layers)
-  layers = layers or GUI.Layers
+  return window
+end
 
-  for _, layer in pairs(layers) do
-    if layer.elements[name] then return layer.elements[name] end
+GUI.findElementByName = function (name, ...)
+  for _, window in pairs(... and {...} or GUI.Windows) do
+    local elm = window:findElementByName(name)
+    if elm then return elm end
   end
 end
 
@@ -547,8 +521,11 @@ end
 
 
 -- Print a string to the Reaper console.
-GUI.Msg = function (str)
-    reaper.ShowConsoleMsg(tostring(str).."\n")
+GUI.Msg = function (...)
+    local out = Table.map({...},
+      function (str) return tostring(str) end
+    )
+    reaper.ShowConsoleMsg(out:concat(", ").."\n")
 end
 
 -- Developer mode settings
@@ -708,41 +685,7 @@ If no anchor is specified, it will default to the top-left corner of the screen.
             "L"
             "C"
 ]]--
-GUI.get_window_pos = function (x, y, w, h, anchor, corner)
 
-    local ax, ay, aw, ah = 0, 0, 0 ,0
-
-    local _, _, scr_w, scr_h = reaper.my_getViewport( x, y, x + w, y + h,
-                                                      x, y, x + w, y + h, 1)
-
-    if anchor == "screen" then
-        aw, ah = scr_w, scr_h
-    elseif anchor =="mouse" then
-        ax, ay = reaper.GetMousePosition()
-    end
-
-    local cx, cy = 0, 0
-    if corner then
-        local corners = {
-            TL = 	{0, 				0},
-            T =		{(aw - w) / 2, 		0},
-            TR = 	{(aw - w) - 16,		0},
-            R =		{(aw - w) - 16,		(ah - h) / 2},
-            BR = 	{(aw - w) - 16,		(ah - h) - 40},
-            B =		{(aw - w) / 2, 		(ah - h) - 40},
-            BL = 	{0, 				(ah - h) - 40},
-            L =	 	{0, 				(ah - h) / 2},
-            C =	 	{(aw - w) / 2,		(ah - h) / 2},
-        }
-
-        cx, cy = table.unpack(corners[corner])
-    end
-
-    x = x + ax + cx
-    y = y + ay + cy
-
-    return x, y
-end
 
 
 

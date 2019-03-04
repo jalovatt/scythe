@@ -1,4 +1,5 @@
 local _, T = require("public.table"):unpack()
+local Buffer = require("gui.buffer")
 
 local Layer = T{}
 function Layer:new(name, z)
@@ -55,16 +56,24 @@ end
 
 
 function Layer:init()
+  self.buff = Buffer.get()
+
   for _, elm in pairs(self.elements) do
     elm:init()
   end
 end
 
+function Layer:delete()
+  self:remove(table.unpack(self.elements))
+  Buffer.release(self.buff)
+  self.window.needsRedraw = true
+end
 
-function Layer:update(state)
+
+function Layer:update(state, last)
   if self.elementCount > 0 and not (self.hidden or self.frozen) then
     for _, elm in pairs(self.elements) do
-      elm:Update(state)
+      elm:Update(state, last)
     end
   end
 end
@@ -76,7 +85,7 @@ function Layer:redraw(GUI)
   self.needsRedraw = false
 
   gfx.setimgdim(self.z, -1, -1)
-  gfx.setimgdim(self.z, GUI.cur_w, GUI.cur_h)
+  gfx.setimgdim(self.z, self.window.cur_w, self.window.cur_h)
 
   gfx.dest = self.z
 
@@ -96,6 +105,10 @@ function Layer:redraw(GUI)
 
   gfx.dest = 0
 
+end
+
+function Layer:findElementByName(name)
+  if self.elements[name] then return self.elements[name] end
 end
 
 return Layer

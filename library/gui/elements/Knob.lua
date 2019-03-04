@@ -46,7 +46,7 @@ function Knob:new(props)
 
 	knob.min = knob.min or 0
   knob.max = knob.max or 10
-  knob.inc = knob.inc or inc or 1
+  knob.inc = knob.inc or 1
 
 
   knob.steps = math.abs(knob.max - knob.min) / knob.inc
@@ -184,19 +184,23 @@ end
 
 
 -- Knob - Dragging.
-function Knob:ondrag()
+function Knob:ondrag(state, last)
 
-	local y = GUI.mouse.y
-	local ly = GUI.mouse.ly
+	local y = state.mouse.y
+	local ly = state.mouse.ly
 
 	-- Ctrl?
-	local ctrl = GUI.mouse.cap&4==4
+	local ctrl = state.mouse.cap&4==4
 
 	-- Multiplier for how fast the knob turns. Higher = slower
 	--					Ctrl	Normal
 	local adj = ctrl and 1200 or 150
 
-    self:setcurval( Math.clamp(self.curval + ((ly - y) / adj), 0, 1) )
+    self:setcurval(
+      Math.clamp(self.curval + ((last.mouse.y - state.mouse.y) / adj),
+      0,
+      1
+    ))
 
     --[[
 	self.curval = self.curval + ((ly - y) / adj)
@@ -230,9 +234,9 @@ end
 
 
 -- Knob - Mousewheel
-function Knob:onwheel()
+function Knob:onwheel(state)
 
-	local ctrl = GUI.mouse.cap&4==4
+	local ctrl = state.mouse.cap&4==4
 
 	-- How many steps per wheel-step
 	local fine = 1
@@ -240,7 +244,7 @@ function Knob:onwheel()
 
 	local adj = ctrl and fine or coarse
 
-    self:setcurval( Math.clamp( self.curval + (GUI.mouse.inc * adj / self.steps), 0, 1))
+    self:setcurval( Math.clamp( self.curval + (state.mouse.inc * adj / self.steps), 0, 1))
 
 	self:redraw()
 

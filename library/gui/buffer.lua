@@ -18,8 +18,7 @@ Buffer.get = function (num)
             ret[i] = table.remove(releasedBuffers)
 
         else
-            local z_max = GUI.sortedLayers[#GUI.sortedLayers].z
-            for j = 1023, z_max + 1, -1 do
+            for j = 1, 1023 do
             --for j = (not prev and 1023 or prev - 1), 0, -1 do
 
                 if not usedBuffers[j] then
@@ -33,7 +32,7 @@ Buffer.get = function (num)
 
             -- Something bad happened, probably my fault
             GUI.error_message = "Couldn't get a new graphics buffer - " ..
-              "buffer would overlap element space. z = " .. z_max
+              "all of them are in use"
 
             ::skip::
         end

@@ -94,7 +94,7 @@ function GUI.Menubar:init()
     end
 
     self.w = self.w or 0
-    self.w = self.fullwidth and (GUI.cur_w - self.x) or math.max(self.w, self:measuretitles(nil, true))
+    self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, self:measuretitles(nil, true))
     self.h = self.h or gfx.texth
 
 

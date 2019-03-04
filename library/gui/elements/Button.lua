@@ -125,12 +125,12 @@ end
 
 
 -- Button - Mouse up.
-function Button:onmouseup()
+function Button:onmouseup(state)
 
 	self.state = 0
 
 	-- If the mouse was released on the button, run func
-	if self:isInside(GUI.mouse.x, GUI.mouse.y) then
+	if self:isInside(state.mouse.x, state.mouse.y) then
 
 		self.func(table.unpack(self.params))
 
@@ -143,13 +143,13 @@ function Button:ondoubleclick()
 
 	self.state = 0
 
-	end
+end
 
 
 -- Button - Right mouse up
-function Button:onmouser_up()
+function Button:onmouser_up(state)
 
-	if self:isInside(GUI.mouse.x, GUI.mouse.y) and self.r_func then
+	if self:isInside(state.mouse.x, state.mouse.y) and self.r_func then
 
 		self.r_func(table.unpack(self.r_params))
 

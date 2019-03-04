@@ -106,7 +106,7 @@ function Tabs:draw()
 
     -- Make sure w is at least the size of the tabs.
     -- (GUI builder will let you try to set it lower)
-    self.w = self.fullwidth and (GUI.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
+    self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
 
 	Color.set(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
@@ -156,7 +156,7 @@ function Tabs:val(newval)
 end
 
 
-function Tabs:onresize()
+function Tabs:onresize(state, last)
 
     if self.fullwidth then self:redraw() end
 
@@ -168,12 +168,12 @@ end
 ------------------------------------
 
 
-function Tabs:onmousedown()
+function Tabs:onmousedown(state)
 
     -- Offset for the first tab
 	local adj = 0.75*self.h
 
-	local mouseopt = (GUI.mouse.x - (self.x + adj)) / (#self.tabs * (self.tab_w + self.pad))
+	local mouseopt = (state.mouse.x - (self.x + adj)) / (#self.tabs * (self.tab_w + self.pad))
 
 	mouseopt = Math.clamp((math.floor(mouseopt * #self.tabs) + 1), 1, #self.tabs)
 
@@ -184,11 +184,14 @@ function Tabs:onmousedown()
 end
 
 
-function Tabs:onmouseup()
+function Tabs:onmouseup(state)
 
+  GUI.Msg( "mouse up")
+  GUI.Msg( state:stringify() )
 	-- Set the new option, or revert to the original if the cursor isn't inside the list anymore
-	if self:isInside(GUI.mouse.x, GUI.mouse.y) then
+	if self:isInside(state.mouse.x, state.mouse.y) then
 
+    GUI.Msg("updating tab sets")
 		self.retval = self.state
 		self:update_sets()
 
@@ -201,17 +204,17 @@ function Tabs:onmouseup()
 end
 
 
-function Tabs:ondrag()
+function Tabs:ondrag(state, last)
 
-	self:onmousedown()
+	self:onmousedown(state, last)
 	self:redraw()
 
 end
 
 
-function Tabs:onwheel()
+function Tabs:onwheel(state)
 
-	self.state = Math.round(self.state + GUI.mouse.inc)
+	self.state = Math.round(self.state + state.mouse.inc)
 
 	if self.state < 1 then self.state = 1 end
 	if self.state > #self.tabs then self.state = #self.tabs end

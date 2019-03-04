@@ -100,6 +100,17 @@ GUI.name = "New Window"
 GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 432, 500
 GUI.anchor, GUI.corner = "mouse", "C"
 
+local window = GUI.createWindow({
+  name = "General Demonstration",
+  x = 0,
+  y = 0,
+  w = 432,
+  h = 500,
+  anchor = "mouse",
+  corner = "C",
+  onClose = function() GUI.quit = true end,
+})
+
 layers = {
   GUI.createLayer("Layer1", 1),
   GUI.createLayer("Layer2", 2),
@@ -107,6 +118,8 @@ layers = {
   GUI.createLayer("Layer4", 4),
   GUI.createLayer("Layer5", 5)
 }
+
+window:add(table.unpack(layers))
 
 layers[1]:add( GUI.createElements(
   {
@@ -440,6 +453,7 @@ end
 
 -- Open the script window and initialize a few things
 GUI.Init()
+window:open()
 
 -- Tell the GUI library to run Main on each update loop
 -- Individual elements are updated first, then GUI.func is run, then the GUI is redrawn
