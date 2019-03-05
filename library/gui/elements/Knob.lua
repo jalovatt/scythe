@@ -186,10 +186,7 @@ end
 -- Knob - Dragging.
 function Knob:ondrag(state, last)
 
-	local y = state.mouse.y
-	local ly = state.mouse.ly
-
-	-- Ctrl?
+  -- Ctrl?
 	local ctrl = state.mouse.cap&4==4
 
 	-- Multiplier for how fast the knob turns. Higher = slower
@@ -202,29 +199,11 @@ function Knob:ondrag(state, last)
       1
     ))
 
-    --[[
-	self.curval = self.curval + ((ly - y) / adj)
-	if self.curval > 1 then self.curval = 1 end
-	if self.curval < 0 then self.curval = 0 end
-
-
-
-	self.curstep = Math.round(self.curval * self.steps)
-
-	self.retval = Math.round(((self.max - self.min) / self.steps) * self.curstep + self.min)
-    ]]--
 	self:redraw()
-
 end
 
 
--- Knob - Doubleclick
 function Knob:ondoubleclick()
-	--[[
-	self.curstep = self.default
-	self.curval = self.curstep / self.steps
-	self.retval = Math.round(((self.max - self.min) / self.steps) * self.curstep + self.min)
-	]]--
 
     self:setcurstep(self.default)
 
@@ -233,7 +212,6 @@ function Knob:ondoubleclick()
 end
 
 
--- Knob - Mousewheel
 function Knob:onwheel(state)
 
 	local ctrl = state.mouse.cap&4==4

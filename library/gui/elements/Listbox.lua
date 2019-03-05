@@ -179,21 +179,21 @@ end
 ---------------------------------
 
 
-function GUI.Listbox:onmouseup()
+function GUI.Listbox:onmouseup(state)
 
 	if not self:overscrollbar() then
 
-		local item = self:getitem(GUI.mouse.y)
+		local item = self:getitem(state.mouse.y)
 
 		if self.multi then
 
 			-- Ctrl
-			if GUI.mouse.cap & 4 == 4 then
+			if state.mouse.cap & 4 == 4 then
 
 				self.retval[item] = not self.retval[item]
 
 			-- Shift
-			elseif GUI.mouse.cap & 8 == 8 then
+			elseif state.mouse.cap & 8 == 8 then
 
 				self:selectrange(item)
 
@@ -216,13 +216,13 @@ function GUI.Listbox:onmouseup()
 end
 
 
-function GUI.Listbox:onmousedown(scroll)
+function GUI.Listbox:onmousedown(state, scroll)
 
 	-- If over the scrollbar, or we came from :ondrag with an origin point
 	-- that was over the scrollbar...
 	if scroll or self:overscrollbar() then
 
-        local wnd_c = Math.round( ((GUI.mouse.y - self.y) / self.h) * #self.list  )
+    local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * #self.list  )
 		self.wnd_y = math.floor( Math.clamp(1, wnd_c - (self.wnd_h / 2), #self.list - self.wnd_h + 1) )
 
 		self:redraw()
@@ -232,11 +232,11 @@ function GUI.Listbox:onmousedown(scroll)
 end
 
 
-function GUI.Listbox:ondrag()
+function GUI.Listbox:ondrag(state)
 
 	if self:overscrollbar(GUI.mouse.ox) then
 
-		self:onmousedown(true)
+		self:onmousedown(state, true)
 
 	-- Drag selection?
 	else
@@ -249,9 +249,9 @@ function GUI.Listbox:ondrag()
 end
 
 
-function GUI.Listbox:onwheel(inc)
+function GUI.Listbox:onwheel(state)
 
-	local dir = inc > 0 and -1 or 1
+	local dir = state.inc > 0 and -1 or 1
 
 	-- Scroll up/down one line
 	self.wnd_y = Math.clamp(1, self.wnd_y + dir, math.max(#self.list - self.wnd_h + 1, 1))

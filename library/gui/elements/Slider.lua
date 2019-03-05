@@ -249,13 +249,13 @@ end
 ------------------------------------
 
 
-function Slider:onmousedown()
+function Slider:onmousedown(state)
 
   -- Snap the nearest slider to the nearest value
 
   local mouse_val = self.dir == "h"
-          and (GUI.mouse.x - self.x) / self.w
-          or  (GUI.mouse.y - self.y) / self.h
+          and (state.mouse.x - self.x) / self.w
+          or  (state.mouse.y - self.y) / self.h
 
     self.cur_handle = self:getnearesthandle(mouse_val)
 
@@ -266,17 +266,17 @@ function Slider:onmousedown()
 end
 
 
-function Slider:ondrag()
+function Slider:ondrag(state, last)
 
   local mouse_val, n, ln = table.unpack(self.dir == "h"
-          and {(GUI.mouse.x - self.x) / self.w, GUI.mouse.x, GUI.mouse.lx}
-          or  {(GUI.mouse.y - self.y) / self.h, GUI.mouse.y, GUI.mouse.ly}
+          and {(state.mouse.x - self.x) / self.w, state.mouse.x, last.mouse.x}
+          or  {(state.mouse.y - self.y) / self.h, state.mouse.y, last.mouse.y}
   )
 
   local cur = self.cur_handle or 1
 
   -- Ctrl?
-  local ctrl = GUI.mouse.cap&4==4
+  local ctrl = state.mouse.cap&4==4
 
   -- A multiplier for how fast the slider should move. Higher values = slower
   --						Ctrl							Normal
@@ -291,18 +291,18 @@ function Slider:ondrag()
 end
 
 
-function Slider:onwheel()
+function Slider:onwheel(state)
 
   local mouse_val = self.dir == "h"
-          and (GUI.mouse.x - self.x) / self.w
-          or  (GUI.mouse.y - self.y) / self.h
+          and (state.mouse.x - self.x) / self.w
+          or  (state.mouse.y - self.y) / self.h
 
-  local inc = Math.round( self.dir == "h" and GUI.mouse.inc
-                      or -GUI.mouse.inc )
+  local inc = Math.round( self.dir == "h" and state.mouse.inc
+                      or -state.mouse.inc )
 
-    local cur = self:getnearesthandle(mouse_val)
+  local cur = self:getnearesthandle(mouse_val)
 
-  local ctrl = GUI.mouse.cap&4==4
+  local ctrl = state.mouse.cap&4==4
 
   -- How many steps per wheel-step
   local fine = 1
@@ -317,12 +317,12 @@ function Slider:onwheel()
 end
 
 
-function Slider:ondoubleclick()
+function Slider:ondoubleclick(state)
 
     -- Ctrl+click - Only reset the closest slider to the mouse
-  if GUI.mouse.cap & 4 == 4 then
+  if state.mouse.cap & 4 == 4 then
 
-    local mouse_val = (GUI.mouse.x - self.x) / self.w
+    local mouse_val = (state.mouse.x - self.x) / self.w
     local small_diff, small_idx
     for i = 1, #self.handles do
 

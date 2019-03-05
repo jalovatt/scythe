@@ -113,16 +113,12 @@ end
 
 -- Button - Mouse down.
 function Button:onmousedown()
-
 	self.state = 1
 	self:redraw()
-
 end
 
 
--- Button - Mouse up.
 function Button:onmouseup(state)
-
 	self.state = 0
 
 	-- If the mouse was released on the button, run func
@@ -132,7 +128,6 @@ function Button:onmouseup(state)
 
 	end
 	self:redraw()
-
 end
 
 function Button:ondoubleclick()
@@ -141,8 +136,6 @@ function Button:ondoubleclick()
 
 end
 
-
--- Button - Right mouse up
 function Button:onmouser_up(state)
 
 	if self:isInside(state.mouse.x, state.mouse.y) and self.r_func then

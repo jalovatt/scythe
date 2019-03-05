@@ -120,7 +120,7 @@ end
 ------------------------------------
 
 
-function Menubox:onmouseup()
+function Menubox:onmouseup(state)
 
     -- Bypass option for GUI Builder
     if not self.focus then
@@ -132,7 +132,7 @@ function Menubox:onmouseup()
   -- so we'll do it here
   local menu_str, sep_arr = self:prepmenu()
 
-  gfx.x, gfx.y = GUI.mouse.x, GUI.mouse.y
+  gfx.x, gfx.y = state.mouse.x, state.mouse.y
   local curopt = gfx.showmenu(menu_str)
 
   if #sep_arr > 0 then curopt = self:stripseps(curopt, sep_arr) end
@@ -150,14 +150,14 @@ function Menubox:onmousedown()
 end
 
 
-function Menubox:onwheel()
+function Menubox:onwheel(state)
 
   -- Avert a crash if there aren't at least two items in the menu
   --if not self.options[2] then return end
 
   -- Check for illegal values, separators, and submenus
-    self.retval = self:validateoption(  Math.round(self.retval - GUI.mouse.inc),
-                                        Math.round((GUI.mouse.inc > 0) and 1 or -1) )
+    self.retval = self:validateoption(  Math.round(self.retval - state.mouse.inc),
+                                        Math.round((state.mouse.inc > 0) and 1 or -1) )
 
   self:redraw()
 

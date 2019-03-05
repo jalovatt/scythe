@@ -173,15 +173,15 @@ end
 ------------------------------------
 
 
-function Textbox:onmousedown()
+function Textbox:onmousedown(state)
 
-    self.caret = self:getcaret(GUI.mouse.x)
+    self.caret = self:getcaret(state.mouse.x)
 
     -- Reset the caret so the visual change isn't laggy
     self.blink = 0
 
     -- Shift+click to select text
-    if GUI.mouse.cap & 8 == 8 and self.caret then
+    if state.mouse.cap & 8 == 8 and self.caret then
 
         self.sel_s, self.sel_e = self.caret, self.caret
 
@@ -196,31 +196,31 @@ function Textbox:onmousedown()
 end
 
 
-function Textbox:ondoubleclick()
+function Textbox:ondoubleclick(state)
 
-	self:selectword()
+	self:selectword(state)
 
 end
 
 
-function Textbox:ondrag()
+function Textbox:ondrag(state)
 
-	self.sel_s = self:getcaret(GUI.mouse.ox, GUI.mouse.oy)
-    self.sel_e = self:getcaret(GUI.mouse.x, GUI.mouse.y)
+	self.sel_s = self:getcaret(state.mouse.ox, state.mouse.oy)
+  self.sel_e = self:getcaret(state.mouse.x, state.mouse.y)
 
 	self:redraw()
 
 end
 
 
-function Textbox:ontype()
+function Textbox:ontype(state)
 
-	local char = GUI.char
+	local char = state.kb.char
 
     -- Navigation keys, Return, clipboard stuff, etc
     if self.keys[char] then
 
-        local shift = GUI.mouse.cap & 8 == 8
+        local shift = state.mouse.cap & 8 == 8
 
         if shift and not self.sel then
             self.sel_s = self.caret
@@ -259,14 +259,14 @@ function Textbox:ontype()
 end
 
 
-function Textbox:onwheel(inc)
+function Textbox:onwheel(state)
 
    local len = string.len(self.retval)
 
    if len <= self.wnd_w then return end
 
    -- Scroll right/left
-   local dir = inc > 0 and 3 or -3
+   local dir = state > 0 and 3 or -3
    self.wnd_pos = Math.clamp(0, self.wnd_pos + dir, len + 2 - self.wnd_w)
 
    self:redraw()

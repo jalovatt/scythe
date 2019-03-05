@@ -67,7 +67,7 @@ function Checklist:val(newval)
 end
 
 
-function Checklist:onmouseup()
+function Checklist:onmouseup(state)
 
     -- Bypass option for GUI Builder
     if not self.focus then
@@ -75,7 +75,7 @@ function Checklist:onmouseup()
         return
     end
 
-    local mouseopt = self:getmouseopt()
+    local mouseopt = self:getmouseopt(state)
 
     if not mouseopt then return end
 

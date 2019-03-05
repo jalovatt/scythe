@@ -264,7 +264,6 @@ function Window:updateInputState()
   state.mouse.off_y = last.mouse.off_y
   state.mouseover_time = last.mouseover_time
   state.tooltip_time = last.tooltip_time
-  state.mouse.wheel = last.mouse.wheel
 
   self.state = state
   self.last_state = last

@@ -137,9 +137,7 @@ end
 
 
 function Tabs:onresize()
-
-    if self.fullwidth then self:redraw() end
-
+  if self.fullwidth then self:redraw() end
 end
 
 

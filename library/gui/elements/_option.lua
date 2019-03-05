@@ -132,14 +132,14 @@ end
 
 
 
-function Option:getmouseopt()
+function Option:getmouseopt(state)
 
     local len = #self.options
 
 	-- See which option it's on
 	local mouseopt = self.dir == "h"
-                    and (GUI.mouse.x - (self.x + self.pad))
-					or	(GUI.mouse.y - (self.y + self.cap_h + 1.5*self.pad) )
+                    and (state.mouse.x - (self.x + self.pad))
+					or	(state.mouse.y - (self.y + self.cap_h + 1.5*self.pad) )
 
 	mouseopt = mouseopt / ((self.opt_size + self.pad) * len)
 	mouseopt = Math.clamp( math.floor(mouseopt * len) + 1 , 1, len )

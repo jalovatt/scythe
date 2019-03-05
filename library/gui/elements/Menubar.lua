@@ -280,11 +280,11 @@ function GUI.Menubar:onmousedown()
 end
 
 
-function GUI.Menubar:onmouseover()
+function GUI.Menubar:onmouseover(state)
 
     local opt = self.mousemnu
 
-    local x = GUI.mouse.x - self.x
+    local x = state.mouse.x - self.x
 
     if  self.mousemnu_x and x > self:measuretitles(nil, true) then
 
@@ -316,9 +316,9 @@ function GUI.Menubar:onmouseover()
 end
 
 
-function GUI.Menubar:ondrag()
+function GUI.Menubar:ondrag(state)
 
-    self:onmouseover()
+    self:onmouseover(state)
 
 end
 

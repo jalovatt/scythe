@@ -212,11 +212,11 @@ end
 -----------------------------------
 
 
-function GUI.TextEditor:onmousedown()
+function GUI.TextEditor:onmousedown(state)
 
 	-- If over the scrollbar, or we came from :ondrag with an origin point
 	-- that was over the scrollbar...
-	local scroll = self:overscrollbar()
+	local scroll = self:overscrollbar(state)
 	if scroll then
 
         self:setscrollbar(scroll)
@@ -224,13 +224,13 @@ function GUI.TextEditor:onmousedown()
     else
 
         -- Place the caret
-        self.caret = self:getcaret(GUI.mouse.x, GUI.mouse.y)
+        self.caret = self:getcaret(state.mouse.x, state.mouse.y)
 
         -- Reset the caret so the visual change isn't laggy
         self.blink = 0
 
         -- Shift+click to select text
-        if GUI.mouse.cap & 8 == 8 and self.caret then
+        if state.mouse.cap & 8 == 8 and self.caret then
 
                 self.sel_s = {x = self.caret.x, y = self.caret.y}
                 self.sel_e = {x = self.caret.x, y = self.caret.y}
@@ -255,9 +255,9 @@ function GUI.TextEditor:ondoubleclick()
 end
 
 
-function GUI.TextEditor:ondrag()
+function GUI.TextEditor:ondrag(state)
 
-	local scroll = self:overscrollbar(GUI.mouse.ox, GUI.mouse.oy)
+	local scroll = self:overscrollbar(state.mouse.ox, state.mouse.oy)
 	if scroll then
 
         self:setscrollbar(scroll)
@@ -265,8 +265,8 @@ function GUI.TextEditor:ondrag()
 	-- Select from where the mouse is now to where it started
 	else
 
-		self.sel_s = self:getcaret(GUI.mouse.ox, GUI.mouse.oy)
-		self.sel_e = self:getcaret(GUI.mouse.x, GUI.mouse.y)
+		self.sel_s = self:getcaret(state.mouse.ox, state.mouse.oy)
+		self.sel_e = self:getcaret(state.mouse.x, state.mouse.y)
 
 	end
 
@@ -275,10 +275,10 @@ function GUI.TextEditor:ondrag()
 end
 
 
-function GUI.TextEditor:ontype(char, mod)
+function GUI.TextEditor:ontype(state)
 
-    local char = char or GUI.char
-    local mod = mod or GUI.mouse.cap
+    local char = state.char
+    local mod = state.mouse.cap
 
 	-- Non-typeable / navigation chars
 	if self.keys[char] then
@@ -322,10 +322,10 @@ function GUI.TextEditor:ontype(char, mod)
 end
 
 
-function GUI.TextEditor:onwheel(inc)
+function GUI.TextEditor:onwheel(state)
 
 	-- Ctrl -- maybe zoom?
-	if GUI.mouse.cap & 4 == 4 then
+	if state.mouse.cap & 4 == 4 then
 
 		--[[ Buggy, disabled for now
 		local font = self.font_b
@@ -344,14 +344,14 @@ function GUI.TextEditor:onwheel(inc)
 		]]--
 
 	-- Shift -- Horizontal scroll
-	elseif GUI.mouse.cap & 8 == 8 then
+	elseif state.mouse.cap & 8 == 8 then
 
 		local len = self:getmaxlength()
 
 		if len <= self.wnd_w then return end
 
 		-- Scroll right/left
-		local dir = inc > 0 and 3 or -3
+		local dir = state.inc > 0 and 3 or -3
 		self.wnd_pos.x = Math.clamp(0, self.wnd_pos.x + dir, len - self.wnd_w + 4)
 
 	-- Vertical scroll
@@ -362,7 +362,7 @@ function GUI.TextEditor:onwheel(inc)
 		if len <= self.wnd_h then return end
 
 		-- Scroll up/down
-		local dir = inc > 0 and -3 or 3
+		local dir = state.inc > 0 and -3 or 3
 		self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + dir, len - self.wnd_h + 1)
 
 	end

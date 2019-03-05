@@ -55,16 +55,16 @@ function Radio:val(newval)
 end
 
 
-function Radio:onmousedown()
+function Radio:onmousedown(state)
 
-	self.state = self:getmouseopt() or self.state
+	self.state = self:getmouseopt(state) or self.state
 
 	self:redraw()
 
 end
 
 
-function Radio:onmouseup()
+function Radio:onmouseup(state)
 
     -- Bypass option for GUI Builder
     if not self.focus then
@@ -74,7 +74,7 @@ function Radio:onmouseup()
 
 	-- Set the new option, or revert to the original if the cursor
     -- isn't inside the list anymore
-	if self:isInside(GUI.mouse.x, GUI.mouse.y) then
+	if self:isInside(state.mouse.x, state.mouse.y) then
 		self.retval = self.state
 	else
 		self.state = self.retval
@@ -86,22 +86,22 @@ function Radio:onmouseup()
 end
 
 
-function Radio:ondrag()
+function Radio:ondrag(state)
 
-	self:onmousedown()
+	self:onmousedown(state)
 
 	self:redraw()
 
 end
 
 
-function Radio:onwheel()
+function Radio:onwheel(state)
 --[[
 	state = Math.round(self.state +     (self.dir == "h" and 1 or -1)
                                     *   GUI.mouse.inc)
 ]]--
 
-    self.state = self:getnextoption(    GUI.xor( GUI.mouse.inc > 0, self.dir == "h" )
+    self.state = self:getnextoption(    GUI.xor( state.mouse.inc > 0, self.dir == "h" )
                                         and -1
                                         or 1 )
 
