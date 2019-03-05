@@ -124,52 +124,8 @@ GUI.elementClasses = {}
 
 GUI.Init = function ()
     xpcall( function()
-
-
-        -- -- Create the window
-        -- gfx.clear = reaper.ColorToNative(table.unpack(Color.colors.wnd_bg))
-
-        -- if not GUI.x then GUI.x = 0 end
-        -- if not GUI.y then GUI.y = 0 end
-        -- if not GUI.w then GUI.w = 640 end
-        -- if not GUI.h then GUI.h = 480 end
-
-        -- if GUI.anchor and GUI.corner then
-        --     GUI.x, GUI.y = GUI.get_window_pos(  GUI.x, GUI.y, GUI.w, GUI.h,
-        --                                         GUI.anchor, GUI.corner)
-        -- end
-
-        -- gfx.init(GUI.name, GUI.w, GUI.h, GUI.dock or 0, GUI.x, GUI.y)
-
-
-        -- GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
-
-        -- -- Measure the window's title bar, in case we need it
-        -- local _, _, wnd_y, _, _ = gfx.dock(-1, 0, 0, 0, 0)
-        -- local _, gui_y = gfx.clienttoscreen(0, 0)
-        -- GUI.title_height = gui_y - wnd_y
-
-
         -- -- Initialize a few values
         GUI.last_time = 0
-        -- GUI.mouse = {
-
-        --     x = 0,
-        --     y = 0,
-        --     cap = 0,
-        --     down = false,
-        --     wheel = 0,
-        --     lwheel = 0
-
-        -- }
-
-        -- -- Store which element the mouse was clicked on.
-        -- -- This is essential for allowing drag behaviour where dragging affects
-        -- -- the element position.
-        -- GUI.mouse_down_elm = nil
-        -- GUI.rmouse_down_elm = nil
-        -- GUI.mmouse_down_elm = nil
-
 
         -- Convert color presets from 0..255 to 0..1
         for _, col in pairs(Color.colors) do
@@ -178,15 +134,6 @@ GUI.Init = function ()
         end
 
         if GUI.exit then reaper.atexit(GUI.exit) end
-
-        -- GUI.gfx_open = true
-
-        -- -- GUI.sortedLayers = GUI.Layers:sortHashesByKey("z")
-        -- for _, window in pairs(GUI.Windows) do
-        --   window:init()
-        -- end
-
-        -- GUI.update_z_max()
 
     end, GUI.crash)
 end
@@ -233,124 +180,6 @@ GUI.Main = function ()
 
     end, GUI.crash)
 end
-
-
--- GUI.Main_Update_State = function()
-
---     -- Update mouse and keyboard state, window dimensions
---     if GUI.mouse.x ~= gfx.mouse_x or GUI.mouse.y ~= gfx.mouse_y then
-
---         GUI.mouse.lx, GUI.mouse.ly = GUI.mouse.x, GUI.mouse.y
---         GUI.mouse.x, GUI.mouse.y = gfx.mouse_x, gfx.mouse_y
-
---         -- Hook for user code
---         if GUI.onmousemove then GUI.onmousemove() end
-
---     else
-
---         GUI.mouse.lx, GUI.mouse.ly = GUI.mouse.x, GUI.mouse.y
-
---     end
---     GUI.mouse.wheel = gfx.mouse_wheel
---     GUI.mouse.cap = gfx.mouse_cap
---     GUI.char = gfx.getchar()
-
---     if GUI.cur_w ~= gfx.w or GUI.cur_h ~= gfx.h then
---         GUI.cur_w, GUI.cur_h = gfx.w, gfx.h
-
---         GUI.resized = true
-
---         -- Hook for user code
---         if GUI.onresize then GUI.onresize() end
-
---     else
---         GUI.resized = false
---     end
-
---     --	(Escape key)	(Window closed)		(User function says to close)
---     --if GUI.char == 27 or GUI.char == -1 or GUI.quit == true then
---     if (GUI.char == 27 and not (	GUI.mouse.cap & 4 == 4
---                                 or 	GUI.mouse.cap & 8 == 8
---                                 or 	GUI.mouse.cap & 16 == 16
---                                 or  GUI.escape_bypass))
---             or GUI.char == -1
---             or GUI.quit == true then
-
---         GUI.cleartooltip()
---         return 0
---     else
---         if GUI.char == 27 and GUI.escape_bypass then
---           GUI.escape_bypass = "close"
---         end
---         reaper.defer(GUI.Main)
---     end
-
--- end
-
-
---[[
-    Update each element's state, starting from the top down.
-
-    This is very important, so that lower elements don't
-    "steal" the mouse.
-
-
-    This function will also delete any elements that have their z set to -1
-
-    Handy for something like Label:fade if you just want to remove
-    the faded element entirely
-
-    ***Don't try to remove elements in the middle of the Update
-    loop; use this instead to have them automatically cleaned up***
-
-]]--
--- GUI.Main_Update_Elms = function ()
-
---     -- Disabled May 2/2018 to see if it was actually necessary
---     -- GUI.update_elms_list()
-
---     -- We'll use this to shorten each elm's update loop if the user did something
---     -- Slightly more efficient, and averts any bugs from false positives
---     GUI.elm_updated = false
-
---     -- Check for the dev mode toggle before we get too excited about updating elms
---     if  GUI.char == 282         and GUI.mouse.cap & 4 ~= 0
---     and GUI.mouse.cap & 8 ~= 0  and GUI.mouse.cap & 16 ~= 0 then
-
---         GUI.dev_mode = not GUI.dev_mode
---         GUI.elm_updated = true
---         GUI.redraw_z[0] = true
-
---     end
-
-
---     -- Mouse was moved? Clear the tooltip
---     if GUI.tooltip
---       and (   GUI.mouse.x - GUI.mouse.lx > 0
---            or GUI.mouse.y - GUI.mouse.ly > 0) then
-
---         GUI.mouseover_elm = nil
---         GUI.cleartooltip()
---     end
-
-
---     -- Bypass for some skip logic to allow tabbing between elements (GUI.tab_to_next)
---     if GUI.newfocus then
---         GUI.newfocus.focus = true
---         GUI.newfocus = nil
---     end
-
-
---     for i = 1, #GUI.sortedLayers do
---       GUI.sortedLayers[i]:update(GUI)
---     end
-
---     -- Just in case any user functions want to know...
---     GUI.mouse.last_down = GUI.mouse.down
---     GUI.mouse.last_r_down = GUI.mouse.r_down
-
--- end
-
 
 GUI.Main_Draw = function ()
     for _, window in pairs(GUI.Windows) do
@@ -473,11 +302,20 @@ GUI.createElements = function (...)
   return table.unpack(elms)
 end
 
-GUI.createLayer = function (name, z)
-  local layer = Layer:new(name, z)
-  -- GUI.Layers[name] = layer
+GUI.createLayer = function(props)
+  local layer = Layer:new(props)
 
   return layer
+end
+
+GUI.createLayers = function (...)
+  local layers = {}
+
+  for _, props in pairs({...}) do
+    layers[#layers + 1] = GUI.createLayer(props)
+  end
+
+  return table.unpack(layers)
 end
 
 GUI.createWindow = function (props)
@@ -485,6 +323,16 @@ GUI.createWindow = function (props)
   GUI.Windows[window.name] = window
 
   return window
+end
+
+GUI.createWindows = function (...)
+  local windows = {}
+
+  for _, props in pairs({...}) do
+    windows[#windows + 1] = GUI.createWindow(props)
+  end
+
+  return table.unpack(windows)
 end
 
 GUI.findElementByName = function (name, ...)

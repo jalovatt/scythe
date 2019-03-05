@@ -116,19 +116,11 @@ function Element:Update(state, last)
   local x, y = state.mouse.x, state.mouse.y
   local inside = self:isInside(x, y)
 
-  -- local debug, _ = self.name == "tabs"
-
-  if debug and (not state.mouse.leftDown and last.mouse.leftDown) then
-    GUI.Msg( last.mouse_down_elm == self)
-  end
-
   -- Left button
   if state.mouse.leftDown then
-    _=debug and GUI.Msg("left is down")
 
     -- If it wasn't down already...
     if not last.mouse.leftDown then
-      _=debug and GUI.Msg("\twasn't already down")
 
       -- Was a different element clicked?
       if not inside then
@@ -153,14 +145,12 @@ function Element:Update(state, last)
           and reaper.time_precise() - state.mouse.downtime < 0.10
           then
 
-            _=debug and GUI.Msg("\tondoubleclick")
             state.mouse.downtime = nil
             state.mouse.dbl_clicked = true
             self:ondoubleclick(state, last)
 
           elseif not state.mouse.dbl_clicked then
 
-            _=debug and GUI.Msg("\tonmousedown")
             self.focus = true
             self:onmousedown(state, last)
 
@@ -182,7 +172,6 @@ function Element:Update(state, last)
     and     state.mouse_down_elm == self then
       if self.focus ~= false then
 
-        _=debug and GUI.Msg("\tondrag")
         state.elm_updated = true
         self:ondrag(state, last)
 
@@ -192,12 +181,10 @@ function Element:Update(state, last)
   -- If it was originally clicked in this element and has been released
   elseif last.mouse.leftDown and last.mouse_down_elm == self then
 
-    _=debug and GUI.Msg("mouse is not down, ")
     state.mouse_down_elm = nil
 
     if not state.mouse.dbl_clicked then
 
-    _=debug and GUI.Msg("onmouseup")
     self:onmouseup(state, last) end
 
     state.elm_updated = true
@@ -216,7 +203,6 @@ function Element:Update(state, last)
 
   -- If the mouse is hovering over the element
   if inside and not state.mouse.down and not state.mouse.r_down then
-    -- _=debug and GUI.Msg("onmouseover")
     self:onmouseover(state, last)
 
     -- Initial mouseover an element
@@ -247,7 +233,6 @@ function Element:Update(state, last)
 
     state.mouse.inc = (state.mouse.wheel - last.mouse.wheel) / 120
 
-    _=debug and GUI.Msg("onwheel")
     self:onwheel(state, last)
     state.elm_updated = true
 
@@ -255,7 +240,6 @@ function Element:Update(state, last)
 
   -- If the element is in focus and the user typed something
   if self.focus and state.kb.char ~= 0 then
-    _=debug and GUI.Msg("ontype")
     self:ontype(state, last)
     state.elm_updated = true
   end

@@ -2,11 +2,8 @@ local _, T = require("public.table"):unpack()
 local Buffer = require("gui.buffer")
 
 local Layer = T{}
-function Layer:new(name, z)
-  local layer = {}
-
-  layer.name = name
-  layer.z = z
+function Layer:new(props)
+  local layer = props
 
   layer.elementCount = 0
   layer.elements = {}
@@ -32,7 +29,7 @@ function Layer:show()
   self.needsRedraw = true
 end
 
-function Layer:add(...)
+function Layer:addElements(...)
   for _, elm in pairs({...}) do
     self.elements[elm.name] = elm
     elm.layer = self
@@ -43,7 +40,7 @@ function Layer:add(...)
   return self
 end
 
-function Layer:remove(...)
+function Layer:removeElements(...)
   for _, elm in pairs({...}) do
     self.elements[elm.name] = nil
     elm.layer = nil
@@ -84,10 +81,10 @@ function Layer:redraw(GUI)
   -- from their own :draw method. e.g. Labels fading out
   self.needsRedraw = false
 
-  gfx.setimgdim(self.z, -1, -1)
-  gfx.setimgdim(self.z, self.window.cur_w, self.window.cur_h)
+  gfx.setimgdim(self.buff, -1, -1)
+  gfx.setimgdim(self.buff, self.window.cur_w, self.window.cur_h)
 
-  gfx.dest = self.z
+  gfx.dest = self.buff
 
   for _, elm in pairs(self.elements) do
       -- if not GUI.Elements[elm] then

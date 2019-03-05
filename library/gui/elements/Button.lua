@@ -51,25 +51,21 @@ end
 
 
 function Button:init()
-
 	self.buff = self.buff or Buffer.get()
 
 	gfx.dest = self.buff
 	gfx.setimgdim(self.buff, -1, -1)
-	gfx.setimgdim(self.buff, 2*self.w + 4, self.h + 2)
+  gfx.setimgdim(self.buff, 2*self.w + 4, self.h + 2)
 
 	Color.set(self.col_fill)
 	GFX.roundrect(1, 1, self.w, self.h, 4, 1, 1)
 	Color.set("elm_outline")
 	GFX.roundrect(1, 1, self.w, self.h, 4, 1, 0)
 
-
 	local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
 	GFX.roundrect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
-
-
 end
 
 

@@ -36,7 +36,7 @@ function Window:open()
   gfx.clear = reaper.ColorToNative(table.unpack(bg))
 
   if self.anchor and self.corner then
-    self.x, self.y = self:get_window_pos( self.x, self.y, self.w, self.h,
+    self.x, self.y = self:getAnchoredPosition( self.x, self.y, self.w, self.h,
                                           self.anchor, self.corner)
   end
 
@@ -122,11 +122,12 @@ function Window:redraw()
       for i = #self.sortedLayers, 1, -1 do
         local layer = self.sortedLayers[i]
           if  (layer.elementCount > 0 and not layer.hidden) then
+
               if layer.needsRedraw or self.needsRedraw then
                 layer:redraw(GUI)
               end
 
-              gfx.blit(layer.z, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
+              gfx.blit(layer.buff, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
           end
       end
 
@@ -151,13 +152,7 @@ function Window:redraw()
   self.needsRedraw = false
 end
 
--- function Window:init()
---   for _, layer in pairs(self.layers) do
---     layer:init()
---   end
--- end
-
-function Window:add(...)
+function Window:addLayers(...)
   for _, layer in pairs({...}) do
     self.layers[layer.name] = layer
     layer.window = self
@@ -168,7 +163,7 @@ function Window:add(...)
   return self
 end
 
-function Window:remove(...)
+function Window:removeLayers(...)
   for _, layer in pairs({...}) do
     self.layers[layer.name] = nil
     layer.window = nil
@@ -183,13 +178,13 @@ function Window:update()
   if (not self.isOpen and self.isRunning) then return end
   self:sortLayers()
 
-  self:update_state()
+  self:updateInputState()
   self.elm_updated = false
 
   if self:handleWindowEvents() == 0 then return end
 
   if self.layerCount > 0 and self.isOpen and self.isRunning then
-    self:update_layers()
+    self:updateLayers()
   end
 end
 
@@ -236,7 +231,7 @@ function Window:handleWindowEvents()
 end
 
 
-function Window:update_state()
+function Window:updateInputState()
   local last = self.state
   local state = T{}
 
@@ -251,8 +246,6 @@ function Window:update_state()
     dx = gfx.mouse_x - last.mouse.x,
     dy = gfx.mouse_y - last.mouse.y,
   }
-
-  -- GUI.Msg(last.mouse.leftDown)
 
   state.kb = {
     char = gfx.getchar(),
@@ -278,13 +271,13 @@ function Window:update_state()
 
 end
 
-function Window:update_layers()
+function Window:updateLayers()
   for i = 1, self.layerCount do
     self.sortedLayers[i]:update(self.state, self.last_state)
   end
 end
 
-function Window:get_window_pos(x, y, w, h, anchor, corner)
+function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
 
     local ax, ay, aw, ah = 0, 0, 0 ,0
 

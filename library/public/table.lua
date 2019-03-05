@@ -114,11 +114,10 @@ end
 -- values for max_depth - this function will happily freeze Reaper for ten minutes.
 Table.stringify = function (t, max_depth, cur_depth)
   local ret = {}
-  local n,v
   cur_depth = cur_depth or 0
 
   for n,v in pairs(t) do
-              ret[#ret+1] = string.rep("  ", cur_depth) .. n .. " = "
+              ret[#ret+1] = string.rep("  ", cur_depth) .. tostring(n) .. " = "
 
               if type(v) == "table" then
                   ret[#ret] = ret[#ret] .. "table:"
@@ -146,7 +145,7 @@ Table.deepEquals = function (a, b)
       if v2 == nil or not Table.compare(v1, v2) then return false end
       key_exists[k1] = true
   end
-  for k2, v2 in pairs(b) do
+  for k2 in pairs(b) do
       if not key_exists[k2] then return false end
   end
 
@@ -237,7 +236,7 @@ Table.find = function(t, cb, iter)
   iter = iter or ipairs
 
   local result
-  for k, v in iter(t) do
+  for _, v in iter(t) do
     result = cb(v)
 
     if result then return result end
@@ -273,7 +272,7 @@ end
 -- Returns the length of a table, counting both indexed and keyed elements
 Table.length = function(t)
   local len = 0
-  for k in pairs(t) do
+  for _ in pairs(t) do
       len = len + 1
   end
 
@@ -284,7 +283,6 @@ end
 -- Accepts a table of hashes, returning a dense array of the hashes sorted
 -- by the given key
 Table.sortHashesByKey = function(hashes, key)
-
   local sorted = T{}
 
   for _, hash in pairs(hashes) do

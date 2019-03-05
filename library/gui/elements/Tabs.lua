@@ -48,26 +48,6 @@ function Tabs:new(props)
       {label = "Second", layers = { layer4, layer5, layer6 },
     }
   ]]--
-	-- Parse the string of options into a table
-  --   if not tab.optarray then
-  --       local opts = tab.opts or opts
-
-  --       tab.optarray = {}
-  --       if type(opts) == "string" then
-  --           for word in string.gmatch(opts, '([^,]+)') do
-  --               tab.optarray[#tab.optarray + 1] = word
-  --           end
-  --       elseif type(opts) == "table" then
-  --           tab.optarray = opts
-  --       end
-  --   end
-
-	-- tab.z_sets = {}
-	-- for i = 1, #tab.optarray do
-	-- 	tab.z_sets[i] = {}
-  -- end
-
-
 
 	-- Figure out the total size of the tab frame now that we know the
     -- number of buttons, so we can do the math for clicking on it
@@ -156,7 +136,7 @@ function Tabs:val(newval)
 end
 
 
-function Tabs:onresize(state, last)
+function Tabs:onresize()
 
     if self.fullwidth then self:redraw() end
 
@@ -185,13 +165,9 @@ end
 
 
 function Tabs:onmouseup(state)
-
-  GUI.Msg( "mouse up")
-  GUI.Msg( state:stringify() )
 	-- Set the new option, or revert to the original if the cursor isn't inside the list anymore
 	if self:isInside(state.mouse.x, state.mouse.y) then
 
-    GUI.Msg("updating tab sets")
 		self.retval = self.state
 		self:update_sets()
 

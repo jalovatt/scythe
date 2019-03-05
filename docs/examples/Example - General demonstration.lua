@@ -111,17 +111,17 @@ local window = GUI.createWindow({
   onClose = function() GUI.quit = true end,
 })
 
-layers = {
-  GUI.createLayer("Layer1", 1),
-  GUI.createLayer("Layer2", 2),
-  GUI.createLayer("Layer3", 3),
-  GUI.createLayer("Layer4", 4),
-  GUI.createLayer("Layer5", 5)
-}
+layers = table.pack( GUI.createLayers(
+  {name = "Layer1", z = 1},
+  {name = "Layer2", z = 2},
+  {name = "Layer3", z = 3},
+  {name = "Layer4", z = 4},
+  {name = "Layer5", z = 5}
+))
 
-window:add(table.unpack(layers))
+window:addLayers(table.unpack(layers))
 
-layers[1]:add( GUI.createElements(
+layers[1]:addElements( GUI.createElements(
   {
     name = "tabs",
     type = "Tabs",
@@ -165,7 +165,7 @@ layers[1]:add( GUI.createElements(
   }
 ))
 
-layers[2]:add( GUI.createElement(
+layers[2]:addElements( GUI.createElement(
   {
     name = "tab_bg",
     type = "Frame",
@@ -182,7 +182,7 @@ layers[2]:add( GUI.createElement(
 -------- Tab 1 Elements ------------
 ------------------------------------
 
-layers[3]:add( GUI.createElements(
+layers[3]:addElements( GUI.createElements(
   {
     name = "my_lbl",
     type = "Label",
@@ -270,7 +270,7 @@ my_knob:redraw()
 -- -------- Tab 2 Elements ------------
 -- ------------------------------------
 
-layers[4]:add( GUI.createElements(
+layers[4]:addElements( GUI.createElements(
   {
     name = "my_rng",
     type = "Slider",
@@ -333,7 +333,7 @@ layers[4]:add( GUI.createElements(
 -- -------- Tab 3 Elements ------------
 -- ------------------------------------
 
-layers[5]:add( GUI.createElements(
+layers[5]:addElements( GUI.createElements(
   {
     name = "my_chk",
     type = "Checklist",
