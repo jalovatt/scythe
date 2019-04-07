@@ -242,7 +242,7 @@ layers[3]:addElements( GUI.createElements(
 ))
 
 fade_elm = GUI.findElementByName("my_lbl")
-fade_layer = layers[3]
+fade_layer = fade_elm.layer
 
 -- We have too many values to be legible if we draw them all; we'll disable them, and
 -- have the knob's caption update itself to show the value instead.

@@ -9,7 +9,6 @@ local releasedBuffers = {}
 
 Buffer.get = function (num)
     local ret = {}
-    --local prev
 
     for i = 1, (num or 1) do
 
@@ -19,7 +18,6 @@ Buffer.get = function (num)
 
         else
             for j = 1, 1023 do
-            --for j = (not prev and 1023 or prev - 1), 0, -1 do
 
                 if not usedBuffers[j] then
                     ret[i] = j

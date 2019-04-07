@@ -61,7 +61,7 @@ function Layer:init()
 end
 
 function Layer:delete()
-  self:remove(table.unpack(self.elements))
+  self:removeElements(table.unpack(self.elements))
   Buffer.release(self.buff)
   self.window.needsRedraw = true
 end
@@ -75,7 +75,7 @@ function Layer:update(state, last)
   end
 end
 
-function Layer:redraw(GUI)
+function Layer:redraw()
 
   -- Set this before we redraw, so that elms can call a redraw
   -- from their own :draw method. e.g. Labels fading out

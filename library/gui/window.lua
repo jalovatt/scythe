@@ -230,7 +230,6 @@ function Window:handleWindowEvents()
 
 end
 
-
 function Window:updateInputState()
   local last = self.state
   local state = T{}
