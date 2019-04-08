@@ -490,7 +490,7 @@ end
 
 function Slider:drawsliderhandle(hx, hy, hw, hh)
 
-    for j = 1, Text.drawWithShadow_dist do
+    for j = 1, Text.shadow_size do
 
         gfx.blit(self.buffs[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
 

@@ -5,7 +5,7 @@ local Text = {}
 
 
 -- Global shadow size, in pixels
-Text.drawWithShadow_dist = 2
+Text.shadow_size = 2
 
 
 --[[	Prepares a table of character widths
@@ -181,7 +181,7 @@ Text.drawWithShadow = function (str, col1, col2)
     local x, y = gfx.x, gfx.y
 
     Color.set(col2 or "shadow")
-    for i = 1, Text.drawWithShadow_dist do
+    for i = 1, Text.shadow_size do
         gfx.x, gfx.y = x + i, y + i
         gfx.drawstr(str)
     end

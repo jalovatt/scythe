@@ -86,7 +86,7 @@ function Button:draw()
 	-- Draw the shadow if not pressed
 	if state == 0 then
 
-		for i = 1, Text.drawWithShadow_dist do
+		for i = 1, Text.shadow_size do
 
 			gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 

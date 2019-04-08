@@ -14,6 +14,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
+local Buffer = require("gui.buffer")
 
 local Tabs = require("gui.element"):new()
 function Tabs:new(props)
@@ -24,7 +25,7 @@ function Tabs:new(props)
 
 	tab.x = tab.x or 0
   tab.y = tab.y or 0
-	tab.tab_w = tab.tab_w or 48
+	tab.tab_w = tab.tab_w or 72
   tab.tab_h = tab.tab_h or 20
 
 	tab.font_a = tab.font_a or 3
@@ -40,6 +41,7 @@ function Tabs:new(props)
 
 	tab.pad = tab.pad or 8
 
+  tab.first_tab_offset = tab.first_tab_offset or 16
   --[[
     Data shape:
 
@@ -70,44 +72,70 @@ end
 
 function Tabs:init()
 
+    self.buffer = self.buffer or Buffer.get()
     self:update_sets()
+
+    self.buffer_size = (#self.tabs * (self.tab_w + 4))
+
+    gfx.dest = self.buffer
+    gfx.setimgdim(self.buffer, -1, -1)
+    gfx.setimgdim(self.buffer, self.buffer_size, self.buffer_size)
+
+    Color.set(self.bg)
+    gfx.rect(0, 0, self.buffer_size, self.buffer_size, true)
+
+    local x_adj = self.tab_w + self.pad - self.tab_h
+
+    -- Because of anti-aliasing, we can't just draw and blit the tabs individually
+    -- We'll just draw the entire row separately for each state
+    for state = 1, #self.tabs do
+      for tab = #self.tabs, 1, -1 do
+        if tab ~= state then
+          -- Inactive
+          self:draw_tab(
+            (tab - 1) * (x_adj),
+            (state - 1) * (self.tab_h + 4) + Text.shadow_size,
+            self.tab_w,
+            self.tab_h,
+            self.dir, self.font_b, self.col_txt, self.col_tab_b, self.tabs[tab].label)
+        end
+      end
+
+      -- Active
+      self:draw_tab(
+        (state - 1) * (x_adj),
+        (state - 1) * (self.tab_h + 4),
+        self.tab_w,
+        self.tab_h,
+        self.dir, self.font_b, self.col_txt, self.col_tab_a, self.tabs[state].label)
+    end
+
+end
+
+function Tabs:ondelete()
+
+	Buffer.release(self.buffs)
 
 end
 
 
 function Tabs:draw()
 
-	local x, y = self.x + 16, self.y
+	local x, y = self.x + self.first_tab_offset, self.y
   local tab_w, tab_h = self.tab_w, self.tab_h
 	local pad = self.pad
-	local font = self.font_b
 	local dir = self.dir
 	local state = self.state
 
-    -- Make sure w is at least the size of the tabs.
-    -- (GUI builder will let you try to set it lower)
-    self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
+  -- Make sure w is at least the size of the tabs.
+  -- (GUI builder will let you try to set it lower)
+  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
 
 	Color.set(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
 
-	local x_adj = tab_w + pad
-
-	-- Draw the inactive tabs first
-	for i = #self.tabs, 1, -1 do
-
-		if i ~= state then
-			--
-			local tab_x, tab_y = x + Text.drawWithShadow_dist + (i - 1) * x_adj,
-								 y + Text.drawWithShadow_dist * (dir == "u" and 1 or -1)
-
-			self:draw_tab(tab_x, tab_y, tab_w, tab_h, dir, font, self.col_txt, self.col_tab_b, self.tabs[i].label)
-
-		end
-
-	end
-
-	self:draw_tab(x + (state - 1) * x_adj, y, tab_w, tab_h, dir, self.font_a, self.col_txt, self.col_tab_a, self.tabs[state].label)
+  local x_adj = tab_w + pad - tab_h
+  gfx.blit(self.buffer, 1, 0, 0, (state - 1) * (tab_h + 4), self.buffer_size, (tab_h + 4), x, y)
 
     -- Keep the active tab's top separate from the window background
 	Color.set(self.bg)
@@ -148,12 +176,12 @@ end
 
 function Tabs:onmousedown(state)
 
-    -- Offset for the first tab
-	local adj = 0.75*self.h
+  local x_offset = (state.mouse.x - (self.x + self.first_tab_offset))
+  local width = (#self.tabs * (self.tab_w + self.pad - self.tab_h))
 
-	local mouseopt = (state.mouse.x - (self.x + adj)) / (#self.tabs * (self.tab_w + self.pad))
+  local mouse_percent = x_offset / width
 
-	mouseopt = Math.clamp((math.floor(mouseopt * #self.tabs) + 1), 1, #self.tabs)
+	local mouseopt = Math.clamp((math.floor(mouse_percent * #self.tabs) + 1), 1, #self.tabs)
 
 	self.state = mouseopt
 
@@ -209,9 +237,12 @@ end
 
 function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
-	local dist = Text.drawWithShadow_dist
-    local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
-                                           or   {y + h, y})
+	local dist = Text.shadow_size
+  local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
+                                         or   {y + h, y})
+
+  local x = x + (h / 2)
+  local w = w - h
 
 	Color.set("shadow")
 
@@ -270,27 +301,25 @@ end
 
 
 -- Updates visibility for any layers assigned to the tabs
-function Tabs:update_sets(init)
+function Tabs:update_sets()
 
-	local state = self.state
+	-- if init then
+	-- 	self.tabs = init
+	-- end
 
-	if init then
-		self.tabs = init
-	end
+	-- local tabs = self.tabs
 
-	local tabs = self.tabs
+	if not self.tabs or #self.tabs[1].layers < 1 then return end
 
-	if not tabs or #tabs[1].layers < 1 then return end
-
-	for i = 1, #tabs do
-    if i ~= state then
-        for _, layer in pairs(tabs[i].layers) do
+	for i = 1, #self.tabs do
+    if i ~= self.state then
+        for _, layer in pairs(self.tabs[i].layers) do
             layer:hide()
         end
     end
 	end
 
-  for _, layer in pairs(tabs[state].layers) do
+  for _, layer in pairs(self.tabs[self.state].layers) do
     layer:show()
   end
 

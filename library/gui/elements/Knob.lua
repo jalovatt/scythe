@@ -151,7 +151,7 @@ function Knob:draw()
 	local blit_x = 1.5 * r
 
 	-- Shadow
-	for i = 1, Text.drawWithShadow_dist do
+	for i = 1, Text.shadow_size do
 
 		gfx.blit(   self.buff, 1, curangle * Math.pi,
                     blit_w + 1, 0, blit_w, blit_w,

@@ -91,7 +91,7 @@ function Menubox:draw()
 
 
     -- Blit the shadow + frame
-  for i = 1, Text.drawWithShadow_dist do
+  for i = 1, Text.shadow_size do
     gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
   end
 
