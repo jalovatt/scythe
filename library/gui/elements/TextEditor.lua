@@ -18,6 +18,7 @@ local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
 local Const = require("public.const")
+require("public.string")
 
 local TextEditor = require("gui.element"):new()
 function TextEditor:new(props)
@@ -952,16 +953,7 @@ end
 
 -- Split a string by line into a table
 function TextEditor:stringtotable(str)
-
-    str = self:sanitizetext(str)
-	local pattern = "([^\r\n]*)\r?\n?"
-	local tmp = {}
-	for line in string.gmatch(str, pattern) do
-		table.insert(tmp, line )
-	end
-
-	return tmp
-
+  return self:sanitizetext(str):splitLines()
 end
 
 

@@ -295,6 +295,4 @@ Table.sortHashesByKey = function(hashes, key)
 
 end
 
-
-
 return T{Table, T}

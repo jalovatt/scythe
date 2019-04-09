@@ -16,6 +16,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+require("public.string")
 
 -- Listbox - New
 local Listbox = require("gui.element"):new()
@@ -398,12 +399,7 @@ end
 -- Split a CSV into a table
 function Listbox:CSVtotable(str)
 
-	local tmp = {}
-	for line in string.gmatch(str, "([^,]+)") do
-		table.insert(tmp, line)
-	end
-
-	return tmp
+  return str:split(",")
 
 end
 

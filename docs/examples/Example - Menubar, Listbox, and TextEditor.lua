@@ -17,8 +17,7 @@ end
 local Scythe = loadfile(lib_path .. "scythe.lua")()
 local GUI = require("gui.core")(Scythe)
 
-
-
+local Table, T = require("public.table"):unpack()
 
 ------------------------------------
 -------- Menu functions ------------
@@ -187,10 +186,12 @@ before you, so that her skirt slips up to the tops of her stockings?]]}
 
 }
 
-local titles = {}
+local titles = T{}
 for i = 1, #items do
 	titles[i] = items[i][1]
 end
+
+titles = titles:concat(",")
 
 
 local function add_text()

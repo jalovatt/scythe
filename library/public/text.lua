@@ -1,5 +1,7 @@
 local Font = require("public.font")
 local Color = require("public.color")
+require("public.string")
+local Table, T = require("public.table"):unpack()
 
 local Text = {}
 
@@ -133,8 +135,7 @@ Text.word_wrap = function (str, font, w, indent, pad)
                         or 0
     local new_line = "\n"..string.rep(" ", math.floor(w_pad / space)	)
 
-
-    for line in string.gmatch(str, "([^\n\r]*)[\n\r]*") do
+    str:splitLines():forEach(function(line)
 
         table.insert(ret_str, new_para)
 
@@ -143,7 +144,7 @@ Text.word_wrap = function (str, font, w, indent, pad)
         if leading then table.insert(ret_str, leading) end
 
         w_left = w
-        for word in string.gmatch(rest,  "([^%s]+)") do
+        rest:split("%s"):forEach(function(word)
 
             w_word = Text.get_text_width(word, font)
             if (w_word + space) > w_left then
@@ -160,11 +161,11 @@ Text.word_wrap = function (str, font, w, indent, pad)
             table.insert(ret_str, word)
             table.insert(ret_str, " ")
 
-        end
+        end)
 
         table.insert(ret_str, "\n")
 
-    end
+    end)
 
     table.remove(ret_str, #ret_str)
     ret_str = table.concat(ret_str)
