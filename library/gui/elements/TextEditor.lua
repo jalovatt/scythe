@@ -17,50 +17,40 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Const = require("public.const")
 
-local Element = require("gui.element")
+local TextEditor = require("gui.element"):new()
+function TextEditor:new(props)
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+	local txt = props
 
-
-GUI.TextEditor = Element:new()
-function GUI.TextEditor:new(name, z, x, y, w, h, text, caption, pad)
-
-	local txt = (not x and type(z) == "table") and z or {}
-
-	txt.name = name
 	txt.type = "TextEditor"
 
-	txt.z = txt.z or z
+	txt.x = txt.x or 0
+  txt.y = txt.y or 0
+  txt.w = txt.w or 256
+  txt.h = txt.h or 128
 
-	txt.x = txt.x or x
-    txt.y = txt.y or y
-    txt.w = txt.w or w
-    txt.h = txt.h or h
+	txt.retval = txt.retval or ""
 
-	txt.retval = txt.retval or text or {}
+	txt.caption = txt.caption or ""
+	txt.pad = txt.pad or 4
 
-	txt.caption = txt.caption or caption or ""
-	txt.pad = txt.pad or pad or 4
+  if txt.shadow == nil then
+    txt.shadow = true
+  end
 
-    if txt.shadow == nil then
-        txt.shadow = true
-    end
 	txt.bg = txt.bg or "elm_bg"
-    txt.cap_bg = txt.cap_bg or "wnd_bg"
+  txt.cap_bg = txt.cap_bg or "wnd_bg"
 	txt.color = txt.color or "txt"
 
 	-- Scrollbar fill
 	txt.col_fill = txt.col_fill or "elm_fill"
 
-	txt.font_a = txt.font_a or 3
+	txt.font_cap = txt.font_cap or 3
 
 	-- Forcing a safe monospace font to make our lives easier
-	txt.font_b = txt.font_bg or "monospace"
+	txt.font_text = "monospace"
 
 	txt.wnd_pos = {x = 0, y = 1}
 	txt.caret = {x = 0, y = 1}
@@ -75,8 +65,6 @@ function GUI.TextEditor:new(name, z, x, y, w, h, text, caption, pad)
 
 	txt.blink = 0
 
-	GUI.redraw_z[txt.z] = true
-
 	setmetatable(txt, self)
 	self.__index = self
 	return txt
@@ -84,7 +72,7 @@ function GUI.TextEditor:new(name, z, x, y, w, h, text, caption, pad)
 end
 
 
-function GUI.TextEditor:init()
+function TextEditor:init()
 
 	-- Process the initial string; split it into a table by line
 	if type(self.retval) == "string" then self:val(self.retval) end
@@ -111,14 +99,14 @@ function GUI.TextEditor:init()
 end
 
 
-function GUI.TextEditor:ondelete()
+function TextEditor:ondelete()
 
 	Buffer.release(self.buff)
 
 end
 
 
-function GUI.TextEditor:draw()
+function TextEditor:draw()
 
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
@@ -166,7 +154,7 @@ function GUI.TextEditor:draw()
 end
 
 
-function GUI.TextEditor:val(newval)
+function TextEditor:val(newval)
 
 	if newval then
 		self:seteditorstate(
@@ -180,7 +168,7 @@ function GUI.TextEditor:val(newval)
 end
 
 
-function GUI.TextEditor:onupdate()
+function TextEditor:onupdate()
 
 	if self.focus then
 
@@ -198,7 +186,7 @@ function GUI.TextEditor:onupdate()
 end
 
 
-function GUI.TextEditor:lostfocus()
+function TextEditor:lostfocus()
 
 	self:redraw()
 
@@ -212,14 +200,14 @@ end
 -----------------------------------
 
 
-function GUI.TextEditor:onmousedown(state)
+function TextEditor:onmousedown(state)
 
 	-- If over the scrollbar, or we came from :ondrag with an origin point
 	-- that was over the scrollbar...
 	local scroll = self:overscrollbar(state)
 	if scroll then
 
-        self:setscrollbar(scroll)
+        self:setscrollbar(scroll, state)
 
     else
 
@@ -248,25 +236,25 @@ function GUI.TextEditor:onmousedown(state)
 end
 
 
-function GUI.TextEditor:ondoubleclick()
+function TextEditor:ondoubleclick()
 
 	self:selectword()
 
 end
 
 
-function GUI.TextEditor:ondrag(state)
+function TextEditor:ondrag(state, last)
 
-	local scroll = self:overscrollbar(state.mouse.ox, state.mouse.oy)
+	local scroll = self:overscrollbar(last)
 	if scroll then
 
-        self:setscrollbar(scroll)
+        self:setscrollbar(scroll, state)
 
 	-- Select from where the mouse is now to where it started
 	else
 
-		self.sel_s = self:getcaret(state.mouse.ox, state.mouse.oy)
-		self.sel_e = self:getcaret(state.mouse.x, state.mouse.y)
+		self.sel_s = self:getcaret(last)
+		self.sel_e = self:getcaret(state)
 
 	end
 
@@ -275,7 +263,7 @@ function GUI.TextEditor:ondrag(state)
 end
 
 
-function GUI.TextEditor:ontype(state)
+function TextEditor:ontype(state)
 
     local char = state.char
     local mod = state.mouse.cap
@@ -291,9 +279,9 @@ function GUI.TextEditor:ontype(state)
 
 		-- Flag for some keys (clipboard shortcuts) to skip
 		-- the next section
-        local bypass = self.keys[char](self)
+        local bypass = self.keys[char](state, self)
 
-		if shift and char ~= GUI.chars.BACKSPACE and char ~= GUI.chars.TAB then
+		if shift and char ~= Const.char.BACKSPACE and char ~= Const.char.TAB then
 
 			self.sel_e = {x = self.caret.x, y = self.caret.y}
 
@@ -322,13 +310,13 @@ function GUI.TextEditor:ontype(state)
 end
 
 
-function GUI.TextEditor:onwheel(state)
+function TextEditor:onwheel(state)
 
 	-- Ctrl -- maybe zoom?
 	if state.mouse.cap & 4 == 4 then
 
 		--[[ Buggy, disabled for now
-		local font = self.font_b
+		local font = self.font_text
 		font = 	(type(font) == "string" and GUI.fonts[font])
 			or	(type(font) == "table" and font)
 
@@ -338,7 +326,7 @@ function GUI.TextEditor:onwheel(state)
 
 		font[2] = Math.clamp(8, font[2] + dir, 30)
 
-		self.font_b = font
+		self.font_text = font
 
 		self:wnd_recalc()
 		]]--
@@ -379,11 +367,11 @@ end
 ------------------------------------
 
 
-function GUI.TextEditor:drawcaption()
+function TextEditor:drawcaption()
 
 	local str = self.caption
 
-	Font.set(self.font_a)
+	Font.set(self.font_cap)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
@@ -399,10 +387,10 @@ function GUI.TextEditor:drawcaption()
 end
 
 
-function GUI.TextEditor:drawtext()
+function TextEditor:drawtext()
 
 	Color.set(self.color)
-	Font.set(self.font_b)
+	Font.set(self.font_text)
 
 	local tmp = {}
 	for i = self.wnd_pos.y, math.min(self:wnd_bottom() - 1, #self.retval) do
@@ -418,7 +406,7 @@ function GUI.TextEditor:drawtext()
 end
 
 
-function GUI.TextEditor:drawcaret()
+function TextEditor:drawcaret()
 
 	local caret_wnd = self:adjusttowindow(self.caret)
 
@@ -436,7 +424,7 @@ function GUI.TextEditor:drawcaret()
 end
 
 
-function GUI.TextEditor:drawselection()
+function TextEditor:drawselection()
 
 	local off_x, off_y = self.x + self.pad, self.y + self.pad
 	local x, y, w, h
@@ -483,7 +471,7 @@ function GUI.TextEditor:drawselection()
 end
 
 
-function GUI.TextEditor:drawscrollbars()
+function TextEditor:drawscrollbars()
 
 	-- Do we need to be here?
 	local max_w, txt_h = self:getmaxlength(), self:getwndlength()
@@ -572,7 +560,7 @@ end
 ------------------------------------
 
 
-function GUI.TextEditor:getselectioncoords()
+function TextEditor:getselectioncoords()
 
 	local sx, sy = self.sel_s.x, self.sel_s.y
 	local ex, ey = self.sel_e.x, self.sel_e.y
@@ -590,7 +578,7 @@ end
 
 
 -- Figure out what portions of the text are selected
-function GUI.TextEditor:getselection()
+function TextEditor:getselection()
 
     local sx, sy, ex, ey = self:getselectioncoords()
 
@@ -656,18 +644,18 @@ end
 
 
 -- Make sure at least part of this selection block is within the window
-function GUI.TextEditor:selectionvisible(coords)
+function TextEditor:selectionvisible(coords)
 
-	return 		coords.w > 0                            -- Selection has width,
-			and coords.x + coords.w > self.wnd_pos.x    -- doesn't end to the left
+	return 		    coords.w > 0                            -- Selection has width,
+			      and coords.x + coords.w > self.wnd_pos.x    -- doesn't end to the left
             and coords.x < self:wnd_right()             -- doesn't start to the right
-			and coords.y >= self.wnd_pos.y              -- and is on a visible line
-			and coords.y < self:wnd_bottom()
+			      and coords.y >= self.wnd_pos.y              -- and is on a visible line
+			      and coords.y < self:wnd_bottom()
 
 end
 
 
-function GUI.TextEditor:selectall()
+function TextEditor:selectall()
 
 	self.sel_s = {x = 0, y = 1}
 	self.caret = {x = 0, y = 1}
@@ -678,7 +666,7 @@ function GUI.TextEditor:selectall()
 end
 
 
-function GUI.TextEditor:selectword()
+function TextEditor:selectword()
 
 	local str = self.retval[self.caret.y] or ""
 
@@ -696,14 +684,14 @@ function GUI.TextEditor:selectword()
 end
 
 
-function GUI.TextEditor:clearselection()
+function TextEditor:clearselection()
 
 	self.sel_s, self.sel_e = nil, nil
 
 end
 
 
-function GUI.TextEditor:deleteselection()
+function TextEditor:deleteselection()
 
 	if not (self.sel_s and self.sel_e) then return 0 end
 
@@ -735,7 +723,7 @@ function GUI.TextEditor:deleteselection()
 end
 
 
-function GUI.TextEditor:getselectedtext()
+function TextEditor:getselectedtext()
 
     local sx, sy, ex, ey = self:getselectioncoords()
 
@@ -755,7 +743,7 @@ function GUI.TextEditor:getselectedtext()
 end
 
 
-function GUI.TextEditor:toclipboard(cut)
+function TextEditor:toclipboard(cut)
 
     if self.sel_s and self:SWS_clipboard() then
 
@@ -768,7 +756,7 @@ function GUI.TextEditor:toclipboard(cut)
 end
 
 
-function GUI.TextEditor:fromclipboard()
+function TextEditor:fromclipboard()
 
     if self:SWS_clipboard() then
 
@@ -790,9 +778,9 @@ end
 
 
 -- Updates internal values for the window size
-function GUI.TextEditor:wnd_recalc()
+function TextEditor:wnd_recalc()
 
-	Font.set(self.font_b)
+	Font.set(self.bg)
 	self.char_w, self.char_h = gfx.measurestr("i")
 	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
 	self.wnd_w = math.floor(self.w / self.char_w)
@@ -801,7 +789,7 @@ end
 
 
 -- Get the right edge of the window (in chars)
-function GUI.TextEditor:wnd_right()
+function TextEditor:wnd_right()
 
 	return self.wnd_pos.x + self.wnd_w
 
@@ -809,7 +797,7 @@ end
 
 
 -- Get the bottom edge of the window (in rows)
-function GUI.TextEditor:wnd_bottom()
+function TextEditor:wnd_bottom()
 
 	return self.wnd_pos.y + self.wnd_h
 
@@ -817,7 +805,7 @@ end
 
 
 -- Get the length of the longest line
-function GUI.TextEditor:getmaxlength()
+function TextEditor:getmaxlength()
 
 	local w = 0
 
@@ -833,7 +821,7 @@ end
 
 
 -- Add 2 to the table length so the horizontal scrollbar isn't in the way
-function GUI.TextEditor:getwndlength()
+function TextEditor:getwndlength()
 
 	return #self.retval + 2
 
@@ -843,7 +831,7 @@ end
 -- See if a given pair of coords is in the visible window
 -- If so, adjust them from absolute to window-relative
 -- If not, returns nil
-function GUI.TextEditor:adjusttowindow(coords)
+function TextEditor:adjusttowindow(coords)
 
 	local x, y = coords.x, coords.y
 	x = (Math.clamp(self.wnd_pos.x, x, self:wnd_right() - 3) == x)
@@ -864,7 +852,7 @@ end
 
 
 -- Adjust the window if the caret has been moved off-screen
-function GUI.TextEditor:windowtocaret()
+function TextEditor:windowtocaret()
 
 	-- Horizontal
 	if self.caret.x < self.wnd_pos.x + 4 then
@@ -885,15 +873,15 @@ end
 
 
 -- TextEditor - Get the closest character position to the given coords.
-function GUI.TextEditor:getcaret(x, y)
+function TextEditor:getcaret(state)
 
 	local tmp = {}
 
-	tmp.x = math.floor(		((x - self.x) / self.w ) * self.wnd_w)
-                            + self.wnd_pos.x
-	tmp.y = math.floor(		(y - (self.y + self.pad))
-						/	self.char_h)
-			+ self.wnd_pos.y
+	tmp.x = math.floor(		((state.x - self.x) / self.w ) * self.wnd_w)
+        + self.wnd_pos.x
+	tmp.y = math.floor(		(state.y - (self.y + self.pad))
+						          /	self.char_h)
+			  + self.wnd_pos.y
 
 	tmp.y = Math.clamp(1, tmp.y, #self.retval)
 	tmp.x = Math.clamp(0, tmp.x, #(self.retval[tmp.y] or ""))
@@ -905,15 +893,15 @@ end
 
 -- Is the mouse over either of the scrollbars?
 -- Returns "h", "v", or false
-function GUI.TextEditor:overscrollbar(x, y)
+function TextEditor:overscrollbar(state)
 
 	if	self:getwndlength() > self.wnd_h
-	and (x or GUI.mouse.x) >= (self.x + self.w - 12) then
+	and (state.x) >= (self.x + self.w - 12) then
 
 		return "v"
 
 	elseif 	self:getmaxlength() > self.wnd_w
-	and		(y or GUI.mouse.y) >= (self.y + self.h - 12) then
+	and		(state.y) >= (self.y + self.h - 12) then
 
 		return "h"
 
@@ -922,13 +910,13 @@ function GUI.TextEditor:overscrollbar(x, y)
 end
 
 
-function GUI.TextEditor:setscrollbar(scroll)
+function TextEditor:setscrollbar(scroll, state)
 
     -- Vertical scroll
     if scroll == "v" then
 
         local len = self:getwndlength()
-        local wnd_c = Math.round( ((GUI.mouse.y - self.y) / self.h) * len  )
+        local wnd_c = Math.round( ((state - self.y) / self.h) * len  )
         self.wnd_pos.y = Math.round(
                             Math.clamp(	1,
                                         wnd_c - (self.wnd_h / 2),
@@ -941,7 +929,7 @@ function GUI.TextEditor:setscrollbar(scroll)
     --self.caret.x + 4 - self.wnd_w
 
         local len = self:getmaxlength()
-        local wnd_c = Math.round( ((GUI.mouse.x - self.x) / self.w) * len   )
+        local wnd_c = Math.round( ((state - self.x) / self.w) * len   )
         self.wnd_pos.x = Math.round(
                             Math.clamp(	0,
                                         wnd_c - (self.wnd_w / 2),
@@ -963,7 +951,7 @@ end
 
 
 -- Split a string by line into a table
-function GUI.TextEditor:stringtotable(str)
+function TextEditor:stringtotable(str)
 
     str = self:sanitizetext(str)
 	local pattern = "([^\r\n]*)\r?\n?"
@@ -979,7 +967,7 @@ end
 
 -- Insert a string at the caret, deleting any existing selection
 -- i.e. Paste
-function GUI.TextEditor:insertstring(str, move_caret)
+function TextEditor:insertstring(str, move_caret)
 
 	self:storeundostate()
 
@@ -1020,7 +1008,7 @@ end
 
 
 -- Insert typeable characters
-function GUI.TextEditor:insertchar(char)
+function TextEditor:insertchar(char)
 
 	self:storeundostate()
 
@@ -1035,7 +1023,7 @@ end
 
 
 -- Place the caret at the end of the current line
-function GUI.TextEditor:carettoend()
+function TextEditor:carettoend()
 	--[[
 	return #(self.retval[self.caret.y] or "") > 0
 		and #self.retval[self.caret.y]
@@ -1048,7 +1036,7 @@ end
 
 
 -- Replace any characters that we're unable to reproduce properly
-function GUI.TextEditor:sanitizetext(str)
+function TextEditor:sanitizetext(str)
 
     if type(str) == "string" then
 
@@ -1071,7 +1059,7 @@ end
 
 
 -- Backspace by up to four " " characters, if present.
-function GUI.TextEditor:backtab()
+function TextEditor:backtab()
 
     local str = self.retval[self.caret.y]
     local pre, post = string.sub(str, 1, self.caret.x), string.sub(str, self.caret.x + 1)
@@ -1087,16 +1075,16 @@ function GUI.TextEditor:backtab()
 end
 
 
-function GUI.TextEditor:ctrlchar(func, ...)
+function TextEditor:ctrlchar(state, func, ...)
 
-    if GUI.mouse.cap & 4 == 4 then
+    if state.mouse.cap & 4 == 4 then
         func(self, ... and table.unpack({...}))
 
         -- Flag to bypass the "clear selection" logic in :ontype()
         return true
 
     else
-        self:insertchar(GUI.char)
+        self:insertchar(state.kb.char)
     end
 
 end
@@ -1105,9 +1093,9 @@ end
 -- Non-typing key commands
 -- A table of functions is more efficient to access than using really
 -- long if/then/else structures.
-GUI.TextEditor.keys = {
+TextEditor.keys = {
 
-	[GUI.chars.LEFT] = function(self)
+	[Const.char.LEFT] = function(self)
 
 		if self.caret.x < 1 and self.caret.y > 1 then
 			self.caret.y = self.caret.y - 1
@@ -1118,7 +1106,7 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.RIGHT] = function(self)
+	[Const.char.RIGHT] = function(self)
 
 		if self.caret.x == self:carettoend() and self.caret.y < self:getwndlength() then
 			self.caret.y = self.caret.y + 1
@@ -1129,7 +1117,7 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.UP] = function(self)
+	[Const.char.UP] = function(self)
 
 		if self.caret.y == 1 then
 			self.caret.x = 0
@@ -1140,7 +1128,7 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.DOWN] = function(self)
+	[Const.char.DOWN] = function(self)
 
 		if self.caret.y == self:getwndlength() then
 			self.caret.x = string.len(self.retval[#self.retval])
@@ -1151,19 +1139,19 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.HOME] = function(self)
+	[Const.char.HOME] = function(self)
 
 		self.caret.x = 0
 
 	end,
 
-	[GUI.chars.END] = function(self)
+	[Const.char.END] = function(self)
 
 		self.caret.x = self:carettoend()
 
 	end,
 
-	[GUI.chars.PGUP] = function(self)
+	[Const.char.PGUP] = function(self)
 
 		local caret_off = self.caret and (self.caret.y - self.wnd_pos.y)
 
@@ -1176,7 +1164,7 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.PGDN] = function(self)
+	[Const.char.PGDN] = function(self)
 
 		local caret_off = self.caret and (self.caret.y - self.wnd_pos.y)
 
@@ -1189,7 +1177,7 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.BACKSPACE] = function(self)
+	[Const.char.BACKSPACE] = function(self)
 
 		self:storeundostate()
 
@@ -1218,12 +1206,12 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.TAB] = function(self)
+	[Const.char.TAB] = function(self, state)
 
         -- Disabled until Reaper supports this properly
 		--self:insertchar(9)
 
-        if GUI.mouse.cap & 8 == 8 then
+        if state.mouse.cap & 8 == 8 then
             self:backtab()
         else
             self:insertstring("    ", true)
@@ -1231,13 +1219,13 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.INSERT] = function(self)
+	[Const.char.INSERT] = function(self)
 
 		self.insert_caret = not self.insert_caret
 
 	end,
 
-	[GUI.chars.DELETE] = function(self)
+	[Const.char.DELETE] = function(self)
 
 		self:storeundostate()
 
@@ -1263,7 +1251,7 @@ GUI.TextEditor.keys = {
 
 	end,
 
-	[GUI.chars.RETURN] = function(self)
+	[Const.char.RETURN] = function(self)
 
 		self:storeundostate()
 
@@ -1278,55 +1266,44 @@ GUI.TextEditor.keys = {
 	end,
 
 	-- A -- Select All
-	[1] = function(self)
+	[1] = function(self, state)
 
-        return self:ctrlchar(self.selectall)
---[[
-		if GUI.mouse.cap & 4 == 4 then
+        return self:ctrlchar(state, self.selectall)
 
-			self:selectall()
-
-			-- Flag to bypass the "clear selection" logic in :ontype()
-			return true
-
-		else
-			self:insertchar(GUI.char)
-		end
-]]--
 	end,
 
 	-- C -- Copy
-	[3] = function(self)
+	[3] = function(self, state)
 
-		return self:ctrlchar(self.toclipboard)
+		return self:ctrlchar(state, self.toclipboard)
 
 	end,
 
 	-- V -- Paste
-	[22] = function(self)
+	[22] = function(self, state)
 
-		return self:ctrlchar(self.fromclipboard)
+		return self:ctrlchar(state, self.fromclipboard)
 
 	end,
 
 	-- X -- Cut
-	[24] = function(self)
+	[24] = function(self, state)
 
-		return self:ctrlchar(self.toclipboard, true)
+		return self:ctrlchar(state, self.toclipboard, true)
 
 	end,
 
 	-- Y -- Redo
-	[25] = function (self)
+	[25] = function (self, state)
 
-		return self:ctrlchar(self.redo)
+		return self:ctrlchar(state, self.redo)
 
 	end,
 
 	-- Z -- Undo
-	[26] = function (self)
+	[26] = function (self, state)
 
-		return self:ctrlchar(self.undo)
+		return self:ctrlchar(state, self.undo)
 
 	end
 }
@@ -1339,7 +1316,7 @@ GUI.TextEditor.keys = {
 ------------------------------------
 
 
-function GUI.TextEditor:undo()
+function TextEditor:undo()
 
 	if #self.undo_states == 0 then return end
 	table.insert(self.redo_states, self:geteditorstate() )
@@ -1353,7 +1330,7 @@ function GUI.TextEditor:undo()
 end
 
 
-function GUI.TextEditor:redo()
+function TextEditor:redo()
 
 	if #self.redo_states == 0 then return end
 	table.insert(self.undo_states, self:geteditorstate() )
@@ -1366,7 +1343,7 @@ function GUI.TextEditor:redo()
 end
 
 
-function GUI.TextEditor:storeundostate()
+function TextEditor:storeundostate()
 
 	table.insert(self.undo_states, self:geteditorstate() )
 	if #self.undo_states > self.undo_limit then table.remove(self.undo_states, 1) end
@@ -1375,7 +1352,7 @@ function GUI.TextEditor:storeundostate()
 end
 
 
-function GUI.TextEditor:geteditorstate()
+function TextEditor:geteditorstate()
 
 	local state = { retval = {} }
 	for k,v in pairs(self.retval) do
@@ -1388,11 +1365,11 @@ function GUI.TextEditor:geteditorstate()
 end
 
 
-function GUI.TextEditor:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
+function TextEditor:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
 
     self.retval = retval or {""}
     self.wnd_pos = wnd_pos or {x = 0, y = 1}
-	self.caret = caret or {x = 0, y = 1}
+    self.caret = caret or {x = 0, y = 1}
     self.sel_s = sel_s or nil
     self.sel_e = sel_e or nil
 
@@ -1402,7 +1379,7 @@ end
 
 -- See if we have a new-enough version of SWS for the clipboard functions
 -- (v2.9.7 or greater)
-function GUI.TextEditor:SWS_clipboard()
+function TextEditor:SWS_clipboard()
 
 	if GUI.SWS_exists then
 		return true
@@ -1416,3 +1393,5 @@ function GUI.TextEditor:SWS_clipboard()
 	end
 
 end
+
+return TextEditor

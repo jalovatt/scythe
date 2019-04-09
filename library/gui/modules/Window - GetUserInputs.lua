@@ -268,7 +268,7 @@ function GUI.GetUserInputs(title, captions, defaults, ret_func, extra_width)
     -- in GUI.Textbox.keys when it looks for its own .keys and can't find it.
     for name in pairs( GUI.Elements.UserInputs_wnd:getchildelms() ) do
         if string.match(name, "txt") then
-            GUI.Elements[name].keys = {[GUI.chars.RETURN] = txt_enter}
+            GUI.Elements[name].keys = {[Const.char.RETURN] = txt_enter}
             setmetatable(GUI.Elements[name].keys, {__index=GUI.Textbox.keys})
         end
     end

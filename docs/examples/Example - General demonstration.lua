@@ -96,9 +96,9 @@ end
 ------------------------------------
 
 
-GUI.name = "New Window"
-GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 432, 500
-GUI.anchor, GUI.corner = "mouse", "C"
+-- GUI.name = "New Window"
+-- GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 432, 500
+-- GUI.anchor, GUI.corner = "mouse", "C"
 
 local window = GUI.createWindow({
   name = "General Demonstration",

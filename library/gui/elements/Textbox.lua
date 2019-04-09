@@ -17,6 +17,8 @@ local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
 
+local Const = require("public.const")
+
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
 
@@ -228,9 +230,9 @@ function Textbox:ontype(state)
 
         -- Flag for some keys (clipboard shortcuts) to skip
         -- the next section
-        local bypass = self.keys[char](self)
+        local bypass = self.keys[char](self, state)
 
-        if shift and char ~= GUI.chars.BACKSPACE then
+        if shift and char ~= Const.char.BACKSPACE then
 
             self.sel_e = self.caret
 
@@ -652,16 +654,16 @@ function Textbox:sanitizetext(str)
 end
 
 
-function Textbox:ctrlchar(func, ...)
+function Textbox:ctrlchar(state, func, ...)
 
-    if GUI.mouse.cap & 4 == 4 then
+    if state.mouse.cap & 4 == 4 then
         func(self, ... and table.unpack({...}))
 
         -- Flag to bypass the "clear selection" logic in :ontype()
         return true
 
     else
-        self:insertchar(GUI.char)
+        self:insertchar(state.kb.char)
     end
 
 end
@@ -671,31 +673,31 @@ end
 -- long if/then/else structures.
 Textbox.keys = {
 
-    [GUI.chars.LEFT] = function(self)
+    [Const.char.LEFT] = function(self)
 
         self.caret = math.max( 0, self.caret - 1)
 
     end,
 
-    [GUI.chars.RIGHT] = function(self)
+    [Const.char.RIGHT] = function(self)
 
         self.caret = math.min( string.len(self.retval), self.caret + 1 )
 
     end,
 
-    [GUI.chars.UP] = function(self)
+    [Const.char.UP] = function(self)
 
         self.caret = 0
 
     end,
 
-    [GUI.chars.DOWN] = function(self)
+    [Const.char.DOWN] = function(self)
 
         self.caret = string.len(self.retval)
 
     end,
 
-    [GUI.chars.BACKSPACE] = function(self)
+    [Const.char.BACKSPACE] = function(self)
 
         self:storeundostate()
 
@@ -716,13 +718,13 @@ Textbox.keys = {
 
     end,
 
-    [GUI.chars.INSERT] = function(self)
+    [Const.char.INSERT] = function(self)
 
         self.insert_caret = not self.insert_caret
 
     end,
 
-    [GUI.chars.DELETE] = function(self)
+    [Const.char.DELETE] = function(self)
 
         self:storeundostate()
 
@@ -740,7 +742,7 @@ Textbox.keys = {
 
     end,
 
-    [GUI.chars.RETURN] = function(self)
+    [Const.char.RETURN] = function(self)
 
         self.focus = false
         self:lostfocus()
@@ -748,63 +750,63 @@ Textbox.keys = {
 
     end,
 
-    [GUI.chars.HOME] = function(self)
+    [Const.char.HOME] = function(self)
 
         self.caret = 0
 
     end,
 
-    [GUI.chars.END] = function(self)
+    [Const.char.END] = function(self)
 
         self.caret = string.len(self.retval)
 
     end,
 
-    [GUI.chars.TAB] = function(self)
+    [Const.char.TAB] = function(self)
 
         GUI.tab_to_next(self)
 
     end,
 
 	-- A -- Select All
-	[1] = function(self)
+	[1] = function(self, state)
 
-		return self:ctrlchar(self.selectall)
+		return self:ctrlchar(state, self.selectall)
 
 	end,
 
 	-- C -- Copy
-	[3] = function(self)
+	[3] = function(self, state)
 
-		return self:ctrlchar(self.toclipboard)
+		return self:ctrlchar(state, self.toclipboard)
 
 	end,
 
 	-- V -- Paste
-	[22] = function(self)
+	[22] = function(self, state)
 
-        return self:ctrlchar(self.fromclipboard)
+        return self:ctrlchar(state, self.fromclipboard)
 
 	end,
 
 	-- X -- Cut
-	[24] = function(self)
+	[24] = function(self, state)
 
-		return self:ctrlchar(self.toclipboard, true)
+		return self:ctrlchar(state, self.toclipboard, true)
 
 	end,
 
 	-- Y -- Redo
-	[25] = function (self)
+	[25] = function (self, state)
 
-		return self:ctrlchar(self.redo)
+		return self:ctrlchar(state, self.redo)
 
 	end,
 
 	-- Z -- Undo
-	[26] = function (self)
+	[26] = function (self, state)
 
-		return self:ctrlchar(self.undo)
+		return self:ctrlchar(state, self.undo)
 
 	end
 
