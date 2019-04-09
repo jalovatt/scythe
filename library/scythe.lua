@@ -6,8 +6,10 @@ if not Scythe.lib_path or Scythe.lib_path == "" then
     return
 end
 
+local trimmedPath = Scythe.lib_path:match("(.*".."/"..")")
+
 package.path = package.path .. ";" ..
-  Scythe.lib_path:match("(.*".."/"..")") .. "?.lua"
+  trimmedPath .. "?.lua"
 
 Scythe.script_path, Scythe.script_name = ({reaper.get_action_context()})[2]
   :match("(.-)([^/\\]+).lua$")
