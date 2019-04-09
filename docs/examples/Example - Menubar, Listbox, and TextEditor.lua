@@ -258,14 +258,14 @@ local window = GUI.createWindow({
 
 window:addLayers(
   GUI.createLayer({name = "Layer1", z = 1}):addElements( GUI.createElements(
-    -- {
-    --   name = "mnu_menu",
-    --   type = "Menubar",
-    --   x = 0,
-    --   y = 0,
-    --   w = window.cur_w,
-    --   menus = menus,
-    -- },
+    {
+      name = "mnu_menu",
+      type = "Menubar",
+      x = 0,
+      y = 0,
+      w = window.cur_w,
+      menus = menus,
+    },
     {
       name = "lst_titles",
       type = "Listbox",

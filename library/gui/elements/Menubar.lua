@@ -16,50 +16,36 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
 
-local Element = require("gui.element")
+local Menubar = require("gui.element"):new()
+function Menubar:new(props)
 
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
+	local mnu = props
 
-
-GUI.Menubar = Element:new()
-function GUI.Menubar:new(name, z, x, y, menus, w, h, pad) -- Add your own params here
-
-	local mnu = (not x and type(z) == "table") and z or {}
-
-	mnu.name = name
 	mnu.type = "Menubar"
 
-	mnu.z = mnu.z or z
+	mnu.x = mnu.x or 0
+  mnu.y = mnu.y or 0
 
-	mnu.x = mnu.x or x
-    mnu.y = mnu.y or y
+  mnu.font = mnu.font or 2
+  mnu.col_txt = mnu.col_txt or "txt"
+  mnu.col_bg = mnu.col_bg or "elm_frame"
+  mnu.col_hover = mnu.col_hover or "elm_fill"
 
-    mnu.font = mnu.font or 2
-    mnu.col_txt = mnu.col_txt or "txt"
-    mnu.col_bg = mnu.col_bg or "elm_frame"
-    mnu.col_over = mnu.col_over or "elm_fill"
+  if mnu.shadow == nil then
+      mnu.shadow = true
+  end
 
-    if mnu.shadow == nil then
-        mnu.shadow = true
-    end
+  mnu.w = mnu.w or 256
+  mnu.h = mnu.h or 24
 
-    mnu.w = mnu.w or w
-    mnu.h = mnu.h or h
+  if mnu.fullwidth == nil then
+      mnu.fullwidth = true
+  end
 
-    if mnu.fullwidth == nil then
-        mnu.fullwidth = true
-    end
+  -- Optional parameters should be given default values to avoid errors/crashes:
+  mnu.pad = mnu.pad or 0
 
-    -- Optional parameters should be given default values to avoid errors/crashes:
-    mnu.pad = mnu.pad or pad or 0
-
-    mnu.menus = mnu.menus or menus
-
-	GUI.redraw_z[mnu.z] = true
+  mnu.menus = mnu.menus or menus
 
 	setmetatable(mnu, self)
 	self.__index = self
@@ -68,57 +54,57 @@ function GUI.Menubar:new(name, z, x, y, menus, w, h, pad) -- Add your own params
 end
 
 
-function GUI.Menubar:init()
+function Menubar:init()
 
-    if gfx.w == 0 then return end
+  if gfx.w == 0 then return end
 
-    self.buff = self.buff or Buffer.get()
+  self.buff = self.buff or Buffer.get()
 
-    -- We'll have to reset this manually since we're not running :init()
-    -- until after the window is open
-    local dest = gfx.dest
+  -- We'll have to reset this manually since we're not running :init()
+  -- until after the window is open
+  local dest = gfx.dest
 
-    gfx.dest = self.buff
-    gfx.setimgdim(self.buff, -1, -1)
-
-
-    -- Store some text measurements
-    Font.set(self.font)
-
-    self.tab = gfx.measurestr(" ") * 4
-
-    for i = 1, #self.menus do
-
-        self.menus[i].width = gfx.measurestr(self.menus[i].title)
-
-    end
-
-    self.w = self.w or 0
-    self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, self:measuretitles(nil, true))
-    self.h = self.h or gfx.texth
+  gfx.dest = self.buff
+  gfx.setimgdim(self.buff, -1, -1)
 
 
-    -- Draw the background + shadow
-    gfx.setimgdim(self.buff, self.w, self.h * 2)
+  -- Store some text measurements
+  Font.set(self.font)
 
-    Color.set(self.col_bg)
+  self.tab = gfx.measurestr(" ") * 4
 
-    gfx.rect(0, 0, self.w, self.h, true)
+  for i = 1, #self.menus do
 
-    Color.set("shadow")
-    local r, g, b, a = table.unpack(Color.colors["shadow"])
-	gfx.set(r, g, b, 1)
-    gfx.rect(0, self.h + 1, self.w, self.h, true)
-    gfx.muladdrect(0, self.h + 1, self.w, self.h, 1, 1, 1, a, 0, 0, 0, 0 )
+      self.menus[i].width = gfx.measurestr(self.menus[i].title)
 
-    self.did_init = true
+  end
 
-    gfx.dest = dest
+  self.w = self.w or 0
+  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, self:measuretitles(nil, true))
+  self.h = self.h or gfx.texth
+
+
+  -- Draw the background + shadow
+  gfx.setimgdim(self.buff, self.w, self.h * 2)
+
+  Color.set(self.col_bg)
+
+  gfx.rect(0, 0, self.w, self.h, true)
+
+  Color.set("shadow")
+  local r, g, b, a = table.unpack(Color.colors["shadow"])
+  gfx.set(r, g, b, 1)
+  gfx.rect(0, self.h + 1, self.w, self.h, true)
+  gfx.muladdrect(0, self.h + 1, self.w, self.h, 1, 1, 1, a, 0, 0, 0, 0 )
+
+  self.did_init = true
+
+  gfx.dest = dest
 
 end
 
 
-function GUI.Menubar:ondelete()
+function Menubar:ondelete()
 
 	Buffer.release(self.buff)
 
@@ -126,36 +112,36 @@ end
 
 
 
-function GUI.Menubar:draw()
+function Menubar:draw()
 
-    if not self.did_init then self:init() end
+  if not self.did_init then self:init() end
 
-    local x, y = self.x, self.y
-    local w, h = self.w, self.h
+  local x, y = self.x, self.y
+  local w, h = self.w, self.h
 
-    -- Blit the menu background + shadow
-    if self.shadow then
+  -- Blit the menu background + shadow
+  if self.shadow then
 
-        for i = 1, Text.shadow_size do
+    for i = 1, Text.shadow_size do
 
-            gfx.blit(self.buff, 1, 0, 0, h, w, h, x, y + i, w, h)
-
-        end
+      gfx.blit(self.buff, 1, 0, 0, h, w, h, x, y + i, w, h)
 
     end
 
-    gfx.blit(self.buff, 1, 0, 0, 0, w, h, x, y, w, h)
+  end
 
-    -- Draw menu titles
-    self:drawtitles()
+  gfx.blit(self.buff, 1, 0, 0, 0, w, h, x, y, w, h)
 
-    -- Draw highlight
-    if self.mousemnu then self:drawhighlight() end
+  -- Draw menu titles
+  self:drawtitles()
+
+  -- Draw highlight
+  if self.mousemnu then self:drawhighlight() end
 
 end
 
 
-function GUI.Menubar:val(newval)
+function Menubar:val(newval)
 
     if newval and type(newval) == "table" then
 
@@ -173,7 +159,7 @@ function GUI.Menubar:val(newval)
 end
 
 
-function GUI.Menubar:onresize()
+function Menubar:onresize()
 
     if self.fullwidth then
         self:init()
@@ -188,7 +174,7 @@ end
 ------------------------------------
 
 
-function GUI.Menubar:drawtitles()
+function Menubar:drawtitles()
 
     local x = self.x
 
@@ -212,14 +198,14 @@ function GUI.Menubar:drawtitles()
 end
 
 
-function GUI.Menubar:drawhighlight()
+function Menubar:drawhighlight()
 
     if self.menus[self.mousemnu].title == "" then return end
 
-    Color.set(self.col_over)
+    Color.set(self.col_hover)
     gfx.mode = 1
-    --                                Hover  Click
-    gfx.a = GUI.mouse.cap & 1 ~= 1 and 0.3 or 0.5
+    --                                            Hover  Click
+    gfx.a = (self.mouse_down and self.mousemnu) and 0.3 or 0.5
 
     gfx.rect(self.x + self.mousemnu_x, self.y, self.menus[self.mousemnu].width + self.tab + self.pad, self.h, true)
 
@@ -237,9 +223,9 @@ end
 
 
 -- Make sure to disable the highlight if the mouse leaves
-function GUI.Menubar:onupdate()
+function Menubar:onupdate(state)
 
-    if self.mousemnu and not self:isInside(GUI.mouse.x, GUI.mouse.y) then
+    if self.mousemnu and not self:isInside(state.mouse.x, state.mouse.y) then
         self.mousemnu = nil
         self.mousemnu_x = nil
         self:redraw()
@@ -252,7 +238,7 @@ end
 
 
 
-function GUI.Menubar:onmouseup()
+function Menubar:onmouseup(state)
 
     if not self.mousemnu then return end
 
@@ -268,19 +254,21 @@ function GUI.Menubar:onmouseup()
 
     end
 
+  self.mouse_down = false
 	self:redraw()
 
 end
 
 
-function GUI.Menubar:onmousedown()
+function Menubar:onmousedown()
 
+    self.mouse_down = true
     self:redraw()
 
 end
 
 
-function GUI.Menubar:onmouseover(state)
+function Menubar:onmouseover(state)
 
     local opt = self.mousemnu
 
@@ -316,7 +304,7 @@ function GUI.Menubar:onmouseover(state)
 end
 
 
-function GUI.Menubar:ondrag(state)
+function Menubar:ondrag(state)
 
     self:onmouseover(state)
 
@@ -329,7 +317,7 @@ end
 
 
 -- Return a table of the menu titles
-function GUI.Menubar:gettitles()
+function Menubar:gettitles()
 
    local tmp = {}
    for i = 1, #self.menus do
@@ -344,7 +332,7 @@ end
 -- Returns the length of the specified number of menu titles, or
 -- all of them if 'num' isn't given
 -- Will include tabs + padding if tabs = true
-function GUI.Menubar:measuretitles(num, tabs)
+function Menubar:measuretitles(num, tabs)
 
     local len = 0
 
@@ -363,13 +351,12 @@ end
 -- Parse the current menu into a string for gfx.showmenu
 -- Returns the string and a table of separators for offsetting the
 -- value returned when the user clicks something.
-function GUI.Menubar:prepmenu()
+function Menubar:prepmenu()
 
-    local arr = self.menus[self.mousemnu].options
+  local arr = self.menus[self.mousemnu].options
 
-    local sep_arr = {}
+  local sep_arr = {}
 	local str_arr = {}
-    local menu_str = ""
 
 	for i = 1, #arr do
 
@@ -384,7 +371,7 @@ function GUI.Menubar:prepmenu()
 
 	end
 
-	menu_str = table.concat( str_arr )
+	local menu_str = table.concat( str_arr )
 
 	return string.sub(menu_str, 1, string.len(menu_str) - 1), sep_arr
 
@@ -393,7 +380,7 @@ end
 
 -- Adjust the returned value to account for any separators,
 -- since gfx.showmenu doesn't count them
-function GUI.Menubar:stripseps(opt, sep_arr)
+function Menubar:stripseps(opt, sep_arr)
 
     for i = 1, #sep_arr do
         if opt >= sep_arr[i] then
@@ -406,3 +393,5 @@ function GUI.Menubar:stripseps(opt, sep_arr)
     return opt
 
 end
+
+return Menubar
