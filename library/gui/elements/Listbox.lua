@@ -17,68 +17,52 @@ local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
 
-local Element = require("gui.element")
-
-if not GUI then
-	reaper.ShowMessageBox("Couldn't access GUI functions.\n\nLokasenna_GUI - Core.lua must be loaded prior to any classes.", "Library Error", 0)
-	missing_lib = true
-	return 0
-end
-
 -- Listbox - New
-GUI.Listbox = Element:new()
-function GUI.Listbox:new(name, z, x, y, w, h, list, multi, caption, pad)
+local Listbox = require("gui.element"):new()
+function Listbox:new(props)
 
-	local lst = (not x and type(z) == "table") and z or {}
+	local list = props
 
-	lst.name = name
-	lst.type = "Listbox"
+	list.type = "Listbox"
 
-	lst.z = lst.z or z
+	list.x = list.x or 0
+  list.y = list.y or 0
+  list.w = list.w or 96
+  list.h = list.h or 128
 
-	lst.x = lst.x or x
-    lst.y = lst.y or y
-    lst.w = lst.w or w
-    lst.h = lst.h or h
+	list.list = list.list or {}
+	list.retval = list.retval or {}
 
-	lst.list = lst.list or list or {}
-	lst.retval = lst.retval or {}
+  list.multi = list.multi -- or false
 
-    if lst.multi == nil then
-        lst.multi = multi or false
-    end
+	list.caption = list.caption or ""
+	list.pad = list.pad or 4
 
-	lst.caption = lst.caption or caption or ""
-	lst.pad = lst.pad or pad or 4
+  list.shadow = list.shadow or (list.shadow == nil)
 
-    if lst.shadow == nil then
-        lst.shadow = true
-    end
-	lst.bg = lst.bg or "elm_bg"
-    lst.cap_bg = lst.cap_bg or "wnd_bg"
-	lst.color = lst.color or "txt"
+	list.bg = list.bg or "elm_bg"
+  list.cap_bg = list.cap_bg or "wnd_bg"
+	list.color = list.color or "txt"
 
 	-- Scrollbar fill
-	lst.col_fill = lst.col_fill or "elm_fill"
+	list.col_fill = list.col_fill or "elm_fill"
 
-	lst.font_a = lst.font_a or 3
+	list.font_cap = list.font_cap or 3
 
-	lst.font_b = lst.font_b or 4
+	list.font_text = list.font_text or 4
 
-	lst.wnd_y = 1
+	list.wnd_y = 1
 
-	lst.wnd_h, lst.wnd_w, lst.char_w = nil, nil, nil
+	list.wnd_h, list.wnd_w, list.char_w = nil, nil, nil
 
-	GUI.redraw_z[lst.z] = true
-
-	setmetatable(lst, self)
+	setmetatable(list, self)
 	self.__index = self
-	return lst
+	return list
 
 end
 
 
-function GUI.Listbox:init()
+function Listbox:init()
 
 	-- If we were given a CSV, process it into a table
 	if type(self.list) == "string" then self.list = self:CSVtotable(self.list) end
@@ -101,14 +85,14 @@ function GUI.Listbox:init()
 end
 
 
-function GUI.Listbox:ondelete()
+function Listbox:ondelete()
 
 	Buffer.release(self.buff)
 
 end
 
 
-function GUI.Listbox:draw()
+function Listbox:draw()
 
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
@@ -138,7 +122,7 @@ function GUI.Listbox:draw()
 end
 
 
-function GUI.Listbox:val(newval)
+function Listbox:val(newval)
 
 	if newval then
 		--self.list = type(newval) == "string" and self:CSVtotable(newval) or newval
@@ -179,9 +163,9 @@ end
 ---------------------------------
 
 
-function GUI.Listbox:onmouseup(state)
+function Listbox:onmouseup(state)
 
-	if not self:overscrollbar() then
+	if not self:overscrollbar(state.mouse.x) then
 
 		local item = self:getitem(state.mouse.y)
 
@@ -216,11 +200,11 @@ function GUI.Listbox:onmouseup(state)
 end
 
 
-function GUI.Listbox:onmousedown(state, scroll)
+function Listbox:onmousedown(state, scroll)
 
 	-- If over the scrollbar, or we came from :ondrag with an origin point
 	-- that was over the scrollbar...
-	if scroll or self:overscrollbar() then
+	if scroll or self:overscrollbar(state.mouse.x) then
 
     local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * #self.list  )
 		self.wnd_y = math.floor( Math.clamp(1, wnd_c - (self.wnd_h / 2), #self.list - self.wnd_h + 1) )
@@ -232,9 +216,9 @@ function GUI.Listbox:onmousedown(state, scroll)
 end
 
 
-function GUI.Listbox:ondrag(state)
+function Listbox:ondrag(state, last)
 
-	if self:overscrollbar(GUI.mouse.ox) then
+	if self:overscrollbar(last.mouse.x) then
 
 		self:onmousedown(state, true)
 
@@ -249,9 +233,9 @@ function GUI.Listbox:ondrag(state)
 end
 
 
-function GUI.Listbox:onwheel(state)
+function Listbox:onwheel(state)
 
-	local dir = state.inc > 0 and -1 or 1
+	local dir = state.mouse.inc > 0 and -1 or 1
 
 	-- Scroll up/down one line
 	self.wnd_y = Math.clamp(1, self.wnd_y + dir, math.max(#self.list - self.wnd_h + 1, 1))
@@ -266,11 +250,11 @@ end
 ---------------------------------
 
 
-function GUI.Listbox:drawcaption()
+function Listbox:drawcaption()
 
 	local str = self.caption
 
-	Font.set(self.font_a)
+	Font.set(self.font_cap)
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
@@ -286,10 +270,10 @@ function GUI.Listbox:drawcaption()
 end
 
 
-function GUI.Listbox:drawtext()
+function Listbox:drawtext()
 
 	Color.set(self.color)
-	Font.set(self.font_b)
+	Font.set(self.font_text)
 
 	local tmp = {}
 	for i = self.wnd_y, math.min(self:wnd_bottom() - 1, #self.list) do
@@ -307,7 +291,7 @@ function GUI.Listbox:drawtext()
 end
 
 
-function GUI.Listbox:drawselection()
+function Listbox:drawselection()
 
 	local off_x, off_y = self.x + self.pad, self.y + self.pad
 	local x, y, w, h
@@ -336,7 +320,7 @@ function GUI.Listbox:drawselection()
 end
 
 
-function GUI.Listbox:drawscrollbar()
+function Listbox:drawscrollbar()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
 	local sx, sy, sw, sh = x + w - 8 - 4, y + 4, 8, h - 12
@@ -374,9 +358,9 @@ end
 
 
 -- Updates internal values for the window size
-function GUI.Listbox:wnd_recalc()
+function Listbox:wnd_recalc()
 
-	Font.set(self.font_b)
+	Font.set(self.font_text)
 
     self.char_w, self.char_h = gfx.measurestr("_")
 	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
@@ -386,7 +370,7 @@ end
 
 
 -- Get the bottom edge of the window (in rows)
-function GUI.Listbox:wnd_bottom()
+function Listbox:wnd_bottom()
 
 	return self.wnd_y + self.wnd_h
 
@@ -394,11 +378,11 @@ end
 
 
 -- Determine which item the user clicked
-function GUI.Listbox:getitem(y)
+function Listbox:getitem(y)
 
 	--local item = math.floor( ( (y - self.y) / self.h ) * self.wnd_h) + self.wnd_y
 
-	Font.set(self.font_b)
+	Font.set(self.font_text)
 
 	local item = math.floor(	(y - (self.y + self.pad))
 								/	self.char_h)
@@ -412,7 +396,7 @@ end
 
 
 -- Split a CSV into a table
-function GUI.Listbox:CSVtotable(str)
+function Listbox:CSVtotable(str)
 
 	local tmp = {}
 	for line in string.gmatch(str, "([^,]+)") do
@@ -425,15 +409,15 @@ end
 
 
 -- Is the mouse over the scrollbar (true) or the text area (false)?
-function GUI.Listbox:overscrollbar(x)
+function Listbox:overscrollbar(x)
 
-	return (#self.list > self.wnd_h and (x or GUI.mouse.x) >= (self.x + self.w - 12))
+	return (#self.list > self.wnd_h and x >= (self.x + self.w - 12))
 
 end
 
 
 -- Selects from the first selected item to the current mouse position
-function GUI.Listbox:selectrange(mouse)
+function Listbox:selectrange(mouse)
 
 	-- Find the first selected item
 	local first
@@ -451,3 +435,5 @@ function GUI.Listbox:selectrange(mouse)
 	end
 
 end
+
+return Listbox
