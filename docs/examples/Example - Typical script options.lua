@@ -17,14 +17,6 @@ end
 local Scythe = loadfile(lib_path .. "scythe.lua")()
 local GUI = require("gui.core")(Scythe)
 
--- GUI.req("gui/elements/Class - Slider.lua")()
--- GUI.req("gui/elements/Class - Button.lua")()
--- GUI.req("gui/elements/Class - Menubox.lua")()
--- GUI.req("gui/elements/Class - Options.lua")()
-
--- If any of the requested libraries weren't found, abort the script nicely.
-if missing_lib then return 0 end
-
 
 local Table = require("public.table")
 
@@ -84,10 +76,7 @@ window = GUI.createWindow({
   h = 200,
   anchor = "mouse",
   corner = "C",
-  onClose = function()
-    reaper.ShowConsoleMsg("quitting")
-    GUI.quit = true
-  end,
+  onClose = function() GUI.quit = true end,
 })
 
 

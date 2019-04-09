@@ -67,7 +67,6 @@ function Window:open()
   self.isOpen = true
 
   self:sortLayers()
-
   for _, layer in pairs(self.layers) do
     layer:init()
   end
@@ -302,7 +301,7 @@ function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
             C =	 	{(aw - w) / 2,		(ah - h) / 2},
         }
 
-        cx, cy = table.unpack(corners[corner])
+        cx, cy = table.unpack(corners[string.upper(corner)])
     end
 
     x = x + ax + cx

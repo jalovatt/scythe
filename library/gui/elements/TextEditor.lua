@@ -204,7 +204,7 @@ function TextEditor:onmousedown(state)
 
 	-- If over the scrollbar, or we came from :ondrag with an origin point
 	-- that was over the scrollbar...
-	local scroll = self:overscrollbar(state)
+	local scroll = self:overscrollbar(state.mouse.x, state.mouse.y)
 	if scroll then
 
         self:setscrollbar(scroll, state)
@@ -245,7 +245,7 @@ end
 
 function TextEditor:ondrag(state, last)
 
-	local scroll = self:overscrollbar(last)
+	local scroll = self:overscrollbar(last.mouse.x, last.mouse.y)
 	if scroll then
 
         self:setscrollbar(scroll, state)
@@ -253,8 +253,8 @@ function TextEditor:ondrag(state, last)
 	-- Select from where the mouse is now to where it started
 	else
 
-		self.sel_s = self:getcaret(last)
-		self.sel_e = self:getcaret(state)
+		self.sel_s = self:getcaret(last.mouse.x, last.mouse.y)
+		self.sel_e = self:getcaret(state.mouse.x, last.mouse.y)
 
 	end
 
@@ -265,7 +265,7 @@ end
 
 function TextEditor:ontype(state)
 
-    local char = state.char
+    local char = state.kb.char
     local mod = state.mouse.cap
 
 	-- Non-typeable / navigation chars
@@ -279,7 +279,7 @@ function TextEditor:ontype(state)
 
 		-- Flag for some keys (clipboard shortcuts) to skip
 		-- the next section
-        local bypass = self.keys[char](state, self)
+        local bypass = self.keys[char](self, state)
 
 		if shift and char ~= Const.char.BACKSPACE and char ~= Const.char.TAB then
 
@@ -339,7 +339,7 @@ function TextEditor:onwheel(state)
 		if len <= self.wnd_w then return end
 
 		-- Scroll right/left
-		local dir = state.inc > 0 and 3 or -3
+		local dir = state.mouse.inc > 0 and 3 or -3
 		self.wnd_pos.x = Math.clamp(0, self.wnd_pos.x + dir, len - self.wnd_w + 4)
 
 	-- Vertical scroll
@@ -350,7 +350,7 @@ function TextEditor:onwheel(state)
 		if len <= self.wnd_h then return end
 
 		-- Scroll up/down
-		local dir = state.inc > 0 and -3 or 3
+		local dir = state.mouse.inc > 0 and -3 or 3
 		self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + dir, len - self.wnd_h + 1)
 
 	end
@@ -780,7 +780,7 @@ end
 -- Updates internal values for the window size
 function TextEditor:wnd_recalc()
 
-	Font.set(self.bg)
+	Font.set(self.font_text)
 	self.char_w, self.char_h = gfx.measurestr("i")
 	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
 	self.wnd_w = math.floor(self.w / self.char_w)
@@ -873,13 +873,13 @@ end
 
 
 -- TextEditor - Get the closest character position to the given coords.
-function TextEditor:getcaret(state)
+function TextEditor:getcaret(x, y)
 
 	local tmp = {}
 
-	tmp.x = math.floor(		((state.x - self.x) / self.w ) * self.wnd_w)
+	tmp.x = math.floor(		((x - self.x) / self.w ) * self.wnd_w)
         + self.wnd_pos.x
-	tmp.y = math.floor(		(state.y - (self.y + self.pad))
+	tmp.y = math.floor(		(y - (self.y + self.pad))
 						          /	self.char_h)
 			  + self.wnd_pos.y
 
@@ -893,15 +893,15 @@ end
 
 -- Is the mouse over either of the scrollbars?
 -- Returns "h", "v", or false
-function TextEditor:overscrollbar(state)
+function TextEditor:overscrollbar(x, y)
 
 	if	self:getwndlength() > self.wnd_h
-	and (state.x) >= (self.x + self.w - 12) then
+	and x >= (self.x + self.w - 12) then
 
 		return "v"
 
 	elseif 	self:getmaxlength() > self.wnd_w
-	and		(state.y) >= (self.y + self.h - 12) then
+	and	y >= (self.y + self.h - 12) then
 
 		return "h"
 
@@ -916,7 +916,7 @@ function TextEditor:setscrollbar(scroll, state)
     if scroll == "v" then
 
         local len = self:getwndlength()
-        local wnd_c = Math.round( ((state - self.y) / self.h) * len  )
+        local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * len  )
         self.wnd_pos.y = Math.round(
                             Math.clamp(	1,
                                         wnd_c - (self.wnd_h / 2),
@@ -929,7 +929,7 @@ function TextEditor:setscrollbar(scroll, state)
     --self.caret.x + 4 - self.wnd_w
 
         local len = self:getmaxlength()
-        local wnd_c = Math.round( ((state - self.x) / self.w) * len   )
+        local wnd_c = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
         self.wnd_pos.x = Math.round(
                             Math.clamp(	0,
                                         wnd_c - (self.wnd_w / 2),
@@ -1178,7 +1178,6 @@ TextEditor.keys = {
 	end,
 
 	[Const.char.BACKSPACE] = function(self)
-
 		self:storeundostate()
 
 		-- Is there a selection?
