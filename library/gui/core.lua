@@ -10,12 +10,12 @@ end
 local GUI = {}
 
 local Table, T = require("public.table"):unpack()
-local Font = require("public.font")
+-- local Font = require("public.font")
 local Color = require("public.color")
-local Math = require("public.math")
+-- local Math = require("public.math")
 local Layer = require("gui.layer")
 local Window = require("gui.window")
-local Config = require("gui.config")
+-- local Config = require("gui.config")
 
 -- ReaPack version info
 GUI.get_script_version = function()

@@ -21,7 +21,7 @@ end
 loadfile(lib_path .. "scythe.lua")()
 local GUI = require("gui.core")
 
-local Table, T = require("public.table"):unpack()
+-- local Table, T = require("public.table"):unpack()
 
 ------------------------------------
 -------- Functions -----------------

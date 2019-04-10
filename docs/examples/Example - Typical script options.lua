@@ -14,11 +14,11 @@ if not lib_path or lib_path == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
-local Scythe = loadfile(lib_path .. "scythe.lua")()
-local GUI = require("gui.core")(Scythe)
+loadfile(lib_path .. "scythe.lua")()
+local GUI = require("gui.core")
 
 
-local Table = require("public.table")
+-- local Table = require("public.table")
 
 local window
 ------------------------------------

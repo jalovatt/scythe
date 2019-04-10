@@ -1,3 +1,5 @@
+-- luacheck: globals Scythe
+
 local Table, T = require("public.table"):unpack()
 local Color = require("public.color")
 local Font = require("public.font")
