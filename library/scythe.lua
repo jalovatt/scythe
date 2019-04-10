@@ -1,4 +1,5 @@
-local Scythe = {}
+-- luacheck: globals Scythe
+Scythe = {}
 
 Scythe.lib_path = reaper.GetExtState("Scythe", "lib_path_v3")
 if not Scythe.lib_path or Scythe.lib_path == "" then
@@ -34,4 +35,7 @@ Scythe.version = (function()
 
 end)()
 
-return Scythe
+-- Also might need to know this
+Scythe.SWS_exists = reaper.APIExists("CF_GetClipboardBig")
+
+-- return Scythe

@@ -17,6 +17,8 @@ local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
 
+local Config = require("gui.config")
+
 local Const = require("public.const")
 
 local Textbox = require("gui.element"):new()
@@ -151,11 +153,11 @@ function Textbox:onupdate()
 		if self.blink == 0 then
 			self.show_caret = true
 			self:redraw()
-		elseif self.blink == math.floor(GUI.txt_blink_rate / 2) then
+		elseif self.blink == math.floor(Config.txt_blink_rate / 2) then
 			self.show_caret = false
 			self:redraw()
 		end
-		self.blink = (self.blink + 1) % GUI.txt_blink_rate
+		self.blink = (self.blink + 1) % Config.txt_blink_rate
 
 	end
 
@@ -764,7 +766,8 @@ Textbox.keys = {
 
     [Const.char.TAB] = function(self)
 
-        GUI.tab_to_next(self)
+      -- tab functionality has been temporarily removed because it was broken anyway
+      -- GUI.tab_to_next(self)
 
     end,
 
@@ -880,7 +883,7 @@ end
 -- (v2.9.7 or greater)
 function Textbox:SWS_clipboard()
 
-	if GUI.SWS_exists then
+	if Scythe.SWS_exists then
 		return true
 	else
 

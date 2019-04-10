@@ -96,14 +96,10 @@ end
 
 
 function Radio:onwheel(state)
---[[
-	state = Math.round(self.state +     (self.dir == "h" and 1 or -1)
-                                    *   GUI.mouse.inc)
-]]--
 
-    self.state = self:getnextoption(    GUI.xor( state.mouse.inc > 0, self.dir == "h" )
-                                        and -1
-                                        or 1 )
+  self.state = self:getnextoption(    ( (state.mouse.inc > 0) ~= (self.dir == "h") )
+                                      and -1
+                                      or 1 )
 
 	--if self.state < 1 then self.state = 1 end
 	--if self.state > #self.options then self.state = #self.options end

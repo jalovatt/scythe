@@ -18,6 +18,7 @@ local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
 local Const = require("public.const")
+local Config = require("gui.config")
 require("public.string")
 
 local TextEditor = require("gui.element"):new()
@@ -176,11 +177,11 @@ function TextEditor:onupdate()
 		if self.blink == 0 then
 			self.show_caret = true
 			self:redraw()
-		elseif self.blink == math.floor(GUI.txt_blink_rate / 2) then
+		elseif self.blink == math.floor(Config.txt_blink_rate / 2) then
 			self.show_caret = false
 			self:redraw()
 		end
-		self.blink = (self.blink + 1) % GUI.txt_blink_rate
+		self.blink = (self.blink + 1) % Config.txt_blink_rate
 
 	end
 
@@ -1372,7 +1373,7 @@ end
 -- (v2.9.7 or greater)
 function TextEditor:SWS_clipboard()
 
-	if GUI.SWS_exists then
+	if Scythe.SWS_exists then
 		return true
 	else
 

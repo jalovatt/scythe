@@ -17,8 +17,9 @@ if not lib_path or lib_path == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
-local Scythe = loadfile(lib_path .. "scythe.lua")()
-local GUI = require("gui.core")(Scythe)
+-- local Scythe = loadfile(lib_path .. "scythe.lua")()
+loadfile(lib_path .. "scythe.lua")()
+local GUI = require("gui.core")
 
 local Table, T = require("public.table"):unpack()
 
@@ -355,7 +356,8 @@ layers[5]:addElements( GUI.createElements(
     caption = "Options:",
     options = {"Apples","Bananas","_","Donuts","Eggplant"},
     dir = "v",
-    swap = true
+    swap = true,
+    tooltip = "Well hey there!"
   },
   {
     name = "my_chk2",
@@ -365,7 +367,7 @@ layers[5]:addElements( GUI.createElements(
     w = 384,
     h = 64,
     caption = "Whoa, another Checklist",
-    options = {"A","B","C","_","D","E","F","_","G","H","I"},
+    options = {"A","B","C","_","E","F","G","_","I","J","K"},
     dir = "h",
     swap = true
   },

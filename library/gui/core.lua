@@ -1,9 +1,13 @@
 -- NoIndex: true
 
-local Scythe
+-- luacheck: globals Scythe
+if not Scythe then
+  error("Couldn't find Scythe. Please make sure the Scythe library has been loaded.")
+  return
+end
 
 -- luacheck: globals GUI
-GUI = {}
+local GUI = {}
 
 local Table, T = require("public.table"):unpack()
 local Font = require("public.font")
@@ -11,6 +15,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local Layer = require("gui.layer")
 local Window = require("gui.window")
+local Config = require("gui.config")
 
 -- ReaPack version info
 GUI.get_script_version = function()
@@ -187,75 +192,7 @@ GUI.Main_Draw = function ()
     end
 end
 
--- Display the GUI version number
--- Set GUI.version = 0 to hide this
-GUI.Draw_Version = function ()
 
-    if not Scythe.version then return 0 end
-
-    local str = "Scythe "..Scythe.version
-
-    Font.set("version")
-    Color.set("txt")
-
-    local str_w, str_h = gfx.measurestr(str)
-
-    --gfx.x = GUI.w - str_w - 4
-    --gfx.y = GUI.h - str_h - 4
-    gfx.x = gfx.w - str_w - 6
-    gfx.y = gfx.h - str_h - 4
-
-    gfx.drawstr(str)
-
-end
-
--- Draws a grid overlay and some developer hints
--- Toggled via Ctrl+Shift+Alt+Z, or by setting GUI.dev_mode = true
-GUI.Draw_Dev = function ()
-
-    -- Draw a grid for placing elements
-    Color.set("magenta")
-    gfx.setfont("Courier New", 10)
-
-    for i = 0, GUI.w, GUI.dev.grid_b do
-
-        local a = (i == 0) or (i % GUI.dev.grid_a == 0)
-        gfx.a = a and 1 or 0.3
-        gfx.line(i, 0, i, GUI.h)
-        gfx.line(0, i, GUI.w, i)
-        if a then
-            gfx.x, gfx.y = i + 4, 4
-            gfx.drawstr(i)
-            gfx.x, gfx.y = 4, i + 4
-            gfx.drawstr(i)
-        end
-
-    end
-
-    local str = "Mouse: "..
-      math.modf(GUI.mouse.x)..", "..
-      math.modf(GUI.mouse.y).." "
-
-    local str_w, str_h = gfx.measurestr(str)
-    gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - 2*str_h - 2
-
-    Color.set("black")
-    gfx.rect(gfx.x - 2, gfx.y - 2, str_w + 4, 2*str_h + 4, true)
-
-    Color.set("white")
-    gfx.drawstr(str)
-
-    local snap_x, snap_y = Math.nearestmultiple(GUI.mouse.x, GUI.dev.grid_b),
-                            Math.nearestmultiple(GUI.mouse.y, GUI.dev.grid_b)
-
-    gfx.x, gfx.y = GUI.w - str_w - 2, GUI.h - str_h - 2
-    gfx.drawstr(" Snap: "..snap_x..", "..snap_y)
-
-    gfx.a = 1
-
-    GUI.redraw_z[0] = true
-
-end
 
 
 ------------------------------------
@@ -263,15 +200,15 @@ end
 ------------------------------------
 
 GUI.addElementClass = function(type)
-  local class = require("gui.elements."..type)
+  local ret, val = pcall(require, ("gui.elements."..type))
 
-  if not class then
-    reaper.ShowMessageBox("Couldn't load element class: " .. type, "Oops", 4)
+  if not ret then
+    error("Error loading the element class '" .. type .."':\n" .. val)
     return nil
   end
 
-  GUI.elementClasses[type] = class
-  return class
+  GUI.elementClasses[type] = val
+  return val
 end
 
 GUI.createElement = function (props)
@@ -369,38 +306,13 @@ end
 
 
 -- Print a string to the Reaper console.
-GUI.Msg = function (...)
+-- luacheck: globals Msg
+Msg = function (...)
     local out = Table.map({...},
       function (str) return tostring(str) end
     )
     reaper.ShowConsoleMsg(out:concat(", ").."\n")
 end
-
--- Developer mode settings
-GUI.dev = {
-
-    -- grid_a must be a multiple of grid_b, or it will
-    -- probably never be drawn
-    grid_a = 128,
-    grid_b = 16
-
-}
-
-
---[[
-    How fast the caret in textboxes should blink, measured in GUI update loops.
-
-    '16' looks like a fairly typical textbox caret.
-
-    Because each On and Off redraws the textbox's Z layer, this can cause CPU
-    issues in scripts with lots of drawing to do. In that case, raising it to
-    24 or 32 will still look alright but require less redrawing.
-]]--
-GUI.txt_blink_rate = 16
-
-
--- Delay time when hovering over an element before displaying a tooltip
-GUI.tooltip_time = 0.8
 
 
 ------------------------------------
@@ -457,134 +369,4 @@ GUI.load_window_state = function (name, title)
 
 end
 
-
-
-
-------------------------------------
--------- Reaper functions ----------
-------------------------------------
-
-
-
-
-
--- Also might need to know this
-GUI.SWS_exists = reaper.APIExists("CF_GetClipboardBig")
-
-
-
---[[
-Returns x,y coordinates for a window with the specified anchor position
-
-If no anchor is specified, it will default to the top-left corner of the screen.
-    x,y		offset coordinates from the anchor position
-    w,h		window dimensions
-    anchor	"screen" or "mouse"
-    corner	"TL"
-            "T"
-            "TR"
-            "R"
-            "BR"
-            "B"
-            "BL"
-            "L"
-            "C"
-]]--
-
-
-
-
-
-------------------------------------
--------- Misc. functions -----------
-------------------------------------
-
-
--- Why does Lua not have an operator for this?
-GUI.xor = function(a, b)
-
-    return (a or b) and not (a and b)
-
-end
-
-
--- Display a tooltip
-GUI.settooltip = function(str)
-
-    if not str or str == "" then return end
-
-    --Lua: reaper.TrackCtl_SetToolTip(string fmt, integer xpos, integer ypos, boolean topmost)
-    --displays tooltip at location, or removes if empty string
-    local x, y = gfx.clienttoscreen(0, 0)
-
-    reaper.TrackCtl_SetToolTip(
-      str,
-      x + GUI.mouse.x + 16,
-      y + GUI.mouse.y + 16,
-      true
-    )
-    GUI.tooltip = str
-
-
-end
-
-
--- Clear the tooltip
-GUI.cleartooltip = function()
-
-    reaper.TrackCtl_SetToolTip("", 0, 0, true)
-    GUI.tooltip = nil
-
-end
-
--- THIS NEEDS TO BE MOVED TO THE ELEMENT OR LAYER MODULES SOMEHOW
--- Tab forward (or backward, if Shift is down) to the next element with .tab_idx = number.
--- Removes focus from the given element, and gives it to the new element.
-function GUI.tab_to_next(elm)
-
-    if not elm.tab_idx then return end
-
-    local inc = (GUI.mouse.cap & 8 == 8) and -1 or 1
-
-    -- Get a list of all tab_idx elements, and a list of tab_idxs
-    local indices, elms = {}, {}
-    for _, element in pairs(GUI.elms) do
-        if element.tab_idx then
-            elms[element.tab_idx] = element
-            indices[#indices+1] = element.tab_idx
-        end
-    end
-
-    -- This is the only element with a tab index
-    if #indices == 1 then return end
-
-    -- Find the next element in the appropriate direction
-    table.sort(indices)
-
-    local new
-    local cur = Table.find(indices, elm.tab_idx)
-
-    if cur == 1 and inc == -1 then
-        new = #indices
-    elseif cur == #indices and inc == 1 then
-        new = 1
-    else
-        new = cur + inc
-    end
-
-    -- Move the focus
-    elm.focus = false
-    elm:lostfocus()
-    elm:redraw()
-
-    -- Can't set focus until the next GUI loop or Update will have problems
-    GUI.newfocus = elms[indices[new]]
-    elms[indices[new]]:redraw()
-
-end
-
-return function (scythe)
-  Scythe = scythe
-
-  return GUI
-end
+return GUI

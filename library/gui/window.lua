@@ -1,5 +1,8 @@
 local Table, T = require("public.table"):unpack()
 local Color = require("public.color")
+local Font = require("public.font")
+local Math = require("public.math")
+local Config = require("gui.config")
 
 local Window = T{}
 function Window:new(props)
@@ -79,6 +82,7 @@ end
 
 function Window:close()
   -- TODO: Store current size and position
+  self:cleartooltip()
   self.isOpen = false
   self:onClose()
   gfx.quit()
@@ -97,12 +101,6 @@ function Window:redraw()
 
   -- Redraw all of the elements, starting from the bottom up.
   local w, h = self.cur_w, self.cur_h
-
-  -- local need_redraw, global_redraw -- luacheck: ignore 221
-  -- if GUI.redraw_z[0] then
-  --     global_redraw = true
-  --     GUI.redraw_z[0] = false
-  -- else
 
   if self.layers:any(function(l) return l.needsRedraw end)
     or self.needsRedraw then
@@ -123,7 +121,7 @@ function Window:redraw()
           if  (layer.elementCount > 0 and not layer.hidden) then
 
               if layer.needsRedraw or self.needsRedraw then
-                layer:redraw(GUI)
+                layer:redraw()
               end
 
               gfx.blit(layer.buff, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
@@ -131,10 +129,10 @@ function Window:redraw()
       end
 
       -- Draw developer hints if necessary
-      if GUI.dev_mode then
-          GUI.Draw_Dev()
+      if Scythe.dev_mode then
+          self:drawDev()
       else
-          GUI.Draw_Version()
+          self:drawVersion()
       end
 
   end
@@ -185,6 +183,11 @@ function Window:update()
   if self.layerCount > 0 and self.isOpen and self.isRunning then
     self:updateLayers()
   end
+
+  if self.tooltip and not self.state.mouseover_elm then
+    self:cleartooltip()
+  end
+
 end
 
 function Window:handleWindowEvents()
@@ -197,7 +200,6 @@ function Window:handleWindowEvents()
     or state.kb.char == -1
     or state.quit == true then
 
-    GUI.cleartooltip()
     self:close()
     return 0
   end
@@ -205,7 +207,7 @@ function Window:handleWindowEvents()
   -- Dev mode toggle
   if  state.kb.char == 282         and state.mouse.cap & 4 ~= 0
   and state.mouse.cap & 8 ~= 0  and state.mouse.cap & 16 ~= 0 then
-    self.dev_mode = not self.dev_mode
+    Scythe.dev_mode = not Scythe.dev_mode
     self.elm_updated = true
     self.needsRedraw = true
   end
@@ -260,8 +262,11 @@ function Window:updateInputState()
   state.mouse.oy = last.mouse.oy
   state.mouse.off_x = last.mouse.off_x
   state.mouse.off_y = last.mouse.off_y
+  -- state.mouseover_elm = last.mouseover_elm
   state.mouseover_time = last.mouseover_time
-  state.tooltip_time = last.tooltip_time
+
+  state.settooltip = function(str) self:settooltip(state.mouse.x, state.mouse.y, str) end
+  -- state.tooltip_time = last.tooltip_time
 
   self.state = state
   self.last_state = last
@@ -273,6 +278,26 @@ function Window:updateLayers()
     self.sortedLayers[i]:update(self.state, self.last_state)
   end
 end
+
+
+--[[
+Returns x,y coordinates for a window with the specified anchor position
+
+If no anchor is specified, it will default to the top-left corner of the screen.
+    x,y		offset coordinates from the anchor position
+    w,h		window dimensions
+    anchor	"screen" or "mouse"
+    corner	"TL"
+            "T"
+            "TR"
+            "R"
+            "BR"
+            "B"
+            "BL"
+            "L"
+            "C"
+]]--
+
 
 function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
 
@@ -316,4 +341,107 @@ function Window:findElementByName(name, ...)
     if elm then return elm end
   end
 end
+
+
+-- Display a tooltip
+function Window:settooltip(x, y, str)
+
+  if not str or str == "" then return end
+
+  --Lua: reaper.TrackCtl_SetToolTip(string fmt, integer xpos, integer ypos, boolean topmost)
+  --displays tooltip at location, or removes if empty string
+  -- local x, y = gfx.clienttoscreen(0, 0)
+
+  reaper.TrackCtl_SetToolTip(
+    str,
+    self.x + x + 16,
+    self.y + y + 16,
+    true
+  )
+  self.tooltip = str
+
+
+end
+
+
+-- Clear the tooltip
+function Window:cleartooltip()
+
+  reaper.TrackCtl_SetToolTip("", 0, 0, true)
+  self.tooltip = nil
+
+end
+
+
+-- Display the GUI version number
+-- Set GUI.version = 0 to hide this
+function Window:drawVersion()
+
+  if not Scythe.version then return 0 end
+
+  local str = "Scythe "..Scythe.version
+
+  Font.set("version")
+  Color.set("txt")
+
+  local str_w, str_h = gfx.measurestr(str)
+
+  --gfx.x = GUI.w - str_w - 4
+  --gfx.y = GUI.h - str_h - 4
+  gfx.x = gfx.w - str_w - 6
+  gfx.y = gfx.h - str_h - 4
+
+  gfx.drawstr(str)
+
+end
+
+-- Draws a grid overlay and some developer hints
+-- Toggled via Ctrl+Shift+Alt+Z, or by setting Scythe.dev_mode = true
+function Window:drawDev()
+
+  -- Draw a grid for placing elements
+  Color.set("magenta")
+  gfx.setfont("Courier New", 10)
+
+  for i = 0, self.w, Config.dev.grid_b do
+
+      local a = (i == 0) or (i % Config.dev.grid_a == 0)
+      gfx.a = a and 1 or 0.3
+      gfx.line(i, 0, i, self.h)
+      gfx.line(0, i, self.w, i)
+      if a then
+          gfx.x, gfx.y = i + 4, 4
+          gfx.drawstr(i)
+          gfx.x, gfx.y = 4, i + 4
+          gfx.drawstr(i)
+      end
+
+  end
+
+  local str = "Mouse: "..
+    math.modf(self.state.mouse.x)..", "..
+    math.modf(self.state.mouse.y).." "
+
+  local str_w, str_h = gfx.measurestr(str)
+  gfx.x, gfx.y = self.w - str_w - 2, self.h - 2*str_h - 2
+
+  Color.set("black")
+  gfx.rect(gfx.x - 2, gfx.y - 2, str_w + 4, 2*str_h + 4, true)
+
+  Color.set("white")
+  gfx.drawstr(str)
+
+  local snap_x, snap_y = Math.nearestmultiple(self.state.mouse.x, Config.dev.grid_b),
+                          Math.nearestmultiple(self.state.mouse.y, Config.dev.grid_b)
+
+  gfx.x, gfx.y = self.w - str_w - 2, self.h - str_h - 2
+  gfx.drawstr(" Snap: "..snap_x..", "..snap_y)
+
+  gfx.a = 1
+
+end
+
+
+
+
 return Window

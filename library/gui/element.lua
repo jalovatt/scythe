@@ -4,6 +4,7 @@
 ------------------------------------
 
 local Table, T = require("public.table"):unpack()
+local Config = require("gui.config")
 
 --[[
     All classes will use this as their template, so that
@@ -57,6 +58,9 @@ function Element:ondelete() end
 -- Can be useful for something like a Slider that doesn't have the same
 -- value internally as what it's displaying
 function Element:val() end
+
+function Element:onmouseenter() end
+function Element:onmouseleave() end
 
 -- Called on every update loop if the mouse is over this element.
 function Element:onmouseover() end
@@ -202,29 +206,39 @@ function Element:Update(state, last)
 
 
   -- If the mouse is hovering over the element
-  if inside and not state.mouse.down and not state.mouse.r_down then
-    self:onmouseover(state, last)
+  if inside then
+    state.mouseover_elm = self
+    if not state.mouse.down and not state.mouse.r_down then
 
-    -- Initial mouseover an element
-    if state.mouseover_elm ~= self then
-      state.mouseover_elm = self
-      state.mouseover_time = reaper.time_precise()
+      -- Initial mouseover an element
+      if last.mouseover_elm ~= self then
+        self:onmouseenter(state, last)
+        -- state.mouseover_elm = self
+        state.mouseover_time = reaper.time_precise()
 
-    -- Mouse was moved; reset the timer
-    elseif state.dx ~= 0 or state.dy ~= 0 then
+      else
+        self:onmouseover(state, last)
+        -- Mouse was moved; reset the timer
+        if state.mouse.dx ~= 0 or state.mouse.dy ~= 0 then
 
-      state.mouseover_time = reaper.time_precise()
+          state.mouseover_time = reaper.time_precise()
 
-    -- Display a tooltip
-    elseif self.tooltip
-      and (reaper.time_precise() - state.mouseover_time)
-            >= state.tooltip_time then
+        -- Display a tooltip
+        elseif self.tooltip
+          and (reaper.time_precise() - state.mouseover_time)
+                >= Config.tooltip_time then
 
-      GUI.Msg("tooltip:", self.tooltip)
-      state.settooltip(self.tooltip)
+          state.settooltip(self.tooltip)
 
+        end
+      end
     end
+    state.elm_updated = true
 
+  else
+    if last.mouseover_elm == self then
+      self:onmouseleave()
+    end
   end
 
 

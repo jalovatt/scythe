@@ -87,11 +87,6 @@ function Layer:redraw()
   gfx.dest = self.buff
 
   for _, elm in pairs(self.elements) do
-      -- if not GUI.Elements[elm] then
-      --     reaper.MB(  "Error: Tried to update a GUI element that doesn't exist:"..
-      --                 "\nGUI.Elements." .. tostring(elm), "Whoops!", 0)
-      -- end
-
       -- Reset these just in case an element or some user code forgot to,
       -- otherwise we get things like the whole buffer being blitted with a=0.2
       gfx.mode = 0

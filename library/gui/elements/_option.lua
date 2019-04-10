@@ -69,14 +69,10 @@ end
 function Option:init()
 
     -- Make sure we're not trying to use the base class.
+    -- It shouldn't be possible, but just in case...
     if self.type == "Option" then
-        reaper.ShowMessageBox(  "'"..self.name.."' was initialized as an Option element,"..
-                                "but Option doesn't do anything on its own!",
-                                "GUI Error", 0)
-
-        GUI.quit = true
+        error("Invalid GUI class - '" .. self.name .. "' was initialized as an Option element")
         return
-
     end
 
 	self.buff = self.buff or Buffer.get()

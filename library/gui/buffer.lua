@@ -29,8 +29,7 @@ Buffer.get = function (num)
             end
 
             -- Something bad happened, probably my fault
-            GUI.error_message = "Couldn't get a new graphics buffer - " ..
-              "all of them are in use"
+            error("Unable to find an unused graphics buffer")
 
             ::skip::
         end
