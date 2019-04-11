@@ -93,7 +93,7 @@ function Element:ontype() end
 -- Elements like a Textbox that need to keep track of their focus
 -- state will use this to e.g. update the text somewhere else
 -- when the user clicks out of the box.
-function Element:lostfocus() end
+function Element:onlostfocus() end
 
 -- Called when the script window has been resized
 function Element:onresize() end
@@ -109,7 +109,7 @@ function Element:Update(state, last)
   if state.elm_updated then
       if self.focus then
           self.focus = false
-          self:lostfocus(state, last)
+          self:onlostfocus(state, last)
       end
 
       return
@@ -134,7 +134,7 @@ function Element:Update(state, last)
         -- end
         if self.focus then
           self.focus = false
-          self:lostfocus(state, last)
+          self:onlostfocus(state, last)
         end
 
         return
