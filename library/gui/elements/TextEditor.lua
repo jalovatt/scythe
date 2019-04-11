@@ -21,6 +21,8 @@ local Const = require("public.const")
 local Config = require("gui.config")
 require("public.string")
 
+local TextUtils = require("gui.elements._text_utils")
+
 local TextEditor = require("gui.element"):new()
 function TextEditor:new(props)
 
@@ -127,28 +129,9 @@ function TextEditor:draw()
 	-- Caret
 	-- Only needs to be drawn for half of the blink cycle
 	if self.focus then
-       --[[
-        --Draw line highlight a la NP++ ??
-        Color.set("elm_bg")
-        gfx.a = 0.2
-        gfx.mode = 1
-
-
-        gfx.mode = 0
-        gfx.a = 1
-       ]]--
-
-        -- Selection
-        if self.sel_s and self.sel_e then
-
-            self:drawselection()
-
-        end
-
+        if self.sel_s and self.sel_e then self:drawselection() end
         if self.show_caret then self:drawcaret() end
-
-    end
-
+  end
 
 	-- Scrollbars
 	self:drawscrollbars()
@@ -247,7 +230,7 @@ end
 
 function TextEditor:ondrag(state, last)
 
-	local scroll = self:overscrollbar(last.mouse.x, last.mouse.y)
+	local scroll = self:overscrollbar(state.mouse.ox, state.mouse.oy)
 	if scroll then
 
         self:setscrollbar(scroll, state)
@@ -255,7 +238,7 @@ function TextEditor:ondrag(state, last)
 	-- Select from where the mouse is now to where it started
 	else
 
-		self.sel_s = self:getcaret(last.mouse.x, last.mouse.y)
+		self.sel_s = self:getcaret(state.mouse.ox, state.mouse.oy)
 		self.sel_e = self:getcaret(state.mouse.x, last.mouse.y)
 
 	end
@@ -745,34 +728,11 @@ function TextEditor:getselectedtext()
 end
 
 
-function TextEditor:toclipboard(cut)
-
-    if self.sel_s and self:SWS_clipboard() then
-
-        local str = self:getselectedtext()
-        reaper.CF_SetClipboard(str)
-        if cut then self:deleteselection() end
-
-    end
-
-end
+TextEditor.toclipboard = TextUtils.toclipboard
+TextEditor.fromclipboard = TextUtils.fromclipboard
 
 
-function TextEditor:fromclipboard()
 
-    if self:SWS_clipboard() then
-
-        -- reaper.SNM_CreateFastString( str )
-        -- reaper.CF_GetClipboardBig( output )
-        local fast_str = reaper.SNM_CreateFastString("")
-        local str = reaper.CF_GetClipboardBig(fast_str)
-        reaper.SNM_DeleteFastString(fast_str)
-
-        self:insertstring(str, true)
-
-    end
-
-end
 
 ------------------------------------
 -------- Window/Pos Helpers --------
@@ -1307,42 +1267,10 @@ TextEditor.keys = {
 -------- Misc. Functions -----------
 ------------------------------------
 
+TextEditor.undo = TextUtils.undo
+TextEditor.redo = TextUtils.redo
 
-function TextEditor:undo()
-
-	if #self.undo_states == 0 then return end
-	table.insert(self.redo_states, self:geteditorstate() )
-	local state = table.remove(self.undo_states)
-
-	self.retval = state.retval
-	self.caret = state.caret
-
-	self:windowtocaret()
-
-end
-
-
-function TextEditor:redo()
-
-	if #self.redo_states == 0 then return end
-	table.insert(self.undo_states, self:geteditorstate() )
-	local state = table.remove(self.redo_states)
-	self.retval = state.retval
-	self.caret = state.caret
-
-	self:windowtocaret()
-
-end
-
-
-function TextEditor:storeundostate()
-
-	table.insert(self.undo_states, self:geteditorstate() )
-	if #self.undo_states > self.undo_limit then table.remove(self.undo_states, 1) end
-	self.redo_states = {}
-
-end
-
+TextEditor.storeundostate = TextUtils.storeundostate
 
 function TextEditor:geteditorstate()
 
@@ -1368,22 +1296,6 @@ function TextEditor:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
 end
 
 
-
--- See if we have a new-enough version of SWS for the clipboard functions
--- (v2.9.7 or greater)
-function TextEditor:SWS_clipboard()
-
-	if Scythe.SWS_exists then
-		return true
-	else
-
-		reaper.ShowMessageBox(	"Clipboard functions require the SWS extension, v2.9.7 or newer."..
-									"\n\nDownload the latest version at http://www.sws-extension.org/index.php",
-									"Sorry!", 0)
-		return false
-
-	end
-
-end
+TextEditor.SWS_clipboard = TextUtils.SWS_clipboard
 
 return TextEditor

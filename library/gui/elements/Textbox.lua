@@ -21,6 +21,9 @@ local Config = require("gui.config")
 
 local Const = require("public.const")
 
+local TextUtils = require("gui.elements._text_utils")
+-- Msg(tostring(TextUtils))
+
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
 
@@ -119,7 +122,7 @@ function Textbox:draw()
 	gfx.blit(self.buff, 1, 0, (self.focus and self.w or 0), 0,
             self.w, self.h, self.x, self.y)
 
-    if self.retval ~= "" then self:drawtext() end
+  if self.retval ~= "" then self:drawtext() end
 
 	if self.focus then
 
@@ -128,7 +131,7 @@ function Textbox:draw()
 
 	end
 
-    self:drawgradient()
+  self:drawgradient()
 
 end
 
@@ -510,34 +513,8 @@ function Textbox:getselectedtext()
 end
 
 
-function Textbox:toclipboard(cut)
-
-    if self.sel_s and self:SWS_clipboard() then
-
-        local str = self:getselectedtext()
-        reaper.CF_SetClipboard(str)
-        if cut then self:deleteselection() end
-
-    end
-
-end
-
-
-function Textbox:fromclipboard()
-
-    if self:SWS_clipboard() then
-
-        -- reaper.SNM_CreateFastString( str )
-        -- reaper.CF_GetClipboardBig( output )
-        local fast_str = reaper.SNM_CreateFastString("")
-        local str = reaper.CF_GetClipboardBig(fast_str)
-        reaper.SNM_DeleteFastString(fast_str)
-
-        self:insertstring(str, true)
-
-    end
-
-end
+Textbox.toclipboard = TextUtils.toclipboard
+Textbox.fromclipboard = TextUtils.fromclipboard
 
 
 
@@ -824,49 +801,16 @@ Textbox.keys = {
 ------------------------------------
 
 
-function Textbox:undo()
+Textbox.undo = TextUtils.undo
+Textbox.redo = TextUtils.redo
 
-	if #self.undo_states == 0 then return end
-	table.insert(self.redo_states, self:geteditorstate() )
-	local state = table.remove(self.undo_states)
-
-    self.retval = state.retval
-	self.caret = state.caret
-
-	self:windowtocaret()
-
-end
-
-
-function Textbox:redo()
-
-	if #self.redo_states == 0 then return end
-	table.insert(self.undo_states, self:geteditorstate() )
-	local state = table.remove(self.redo_states)
-
-	self.retval = state.retval
-	self.caret = state.caret
-
-	self:windowtocaret()
-
-end
-
-
-function Textbox:storeundostate()
-
-table.insert(self.undo_states, self:geteditorstate() )
-	if #self.undo_states > self.undo_limit then table.remove(self.undo_states, 1) end
-	self.redo_states = {}
-
-end
-
+Textbox.storeundostate = TextUtils.storeundostate
 
 function Textbox:geteditorstate()
 
 	return { retval = self.retval, caret = self.caret }
 
 end
-
 
 function Textbox:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
 
@@ -877,23 +821,6 @@ function Textbox:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
 
 end
 
-
-
--- See if we have a new-enough version of SWS for the clipboard functions
--- (v2.9.7 or greater)
-function Textbox:SWS_clipboard()
-
-	if Scythe.SWS_exists then
-		return true
-	else
-
-		reaper.ShowMessageBox(	"Clipboard functions require the SWS extension, v2.9.7 or newer."..
-									"\n\nDownload the latest version at http://www.sws-extension.org/index.php",
-									"Sorry!", 0)
-		return false
-
-	end
-
-end
+Textbox.SWS_clipboard = TextUtils.SWS_clipboard
 
 return Textbox
