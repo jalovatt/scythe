@@ -16,28 +16,31 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
 
+local Table = require("public.table")
+
 local Label = require("gui.element"):new()
 function Label:new(props)
 
-	local label = props
+	local label = Table.copy({
+    type = "Label",
 
-	label.type = "Label"
-
-	label.x = label.x or 0
-  label.y = label.y or 0
+    x = 0,
+    y = 0,
 
     -- Placeholders; we'll get these at runtime
-	label.w, label.h = 0, 0
+    w = 0,
+    h = 0,
 
-	label.caption = label.caption   or "Label"
-	label.shadow =  label.shadow    or false
-	label.font =    label.font      or 2
-	label.color =   label.color     or "txt"
-	label.bg =      label.bg        or "wnd_bg"
+    caption = "Label",
+    shadow =  false,
+    font =    2,
+    color =   "txt",
+    bg =      "wnd_bg",
+  }, props)
 
 	setmetatable(label, self)
-    self.__index = self
-    return label
+  self.__index = self
+  return label
 end
 
 

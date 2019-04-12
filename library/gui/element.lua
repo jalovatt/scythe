@@ -372,8 +372,8 @@ end
 
 
 function Element:moveToLayer(dest)
-  if self.layer then self.layer:remove(self) end
-  if dest then dest:add(self) end
+  if self.layer then self.layer:removeElements(self) end
+  if dest then dest:addElements(self) end
 end
 
 
