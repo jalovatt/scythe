@@ -77,14 +77,14 @@ function Element:ondrag() end
 -- Right-click
 function Element:onr_mousedown() end
 function Element:onr_mouseup() end
-function Element:onr_doubleclick() Msg("r_doubleclick") end
+function Element:onr_doubleclick() end
 function Element:onr_drag() end
 
 -- Middle-click
 function Element:onm_mousedown() end
 function Element:onm_mouseup() end
 function Element:onm_doubleclick() end
-function Element:onm_drag() Msg("m_drag") end
+function Element:onm_drag() end
 
 function Element:onwheel() end
 function Element:ontype() end
