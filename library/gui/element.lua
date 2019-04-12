@@ -75,16 +75,16 @@ function Element:ondoubleclick() end
 function Element:ondrag() end
 
 -- Right-click
-function Element:onmouser_down() end
-function Element:onmouser_up() end
-function Element:onr_doubleclick() end
+function Element:onr_mousedown() end
+function Element:onr_mouseup() end
+function Element:onr_doubleclick() Msg("r_doubleclick") end
 function Element:onr_drag() end
 
 -- Middle-click
-function Element:onmousem_down() end
-function Element:onmousem_up() end
+function Element:onm_mousedown() end
+function Element:onm_mouseup() end
 function Element:onm_doubleclick() end
-function Element:onm_drag() end
+function Element:onm_drag() Msg("m_drag") end
 
 function Element:onwheel() end
 function Element:ontype() end
@@ -120,79 +120,105 @@ function Element:Update(state, last)
   local x, y = state.mouse.x, state.mouse.y
   local inside = self:isInside(x, y)
 
-  -- Left button
-  if state.mouse.leftDown then
+  local buttons = {
+    {
+      btn = "",
+      down = "leftDown",
+    },
+    {
+      btn = "r_",
+      down = "rightDown",
+    },
+    {
+      btn = "m_",
+      down = "middleDown",
+    },
+  }
 
-    -- If it wasn't down already...
-    if not last.mouse.leftDown then
+  for _, button in ipairs(buttons) do
+    if state.elm_updated then break end
 
-      -- Was a different element clicked?
-      if not inside then
-        -- if last.mouse_down_elm == self then
-        --     -- Should already have been reset by the mouse-up, but safeguard...
-        --     state.mouse_down_elm = nil
-        -- end
-        if self.focus then
-          self.focus = false
-          self:onlostfocus(state, last)
-        end
+    if state.mouse[button.down] then
 
-        return
-      else
+      -- If it wasn't down already...
+      if not last.mouse[button.down] then
 
-        if state.mouse_down_elm == nil then -- Prevent click-through
-
-          state.mouse_down_elm = self
-
-          -- Double clicked?
-          if state.mouse.downtime
-          and reaper.time_precise() - state.mouse.downtime < 0.10
-          then
-
-            state.mouse.downtime = nil
-            state.mouse.dbl_clicked = true
-            self:ondoubleclick(state, last)
-
-          elseif not state.mouse.dbl_clicked then
-
-            self.focus = true
-            self:onmousedown(state, last)
-
+        -- Was a different element clicked?
+        if not inside then
+          -- if last.mouse_down_elm == self then
+          --     -- Should already have been reset by the mouse-up, but safeguard...
+          --     state.mouse_down_elm = nil
+          -- end
+          if self.focus then
+            self.focus = false
+            self:onlostfocus(state, last)
           end
 
-          state.elm_updated = true
+          return
+        else
+
+          -- if state.mouse_down_elm == nil then -- Prevent click-through
+
+            state.mouse_down_elm = self
+
+            -- Double clicked?
+            if state.mouse.downtime
+            and reaper.time_precise() - state.mouse.downtime < Config.doubleclick_time
+            then
+
+              state.mouse.downtime = nil
+              state.mouse.dbl_clicked = true
+              -- self:ondoubleclick(state, last)
+              self["on"..button.btn.."doubleclick"](self, state, last)
+
+            elseif not state.mouse.dbl_clicked then
+
+              state.mouse.downtime = reaper.time_precise()
+              self.focus = true
+              self["on"..button.btn.."mousedown"](self, state, last)
+              self:onmousedown(state, last)
+
+            end
+
+            state.elm_updated = true
+          -- end
+
+          state.mouse.ox, state.mouse.oy = x, y
+
+          -- Where in the self the mouse was clicked. For dragging stuff
+          -- and keeping it in the place relative to the cursor.
+          state.mouse.off_x, state.mouse.off_y = x - self.x, y - self.y
+
         end
 
-        state.mouse.ox, state.mouse.oy = x, y
+      -- 		Dragging? Did the mouse start out in this element?
+      elseif last.mouse_down_elm == self then
 
-        -- Where in the self the mouse was clicked. For dragging stuff
-        -- and keeping it in the place relative to the cursor.
-        state.mouse.off_x, state.mouse.off_y = x - self.x, y - self.y
+        if (state.mouse.dx ~= 0 or state.mouse.dy ~= 0)
+        and self.focus ~= false then
 
+          state.elm_updated = true
+          -- self:ondrag(state, last)
+          self["on"..button.btn.."drag"](self, state, last)
+
+        end
+        state.mouse_down_elm = last.mouse_down_elm
       end
 
-    -- 		Dragging? Did the mouse start out in this element?
-    elseif (state.mouse.dx ~= 0 or state.mouse.dy ~= 0)
-    and     state.mouse_down_elm == self then
-      if self.focus ~= false then
+    -- If it was originally clicked in this element and has been released
+    elseif last.mouse[button.down] and last.mouse_down_elm == self then
 
-        state.elm_updated = true
-        self:ondrag(state, last)
+      state.mouse_down_elm = nil
 
+      if not state.mouse.dbl_clicked then
+
+      -- self:onmouseup(state, last) end
+        self["on"..button.btn.."mouseup"](self, state, last)
       end
+
+      state.elm_updated = true
+
     end
-
-  -- If it was originally clicked in this element and has been released
-  elseif last.mouse.leftDown and last.mouse_down_elm == self then
-
-    state.mouse_down_elm = nil
-
-    if not state.mouse.dbl_clicked then
-
-    self:onmouseup(state, last) end
-
-    state.elm_updated = true
-
   end
 
 
@@ -233,7 +259,7 @@ function Element:Update(state, last)
         end
       end
     end
-    state.elm_updated = true
+    -- state.elm_updated = true
 
   else
     if last.mouseover_elm == self then

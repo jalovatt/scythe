@@ -257,7 +257,7 @@ function Window:updateInputState()
   state.cur_h = gfx.h
 
   -- Values that need to persist from one loop to the next
-  state.mouse.downtime = last.downtime
+  state.mouse.downtime = last.mouse.downtime
   state.mouse_down_elm = last.mouse_down_elm
   state.mouse.dbl_clicked = last.dbl_clicked
   state.mouse.ox = last.mouse.ox

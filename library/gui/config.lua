@@ -1,5 +1,6 @@
 local Config = {}
 
+Config.doubleclick_time = 0.30
 
 --[[
     How fast the caret in textboxes should blink, measured in GUI update loops.
