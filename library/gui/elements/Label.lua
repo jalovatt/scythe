@@ -19,6 +19,8 @@ local Text = require("public.text")
 local Table = require("public.table")
 
 local Label = require("gui.element"):new()
+Label.__index = Label
+
 function Label:new(props)
 
 	local label = Table.copy({
@@ -37,9 +39,7 @@ function Label:new(props)
     bg =      "wnd_bg",
   }, props)
 
-	setmetatable(label, self)
-  self.__index = self
-  return label
+  return self:assignChild(label)
 end
 
 

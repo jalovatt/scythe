@@ -20,6 +20,7 @@ local Text = require("public.text")
 local Table = require("public.table")
 
 local Knob = require("gui.element"):new()
+Knob.__index = Knob
 
 function Knob:new(props)
 
@@ -55,9 +56,10 @@ function Knob:new(props)
   knob.curstep = knob.default
 	knob.curval = knob.curstep / knob.steps
 
-  knob.prototype = Knob
-	setmetatable(knob, self)
-	self.__index = self
+  -- knob.prototype = Knob
+	-- setmetatable(knob, self)
+  -- self.__index = self
+  self:assignChild(knob)
 
   knob.retval = knob:formatretval(
     ((knob.max - knob.min) / knob.steps) * knob.curstep + knob.min

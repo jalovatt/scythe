@@ -8,6 +8,7 @@ local Color = require("public.color")
 local Option = require("gui.elements._option")
 
 local Radio = setmetatable({}, {__index = Option})
+Radio.__index = Radio
 
 function Radio:new(props)
 
@@ -17,10 +18,7 @@ function Radio:new(props)
 
     radio.retval, radio.state = 1, 1
 
-    setmetatable(radio, self)
-    self.__index = self
-    return radio
-
+    return self:assignChild(radio)
 end
 
 

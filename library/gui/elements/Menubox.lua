@@ -20,6 +20,7 @@ local Text = require("public.text")
 local Table = require("public.table")
 
 local Menubox = require("gui.element"):new()
+Menubox.__index = Menubox
 
 function Menubox:new(props)
   -- name, z, x, y, w, h, caption, opts, pad, noarrow
@@ -50,9 +51,7 @@ function Menubox:new(props)
     options = {1, 2, 3},
   }, props)
 
-  setmetatable(menu, self)
-  self.__index = self
-  return menu
+  return self:assignChild(menu)
 end
 
 

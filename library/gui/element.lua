@@ -376,5 +376,12 @@ function Element:moveToLayer(dest)
   if dest then dest:addElements(self) end
 end
 
+-- Not strictly necessary, but offers easy access to an element's parent class
+function Element:assignChild(instance)
+  setmetatable(instance, self)
+  instance.prototype = self
+
+  return instance
+end
 
 return Element

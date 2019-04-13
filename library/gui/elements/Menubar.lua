@@ -18,6 +18,8 @@ local Text = require("public.text")
 local Table = require("public.table")
 
 local Menubar = require("gui.element"):new()
+Menubar.__index = Menubar
+
 function Menubar:new(props)
 
 	local mnu = Table.copy({
@@ -50,9 +52,7 @@ function Menubar:new(props)
     mnu.fullwidth = true
   end
 
-	setmetatable(mnu, self)
-	self.__index = self
-	return mnu
+  return self:assignChild(mnu)
 
 end
 

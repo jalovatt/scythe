@@ -21,6 +21,8 @@ require("public.string")
 
 -- Listbox - New
 local Listbox = require("gui.element"):new()
+Listbox.__index = Listbox
+
 function Listbox:new(props)
 
 	local list = Table.copy({
@@ -59,10 +61,7 @@ function Listbox:new(props)
 
   list.shadow = list.shadow or (list.shadow == nil)
 
-	setmetatable(list, self)
-	self.__index = self
-	return list
-
+  return self:assignChild(list)
 end
 
 

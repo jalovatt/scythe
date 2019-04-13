@@ -22,6 +22,8 @@ local Element = require("gui.element")
 
 -- Button - New
 local Button = Element:new()
+Button.__index = Button
+
 function Button:new(props)
 
 	local button = Table.copy({
@@ -42,10 +44,7 @@ function Button:new(props)
     state = 0,
   }, props)
 
-	setmetatable(button, self)
-	self.__index = self
-	return button
-
+  return self:assignChild(button)
 end
 
 

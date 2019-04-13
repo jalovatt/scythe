@@ -20,6 +20,7 @@ local Text = require("public.text")
 local Table = require("public.table")
 
 local Slider = require("gui.element"):new()
+Slider.__index = Slider
 
 function Slider:new(props)
 --name, z, x, y, w, caption, min, max, defaults, inc, dir
@@ -77,8 +78,9 @@ function Slider:new(props)
 
   slider.min, slider.max = min, max
 
-  setmetatable(slider, self)
-  self.__index = self
+  -- setmetatable(slider, self)
+  -- self.__index = self
+  self:assignChild(slider)
 
   slider.defaults = slider.defaults
   -- If the user only asked for one handle

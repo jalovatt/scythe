@@ -19,6 +19,7 @@ local Text = require("public.text")
 local Table = require("public.table")
 
 local Frame = require("gui.element"):new()
+Frame.__index = Frame
 
 function Frame:new(props)
 
@@ -42,10 +43,10 @@ function Frame:new(props)
 
   }, props)
 
-	setmetatable(frame, self)
-	self.__index = self
-	return frame
-
+	-- setmetatable(frame, self)
+	-- self.__index = self
+	-- return frame
+  return self:assignChild(frame)
 end
 
 

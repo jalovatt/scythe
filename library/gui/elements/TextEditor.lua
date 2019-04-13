@@ -25,6 +25,8 @@ require("public.string")
 local TextUtils = require("gui.elements._text_utils")
 
 local TextEditor = require("gui.element"):new()
+TextEditor.__index = TextEditor
+
 function TextEditor:new(props)
 
 	local txt = Table.copy({
@@ -75,10 +77,7 @@ function TextEditor:new(props)
     txt.shadow = true
   end
 
-	setmetatable(txt, self)
-	self.__index = self
-	return txt
-
+	return self:assignChild(txt)
 end
 
 

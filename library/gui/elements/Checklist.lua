@@ -7,6 +7,7 @@ local Color = require("public.color")
 local Option = require("gui.elements._option")
 
 local Checklist = setmetatable({}, {__index = Option})
+Checklist.__index = Checklist
 
 function Checklist:new(props)
 --name, z, x, y, w, h, caption, opts, dir, pad
@@ -16,10 +17,7 @@ function Checklist:new(props)
 
     checklist.optsel = checklist.optsel or {}
 
-    setmetatable(checklist, self)
-    self.__index = self
-    return checklist
-
+    return self:assignChild(checklist)
 end
 
 

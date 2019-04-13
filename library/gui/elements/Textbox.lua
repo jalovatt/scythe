@@ -23,9 +23,10 @@ local Config = require("gui.config")
 local Const = require("public.const")
 
 local TextUtils = require("gui.elements._text_utils")
--- Msg(tostring(TextUtils))
 
 local Textbox = require("gui.element"):new()
+Textbox.__index = Textbox
+
 function Textbox:new(props)
 
 	local txt = Table.copy({
@@ -64,10 +65,7 @@ function Textbox:new(props)
     txt.shadow = true
   end
 
-	setmetatable(txt, self)
-	self.__index = self
-	return txt
-
+	return self:assignChild(txt)
 end
 
 

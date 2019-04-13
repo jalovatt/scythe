@@ -18,6 +18,8 @@ local Buffer = require("gui.buffer")
 local Table = require("public.table")
 
 local Tabs = require("gui.element"):new()
+Tabs.__index = Tabs
+
 function Tabs:new(props)
 
 	local tab = Table.copy({
@@ -66,10 +68,7 @@ function Tabs:new(props)
 	tab.retval = tab.retval or 1
   tab.state = tab.retval or 1
 
-	setmetatable(tab, self)
-	self.__index = self
-	return tab
-
+	return self:assignChild(tab)
 end
 
 
