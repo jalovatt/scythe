@@ -16,32 +16,31 @@ local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Frame = require("gui.element"):new()
 
 function Frame:new(props)
 
-	local frame = props
+	local frame = Table.copy({
 
-	frame.type = "Frame"
+	  type = "Frame",
+    x = 0,
+    y = 0,
+    w = 256,
+    h = 256,
+    color = "elm_frame",
+	  round = 0,
+    text = "",
+    last_text = "",
+	  txt_indent = 0,
+	  txt_pad = 0,
+    bg = "wnd_bg",
+    font = 4,
+	  col_txt = "txt",
+	  pad = 4,
 
-	frame.x = frame.x or 0
-  frame.y = frame.y or 0
-  frame.w = frame.w or 256
-  frame.h = frame.h or 256
-
-	frame.color = frame.color or "elm_frame"
-	frame.round = frame.round or 0
-
-	frame.text, frame.last_text = frame.text or "", ""
-	frame.txt_indent = frame.txt_indent or 0
-	frame.txt_pad = frame.txt_pad or 0
-
-	frame.bg = frame.bg or "wnd_bg"
-
-	frame.font = frame.font or 4
-	frame.col_txt = frame.col_txt or "txt"
-	frame.pad = frame.pad or 4
+  }, props)
 
 	setmetatable(frame, self)
 	self.__index = self
@@ -158,7 +157,7 @@ function Frame:drawtext()
 		Color.set(self.col_txt)
 
 		gfx.x, gfx.y = self.pad + 1, self.pad + 1
-		if not fill then Text.text_bg(self.text, self.bg) end
+		if not self.fill then Text.text_bg(self.text, self.bg) end
 		gfx.drawstr(self.text)
 
 	end

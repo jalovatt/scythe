@@ -16,6 +16,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Config = require("gui.config")
 
@@ -27,47 +28,41 @@ local TextUtils = require("gui.elements._text_utils")
 local Textbox = require("gui.element"):new()
 function Textbox:new(props)
 
-	local txt = props
+	local txt = Table.copy({
 
-	txt.type = "Textbox"
+    type = "Textbox",
+    x = 0,
+    y = 0,
+    w = 96,
+    h = 24,
+    retval = "",
+    caption = "Textbox",
+    pad = 4,
+    bg = "wnd_bg",
+    color = "txt",
+    font_a = 3,
+    font_b = "monospace",
+    cap_pos = "left",
+    undo_limit = 20,
+    undo_states = {},
+    redo_states = {},
+    wnd_pos = 0,
+    caret = 0,
+    sel_s = nil,
+    sel_e = nil,
+    char_h = nil,
+    wnd_h = nil,
+    wnd_w = nil,
+    char_w = nil,
+    focus = false,
+    blink = 0,
 
-	txt.x = txt.x or 0
-  txt.y = txt.y or 0
-  txt.w = txt.w or 96
-  txt.h = txt.h or 24
+  }, props)
 
-  txt.retval = txt.retval or ""
-
-  txt.caption = txt.caption or "Textbox"
-  txt.pad = txt.pad or 4
 
   if txt.shadow == nil then
-      txt.shadow = true
+    txt.shadow = true
   end
-
-	txt.bg = txt.bg or "wnd_bg"
-	txt.color = txt.color or "txt"
-
-	txt.font_a = txt.font_a or 3
-
-	txt.font_b = txt.font_b or "monospace"
-
-  txt.cap_pos = txt.cap_pos or "left"
-
-  txt.undo_limit = txt.undo_limit or 20
-
-  txt.undo_states = {}
-  txt.redo_states = {}
-
-  txt.wnd_pos = 0
-	txt.caret = 0
-	txt.sel_s, txt.sel_e = nil, nil
-
-  txt.char_h, txt.wnd_h, txt.wnd_w, txt.char_w = nil, nil, nil, nil
-
-	txt.focus = false
-
-	txt.blink = 0
 
 	setmetatable(txt, self)
 	self.__index = self

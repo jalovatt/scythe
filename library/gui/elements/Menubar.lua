@@ -15,37 +15,40 @@ local Buffer = require("gui.buffer")
 local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Menubar = require("gui.element"):new()
 function Menubar:new(props)
 
-	local mnu = props
+	local mnu = Table.copy({
 
-	mnu.type = "Menubar"
+    type = "Menubar",
 
-	mnu.x = mnu.x or 0
-  mnu.y = mnu.y or 0
+    x = 0,
+    y = 0,
 
-  mnu.font = mnu.font or 2
-  mnu.col_txt = mnu.col_txt or "txt"
-  mnu.col_bg = mnu.col_bg or "elm_frame"
-  mnu.col_hover = mnu.col_hover or "elm_fill"
+    font = 2,
+    col_txt = "txt",
+    col_bg = "elm_frame",
+    col_hover = "elm_fill",
+
+    w = 256,
+    h = 24,
+
+    -- Optional parameters should be given default values to avoid errors/crashes:
+    pad = 0,
+
+  }, props)
+
+  mnu.menus = mnu.menus or {}
 
   if mnu.shadow == nil then
-      mnu.shadow = true
+    mnu.shadow = true
   end
-
-  mnu.w = mnu.w or 256
-  mnu.h = mnu.h or 24
 
   if mnu.fullwidth == nil then
-      mnu.fullwidth = true
+    mnu.fullwidth = true
   end
-
-  -- Optional parameters should be given default values to avoid errors/crashes:
-  mnu.pad = mnu.pad or 0
-
-  mnu.menus = mnu.menus or menus
 
 	setmetatable(mnu, self)
 	self.__index = self

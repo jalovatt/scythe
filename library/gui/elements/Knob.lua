@@ -17,65 +17,53 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Knob = require("gui.element"):new()
 
 function Knob:new(props)
 
-	local knob = props
+	local knob = Table.copy({
+	  type = "Knob",
+	  x = 0,
+    y = 0,
+    w = 64,
+	  caption = "Knob",
+	  bg = "wnd_bg",
+    cap_x = 0,
+    cap_y = 0,
+	  font_a = 3,
+	  font_b = 4,
+	  col_txt = "txt",
+	  col_head = "elm_fill",
+    col_body = "elm_frame",
 
-	knob.type = "Knob"
+    min = 0,
+    max = 10,
+    inc = 1,
 
-	knob.x = knob.x or 0
-  knob.y = knob.y or 0
-  knob.w = knob.w or 64
+    default = 5
+  }, props)
+
   knob.h = knob.w
+  knob.steps = knob.steps or (math.abs(knob.max - knob.min) / knob.inc)
+  knob.vals = knob.vals or (knob.vals == nil and true)
 
-	knob.caption = knob.caption or "Knob"
-	knob.bg = knob.bg or "wnd_bg"
+  -- Determine the step angle
+  knob.stepangle = (3 / 2) / knob.steps
 
-  knob.cap_x = knob.cap_x or 0
-  knob.cap_y = knob.cap_y or 0
-
-	knob.font_a = knob.font_a or 3
-	knob.font_b = knob.font_b or 4
-
-	knob.col_txt = knob.col_txt or "txt"
-	knob.col_head = knob.col_head or "elm_fill"
-	knob.col_body = knob.col_body or "elm_frame"
-
-	knob.min = knob.min or 0
-  knob.max = knob.max or 10
-  knob.inc = knob.inc or 1
-
-
-  knob.steps = math.abs(knob.max - knob.min) / knob.inc
-
-  function knob:formatretval(val)
-    local decimal = tonumber(string.match(val, "%.(.*)") or 0)
-    local places = decimal ~= 0 and string.len( decimal) or 0
-    return string.format("%." .. places .. "f", val)
-  end
-
-	knob.vals = knob.vals or (knob.vals == nil and true)
-
-	-- Determine the step angle
-	knob.stepangle = (3 / 2) / knob.steps
-
-	knob.default = knob.default or 5
   knob.curstep = knob.default
-
 	knob.curval = knob.curstep / knob.steps
-
-  knob.retval = knob:formatretval(
-              ((knob.max - knob.min) / knob.steps) * knob.curstep + knob.min
-                                    )
 
   knob.prototype = Knob
 	setmetatable(knob, self)
 	self.__index = self
-	return knob
 
+  knob.retval = knob:formatretval(
+    ((knob.max - knob.min) / knob.steps) * knob.curstep + knob.min
+  )
+
+  return knob
 end
 
 
@@ -323,6 +311,13 @@ function Knob:setretval()
 
     self.retval = self:formatretval(self.inc * self.curstep + self.min)
 
+end
+
+
+function Knob:formatretval(val)
+  local decimal = tonumber(string.match(val, "%.(.*)") or 0)
+  local places = decimal ~= 0 and string.len( decimal) or 0
+  return string.format("%." .. places .. "f", val)
 end
 
 return Knob

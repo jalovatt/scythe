@@ -17,35 +17,43 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Slider = require("gui.element"):new()
 
 function Slider:new(props)
 --name, z, x, y, w, caption, min, max, defaults, inc, dir
-  local slider = props
+  local slider = Table.copy({
 
-  slider.type = "Slider"
+    type = "Slider",
 
-  slider.x = slider.x or x
-  slider.y = slider.y or y
+    x = 0,
+    y = 0,
+    w = 8,
 
-  slider.dir = slider.dir or dir or "h"
+    dir = "h",
+
+    caption = "Slider",
+    bg = "wnd_bg",
+
+    font_a = 3,
+    font_b = 4,
+
+    col_txt = "txt",
+    col_hnd = "elm_frame",
+    col_fill = "elm_fill",
+
+    align_values = 0,
+    inc = 1,
+
+    cap_x = 0,
+    cap_y = 0,
+
+  }, props)
 
   slider.w, slider.h = table.unpack(slider.dir ~= "v"
-                                and {slider.w or w, 8}
-                                or  {8, slider.w or w} )
-
-  slider.caption = slider.caption or caption
-  slider.bg = slider.bg or "wnd_bg"
-
-  slider.font_a = slider.font_a or 3
-  slider.font_b = slider.font_b or 4
-
-  slider.col_txt = slider.col_txt or "txt"
-  slider.col_hnd = slider.col_hnd or "elm_frame"
-  slider.col_fill = slider.col_fill or "elm_fill"
-
-
+  and {slider.w, 8}
+  or  {8, slider.w} )
 
   if slider.show_handles == nil then
     slider.show_handles = true
@@ -54,11 +62,8 @@ function Slider:new(props)
     slider.show_values = true
   end
 
-  slider.cap_x = slider.cap_x or 0
-  slider.cap_y = slider.cap_y or 0
-
-  local min = slider.min or min
-  local max = slider.max or max
+  local min = slider.min
+  local max = slider.max
 
   if min > max then
     min, max = max, min
@@ -70,56 +75,18 @@ function Slider:new(props)
     min, max = max, min
   end
 
-  slider.align_values = slider.align_values or 0
-
   slider.min, slider.max = min, max
-  slider.inc = inc or 1
-
-  function slider:formatretval(val)
-
-    local decimal = tonumber(string.match(val, "%.(.*)") or 0)
-    local places = decimal ~= 0 and string.len( decimal) or 0
-    return string.format("%." .. places .. "f", val)
-
-  end
-
-  slider.defaults = slider.defaults or defaults
-
-  -- If the user only asked for one handle
-  if type(slider.defaults) == "number" then slider.defaults = {slider.defaults} end
-
-  function slider:init_handles()
-
-    self.steps = math.abs(self.max - self.min) / self.inc
-
-    -- Make sure the handles are all valid
-    for i = 1, #self.defaults do
-      self.defaults[i] = math.floor( Math.clamp(0, tonumber(self.defaults[i]), self.steps) )
-    end
-
-    self.handles = {}
-    local step
-    for i = 1, #self.defaults do
-
-      step = self.defaults[i]
-
-      self.handles[i] = {}
-      self.handles[i].default = (self.dir ~= "v" and step or (self.steps - step))
-      self.handles[i].curstep = step
-      self.handles[i].curval = step / self.steps
-      self.handles[i].retval = self:formatretval( ((self.max - self.min) / self.steps)
-                                                  * step + self.min)
-
-    end
-
-  end
-
-  slider:init_handles(defaults)
 
   setmetatable(slider, self)
   self.__index = self
-  return slider
 
+  slider.defaults = slider.defaults
+  -- If the user only asked for one handle
+  if type(slider.defaults) == "number" then slider.defaults = {slider.defaults} end
+
+  slider:init_handles(slider.defaults)
+
+  return slider
 end
 
 
@@ -570,6 +537,40 @@ function Slider:setretval(sldr)
                                 or self.min - self.inc * self.handles[sldr].curstep
 
     self.handles[sldr].retval = self:formatretval(val)
+
+end
+
+function Slider:formatretval(val)
+
+  local decimal = tonumber(string.match(val, "%.(.*)") or 0)
+  local places = decimal ~= 0 and string.len( decimal) or 0
+  return string.format("%." .. places .. "f", val)
+
+end
+
+function Slider:init_handles()
+
+  self.steps = math.abs(self.max - self.min) / self.inc
+
+  -- Make sure the handles are all valid
+  for i = 1, #self.defaults do
+    self.defaults[i] = math.floor( Math.clamp(0, tonumber(self.defaults[i]), self.steps) )
+  end
+
+  self.handles = {}
+  local step
+  for i = 1, #self.defaults do
+
+    step = self.defaults[i]
+
+    self.handles[i] = {}
+    self.handles[i].default = (self.dir ~= "v" and step or (self.steps - step))
+    self.handles[i].curstep = step
+    self.handles[i].curval = step / self.steps
+    self.handles[i].retval = self:formatretval( ((self.max - self.min) / self.steps)
+                                                * step + self.min)
+
+  end
 
 end
 

@@ -16,45 +16,48 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Table = require("public.table")
 require("public.string")
 
 -- Listbox - New
 local Listbox = require("gui.element"):new()
 function Listbox:new(props)
 
-	local list = props
+	local list = Table.copy({
 
-	list.type = "Listbox"
+    type = "Listbox",
 
-	list.x = list.x or 0
-  list.y = list.y or 0
-  list.w = list.w or 96
-  list.h = list.h or 128
+    x = 0,
+    y = 0,
+    w = 96,
+    h = 128,
 
-	list.list = list.list or {}
-	list.retval = list.retval or {}
+    list = {},
+    retval = {},
 
-  list.multi = list.multi -- or false
+    caption = "",
+    pad = 4,
 
-	list.caption = list.caption or ""
-	list.pad = list.pad or 4
+    bg = "elm_bg",
+    cap_bg = "wnd_bg",
+    color = "txt",
+
+    -- Scrollbar fill
+    col_fill = "elm_fill",
+
+    font_cap = 3,
+
+    font_text = 4,
+
+    wnd_y = 1,
+
+    wnd_h = nil,
+    wnd_w = nil,
+    char_w = nil,
+
+  }, props)
 
   list.shadow = list.shadow or (list.shadow == nil)
-
-	list.bg = list.bg or "elm_bg"
-  list.cap_bg = list.cap_bg or "wnd_bg"
-	list.color = list.color or "txt"
-
-	-- Scrollbar fill
-	list.col_fill = list.col_fill or "elm_fill"
-
-	list.font_cap = list.font_cap or 3
-
-	list.font_text = list.font_text or 4
-
-	list.wnd_y = 1
-
-	list.wnd_h, list.wnd_w, list.char_w = nil, nil, nil
 
 	setmetatable(list, self)
 	self.__index = self
@@ -68,7 +71,7 @@ function Listbox:init()
 	-- If we were given a CSV, process it into a table
 	if type(self.list) == "string" then self.list = self:CSVtotable(self.list) end
 
-	local x, y, w, h = self.x, self.y, self.w, self.h
+	local w, h = self.w, self.h
 
 	self.buff = Buffer.get()
 
@@ -99,7 +102,6 @@ function Listbox:draw()
 	local x, y, w, h = self.x, self.y, self.w, self.h
 
 	local caption = self.caption
-	local pad = self.pad
 
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
@@ -149,7 +151,7 @@ function Listbox:val(newval)
 		if self.multi then
 			return self.retval
 		else
-			for k, v in pairs(self.retval) do
+			for k in pairs(self.retval) do
 				return k
 			end
 		end

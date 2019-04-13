@@ -191,8 +191,6 @@ for i = 1, #items do
 	titles[i] = items[i][1]
 end
 
-titles = titles:concat(",")
-
 
 local function add_text()
 

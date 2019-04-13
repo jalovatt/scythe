@@ -17,36 +17,38 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Menubox = require("gui.element"):new()
 
 function Menubox:new(props)
   -- name, z, x, y, w, h, caption, opts, pad, noarrow
-  local menu = props
+  local menu = Table.copy({
 
-  menu.type = "Menubox"
+    type = "Menubox",
 
-  menu.x = menu.x or 0
-  menu.y = menu.y or 0
-  menu.w = menu.w or 96
-  menu.h = menu.h or 24
+    x = 0,
+    y = 0,
+    w = 96,
+    h = 24,
 
-  menu.caption = menu.caption or "Menubox:"
-  menu.bg = menu.bg or "wnd_bg"
+    caption = "Menubox:",
+    bg = "wnd_bg",
 
-  menu.font_a = menu.font_a or 3
-  menu.font_b = menu.font_b or 4
+    font_a = 3,
+    font_b = 4,
 
-  menu.col_cap = menu.col_cap or "txt"
-  menu.col_txt = menu.col_txt or "txt"
+    col_cap = "txt",
+    col_txt = "txt",
 
-  menu.pad = menu.pad or 4
+    pad = 4,
 
-  menu.align = menu.align or 0
+    align = 0,
 
-  menu.retval = menu.retval or 1
+    retval = 1,
 
-  menu.options = menu.options or {1, 2, 3}
+    options = {1, 2, 3},
+  }, props)
 
   setmetatable(menu, self)
   self.__index = self

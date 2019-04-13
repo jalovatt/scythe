@@ -19,6 +19,7 @@ local GFX = require("public.gfx")
 local Text = require("public.text")
 local Const = require("public.const")
 local Config = require("gui.config")
+local Table = require("public.table")
 require("public.string")
 
 local TextUtils = require("gui.elements._text_utils")
@@ -26,48 +27,53 @@ local TextUtils = require("gui.elements._text_utils")
 local TextEditor = require("gui.element"):new()
 function TextEditor:new(props)
 
-	local txt = props
+	local txt = Table.copy({
 
-	txt.type = "TextEditor"
+	type = "TextEditor",
 
-	txt.x = txt.x or 0
-  txt.y = txt.y or 0
-  txt.w = txt.w or 256
-  txt.h = txt.h or 128
+	x = 0,
+  y = 0,
+  w = 256,
+  h = 128,
 
-	txt.retval = txt.retval or ""
+	retval = "",
 
-	txt.caption = txt.caption or ""
-	txt.pad = txt.pad or 4
+	caption = "",
+	pad = 4,
+
+	bg = "elm_bg",
+  cap_bg = "wnd_bg",
+	color = "txt",
+
+	-- Scrollbar fill
+	col_fill = "elm_fill",
+
+	font_cap = 3,
+
+	-- Forcing a safe monospace font to make our lives easier
+	font_text = "monospace",
+
+	wnd_pos = {x = 0, y = 1},
+	caret = {x = 0, y = 1},
+
+  char_h = nil,
+  wnd_h = nil,
+  wnd_w = nil,
+  char_w = nil,
+
+	focus = false,
+
+	undo_limit = 20,
+	undo_states = {},
+	redo_states = {},
+
+  blink = 0,
+
+  }, props)
 
   if txt.shadow == nil then
     txt.shadow = true
   end
-
-	txt.bg = txt.bg or "elm_bg"
-  txt.cap_bg = txt.cap_bg or "wnd_bg"
-	txt.color = txt.color or "txt"
-
-	-- Scrollbar fill
-	txt.col_fill = txt.col_fill or "elm_fill"
-
-	txt.font_cap = txt.font_cap or 3
-
-	-- Forcing a safe monospace font to make our lives easier
-	txt.font_text = "monospace"
-
-	txt.wnd_pos = {x = 0, y = 1}
-	txt.caret = {x = 0, y = 1}
-
-	txt.char_h, txt.wnd_h, txt.wnd_w, txt.char_w = nil, nil, nil, nil
-
-	txt.focus = false
-
-	txt.undo_limit = 20
-	txt.undo_states = {}
-	txt.redo_states = {}
-
-	txt.blink = 0
 
 	setmetatable(txt, self)
 	self.__index = self

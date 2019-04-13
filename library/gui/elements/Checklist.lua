@@ -14,7 +14,7 @@ function Checklist:new(props)
 
     checklist.type = "Checklist"
 
-    checklist.optsel = {}
+    checklist.optsel = checklist.optsel or {}
 
     setmetatable(checklist, self)
     self.__index = self

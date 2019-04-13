@@ -26,7 +26,6 @@ function Label:new(props)
 
     x = 0,
     y = 0,
-
     -- Placeholders; we'll get these at runtime
     w = 0,
     h = 0,

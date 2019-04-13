@@ -15,33 +15,36 @@ local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
 local Buffer = require("gui.buffer")
+local Table = require("public.table")
 
 local Tabs = require("gui.element"):new()
 function Tabs:new(props)
 
-	local tab = props
+	local tab = Table.copy({
 
-	tab.type = "Tabs"
+    type = "Tabs",
 
-	tab.x = tab.x or 0
-  tab.y = tab.y or 0
-	tab.tab_w = tab.tab_w or 72
-  tab.tab_h = tab.tab_h or 20
+    x = 0,
+    y = 0,
+    tab_w = 72,
+    tab_h = 20,
 
-	tab.font_a = tab.font_a or 3
-  tab.font_b = tab.font_b or 4
+    font_a = 3,
+    font_b = 4,
 
-	tab.bg = tab.bg or "elm_bg"
-	tab.col_txt = tab.col_txt or "txt"
-	tab.col_tab_a = tab.col_tab_a or "wnd_bg"
-	tab.col_tab_b = tab.col_tab_b or "tab_bg"
+    bg = "elm_bg",
+    col_txt = "txt",
+    col_tab_a = "wnd_bg",
+    col_tab_b = "tab_bg",
 
-  -- Placeholder for if I ever figure out downward tabs
-	tab.dir = tab.dir or "u"
+    -- Placeholder for if I ever figure out downward tabs
+    dir = "u",
 
-	tab.pad = tab.pad or 8
+    pad = 8,
 
-  tab.first_tab_offset = tab.first_tab_offset or 16
+    first_tab_offset = 16,
+
+  }, props)
   --[[
     Data shape:
 
