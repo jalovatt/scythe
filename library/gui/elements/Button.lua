@@ -16,6 +16,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Element = require("gui.element")
 
@@ -23,25 +24,23 @@ local Element = require("gui.element")
 local Button = Element:new()
 function Button:new(props)
 
-	local button = props
+	local button = Table.copy({
+	  type = "Button",
 
-	button.type = "Button"
+	  x = 0,
+    y = 0,
+    w = 96,
+    h = 24,
 
-	button.x = button.x or 0
-  button.y = button.y or 0
-  button.w = button.w or 96
-  button.h = button.h or 24
+	  caption = "Button",
+	  font = 3,
+	  col_txt = "txt",
+	  col_fill = "elm_frame",
 
-	button.caption = button.caption or "Button"
-
-	button.font = button.font or 3
-	button.col_txt = button.col_txt or "txt"
-	button.col_fill = button.col_fill or "elm_frame"
-
-	button.func = button.func or function () end
-	button.params = button.params or {}
-
-	button.state = 0
+	  func = function () end,
+	  params = {},
+    state = 0,
+  }, props)
 
 	setmetatable(button, self)
 	self.__index = self
