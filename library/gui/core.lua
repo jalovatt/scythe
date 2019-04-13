@@ -300,20 +300,6 @@ GUI.Val = function (elmName, newval)
     end
 end
 
-------------------------------------
--------- Developer stuff -----------
-------------------------------------
-
-
--- Print a string to the Reaper console.
--- luacheck: globals Msg
-Msg = function (...)
-    local out = Table.map({...},
-      function (str) return tostring(str) end
-    )
-    reaper.ShowConsoleMsg(out:concat(", ").."\n")
-end
-
 
 ------------------------------------
 -------- File/Storage functions ----

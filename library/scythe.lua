@@ -12,6 +12,10 @@ local trimmedPath = Scythe.lib_path:match("(.*".."/"..")")
 package.path = package.path .. ";" ..
   trimmedPath .. "?.lua"
 
+
+local Table = require("public.table")
+
+
 Scythe.script_path, Scythe.script_name = ({reaper.get_action_context()})[2]
   :match("(.-)([^/\\]+).lua$")
 
@@ -37,5 +41,16 @@ end)()
 
 -- Also might need to know this
 Scythe.SWS_exists = reaper.APIExists("CF_GetClipboardBig")
+
+-- Print arguments to the Reaper console.
+Scythe.Msg = function (...)
+  local out = Table.map({...},
+    function (str) return tostring(str) end
+  )
+  reaper.ShowConsoleMsg(out:concat(", ").."\n")
+end
+
+-- luacheck: globals Msg
+if not Msg then Msg = Scythe.Msg end
 
 -- return Scythe
