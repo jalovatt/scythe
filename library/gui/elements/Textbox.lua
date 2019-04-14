@@ -89,9 +89,9 @@ function Textbox:init()
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
-    -- Make sure we calculate this ASAP to avoid errors with
-    -- dynamically-generated textboxes
-    if gfx.w > 0 then self:wnd_recalc() end
+  -- Make sure we calculate this ASAP to avoid errors with
+  -- dynamically-generated textboxes
+  if gfx.w > 0 then self:wnd_recalc() end
 
 end
 
@@ -113,7 +113,7 @@ function Textbox:draw()
 
 	-- Blit the textbox frame, and make it brighter if focused.
 	gfx.blit(self.buff, 1, 0, (self.focus and self.w or 0), 0,
-            self.w, self.h, self.x, self.y)
+           self.w, self.h, self.x, self.y)
 
   if self.retval ~= "" then self:drawtext() end
 
@@ -132,7 +132,7 @@ end
 function Textbox:val(newval)
 
 	if newval then
-        self:seteditorstate(tostring(newval))
+    self:seteditorstate(tostring(newval))
 		self:redraw()
 	else
 		return self.retval
@@ -175,23 +175,23 @@ end
 
 function Textbox:onmousedown(state)
 
-    self.caret = self:getcaret(state.mouse.x)
+  self.caret = self:getcaret(state.mouse.x)
 
-    -- Reset the caret so the visual change isn't laggy
-    self.blink = 0
+  -- Reset the caret so the visual change isn't laggy
+  self.blink = 0
 
-    -- Shift+click to select text
-    if state.mouse.cap & 8 == 8 and self.caret then
+  -- Shift+click to select text
+  if state.mouse.cap & 8 == 8 and self.caret then
 
-        self.sel_s, self.sel_e = self.caret, self.caret
+    self.sel_s, self.sel_e = self.caret, self.caret
 
-    else
+  else
 
-        self.sel_s, self.sel_e = nil, nil
+    self.sel_s, self.sel_e = nil, nil
 
-    end
+  end
 
-    self:redraw()
+  self:redraw()
 
 end
 
@@ -217,59 +217,59 @@ function Textbox:ontype(state)
 
 	local char = state.kb.char
 
-    -- Navigation keys, Return, clipboard stuff, etc
-    if self.keys[char] then
+  -- Navigation keys, Return, clipboard stuff, etc
+  if self.keys[char] then
 
-        local shift = state.mouse.cap & 8 == 8
+    local shift = state.mouse.cap & 8 == 8
 
-        if shift and not self.sel then
-            self.sel_s = self.caret
-        end
+    if shift and not self.sel then
+      self.sel_s = self.caret
+    end
 
-        -- Flag for some keys (clipboard shortcuts) to skip
-        -- the next section
-        local bypass = self.keys[char](self, state)
+    -- Flag for some keys (clipboard shortcuts) to skip
+    -- the next section
+    local bypass = self.keys[char](self, state)
 
-        if shift and char ~= Const.char.BACKSPACE then
+    if shift and char ~= Const.char.BACKSPACE then
 
-            self.sel_e = self.caret
+      self.sel_e = self.caret
 
-        elseif not bypass then
+    elseif not bypass then
 
-            self.sel_s, self.sel_e = nil, nil
-
-        end
-
-    -- Typeable chars
-    elseif Math.clamp(32, char, 254) == char then
-
-        if self.sel_s then self:deleteselection() end
-
-        self:insertchar(char)
+      self.sel_s, self.sel_e = nil, nil
 
     end
-    self:windowtocaret()
 
-    -- Make sure no functions crash because they got a type==number
-    self.retval = tostring(self.retval)
+  -- Typeable chars
+  elseif Math.clamp(32, char, 254) == char then
 
-    -- Reset the caret so the visual change isn't laggy
-    self.blink = 0
+    if self.sel_s then self:deleteselection() end
+
+    self:insertchar(char)
+
+  end
+  self:windowtocaret()
+
+  -- Make sure no functions crash because they got a type==number
+  self.retval = tostring(self.retval)
+
+  -- Reset the caret so the visual change isn't laggy
+  self.blink = 0
 
 end
 
 
 function Textbox:onwheel(state)
 
-   local len = string.len(self.retval)
+  local len = string.len(self.retval)
 
-   if len <= self.wnd_w then return end
+  if len <= self.wnd_w then return end
 
-   -- Scroll right/left
-   local dir = state > 0 and 3 or -3
-   self.wnd_pos = Math.clamp(0, self.wnd_pos + dir, len + 2 - self.wnd_w)
+  -- Scroll right/left
+  local dir = state > 0 and 3 or -3
+  self.wnd_pos = Math.clamp(0, self.wnd_pos + dir, len + 2 - self.wnd_w)
 
-   self:redraw()
+  self:redraw()
 
 end
 

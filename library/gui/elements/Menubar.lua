@@ -44,13 +44,8 @@ function Menubar:new(props)
 
   mnu.menus = mnu.menus or {}
 
-  if mnu.shadow == nil then
-    mnu.shadow = true
-  end
-
-  if mnu.fullwidth == nil then
-    mnu.fullwidth = true
-  end
+  if mnu.shadow == nil then mnu.shadow = true end
+  if mnu.fullwidth == nil then mnu.fullwidth = true end
 
   return self:assignChild(mnu)
 
@@ -78,14 +73,13 @@ function Menubar:init()
 
   for i = 1, #self.menus do
 
-      self.menus[i].width = gfx.measurestr(self.menus[i].title)
+    self.menus[i].width = gfx.measurestr(self.menus[i].title)
 
   end
 
   self.w = self.w or 0
   self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, self:measuretitles(nil, true))
   self.h = self.h or gfx.texth
-
 
   -- Draw the background + shadow
   gfx.setimgdim(self.buff, self.w, self.h * 2)
@@ -146,28 +140,28 @@ end
 
 function Menubar:val(newval)
 
-    if newval and type(newval) == "table" then
+  if newval and type(newval) == "table" then
 
-        self.menus = newval
-        self.w, self.h = nil, nil
-        self:init()
-        self:redraw()
+    self.menus = newval
+    self.w, self.h = nil, nil
+    self:init()
+    self:redraw()
 
-    else
+  else
 
-        return self.menus
+    return self.menus
 
-    end
+  end
 
 end
 
 
 function Menubar:onresize()
 
-    if self.fullwidth then
-        self:init()
-        self:redraw()
-    end
+  if self.fullwidth then
+    self:init()
+    self:redraw()
+  end
 
 end
 
@@ -179,24 +173,24 @@ end
 
 function Menubar:drawtitles()
 
-    local x = self.x
+  local x = self.x
 
-    Font.set(self.font)
-    Color.set(self.col_txt)
+  Font.set(self.font)
+  Color.set(self.col_txt)
 
-    for i = 1, #self.menus do
+  for i = 1, #self.menus do
 
-        local str = self.menus[i].title
-        local str_w, _ = gfx.measurestr(str)
+    local str = self.menus[i].title
+    local str_w, _ = gfx.measurestr(str)
 
-        gfx.x = x + (self.tab + self.pad) / 2
-        gfx.y = self.y
+    gfx.x = x + (self.tab + self.pad) / 2
+    gfx.y = self.y
 
-        gfx.drawstr(str)
+    gfx.drawstr(str)
 
-        x = x + str_w + self.tab + self.pad
+    x = x + str_w + self.tab + self.pad
 
-    end
+  end
 
 end
 
@@ -228,14 +222,14 @@ end
 -- Make sure to disable the highlight if the mouse leaves
 function Menubar:onupdate(state)
 
-    if self.mousemnu and not self:isInside(state.mouse.x, state.mouse.y) then
-        self.mousemnu = nil
-        self.mousemnu_x = nil
-        self:redraw()
+  if self.mousemnu and not self:isInside(state.mouse.x, state.mouse.y) then
+    self.mousemnu = nil
+    self.mousemnu_x = nil
+    self:redraw()
 
-        -- Skip the rest of the update loop for this elm
-        return true
-    end
+    -- Skip the rest of the update loop for this elm
+    return true
+  end
 
 end
 
@@ -243,19 +237,19 @@ end
 
 function Menubar:onmouseup(state)
 
-    if not self.mousemnu then return end
+  if not self.mousemnu then return end
 
-    gfx.x, gfx.y = self.x + self:measuretitles(self.mousemnu - 1, true), self.y + self.h
-    local menu_str, sep_arr = self:prepmenu()
-    local opt = gfx.showmenu(menu_str)
+  gfx.x, gfx.y = self.x + self:measuretitles(self.mousemnu - 1, true), self.y + self.h
+  local menu_str, sep_arr = self:prepmenu()
+  local opt = gfx.showmenu(menu_str)
 
 	if #sep_arr > 0 then opt = self:stripseps(opt, sep_arr) end
 
-    if opt > 0 then
+  if opt > 0 then
 
-       self.menus[self.mousemnu].options[opt][2]()
+    self.menus[self.mousemnu].options[opt][2]()
 
-    end
+  end
 
   self.mouse_down = false
 	self:redraw()
@@ -273,43 +267,43 @@ end
 
 function Menubar:onmouseover(state)
 
-    local opt = self.mousemnu
+  local opt = self.mousemnu
 
-    local x = state.mouse.x - self.x
+  local x = state.mouse.x - self.x
 
-    if  self.mousemnu_x and x > self:measuretitles(nil, true) then
+  if  self.mousemnu_x and x > self:measuretitles(nil, true) then
 
-        self.mousemnu = nil
-        self.mousemnu_x = nil
-        self:redraw()
+    self.mousemnu = nil
+    self.mousemnu_x = nil
+    self:redraw()
 
-        return
+    return
 
+  end
+
+
+  -- Iterate through the titles by overall width until we
+  -- find which one the mouse is in.
+  for i = 1, #self.menus do
+
+    if x <= self:measuretitles(i, true) then
+
+      self.mousemnu = i
+      self.mousemnu_x = self:measuretitles(i - 1, true)
+
+      if self.mousemnu ~= opt then self:redraw() end
+
+      return
     end
 
-
-    -- Iterate through the titles by overall width until we
-    -- find which one the mouse is in.
-    for i = 1, #self.menus do
-
-        if x <= self:measuretitles(i, true) then
-
-            self.mousemnu = i
-            self.mousemnu_x = self:measuretitles(i - 1, true)
-
-            if self.mousemnu ~= opt then self:redraw() end
-
-            return
-        end
-
-    end
+  end
 
 end
 
 
 function Menubar:ondrag(state)
 
-    self:onmouseover(state)
+  self:onmouseover(state)
 
 end
 
@@ -322,12 +316,12 @@ end
 -- Return a table of the menu titles
 function Menubar:gettitles()
 
-   local tmp = {}
-   for i = 1, #self.menus do
-       tmp[i] = self.menus.title
-   end
+  local tmp = {}
+  for i = 1, #self.menus do
+    tmp[i] = self.menus.title
+  end
 
-   return tmp
+  return tmp
 
 end
 
@@ -337,16 +331,17 @@ end
 -- Will include tabs + padding if tabs = true
 function Menubar:measuretitles(num, tabs)
 
-    local len = 0
+  local len = 0
 
-    for i = 1, num or #self.menus do
+  for i = 1, num or #self.menus do
 
-        len = len + self.menus[i].width
+    len = len + self.menus[i].width
 
-    end
+  end
 
-    return not tabs and len
-                    or (len + (self.tab + self.pad) * (num or #self.menus))
+  return not tabs
+    and len
+    or (len + (self.tab + self.pad) * (num or #self.menus))
 
 end
 
@@ -363,7 +358,7 @@ function Menubar:prepmenu()
 
 	for i = 1, #arr do
 
-        table.insert(str_arr, arr[i][1])
+    table.insert(str_arr, arr[i][1])
 
 		if str_arr[#str_arr] == ""
 		or string.sub(str_arr[#str_arr], 1, 1) == ">" then
@@ -385,15 +380,15 @@ end
 -- since gfx.showmenu doesn't count them
 function Menubar:stripseps(opt, sep_arr)
 
-    for i = 1, #sep_arr do
-        if opt >= sep_arr[i] then
-            opt = opt + 1
-        else
-            break
-        end
+  for i = 1, #sep_arr do
+    if opt >= sep_arr[i] then
+      opt = opt + 1
+    else
+      break
     end
+  end
 
-    return opt
+  return opt
 
 end
 

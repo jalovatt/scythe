@@ -10,7 +10,6 @@ local Checklist = setmetatable({}, {__index = Option})
 Checklist.__index = Checklist
 
 function Checklist:new(props)
---name, z, x, y, w, h, caption, opts, dir, pad
     local checklist = Option:new(props)
 
     checklist.type = "Checklist"
@@ -44,22 +43,21 @@ function Checklist:val(newval)
 				self.optsel[tonumber(k)] = v
 			end
 			self:redraw()
-        elseif type(newval) == "boolean" and #self.options == 1 then
+    elseif type(newval) == "boolean" and #self.options == 1 then
 
-            self.optsel[1] = newval
-            self:redraw()
+      self.optsel[1] = newval
+      self:redraw()
 		end
 	else
-        if #self.options == 1 then
-            return self.optsel[1]
-        else
-            local tmp = {}
-            for i = 1, #self.options do
-                tmp[i] = not not self.optsel[i]
-            end
-            return tmp
-        end
-		--return #self.options > 1 and self.optsel or self.optsel[1]
+    if #self.options == 1 then
+      return self.optsel[1]
+    else
+      local tmp = {}
+      for i = 1, #self.options do
+        tmp[i] = not not self.optsel[i]
+      end
+      return tmp
+    end
 	end
 
 end
@@ -67,19 +65,19 @@ end
 
 function Checklist:onmouseup(state)
 
-    -- Bypass option for GUI Builder
-    if not self.focus then
-        self:redraw()
-        return
-    end
+  -- Bypass option for GUI Builder
+  if not self.focus then
+    self:redraw()
+    return
+  end
 
-    local mouseopt = self:getmouseopt(state)
+  local mouseopt = self:getmouseopt(state)
 
-    if not mouseopt then return end
+  if not mouseopt then return end
 
 	self.optsel[mouseopt] = not self.optsel[mouseopt]
 
-    self.focus = false
+  self.focus = false
 	self:redraw()
 
 end
@@ -87,7 +85,7 @@ end
 
 function Checklist:isoptselected(opt)
 
-   return self.optsel[opt]
+  return self.optsel[opt]
 
 end
 

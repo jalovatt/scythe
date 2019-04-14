@@ -6,7 +6,7 @@ function Layer:new(props)
   local layer = props
 
   layer.elementCount = 0
-  layer.elements = {}
+  layer.elements = T{}
 
   layer.hidden = false
   layer.frozen = false

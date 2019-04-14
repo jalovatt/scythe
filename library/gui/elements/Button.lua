@@ -98,8 +98,8 @@ function Button:draw()
 	Color.set(self.col_txt)
 	Font.set(self.font)
 
-    local str = self.caption
-    str = str:gsub([[\n]],"\n")
+  local str = self:formatOutput(self.caption)
+  str = str:gsub([[\n]],"\n")
 
 	local str_w, str_h = gfx.measurestr(str)
 	gfx.x = x + 2 * state + ((w - str_w) / 2)

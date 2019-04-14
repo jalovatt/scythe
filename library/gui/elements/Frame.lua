@@ -43,9 +43,6 @@ function Frame:new(props)
 
   }, props)
 
-	-- setmetatable(frame, self)
-	-- self.__index = self
-	-- return frame
   return self:assignChild(frame)
 end
 
@@ -74,19 +71,19 @@ end
 
 function Frame:draw()
 
-    local x, y, w, h = self.x, self.y, self.w, self.h
+  local x, y, w, h = self.x, self.y, self.w, self.h
 
-    if self.shadow then
+  if self.shadow then
 
-        for i = 1, Text.shadow_size do
+    for i = 1, Text.shadow_size do
 
-            gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
-
-        end
+      gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 
     end
 
-    gfx.blit(self.buff, 1, 0, 0, 0, w + 2, h + 2, x - 1, y - 1)
+  end
+
+  gfx.blit(self.buff, 1, 0, 0, 0, w + 2, h + 2, x - 1, y - 1)
 
 end
 
@@ -113,22 +110,22 @@ end
 
 function Frame:drawframe()
 
-    local w, h = self.w, self.h
+  local w, h = self.w, self.h
 	local fill = self.fill
 	local round = self.round
 
-    -- Frame background
-    if self.bg then
-        Color.set(self.bg)
-        if round > 0 then
-            GFX.roundrect(1, 1, w, h, round, 1, true)
-        else
-            gfx.rect(1, 1, w, h, true)
-        end
+  -- Frame background
+  if self.bg then
+    Color.set(self.bg)
+    if round > 0 then
+      GFX.roundrect(1, 1, w, h, round, 1, true)
+    else
+      gfx.rect(1, 1, w, h, true)
     end
+  end
 
-    -- Shadow
-    local r, g, b, a = table.unpack(Color.colors["shadow"])
+  -- Shadow
+  local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
 	GFX.roundrect(self.w + 2, 1, self.w, self.h, round, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
@@ -149,10 +146,10 @@ function Frame:drawtext()
 
 	if self.text and self.text:len() > 0 then
 
-        if self.text ~= self.last_text then
-            self.text = self:wrap_text(self.text)
-            self.last_text = self.text
-        end
+    if self.text ~= self.last_text then
+      self.text = self:wrap_text(self.text)
+      self.last_text = self.text
+    end
 
 		Font.set(self.font)
 		Color.set(self.col_txt)
@@ -175,8 +172,8 @@ end
 
 function Frame:wrap_text(text)
 
-    return Text.word_wrap(   text, self.font, self.w - 2*self.pad,
-                            self.txt_indent, self.txt_pad)
+  return Text.word_wrap(text, self.font, self.w - 2*self.pad,
+                        self.txt_indent, self.txt_pad)
 
 end
 

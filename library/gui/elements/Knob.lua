@@ -131,7 +131,7 @@ function Knob:draw()
 	-- Value labels
 	if self.vals then self:drawvals(o, r) end
 
-    if self.caption and self.caption ~= "" then self:drawcaption(o, r) end
+  if self.caption and self.caption ~= "" then self:drawcaption(o, r) end
 
 
 	-- Figure out where the knob is pointing
@@ -144,15 +144,15 @@ function Knob:draw()
 	for i = 1, Text.shadow_size do
 
 		gfx.blit(   self.buff, 1, curangle * Math.pi,
-                    blit_w + 1, 0, blit_w, blit_w,
-                    o.x - blit_x + i - 1, o.y - blit_x + i - 1)
+                blit_w + 1, 0, blit_w, blit_w,
+                o.x - blit_x + i - 1, o.y - blit_x + i - 1)
 
 	end
 
 	-- Body
 	gfx.blit(   self.buff, 1, curangle * Math.pi,
-                0, 0, blit_w, blit_w,
-                o.x - blit_x - 1, o.y - blit_x - 1)
+              0, 0, blit_w, blit_w,
+              o.x - blit_x - 1, o.y - blit_x - 1)
 
 end
 
@@ -162,7 +162,7 @@ function Knob:val(newval)
 
 	if newval then
 
-        self:setcurstep(newval)
+    self:setcurstep(newval)
 
 		self:redraw()
 
@@ -195,7 +195,7 @@ end
 
 function Knob:ondoubleclick()
 
-    self:setcurstep(self.default)
+  self:setcurstep(self.default)
 
 	self:redraw()
 
@@ -212,7 +212,7 @@ function Knob:onwheel(state)
 
 	local adj = ctrl and fine or coarse
 
-    self:setcurval( Math.clamp( self.curval + (state.mouse.inc * adj / self.steps), 0, 1))
+  self:setcurval( Math.clamp( self.curval + (state.mouse.inc * adj / self.steps), 0, 1))
 
 	self:redraw()
 
@@ -226,7 +226,7 @@ end
 
 function Knob:drawcaption(o, r)
 
-    local str = self.caption
+  local str = self.caption
 
 	Font.set(self.font_a)
 	local cx, cy = Math.polar2cart(1/2, r * 2, o.x, o.y)
@@ -240,47 +240,33 @@ end
 
 function Knob:drawvals(o, r)
 
-    for i = 0, self.steps do
+  for i = 0, self.steps do
 
-        local angle = (-5 / 4 ) + (i * self.stepangle)
+    local angle = (-5 / 4 ) + (i * self.stepangle)
 
-        -- Highlight the current value
-        if i == self.curstep then
-            Color.set(self.col_head)
-            Font.set({Font.fonts[self.font_b][1], Font.fonts[self.font_b][2] * 1.2, "b"})
-        else
-            Color.set(self.col_txt)
-            Font.set(self.font_b)
-        end
-
-        --local output = (i * self.inc) + self.min
-        local output = self:formatretval( i * self.inc + self.min )
-
-        if self.output then
-            local t = type(self.output)
-
-            if t == "string" or t == "number" then
-                output = self.output
-            elseif t == "table" then
-                output = self.output[output]
-            elseif t == "function" then
-                output = self.output(output)
-            end
-        end
-
-        -- Avoid any crashes from weird user data
-        output = tostring(output)
-
-        if output ~= "" then
-
-            local str_w, str_h = gfx.measurestr(output)
-            local cx, cy = Math.polar2cart(angle, r * 2, o.x, o.y)
-            gfx.x, gfx.y = cx - str_w / 2, cy - str_h / 2
-            Text.text_bg(output, self.bg)
-            gfx.drawstr(output)
-        end
-
+    -- Highlight the current value
+    if i == self.curstep then
+      Color.set(self.col_head)
+      Font.set({Font.fonts[self.font_b][1], Font.fonts[self.font_b][2] * 1.2, "b"})
+    else
+      Color.set(self.col_txt)
+      Font.set(self.font_b)
     end
+
+    local output = self:formatOutput(
+      self:formatretval( i * self.inc + self.min )
+    )
+
+    if output ~= "" then
+
+      local str_w, str_h = gfx.measurestr(output)
+      local cx, cy = Math.polar2cart(angle, r * 2, o.x, o.y)
+      gfx.x, gfx.y = cx - str_w / 2, cy - str_h / 2
+      Text.text_bg(output, self.bg)
+      gfx.drawstr(output)
+    end
+
+  end
 
 end
 
@@ -293,25 +279,25 @@ end
 
 function Knob:setcurstep(step)
 
-    self.curstep = step
-    self.curval = self.curstep / self.steps
-    self:setretval()
+  self.curstep = step
+  self.curval = self.curstep / self.steps
+  self:setretval()
 
 end
 
 
 function Knob:setcurval(val)
 
-    self.curval = val
-    self.curstep = Math.round(val * self.steps)
-    self:setretval()
+  self.curval = val
+  self.curstep = Math.round(val * self.steps)
+  self:setretval()
 
 end
 
 
 function Knob:setretval()
 
-    self.retval = self:formatretval(self.inc * self.curstep + self.min)
+  self.retval = self:formatretval(self.inc * self.curstep + self.min)
 
 end
 

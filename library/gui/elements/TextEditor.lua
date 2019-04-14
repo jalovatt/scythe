@@ -73,9 +73,7 @@ function TextEditor:new(props)
 
   }, props)
 
-  if txt.shadow == nil then
-    txt.shadow = true
-  end
+  if txt.shadow == nil then txt.shadow = true end
 
 	return self:assignChild(txt)
 end
@@ -126,7 +124,7 @@ function TextEditor:draw()
 
 	-- Draw the background + frame
 	gfx.blit(self.buff, 1, 0, (self.focus and self.w or 0), 0,
-            self.w, self.h, self.x, self.y)
+           self.w, self.h, self.x, self.y)
 
 	-- Draw the text
 	self:drawtext()
@@ -134,8 +132,8 @@ function TextEditor:draw()
 	-- Caret
 	-- Only needs to be drawn for half of the blink cycle
 	if self.focus then
-        if self.sel_s and self.sel_e then self:drawselection() end
-        if self.show_caret then self:drawcaret() end
+    if self.sel_s and self.sel_e then self:drawselection() end
+    if self.show_caret then self:drawcaret() end
   end
 
 	-- Scrollbars
@@ -148,8 +146,10 @@ function TextEditor:val(newval)
 
 	if newval then
 		self:seteditorstate(
-            type(newval) == "table" and newval
-                                    or self:stringtotable(newval))
+      type(newval) == "table"
+        and newval
+        or self:stringtotable(newval)
+    )
 		self:redraw()
 	else
 		return table.concat(self.retval, "\n")
@@ -197,31 +197,31 @@ function TextEditor:onmousedown(state)
 	local scroll = self:overscrollbar(state.mouse.x, state.mouse.y)
 	if scroll then
 
-        self:setscrollbar(scroll, state)
+    self:setscrollbar(scroll, state)
+
+  else
+
+    -- Place the caret
+    self.caret = self:getcaret(state.mouse.x, state.mouse.y)
+
+    -- Reset the caret so the visual change isn't laggy
+    self.blink = 0
+
+    -- Shift+click to select text
+    if state.mouse.cap & 8 == 8 and self.caret then
+
+      self.sel_s = {x = self.caret.x, y = self.caret.y}
+      self.sel_e = {x = self.caret.x, y = self.caret.y}
 
     else
 
-        -- Place the caret
-        self.caret = self:getcaret(state.mouse.x, state.mouse.y)
-
-        -- Reset the caret so the visual change isn't laggy
-        self.blink = 0
-
-        -- Shift+click to select text
-        if state.mouse.cap & 8 == 8 and self.caret then
-
-                self.sel_s = {x = self.caret.x, y = self.caret.y}
-                self.sel_e = {x = self.caret.x, y = self.caret.y}
-
-        else
-
-            self:clearselection()
-
-        end
+      self:clearselection()
 
     end
 
-    self:redraw()
+  end
+
+  self:redraw()
 
 end
 
@@ -238,7 +238,7 @@ function TextEditor:ondrag(state, last)
 	local scroll = self:overscrollbar(state.mouse.ox, state.mouse.oy)
 	if scroll then
 
-        self:setscrollbar(scroll, state)
+    self:setscrollbar(scroll, state)
 
 	-- Select from where the mouse is now to where it started
 	else
@@ -255,8 +255,8 @@ end
 
 function TextEditor:ontype(state)
 
-    local char = state.kb.char
-    local mod = state.mouse.cap
+  local char = state.kb.char
+  local mod = state.mouse.cap
 
 	-- Non-typeable / navigation chars
 	if self.keys[char] then
@@ -269,7 +269,7 @@ function TextEditor:ontype(state)
 
 		-- Flag for some keys (clipboard shortcuts) to skip
 		-- the next section
-        local bypass = self.keys[char](self, state)
+    local bypass = self.keys[char](self, state)
 
 		if shift and char ~= Const.char.BACKSPACE and char ~= Const.char.TAB then
 
@@ -287,11 +287,9 @@ function TextEditor:ontype(state)
 		if self.sel_s then self:deleteselection() end
 
 		self:insertchar(char)
-        -- Why are we doing this when the selection was just deleted?
-		--self:clearselection()
 
+  end
 
-	end
 	self:windowtocaret()
 
 	-- Reset the caret so the visual change isn't laggy
@@ -417,7 +415,8 @@ end
 function TextEditor:drawselection()
 
 	local off_x, off_y = self.x + self.pad, self.y + self.pad
-	local x, y, w, h
+  local x, y, w
+  local h = self.char_h
 
 	Color.set("elm_fill")
 	gfx.a = 0.5
@@ -432,8 +431,8 @@ function TextEditor:drawselection()
 		if self:selectionvisible(coords[i]) then
 
 			-- Convert from char/row coords to actual pixels
-			x, y =	off_x + (coords[i].x - self.wnd_pos.x) * self.char_w,
-					off_y + (coords[i].y - self.wnd_pos.y) * self.char_h
+			x =	off_x + (coords[i].x - self.wnd_pos.x) * self.char_w
+			y =	off_y + (coords[i].y - self.wnd_pos.y) * self.char_h
 
 									-- Really kludgy, but it fixes a weird issue
 									-- where wnd_pos.x > 0 was drawing all the widths
@@ -443,8 +442,6 @@ function TextEditor:drawselection()
 			-- Keep the selection from spilling out past the scrollbar
             -- ***recheck this, the self.x doesn't make sense***
 			w = math.min(w, self.x + self.w - x - self.pad)
-
-			h =	self.char_h
 
 			gfx.rect(x, y, w, h, true)
 
@@ -465,8 +462,8 @@ function TextEditor:drawscrollbars()
 
 	-- Do we need to be here?
 	local max_w, txt_h = self:getmaxlength(), self:getwndlength()
-	local vert, horz = 	txt_h > self.wnd_h,
-						max_w > self.wnd_w
+  local vert = txt_h > self.wnd_h
+  local horz = max_w > self.wnd_w
 
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
@@ -510,7 +507,7 @@ function TextEditor:drawscrollbars()
 	_ = horz and gfx.rect(x + 2, hy, w - 4, hh + 2, true)
 
 
-    ::tracks::
+  ::tracks::
 
 	-- Draw slider track
 	Color.set("tab_bg")
@@ -562,7 +559,7 @@ function TextEditor:getselectioncoords()
 		sx, ex = ex, sx
 	end
 
-    return sx, sy, ex, ey
+  return sx, sy, ex, ey
 
 end
 
@@ -570,7 +567,7 @@ end
 -- Figure out what portions of the text are selected
 function TextEditor:getselection()
 
-    local sx, sy, ex, ey = self:getselectioncoords()
+  local sx, sy, ex, ey = self:getselectioncoords()
 
 	local x, w
 	local sel_coords = {}
@@ -649,8 +646,10 @@ function TextEditor:selectall()
 
 	self.sel_s = {x = 0, y = 1}
 	self.caret = {x = 0, y = 1}
-	self.sel_e = {	x = string.len(self.retval[#self.retval]),
-					y = #self.retval}
+	self.sel_e = {
+    x = string.len(self.retval[#self.retval]),
+    y = #self.retval
+  }
 
 
 end
@@ -665,7 +664,7 @@ function TextEditor:selectword()
 	local sx = string.find( str:sub(1, self.caret.x), "%s[%S]+$") or 0
 
 	local ex =	(	string.find( str, "%s", sx + 1)
-			or		string.len(str) + 1 )
+			    or		string.len(str) + 1 )
 				- (self.wnd_pos.x > 0 and 2 or 1)	-- Kludge, fixes length issues
 
 	self.sel_s = {x = sx, y = self.caret.y}
@@ -693,12 +692,12 @@ function TextEditor:deleteselection()
 	if sy == ey then
 
 		self.retval[sy] =   string.sub(self.retval[sy] or "", 1, sx)..
-                            string.sub(self.retval[sy] or "", ex + 1)
+                        string.sub(self.retval[sy] or "", ex + 1)
 
 	else
 
 		self.retval[sy] =   string.sub(self.retval[sy] or "", 1, sx)..
-                            string.sub(self.retval[ey] or "", ex + 1)
+                        string.sub(self.retval[ey] or "", ex + 1)
 		for i = sy + 1, ey do
 			table.remove(self.retval, sy + 1)
 		end
@@ -715,7 +714,7 @@ end
 
 function TextEditor:getselectedtext()
 
-    local sx, sy, ex, ey = self:getselectioncoords()
+  local sx, sy, ex, ey = self:getselectioncoords()
 
 	local tmp = {}
 
@@ -831,8 +830,8 @@ function TextEditor:windowtocaret()
 	-- Vertical
 	local bot = self:wnd_bottom()
 	local adj = (	(self.caret.y < self.wnd_pos.y) and -1	)
-			or	(	(self.caret.y >= bot) and 1	)
-			or	(	(bot > self:getwndlength() and -(bot - self:getwndlength() - 1) ) )
+			    or	(	(self.caret.y >= bot) and 1	)
+			    or	(	(bot > self:getwndlength() and -(bot - self:getwndlength() - 1) ) )
 
 	if adj then self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + adj, self.caret.y) end
 

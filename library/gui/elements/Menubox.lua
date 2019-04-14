@@ -17,7 +17,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
-local Table = require("public.table")
+local Table, T = require("public.table"):unpack()
 
 local Menubox = require("gui.element"):new()
 Menubox.__index = Menubox
@@ -123,11 +123,11 @@ end
 
 function Menubox:onmouseup(state)
 
-    -- Bypass option for GUI Builder
-    if not self.focus then
-        self:redraw()
-        return
-    end
+  -- Bypass option for GUI Builder
+  if not self.focus then
+    self:redraw()
+    return
+  end
 
   -- The menu doesn't count separators in the returned number,
   -- so we'll do it here
@@ -152,9 +152,6 @@ end
 
 
 function Menubox:onwheel(state)
-
-  -- Avert a crash if there aren't at least two items in the menu
-  --if not self.options[2] then return end
 
   -- Check for illegal values, separators, and submenus
     self.retval = self:validateoption(  Math.round(self.retval - state.mouse.inc),
@@ -196,30 +193,30 @@ end
 function Menubox:drawarrow()
 
     local x, y, w, h = self.x, self.y, self.w, self.h
-    gfx.rect(1 + w - h, h + 3, h, h, 1)
+  gfx.rect(1 + w - h, h + 3, h, h, 1)
 
-    Color.set("elm_bg")
+  Color.set("elm_bg")
 
-    -- Triangle size
-    local r = 5
-    local rh = 2 * r / 5
+  -- Triangle size
+  local r = 5
+  local rh = 2 * r / 5
 
-    local ox = (1 + w - h) + h / 2
-    local oy = 1 + h / 2 - (r / 2)
+  local ox = (1 + w - h) + h / 2
+  local oy = 1 + h / 2 - (r / 2)
 
-    local Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
-    local Bx, By = Math.polar2cart(0, r, ox, oy)
-    local Cx, Cy = Math.polar2cart(1, r, ox, oy)
+  local Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
+  local Bx, By = Math.polar2cart(0, r, ox, oy)
+  local Cx, Cy = Math.polar2cart(1, r, ox, oy)
 
-    GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
+  GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
-    oy = oy + h + 2
+  oy = oy + h + 2
 
-    Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
-    Bx, By = Math.polar2cart(0, r, ox, oy)
-    Cx, Cy = Math.polar2cart(1, r, ox, oy)
+  Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
+  Bx, By = Math.polar2cart(0, r, ox, oy)
+  Cx, Cy = Math.polar2cart(1, r, ox, oy)
 
-    GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
+  GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
 end
 
@@ -244,30 +241,15 @@ function Menubox:drawtext()
   self.retval = self:validateoption(tonumber(self.retval) or 1)
 
   -- Strip gfx.showmenu's special characters from the displayed value
-  local text = string.match(self.options[self.retval], "^[<!#]?(.+)")
+  local text = self:formatOutput(
+    string.match(self.options[self.retval], "^[<!#]?(.+)")
+  )
 
   -- Draw the text
   Font.set(self.font_b)
   Color.set(self.col_txt)
 
-  --if self.output then text = self.output(text) end
-
-  if self.output then
-    local t = type(self.output)
-
-    if t == "string" or t == "number" then
-        text = self.output
-    elseif t == "table" then
-        text = self.output[text]
-    elseif t == "function" then
-        text = self.output(text)
-    end
-  end
-
-  -- Avoid any crashes from weird user data
-  text = tostring(text)
-
-  str_w, str_h = gfx.measurestr(text)
+  local str_w, str_h = gfx.measurestr(text)
   gfx.x = self.x + 4
   gfx.y = self.y + (self.h - str_h) / 2
 
@@ -286,8 +268,8 @@ end
 -- Put together a string for gfx.showmenu from the values in options
 function Menubox:prepmenu()
 
-  local str_arr = {}
-  local sep_arr = {}
+  local str_arr = T{}
+  local sep_arr = T{}
   local menu_str = ""
 
   for i = 1, #self.options do
@@ -295,22 +277,24 @@ function Menubox:prepmenu()
     -- Check off the currently-selected option
     if i == self.retval then menu_str = menu_str .. "!" end
 
-        table.insert(str_arr, tostring( type(self.options[i]) == "table"
-                                            and self.options[i][1]
-                                            or  self.options[i]
-                                      )
-                    )
+        str_arr:insert(
+          tostring(
+            type(self.options[i]) == "table"
+              and self.options[i][1]
+              or  self.options[i]
+          )
+        )
 
     if str_arr[#str_arr] == ""
-    or string.sub(str_arr[#str_arr], 1, 1) == ">" then
-      table.insert(sep_arr, i)
+    or str_arr[#str_arr]:sub(1, 1) == ">" then
+      sep_arr:insert(i)
     end
 
-    table.insert( str_arr, "|" )
+    str_arr:insert("|")
 
   end
 
-  menu_str = table.concat( str_arr )
+  menu_str = str_arr:concat()
 
   return string.sub(menu_str, 1, string.len(menu_str) - 1), sep_arr
 
@@ -320,50 +304,50 @@ end
 -- Adjust the menu's returned value to ignore any separators ( --------- )
 function Menubox:stripseps(curopt, sep_arr)
 
-    for i = 1, #sep_arr do
-        if curopt >= sep_arr[i] then
-            curopt = curopt + 1
-        else
-            break
-        end
+  for i = 1, #sep_arr do
+    if curopt >= sep_arr[i] then
+      curopt = curopt + 1
+    else
+      break
     end
+  end
 
-    return curopt
+  return curopt
 
 end
 
 
 function Menubox:validateoption(val, dir)
 
-    dir = dir or 1
+  dir = dir or 1
 
-    while true do
+  while true do
 
-        -- Past the first option, look upward instead
-        if val < 1 then
-            val = 1
-            dir = 1
+    -- Past the first option, look upward instead
+    if val < 1 then
+      val = 1
+      dir = 1
 
-        -- Past the last option, look downward instead
-        elseif val > #self.options then
-            val = #self.options
-            dir = -1
-
-        end
-
-        -- Don't stop on separators, folders, or grayed-out options
-        local opt = string.sub(self.options[val], 1, 1)
-        if opt == "" or opt == ">" or opt == "#" then
-            val = val - dir
-
-        -- This option is good
-        else
-            break
-        end
+    -- Past the last option, look downward instead
+    elseif val > #self.options then
+      val = #self.options
+      dir = -1
 
     end
 
-    return val
+    -- Don't stop on separators, folders, or grayed-out options
+    local opt = string.sub(self.options[val], 1, 1)
+    if opt == "" or opt == ">" or opt == "#" then
+      val = val - dir
+
+    -- This option is good
+    else
+      break
+    end
+
+  end
+
+  return val
 
 end
 

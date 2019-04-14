@@ -435,24 +435,12 @@ end
 
 function Slider:drawslidervalue(x, y, sldr)
 
-    local output = self.handles[sldr].retval
+  local output = self:formatOutput(self.handles[sldr].retval)
 
-    if self.output then
-        local t = type(self.output)
+  gfx.x, gfx.y = x, y
 
-        if t == "string" or t == "number" then
-            output = self.output
-        elseif t == "table" then
-            output = self.output[output]
-        elseif t == "function" then
-            output = self.output(output)
-        end
-    end
-
-    gfx.x, gfx.y = x, y
-
-    Text.text_bg(output, self.bg, self.align_values + 256)
-    gfx.drawstr(output, self.align_values + 256, gfx.x, gfx.y)
+  Text.text_bg(output, self.bg, self.align_values + 256)
+  gfx.drawstr(output, self.align_values + 256, gfx.x, gfx.y)
 
 end
 

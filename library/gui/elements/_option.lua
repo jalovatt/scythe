@@ -24,44 +24,45 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
+local Table = require("public.table")
 
 local Option = require("gui.element"):new()
+Option.__index = Option
 
 function Option:new(props)
 
-	local option = props
+	local option = Table.copy({
+    x = 0,
+    y = 0,
+    w = 128,
+    h = 128,
 
-	option.z = option.z or z
+    caption = ((props.type or "Option") .. ":"),
 
-	option.x = option.x or 0
-  option.y = option.y or 0
-  option.w = option.w or 128
-  option.h = option.h or 128
+    bg = "wnd_bg",
 
-	option.caption = option.caption or (props.type .. ":")
+    dir = "v",
+    pad = 4,
+
+    col_txt = "txt",
+    col_fill = "elm_fill",
+
+    font_a = 2,
+    font_b = 3,
+
+    -- Size of the option bubbles
+    opt_size = 20,
+
+    options = {"Option 1", "Option 2", "Option 3"},
+
+  }, props)
 
   if option.frame == nil then option.frame = true end
-	option.bg = option.bg or "wnd_bg"
-
-	option.dir = option.dir or dir or "v"
-	option.pad = option.pad or pad or 4
-
-	option.col_txt = option.col_txt or "txt"
-	option.col_fill = option.col_fill or "elm_fill"
-
-	option.font_a = option.font_a or 2
-	option.font_b = option.font_b or 3
-
   if option.shadow == nil then option.shadow = true end
 
-	-- Size of the option bubbles
-	option.opt_size = option.opt_size or 20
-
-  option.options = option.options or {"Option 1", "Option 2", "Option 3"}
-
-	setmetatable(option, self)
-    self.__index = self
-    return option
+	-- setmetatable(option, self)
+  -- self.__index = self
+  return self:assignChild(option)
 
 end
 
@@ -112,9 +113,9 @@ function Option:draw()
 		gfx.rect(self.x, self.y, self.w, self.h, 0)
 	end
 
-    if self.caption and self.caption ~= "" then self:drawcaption() end
+  if self.caption and self.caption ~= "" then self:drawcaption() end
 
-    self:drawoptions()
+  self:drawoptions()
 
 end
 
@@ -130,17 +131,17 @@ end
 
 function Option:getmouseopt(state)
 
-    local len = #self.options
+  local len = #self.options
 
 	-- See which option it's on
 	local mouseopt = self.dir == "h"
-                    and (state.mouse.x - (self.x + self.pad))
-					or	(state.mouse.y - (self.y + self.cap_h + 1.5*self.pad) )
+                and (state.mouse.x - (self.x + self.pad))
+					      or	(state.mouse.y - (self.y + self.cap_h + 1.5*self.pad) )
 
 	mouseopt = mouseopt / ((self.opt_size + self.pad) * len)
 	mouseopt = Math.clamp( math.floor(mouseopt * len) + 1 , 1, len )
 
-    return self.options[mouseopt] ~= "_" and mouseopt or false
+  return self.options[mouseopt] ~= "_" and mouseopt or false
 
 end
 
@@ -166,25 +167,25 @@ end
 
 function Option:drawoptions()
 
-    local x, y, w, h = self.x, self.y, self.w, self.h
+  local x, y, w, h = self.x, self.y, self.w, self.h
 
-    local horz = self.dir == "h"
+  local horz = self.dir == "h"
 	local pad = self.pad
 
-    -- Bump everything down for the caption
-    y = y + ((self.caption and self.caption ~= "") and self.cap_h or 0) + 1.5 * pad
+  -- Bump everything down for the caption
+  y = y + ((self.caption and self.caption ~= "") and self.cap_h or 0) + 1.5 * pad
 
-    -- Bump the options down more for horizontal options
-    -- with the text on top
+  -- Bump the options down more for horizontal options
+  -- with the text on top
 	if horz and self.caption ~= "" and not self.swap then
-        y = y + self.cap_h + 2*pad
-    end
+    y = y + self.cap_h + 2*pad
+  end
 
 	local opt_size = self.opt_size
 
-    local adj = opt_size + pad
+  local adj = opt_size + pad
 
-    local str, opt_x, opt_y
+  local str, opt_x, opt_y
 
 	for i = 1, #self.options do
 
@@ -211,41 +212,43 @@ end
 
 function Option:drawoption(opt_x, opt_y, size, selected)
 
-    gfx.blit(   self.buff, 1,  0,
-                selected and (size + 3) or 1, 1,
-                size + 1, size + 1,
-                opt_x, opt_y)
+  gfx.blit(   self.buff, 1,  0,
+              selected and (size + 3) or 1, 1,
+              size + 1, size + 1,
+              opt_x, opt_y)
 
 end
 
 
 function Option:drawvalue(opt_x, opt_y, size, str)
 
-    if not str or str == "" then return end
+  if not str or str == "" then return end
 
-	Font.set(self.font_b)
+  Font.set(self.font_b)
 
-    local str_w, str_h = gfx.measurestr(str)
+  local output = self:formatOutput(str)
 
-    if self.dir == "h" then
+  local str_w, str_h = gfx.measurestr(output)
 
-        gfx.x = opt_x + (size - str_w) / 2
-        gfx.y = opt_y + (self.swap and (size + 4) or -size)
+  if self.dir == "h" then
 
-    else
+    gfx.x = opt_x + (size - str_w) / 2
+    gfx.y = opt_y + (self.swap and (size + 4) or -size)
 
-        gfx.x = opt_x + (self.swap and -(str_w + 8) or 1.5*size)
-        gfx.y = opt_y + (size - str_h) / 2
+  else
 
-    end
+    gfx.x = opt_x + (self.swap and -(str_w + 8) or 1.5*size)
+    gfx.y = opt_y + (size - str_h) / 2
 
-    Text.text_bg(str, self.bg)
-    if #self.options == 1 or self.shadow then
-        Text.drawWithShadow(str, self.col_txt, "shadow")
-    else
-        Color.set(self.col_txt)
-        gfx.drawstr(str)
-    end
+  end
+
+  Text.text_bg(output, self.bg)
+  if #self.options == 1 or self.shadow then
+    Text.drawWithShadow(output, self.col_txt, "shadow")
+  else
+    Color.set(self.col_txt)
+    gfx.drawstr(output)
+  end
 
 end
 

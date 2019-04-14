@@ -127,21 +127,20 @@ end
 function Listbox:val(newval)
 
 	if newval then
-		--self.list = type(newval) == "string" and self:CSVtotable(newval) or newval
-        if type(newval) == "table" then
+    if type(newval) == "table" then
 
-            for i = 1, #self.list do
-                self.retval[i] = newval[i] or nil
-            end
+      for i = 1, #self.list do
+        self.retval[i] = newval[i] or nil
+      end
 
-        elseif type(newval) == "number" then
+    elseif type(newval) == "number" then
 
-            newval = math.floor(newval)
-            for i = 1, #self.list do
-                self.retval[i] = (i == newval)
-            end
+      newval = math.floor(newval)
+      for i = 1, #self.list do
+        self.retval[i] = (i == newval)
+      end
 
-        end
+    end
 
 		self:redraw()
 
@@ -149,7 +148,8 @@ function Listbox:val(newval)
 
 		if self.multi then
 			return self.retval
-		else
+    else
+      -- luacheck: ignore 512 (loop executing once)
 			for k in pairs(self.retval) do
 				return k
 			end
@@ -281,13 +281,14 @@ function Listbox:drawtext()
 	for i = self.wnd_y, math.min(self:wnd_bottom() - 1, #self.list) do
 
 		local str = tostring(self.list[i]) or ""
-        tmp[#tmp + 1] = str
+    tmp[#tmp + 1] = self:formatOutput(str)
 
 	end
 
 	gfx.x, gfx.y = self.x + self.pad, self.y + self.pad
     local r = gfx.x + self.w - 2*self.pad
     local b = gfx.y + self.h - 2*self.pad
+
 	gfx.drawstr( table.concat(tmp, "\n"), 0, r, b)
 
 end
@@ -303,7 +304,6 @@ function Listbox:drawselection()
 	Color.set("elm_fill")
 	gfx.a = 0.5
 	gfx.mode = 1
-	-- for wnd_y, wnd_y + wnd_h do
 
 	for i = 1, #self.list do
 

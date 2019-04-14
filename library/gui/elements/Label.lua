@@ -51,7 +51,9 @@ function Label:init()
     self.buffs = self.buffs or Buffer.get(2)
 
     Font.set(self.font)
-    self.w, self.h = gfx.measurestr(self.caption)
+
+    local output = self:formatOutput(self.caption)
+    self.w, self.h = gfx.measurestr(output)
 
     local w, h = self.w + 4, self.h + 4
 
@@ -83,10 +85,10 @@ function Label:init()
     Color.set(self.color)
 
 	if self.shadow then
-        Text.drawWithShadow(self.caption, self.color, "shadow")
-    else
-        gfx.drawstr(self.caption)
-    end
+    Text.drawWithShadow(output, self.color, "shadow")
+  else
+    gfx.drawstr(output)
+  end
 
     gfx.dest = dest
 
@@ -110,6 +112,7 @@ function Label:fade(len, dest, curve)
     start = reaper.time_precise(),
     curve = (curve or 3)
   }
+
 	self:redraw()
 
 end
@@ -120,20 +123,20 @@ function Label:draw()
     -- Font stuff doesn't work until we definitely have a gfx window
 	if self.w == 0 then self:init() end
 
-    local a = self.fade_arr and self:getalpha() or 1
-    if a == 0 then return end
+  local a = self.fade_arr and self:getalpha() or 1
+  if a == 0 then return end
 
-    gfx.x, gfx.y = self.x - 2, self.y - 2
+  gfx.x, gfx.y = self.x - 2, self.y - 2
 
-    -- Background
-    gfx.blit(self.buffs[1], 1, 0)
+  -- Background
+  gfx.blit(self.buffs[1], 1, 0)
 
-    gfx.a = a
+  gfx.a = a
 
-    -- Text
-    gfx.blit(self.buffs[2], 1, 0)
+  -- Text
+  gfx.blit(self.buffs[2], 1, 0)
 
-    gfx.a = 1
+  gfx.a = 1
 
 end
 
@@ -153,28 +156,28 @@ end
 
 function Label:getalpha()
 
-    local sign = self.fade_arr.curve > 0 and 1 or -1
+  local sign = self.fade_arr.curve > 0 and 1 or -1
 
-    local diff = (reaper.time_precise() - self.fade_arr.start) / self.fade_arr.length
-    diff = math.floor(diff * 100) / 100
-    diff = diff^(math.abs(self.fade_arr.curve))
+  local diff = (reaper.time_precise() - self.fade_arr.start) / self.fade_arr.length
+  diff = math.floor(diff * 100) / 100
+  diff = diff^(math.abs(self.fade_arr.curve))
 
-    local a = sign > 0 and (1 - (gfx.a * diff)) or (gfx.a * diff)
+  local a = sign > 0 and (1 - (gfx.a * diff)) or (gfx.a * diff)
 
-    self:redraw()
+  self:redraw()
 
-    -- Terminate the fade loop at some point
-    if sign == 1 and a < 0.02 then
-        self:moveToLayer(self.fade_arr.dest)
-        self.fade_arr = nil
-        return 0
-    elseif sign == -1 and a > 0.98 then
-        -- self:moveToLayer(self.fade_arr.dest)
-        self.fade_arr = nil
-        return 1
-    end
+  -- Terminate the fade loop at some point
+  if sign == 1 and a < 0.02 then
+    self:moveToLayer(self.fade_arr.dest)
+    self.fade_arr = nil
+    return 0
+  elseif sign == -1 and a > 0.98 then
+    -- self:moveToLayer(self.fade_arr.dest)
+    self.fade_arr = nil
+    return 1
+  end
 
-    return a
+  return a
 
 end
 

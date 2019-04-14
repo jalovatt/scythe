@@ -57,9 +57,13 @@ function TextUtils.SWS_clipboard(self)
 		return true
 	else
 
-		reaper.ShowMessageBox(	"Clipboard functions require the SWS extension, v2.9.7 or newer."..
-									"\n\nDownload the latest version at http://www.sws-extension.org/index.php",
-									"Sorry!", 0)
+		reaper.ShowMessageBox(
+      "Clipboard functions require the SWS extension, v2.9.7 or newer."..
+      "\n\nDownload the latest version at http://www.sws-extension.org/index.php",
+
+      "Sorry!",
+      0
+    )
 		return false
 
 	end

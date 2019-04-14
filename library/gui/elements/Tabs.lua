@@ -46,27 +46,17 @@ function Tabs:new(props)
 
     first_tab_offset = 16,
 
+    -- Currently-selected option
+    retval = 1,
+    state = 1,
   }, props)
-  --[[
-    Data shape:
-
-    tab.tabs = {
-      {label = "First", layers = { layer1, layer2, layer3 },
-      {label = "Second", layers = { layer4, layer5, layer6 },
-    }
-  ]]--
 
 	-- Figure out the total size of the tab frame now that we know the
-    -- number of buttons, so we can do the math for clicking on it
-	tab.w, tab.h = (tab.tab_w + tab.pad) * #tab.tabs + 2*tab.pad + 12, tab.tab_h
+  -- number of buttons, so we can do the math for clicking on it
+  tab.w = (tab.tab_w + tab.pad) * #tab.tabs + 2*tab.pad + 12
+  tab.h = tab.tab_h
 
-  if tab.fullwidth == nil then
-    tab.fullwidth = true
-  end
-
-	-- Currently-selected option
-	tab.retval = tab.retval or 1
-  tab.state = tab.retval or 1
+  if tab.fullwidth == nil then tab.fullwidth = true end
 
 	return self:assignChild(tab)
 end
@@ -74,43 +64,43 @@ end
 
 function Tabs:init()
 
-    self.buffer = self.buffer or Buffer.get()
-    self:update_sets()
+  self.buffer = self.buffer or Buffer.get()
+  self:update_sets()
 
-    self.buffer_size = (#self.tabs * (self.tab_w + 4))
+  self.buffer_size = (#self.tabs * (self.tab_w + 4))
 
-    gfx.dest = self.buffer
-    gfx.setimgdim(self.buffer, -1, -1)
-    gfx.setimgdim(self.buffer, self.buffer_size, self.buffer_size)
+  gfx.dest = self.buffer
+  gfx.setimgdim(self.buffer, -1, -1)
+  gfx.setimgdim(self.buffer, self.buffer_size, self.buffer_size)
 
-    Color.set(self.bg)
-    gfx.rect(0, 0, self.buffer_size, self.buffer_size, true)
+  Color.set(self.bg)
+  gfx.rect(0, 0, self.buffer_size, self.buffer_size, true)
 
-    local x_adj = self.tab_w + self.pad - self.tab_h
+  local x_adj = self.tab_w + self.pad - self.tab_h
 
-    -- Because of anti-aliasing, we can't just draw and blit the tabs individually
-    -- We'll just draw the entire row separately for each state
-    for state = 1, #self.tabs do
-      for tab = #self.tabs, 1, -1 do
-        if tab ~= state then
-          -- Inactive
-          self:draw_tab(
-            (tab - 1) * (x_adj),
-            (state - 1) * (self.tab_h + 4) + Text.shadow_size,
-            self.tab_w,
-            self.tab_h,
-            self.dir, self.font_b, self.col_txt, self.col_tab_b, self.tabs[tab].label)
-        end
+  -- Because of anti-aliasing, we can't just draw and blit the tabs individually
+  -- We'll draw the entire row separately for each state
+  for state = 1, #self.tabs do
+    for tab = #self.tabs, 1, -1 do
+      if tab ~= state then
+        -- Inactive
+        self:draw_tab(
+          (tab - 1) * (x_adj),
+          (state - 1) * (self.tab_h + 4) + Text.shadow_size,
+          self.tab_w,
+          self.tab_h,
+          self.dir, self.font_b, self.col_txt, self.col_tab_b, self.tabs[tab].label)
       end
-
-      -- Active
-      self:draw_tab(
-        (state - 1) * (x_adj),
-        (state - 1) * (self.tab_h + 4),
-        self.tab_w,
-        self.tab_h,
-        self.dir, self.font_b, self.col_txt, self.col_tab_a, self.tabs[state].label)
     end
+
+    -- Active
+    self:draw_tab(
+      (state - 1) * (x_adj),
+      (state - 1) * (self.tab_h + 4),
+      self.tab_w,
+      self.tab_h,
+      self.dir, self.font_b, self.col_txt, self.col_tab_a, self.tabs[state].label)
+  end
 
 end
 
@@ -243,44 +233,44 @@ function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
   local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                          or   {y + h, y})
 
-  local x = x + (h / 2)
-  local w = w - h
+  x = x + (h / 2)
+  w = w - h
 
 	Color.set("shadow")
 
-    -- tab shadow
-    for i = 1, dist do
+  -- tab shadow
+  for i = 1, dist do
 
-        gfx.rect(x + i, y, w, h, true)
+    gfx.rect(x + i, y, w, h, true)
 
-        gfx.triangle(   x + i, y1,
-                        x + i, y2,
-                        x + i - (h / 2), y2)
+    gfx.triangle( x + i, y1,
+                  x + i, y2,
+                  x + i - (h / 2), y2)
 
-        gfx.triangle(   x + i + w, y1,
-                        x + i + w, y2,
-                        x + i + w + (h / 2), y2)
+    gfx.triangle( x + i + w, y1,
+                  x + i + w, y2,
+                  x + i + w + (h / 2), y2)
 
-    end
+  end
 
-    -- Hide those gross, pixellated edges
-    gfx.line(x + dist, y1, x + dist - (h / 2), y2, 1)
-    gfx.line(x + dist + w, y1, x + dist + w + (h / 2), y2, 1)
+  -- Hide those gross, pixellated edges
+  gfx.line(x + dist, y1, x + dist - (h / 2), y2, 1)
+  gfx.line(x + dist + w, y1, x + dist + w + (h / 2), y2, 1)
 
-    Color.set(col_bg)
+  Color.set(col_bg)
 
-    gfx.rect(x, y, w, h, true)
+  gfx.rect(x, y, w, h, true)
 
-    gfx.triangle(   x, y1,
-                    x, y2,
-                    x - (h / 2), y2)
+  gfx.triangle( x, y1,
+                x, y2,
+                x - (h / 2), y2)
 
-    gfx.triangle(   x + w, y1,
-                    x + w, y2,
-                    x + w + (h / 2), y + h)
+  gfx.triangle( x + w, y1,
+                x + w, y2,
+                x + w + (h / 2), y + h)
 
-    gfx.line(x, y1, x - (h / 2), y2, 1)
-    gfx.line(x + w, y1, x + w + (h / 2), y2, 1)
+  gfx.line(x, y1, x - (h / 2), y2, 1)
+  gfx.line(x + w, y1, x + w + (h / 2), y2, 1)
 
 
 	-- Draw the tab's label
@@ -305,19 +295,13 @@ end
 -- Updates visibility for any layers assigned to the tabs
 function Tabs:update_sets()
 
-	-- if init then
-	-- 	self.tabs = init
-	-- end
-
-	-- local tabs = self.tabs
-
 	if not self.tabs or #self.tabs[1].layers < 1 then return end
 
 	for i = 1, #self.tabs do
     if i ~= self.state then
-        for _, layer in pairs(self.tabs[i].layers) do
-            layer:hide()
-        end
+      for _, layer in pairs(self.tabs[i].layers) do
+        layer:hide()
+      end
     end
 	end
 

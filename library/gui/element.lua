@@ -384,4 +384,23 @@ function Element:assignChild(instance)
   return instance
 end
 
+function Element:formatOutput(val)
+  local output
+
+  if self.output then
+    local t = type(self.output)
+
+    if t == "string" or t == "number" then
+      output = self.output
+    elseif t == "table" then
+      output = self.output[val]
+    elseif t == "function" then
+      output = self.output(val)
+    end
+
+  end
+
+  return output and tostring(output) or tostring(val)
+end
+
 return Element

@@ -56,13 +56,13 @@ local function get_values_for_tab(tab_num)
 
   local values = {}
   for key, elm in pairs(layer.elements) do
-
     local val
     if elm.val then
       val = elm:val()
     else
       val = "n/a"
     end
+
     values[#values + 1] = key .. ": " .. tostring(val)
   end
 
@@ -82,14 +82,6 @@ local function btn_click()
   reaper.ShowMessageBox(msg, "Yay!", 0)
 
 end
-
-
--- local function wnd_OK()
-
---     -- Close the Window element
---     GUI.elms.wnd_test:close()
-
--- end
 
 
 ------------------------------------
