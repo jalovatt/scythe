@@ -17,47 +17,47 @@ local Font = {}
 
 local OS_fonts = {
 
-    Windows = {
-        sans = "Calibri",
-        mono = "Lucida Console"
-    },
+  Windows = {
+    sans = "Calibri",
+    mono = "Lucida Console"
+  },
 
-    OSX = {
-        sans = "Helvetica Neue",
-        mono = "Andale Mono"
-    },
+  OSX = {
+    sans = "Helvetica Neue",
+    mono = "Andale Mono"
+  },
 
-    Linux = {
-        sans = "Arial",
-        mono = "DejaVuSansMono"
-    }
+  Linux = {
+    sans = "Arial",
+    mono = "DejaVuSansMono"
+  }
 
 }
 
 local get_OS_fonts = function()
 
-    local os = reaper.GetOS()
-    if os:match("Win") then
-        return OS_fonts.Windows
-    elseif os:match("OSX") then
-        return OS_fonts.OSX
-    else
-        return OS_fonts.Linux
-    end
+  local os = reaper.GetOS()
+  if os:match("Win") then
+    return OS_fonts.Windows
+  elseif os:match("OSX") then
+    return OS_fonts.OSX
+  else
+    return OS_fonts.Linux
+  end
 
 end
 
 local fonts = get_OS_fonts()
 Font.fonts = {
 
-                -- Font, size, bold/italics/underline
-                -- 				^ One string: "b", "iu", etc.
-                {fonts.sans, 32},	-- 1. Title
-                {fonts.sans, 20},	-- 2. Header
-                {fonts.sans, 16},	-- 3. Label
-                {fonts.sans, 16},	-- 4. Value
-    monospace = {fonts.mono, 14},
-    version = 	{fonts.sans, 12, "i"},
+              -- Font, size, bold/italics/underline
+              -- 				^ One string: "b", "iu", etc.
+              {fonts.sans, 32},	-- 1. Title
+              {fonts.sans, 20},	-- 2. Header
+              {fonts.sans, 16},	-- 3. Label
+              {fonts.sans, 16},	-- 4. Value
+  monospace = {fonts.mono, 14},
+  version = 	{fonts.sans, 12, "i"},
 
 }
 
@@ -71,25 +71,25 @@ Font.fonts = {
 ]]--
 Font.set = function (fontIn)
 
-    local font, size, str = table.unpack( type(fontIn) == "table"
-                                            and fontIn
-                                            or  Font.fonts[fontIn])
+  local font, size, str = table.unpack( type(fontIn) == "table"
+                                          and fontIn
+                                          or  Font.fonts[fontIn])
 
-    -- Different OSes use different font sizes, for some reason
-    -- This should give a similar size on Mac/Linux as on Windows
-    if not string.match( reaper.GetOS(), "Win") then
-        size = math.floor(size * 0.8)
+  -- Different OSes use different font sizes, for some reason
+  -- This should give a similar size on Mac/Linux as on Windows
+  if not string.match( reaper.GetOS(), "Win") then
+    size = math.floor(size * 0.8)
+  end
+
+  -- Cheers to Justin and Schwa for this
+  local flags = 0
+  if str then
+    for i = 1, str:len() do
+      flags = flags * 256 + string.byte(str, i)
     end
+  end
 
-    -- Cheers to Justin and Schwa for this
-    local flags = 0
-    if str then
-        for i = 1, str:len() do
-            flags = flags * 256 + string.byte(str, i)
-        end
-    end
-
-    gfx.setfont(1, font, size, flags)
+  gfx.setfont(1, font, size, flags)
 
 end
 

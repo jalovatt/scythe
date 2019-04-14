@@ -21,21 +21,21 @@ Scythe.script_path, Scythe.script_name = ({reaper.get_action_context()})[2]
 
 Scythe.version = (function()
 
-    local file = Scythe.lib_path .. "/scythe.lua"
-    if not reaper.ReaPack_GetOwner then
-        return "(" .. "ReaPack not found" .. ")"
+  local file = Scythe.lib_path .. "/scythe.lua"
+  if not reaper.ReaPack_GetOwner then
+    return "(" .. "ReaPack not found" .. ")"
+  else
+    local package, err = reaper.ReaPack_GetOwner(file)
+    if not package or package == "" then
+      return "(" .. tostring(err) .. ")"
     else
-        local package, err = reaper.ReaPack_GetOwner(file)
-        if not package or package == "" then
-            return "(" .. tostring(err) .. ")"
-        else
-            -- ret, repo, cat, pkg, desc, type, ver, author, pinned, fileCount = reaper.ReaPack_GetEntryInfo(package)
-            local ret, _, _, _, _, _, ver, _, _, _ =
-              reaper.ReaPack_GetEntryInfo(package)
+      -- ret, repo, cat, pkg, desc, type, ver, author, pinned, fileCount = reaper.ReaPack_GetEntryInfo(package)
+      local ret, _, _, _, _, _, ver, _, _, _ =
+        reaper.ReaPack_GetEntryInfo(package)
 
-            return ret and ("v" .. tostring(ver)) or "(version error)"
-        end
+      return ret and ("v" .. tostring(ver)) or "(version error)"
     end
+  end
 
 end)()
 

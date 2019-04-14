@@ -11,16 +11,10 @@ local Config = require("gui.config")
     elements are initialized with every method available.
 ]]--
 local Element = T{}
-function Element:new(name)
+Element.__index = Element
 
-    local elm = {}
-    if name then elm.name = name end
-    self.z = 1
-
-    setmetatable(elm, self)
-    self.__index = self
-    return elm
-
+function Element:new()
+  return setmetatable(T{}, self)
 end
 
 -- Called a) when the script window is first opened
@@ -34,7 +28,7 @@ function Element:draw() end
 
 -- Ask for a redraw on the next update
 function Element:redraw()
-    self.layer.needsRedraw = true
+  self.layer.needsRedraw = true
 end
 
 -- Called on every update loop, unless the element is hidden or frozen
@@ -42,9 +36,8 @@ function Element:onupdate() end
 
 function Element:delete()
 
-    self.ondelete(self)
-    -- GUI.Elements[self.name] = nil
-    if self.layer then self.layer:remove(self) end
+  self.ondelete(self)
+  if self.layer then self.layer:remove(self) end
 
 end
 
@@ -107,12 +100,12 @@ function Element:Update(state, last)
   if state.resized then self:onresize(state, last) end
 
   if state.elm_updated then
-      if self.focus then
-          self.focus = false
-          self:onlostfocus(state, last)
-      end
+    if self.focus then
+      self.focus = false
+      self:onlostfocus(state, last)
+    end
 
-      return
+    return
   end
 
   if skip then return end
@@ -156,36 +149,31 @@ function Element:Update(state, last)
 
           return
         else
+          state.mouse_down_elm = self
 
-          -- if state.mouse_down_elm == nil then -- Prevent click-through
+          -- Double clicked?
+          if state.mouse.downtime
+          and reaper.time_precise() - state.mouse.downtime < Config.doubleclick_time
+          then
 
-            state.mouse_down_elm = self
+            state.mouse.downtime = nil
+            state.mouse.dbl_clicked = true
+            self["on"..button.btn.."doubleclick"](self, state, last)
 
-            -- Double clicked?
-            if state.mouse.downtime
-            and reaper.time_precise() - state.mouse.downtime < Config.doubleclick_time
-            then
+          elseif not state.mouse.dbl_clicked then
 
-              state.mouse.downtime = nil
-              state.mouse.dbl_clicked = true
-              -- self:ondoubleclick(state, last)
-              self["on"..button.btn.."doubleclick"](self, state, last)
+            state.mouse.downtime = reaper.time_precise()
+            self.focus = true
+            self["on"..button.btn.."mousedown"](self, state, last)
+            self:onmousedown(state, last)
 
-            elseif not state.mouse.dbl_clicked then
+          end
 
-              state.mouse.downtime = reaper.time_precise()
-              self.focus = true
-              self["on"..button.btn.."mousedown"](self, state, last)
-              self:onmousedown(state, last)
-
-            end
-
-            state.elm_updated = true
-          -- end
+          state.elm_updated = true
 
           state.mouse.ox, state.mouse.oy = x, y
 
-          -- Where in the self the mouse was clicked. For dragging stuff
+          -- Where in the element the mouse was clicked. For dragging stuff
           -- and keeping it in the place relative to the cursor.
           state.mouse.off_x, state.mouse.off_y = x - self.x, y - self.y
 
@@ -198,7 +186,6 @@ function Element:Update(state, last)
         and self.focus ~= false then
 
           state.elm_updated = true
-          -- self:ondrag(state, last)
           self["on"..button.btn.."drag"](self, state, last)
 
         end
@@ -212,7 +199,6 @@ function Element:Update(state, last)
 
       if not state.mouse.dbl_clicked then
 
-      -- self:onmouseup(state, last) end
         self["on"..button.btn.."mouseup"](self, state, last)
       end
 
@@ -220,16 +206,6 @@ function Element:Update(state, last)
 
     end
   end
-
-
-  -- Right button
-  -- if state.mouse.cap&2==2 then
-
-  -- Middle button
-  -- if state.mouse.cap&64==64 then
-
-
-
 
   -- If the mouse is hovering over the element
   if inside then
@@ -239,7 +215,6 @@ function Element:Update(state, last)
       -- Initial mouseover an element
       if last.mouseover_elm ~= self then
         self:onmouseenter(state, last)
-        -- state.mouseover_elm = self
         state.mouseover_time = reaper.time_precise()
 
       else
@@ -259,7 +234,6 @@ function Element:Update(state, last)
         end
       end
     end
-    -- state.elm_updated = true
 
   else
     if last.mouseover_elm == self then
@@ -300,20 +274,19 @@ end
 -- If elm2 is omitted, centers elm1 in the window instead
 function Element:center (elm1, elm2)
 
-    elm2 = elm2
-      or (elm1.layer and elm1.layer.window and {
-        x = 0,
-        y = 0,
-        w = elm1.layer.window.cur_w,
-        h = elm1.layer.window.cur_h
-      })
+  elm2 = elm2
+    or (elm1.layer and elm1.layer.window and {
+      x = 0,
+      y = 0,
+      w = elm1.layer.window.cur_w,
+      h = elm1.layer.window.cur_h
+    })
 
-    if not elm2
-      and (   elm2.x and elm2.y and elm2.w and elm2.h
-          and elm1.x and elm1.y and elm1.w and elm1.h) then return end
+  if not elm2
+    and (   elm2.x and elm2.y and elm2.w and elm2.h
+        and elm1.x and elm1.y and elm1.w and elm1.h) then return end
 
-    return (elm2.x + (elm2.w - elm1.w) / 2), (elm2.y + (elm2.h - elm1.h) / 2)
-
+  return (elm2.x + (elm2.w - elm1.w) / 2), (elm2.y + (elm2.h - elm1.h) / 2)
 
 end
 
@@ -326,10 +299,10 @@ function Element:debug(...)
   local arg = {...}
 
   if #arg == 0 then
-      arg = {}
-      for k in Table.kpairs(self, "full") do
-          arg[#arg+1] = k
-      end
+    arg = {}
+    for k in Table.kpairs(self, "full") do
+      arg[#arg+1] = k
+    end
   end
 
   if not self or not self.type then return end
@@ -337,33 +310,33 @@ function Element:debug(...)
   local strs = {}
 
   for i = 1, #arg do
-      local k, v = arg[i], self[arg[i]]
+    local k, v = arg[i], self[arg[i]]
 
-      strs[#strs + 1] = pre .. tostring(k) .. " = "
+    strs[#strs + 1] = pre .. tostring(k) .. " = "
 
-      if type(v) == "table" then
-          strs[#strs] = strs[#strs] .. "table:"
+    if type(v) == "table" then
+      strs[#strs] = strs[#strs] .. "table:"
 
-          -- Hacks to break infinite loops; should probably be done
-          -- with some sort of override in the element classes
-          -- local depth = (k == "layer" or k == "tabs") and 2
-          if (k == "layer") then
-            strs[#strs + 1] = Table.stringify(v, 0, 1)
-          elseif (k == "tabs") then
-            local tabs = {}
-            for _, tab in pairs(v) do
-              tabs[#tabs + 1] = "  " .. tab.label
-              for _, layer in pairs(tab.layers) do
-                tabs[#tabs + 1] = "    " .. layer.name .. ", z = " .. layer.z
-              end
-            end
-            strs[#strs + 1] = table.concat(tabs, "\n")
-          else
-            strs[#strs + 1] = Table.stringify(v, nil, 1)
+      -- Hacks to break infinite loops; should probably be done
+      -- with some sort of override in the element classes
+      -- local depth = (k == "layer" or k == "tabs") and 2
+      if (k == "layer") then
+        strs[#strs + 1] = Table.stringify(v, 0, 1)
+      elseif (k == "tabs") then
+        local tabs = {}
+        for _, tab in pairs(v) do
+          tabs[#tabs + 1] = "  " .. tab.label
+          for _, layer in pairs(tab.layers) do
+            tabs[#tabs + 1] = "    " .. layer.name .. ", z = " .. layer.z
           end
+        end
+        strs[#strs + 1] = table.concat(tabs, "\n")
       else
-          strs[#strs] = strs[#strs] .. tostring(v)
+        strs[#strs + 1] = Table.stringify(v, nil, 1)
       end
+    else
+        strs[#strs] = strs[#strs] .. tostring(v)
+    end
 
   end
 

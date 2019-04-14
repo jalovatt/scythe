@@ -1,3 +1,5 @@
+local Table, T = require("public.table"):unpack()
+
 local Buffer = {}
 
 -- Any used buffers will be marked as True here
@@ -5,38 +7,38 @@ local usedBuffers = {}
 
 -- When deleting elements, their buffer numbers
 -- will be added here for easy access.
-local releasedBuffers = {}
+local releasedBuffers = T{}
 
 Buffer.get = function (num)
-    local ret = {}
+  local ret = {}
 
-    for i = 1, (num or 1) do
+  for i = 1, (num or 1) do
 
-        if #releasedBuffers > 0 then
+    if #releasedBuffers > 0 then
 
-            ret[i] = table.remove(releasedBuffers)
+      ret[i] = releasedBuffers:remove()
 
-        else
-            for j = 1, 1023 do
+    else
+      for j = 1, 1023 do
 
-                if not usedBuffers[j] then
-                    ret[i] = j
+        if not usedBuffers[j] then
+          ret[i] = j
 
-                    usedBuffers[j] = true
-                    goto skip
-                end
-
-            end
-
-            -- Something bad happened, probably my fault
-            error("Unable to find an unused graphics buffer")
-
-            ::skip::
+          usedBuffers[j] = true
+          goto skip
         end
 
+      end
+
+      -- Something bad happened, probably my fault
+      error("Unable to find an unused graphics buffer")
+
+      ::skip::
     end
 
-    return (#ret == 1) and ret[1] or ret
+  end
+
+  return (#ret == 1) and ret[1] or ret
 
 end
 
@@ -44,13 +46,13 @@ end
 -- when being deleted
 Buffer.release = function (num)
 
-    if type(num) == "number" then
-        table.insert(releasedBuffers, num)
-    else
-        for _, v in pairs(num) do
-            table.insert(releasedBuffers, v)
-        end
+  if type(num) == "number" then
+    releasedBuffers:insert(num)
+  else
+    for _, v in pairs(num) do
+      releasedBuffers:insert(v)
     end
+  end
 
 end
 

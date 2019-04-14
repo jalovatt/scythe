@@ -28,23 +28,23 @@ Text.shadow_size = 2
 
 Text.init_txt_width = function ()
 
-    Text.text_width = {}
-    local arr
-    for k in pairs(Font.fonts) do
+  Text.text_width = {}
+  local arr
+  for k in pairs(Font.fonts) do
 
-        Font.set(k)
-        Text.text_width[k] = {}
-        arr = {}
+    Font.set(k)
+    Text.text_width[k] = {}
+    arr = {}
 
-        for i = 1, 255 do
+    for i = 1, 255 do
 
-            arr[i] = gfx.measurechar(i)
-
-        end
-
-        Text.text_width[k] = arr
+      arr[i] = gfx.measurechar(i)
 
     end
+
+    Text.text_width[k] = arr
+
+  end
 
 end
 
@@ -55,17 +55,17 @@ end
 -- with a lot of text should use this instead - it's 10-12x faster.
 Text.get_text_width = function (str, font)
 
-    if not Text.text_width then Text.init_txt_width() end
+  if not Text.text_width then Text.init_txt_width() end
 
-    local widths = Text.text_width[font]
-    local w = 0
-    for i = 1, string.len(str) do
+  local widths = Text.text_width[font]
+  local w = 0
+  for i = 1, string.len(str) do
 
-        w = w + widths[		string.byte(	string.sub(str, i, i)	) ]
+    w = w + widths[		string.byte(	string.sub(str, i, i)	) ]
 
-    end
+  end
 
-    return w
+  return w
 
 end
 
@@ -74,24 +74,24 @@ end
 -- then returns both the trimmed string and the excess
 Text.fit_text_width = function (str, font, w)
 
-    -- local len = string.len(str)
+  -- local len = string.len(str)
 
-    -- Assuming 'i' is the narrowest character, get an upper limit
-    local max_end = math.floor( w / Text.text_width[font][string.byte("i")] )
+  -- Assuming 'i' is the narrowest character, get an upper limit
+  local max_end = math.floor( w / Text.text_width[font][string.byte("i")] )
 
-    for i = max_end, 1, -1 do
+  for i = max_end, 1, -1 do
 
-        if Text.get_text_width( string.sub(str, 1, i), font ) < w then
+    if Text.get_text_width( string.sub(str, 1, i), font ) < w then
 
-            return string.sub(str, 1, i), string.sub(str, i + 1)
-
-        end
+      return string.sub(str, 1, i), string.sub(str, i + 1)
 
     end
 
-    -- Worst case: not even one character will fit
-    -- If this actually happens you should probably rethink your choices in life.
-    return "", str
+  end
+
+  -- Worst case: not even one character will fit
+  -- If this actually happens you should probably rethink your choices in life.
+  return "", str
 
 end
 
@@ -122,55 +122,55 @@ end
 ]]--
 Text.word_wrap = function (str, font, w, indent, pad)
 
-    if not Text.text_width then Text.init_txt_width() end
+  if not Text.text_width then Text.init_txt_width() end
 
-    local ret_str = {}
+  local ret_str = {}
 
-    local w_left, w_word
-    local space = Text.text_width[font][string.byte(" ")]
+  local w_left, w_word
+  local space = Text.text_width[font][string.byte(" ")]
 
-    local new_para = indent and string.rep(" ", indent) or 0
+  local new_para = indent and string.rep(" ", indent) or 0
 
-    local w_pad = pad   and Text.get_text_width( string.sub(str, 1, pad), font )
-                        or 0
-    local new_line = "\n"..string.rep(" ", math.floor(w_pad / space)	)
+  local w_pad = pad   and Text.get_text_width( string.sub(str, 1, pad), font )
+                      or 0
+  local new_line = "\n"..string.rep(" ", math.floor(w_pad / space)	)
 
-    str:splitLines():forEach(function(line)
+  str:splitLines():forEach(function(line)
 
-        table.insert(ret_str, new_para)
+    table.insert(ret_str, new_para)
 
-        -- Check for leading spaces and tabs
-        local leading, rest = string.match(line, "^([%s\t]*)(.*)$")
-        if leading then table.insert(ret_str, leading) end
+    -- Check for leading spaces and tabs
+    local leading, rest = string.match(line, "^([%s\t]*)(.*)$")
+    if leading then table.insert(ret_str, leading) end
 
-        w_left = w
-        rest:split("%s"):forEach(function(word)
+    w_left = w
+    rest:split("%s"):forEach(function(word)
 
-            w_word = Text.get_text_width(word, font)
-            if (w_word + space) > w_left then
+      w_word = Text.get_text_width(word, font)
+      if (w_word + space) > w_left then
 
-                table.insert(ret_str, new_line)
-                w_left = w - w_word
+        table.insert(ret_str, new_line)
+        w_left = w - w_word
 
-            else
+      else
 
-                w_left = w_left - (w_word + space)
+        w_left = w_left - (w_word + space)
 
-            end
+      end
 
-            table.insert(ret_str, word)
-            table.insert(ret_str, " ")
-
-        end)
-
-        table.insert(ret_str, "\n")
+      table.insert(ret_str, word)
+      table.insert(ret_str, " ")
 
     end)
 
-    table.remove(ret_str, #ret_str)
-    ret_str = table.concat(ret_str)
+    table.insert(ret_str, "\n")
 
-    return ret_str
+  end)
+
+  table.remove(ret_str, #ret_str)
+  ret_str = table.concat(ret_str)
+
+  return ret_str
 
 end
 
@@ -179,17 +179,17 @@ end
 -- of the second color (at 45' to the bottom-right)
 Text.drawWithShadow = function (str, col1, col2)
 
-    local x, y = gfx.x, gfx.y
+  local x, y = gfx.x, gfx.y
 
-    Color.set(col2 or "shadow")
-    for i = 1, Text.shadow_size do
-        gfx.x, gfx.y = x + i, y + i
-        gfx.drawstr(str)
-    end
+  Color.set(col2 or "shadow")
+  for i = 1, Text.shadow_size do
+      gfx.x, gfx.y = x + i, y + i
+      gfx.drawstr(str)
+  end
 
-    Color.set(col1)
-    gfx.x, gfx.y = x, y
-    gfx.drawstr(str)
+  Color.set(col1)
+  gfx.x, gfx.y = x, y
+  gfx.drawstr(str)
 
 end
 
@@ -197,22 +197,22 @@ end
 -- Draws a string using the given text and outline color presets
 Text.drawWithOutline = function (str, col1, col2)
 
-    local x, y = gfx.x, gfx.y
+  local x, y = gfx.x, gfx.y
 
-    Color.set(col2)
+  Color.set(col2)
 
-    gfx.x, gfx.y = x + 1, y + 1
-    gfx.drawstr(str)
-    gfx.x, gfx.y = x - 1, y + 1
-    gfx.drawstr(str)
-    gfx.x, gfx.y = x - 1, y - 1
-    gfx.drawstr(str)
-    gfx.x, gfx.y = x + 1, y - 1
-    gfx.drawstr(str)
+  gfx.x, gfx.y = x + 1, y + 1
+  gfx.drawstr(str)
+  gfx.x, gfx.y = x - 1, y + 1
+  gfx.drawstr(str)
+  gfx.x, gfx.y = x - 1, y - 1
+  gfx.drawstr(str)
+  gfx.x, gfx.y = x + 1, y - 1
+  gfx.drawstr(str)
 
-    Color.set(col1)
-    gfx.x, gfx.y = x, y
-    gfx.drawstr(str)
+  Color.set(col1)
+  gfx.x, gfx.y = x, y
+  gfx.drawstr(str)
 
 end
 
@@ -240,31 +240,31 @@ end
 ]]--
 Text.text_bg = function (str, col, align)
 
-    local x, y = gfx.x, gfx.y
-    local r, g, b, a = gfx.r, gfx.g, gfx.b, gfx.a
+  local x, y = gfx.x, gfx.y
+  local r, g, b, a = gfx.r, gfx.g, gfx.b, gfx.a
 
-    col = col or "wnd_bg"
+  col = col or "wnd_bg"
 
-    Color.set(col)
+  Color.set(col)
 
-    local w, h = gfx.measurestr(str)
-    w, h = w + 4, h + 4
+  local w, h = gfx.measurestr(str)
+  w, h = w + 4, h + 4
 
-    if align then
+  if align then
 
-      if align & 1 == 1 then
-        gfx.x = gfx.x - w/2
-      elseif align & 4 == 4 then
-        gfx.y = gfx.y - h/2
-      end
-
+    if align & 1 == 1 then
+      gfx.x = gfx.x - w/2
+    elseif align & 4 == 4 then
+      gfx.y = gfx.y - h/2
     end
 
-    gfx.rect(gfx.x - 2, gfx.y - 2, w, h, true)
+  end
 
-    gfx.x, gfx.y = x, y
+  gfx.rect(gfx.x - 2, gfx.y - 2, w, h, true)
 
-    gfx.set(r, g, b, a)
+  gfx.x, gfx.y = x, y
+
+  gfx.set(r, g, b, a)
 
 end
 

@@ -2,6 +2,8 @@ local _, T = require("public.table"):unpack()
 local Buffer = require("gui.buffer")
 
 local Layer = T{}
+Layer.__index = Layer
+
 function Layer:new(props)
   local layer = props
 
@@ -13,10 +15,7 @@ function Layer:new(props)
 
   layer.needsRedraw = false
 
-  setmetatable(layer, self)
-  self.__index = self
-
-  return layer
+  return setmetatable(layer, self)
 end
 
 function Layer:hide()
@@ -87,12 +86,12 @@ function Layer:redraw()
   gfx.dest = self.buff
 
   for _, elm in pairs(self.elements) do
-      -- Reset these just in case an element or some user code forgot to,
-      -- otherwise we get things like the whole buffer being blitted with a=0.2
-      gfx.mode = 0
-      gfx.set(0, 0, 0, 1)
+    -- Reset these just in case an element or some user code forgot to,
+    -- otherwise we get things like the whole buffer being blitted with a=0.2
+    gfx.mode = 0
+    gfx.set(0, 0, 0, 1)
 
-      elm:draw()
+    elm:draw()
   end
 
   gfx.dest = 0

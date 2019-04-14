@@ -92,17 +92,17 @@ Table.copy = function (source, base)
   local meta = getmetatable(source)
   local new = base or {}
   for k, v in pairs(source) do
-      if type(v) == "table" then
-          if base then
-              new[k] = Table.copy(v, base[k])
-          else
-              new[k] = Table.copy(v, nil)
-          end
+    if type(v) == "table" then
+      if base then
+        new[k] = Table.copy(v, base[k])
       else
-          if not base or (base and new[k] == nil) then
-              new[k] = v
-          end
+        new[k] = Table.copy(v, nil)
       end
+    else
+      if not base or (base and new[k] == nil) then
+        new[k] = v
+      end
+    end
   end
   setmetatable(new, meta)
 
@@ -117,17 +117,17 @@ Table.stringify = function (t, max_depth, cur_depth)
   cur_depth = cur_depth or 0
 
   for n,v in pairs(t) do
-              ret[#ret+1] = string.rep("  ", cur_depth) .. tostring(n) .. " = "
+    ret[#ret+1] = string.rep("  ", cur_depth) .. tostring(n) .. " = "
 
-              if type(v) == "table" then
-                  ret[#ret] = ret[#ret] .. "table:"
+    if type(v) == "table" then
+      ret[#ret] = ret[#ret] .. "table:"
 
-                  if not max_depth or cur_depth <= max_depth then
-                      ret[#ret+1] = Table.stringify(v, max_depth, cur_depth + 1)
-                  end
-              else
-                  ret[#ret] = ret[#ret] .. tostring(v)
-              end
+      if not max_depth or cur_depth <= max_depth then
+        ret[#ret+1] = Table.stringify(v, max_depth, cur_depth + 1)
+      end
+    else
+      ret[#ret] = ret[#ret] .. tostring(v)
+    end
   end
 
   return table.concat(ret, "\n")
@@ -141,12 +141,12 @@ Table.deepEquals = function (a, b)
 
   local key_exists = {}
   for k1, v1 in pairs(a) do
-      local v2 = b[k1]
-      if v2 == nil or not Table.compare(v1, v2) then return false end
-      key_exists[k1] = true
+    local v2 = b[k1]
+    if v2 == nil or not Table.compare(v1, v2) then return false end
+    key_exists[k1] = true
   end
   for k2 in pairs(b) do
-      if not key_exists[k2] then return false end
+    if not key_exists[k2] then return false end
   end
 
   return true
@@ -159,24 +159,24 @@ Table.fullSort = function (op1, op2)
   -- Sort strings that begin with a number as if they were numbers,
   -- i.e. so that 12 > "6 apples"
   if type(op1) == "string" and string.match(op1, "^(%-?%d+)") then
-      op1 = tonumber( string.match(op1, "^(%-?%d+)") )
+    op1 = tonumber( string.match(op1, "^(%-?%d+)") )
   end
   if type(op2) == "string" and string.match(op2, "^(%-?%d+)") then
-      op2 = tonumber( string.match(op2, "^(%-?%d+)") )
+    op2 = tonumber( string.match(op2, "^(%-?%d+)") )
   end
 
   --if op1 == "0" then op1 = 0 end
   --if op2 == "0" then op2 = 0 end
   local type1, type2 = type(op1), type(op2)
   if type1 ~= type2 then --cmp by type
-      return type1 < type2
+    return type1 < type2
   elseif type1 == "number" and type2 == "number"
       or type1 == "string" and type2 == "string" then
-      return op1 < op2 --comp by default
+    return op1 < op2 --comp by default
   elseif type1 == "boolean" and type2 == "boolean" then
-      return op1 == true
+    return op1 == true
   else
-      return tostring(op1) < tostring(op2) --cmp by address
+    return tostring(op1) < tostring(op2) --cmp by address
   end
 
 end
@@ -192,7 +192,7 @@ end
 ]]--
 Table.kpairs = function (t, f)
   if f == "full" then
-      f = Table.fullSort
+    f = Table.fullSort
   end
 
   local a = {}
@@ -203,11 +203,11 @@ Table.kpairs = function (t, f)
   local i = 0      -- iterator variable
   local iter = function ()   -- iterator function
 
-      i = i + 1
+    i = i + 1
 
-      if a[i] == nil then return nil
-      else return a[i], t[a[i]]
-      end
+    if a[i] == nil then return nil
+    else return a[i], t[a[i]]
+    end
 
   end
 
@@ -223,7 +223,7 @@ Table.invert = function(t)
   local inv = T{}
 
   for k, v in pairs(t) do
-      inv[v] = k
+    inv[v] = k
   end
 
   return inv
@@ -273,7 +273,7 @@ end
 Table.length = function(t)
   local len = 0
   for _ in pairs(t) do
-      len = len + 1
+    len = len + 1
   end
 
   return len

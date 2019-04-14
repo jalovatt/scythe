@@ -7,6 +7,8 @@ local Math = require("public.math")
 local Config = require("gui.config")
 
 local Window = T{}
+Window.__index = Window
+
 function Window:new(props)
   local window = props
 
@@ -25,10 +27,8 @@ function Window:new(props)
 
   window.needsRedraw = false
 
-  setmetatable(window, self)
-  self.__index = self
+  return setmetatable(window, self)
 
-  return window
 end
 
 function Window:open()
@@ -107,35 +107,35 @@ function Window:redraw()
   if self.layers:any(function(l) return l.needsRedraw end)
     or self.needsRedraw then
 
-      -- All of the layers will be drawn to their own buffer (dest = z), then
-      -- composited in buffer 0. This allows buffer 0 to be blitted as a whole
-      -- when none of the layers need to be redrawn.
+    -- All of the layers will be drawn to their own buffer (dest = z), then
+    -- composited in buffer 0. This allows buffer 0 to be blitted as a whole
+    -- when none of the layers need to be redrawn.
 
-      gfx.dest = 0
-      gfx.setimgdim(0, -1, -1)
-      gfx.setimgdim(0, w, h)
+    gfx.dest = 0
+    gfx.setimgdim(0, -1, -1)
+    gfx.setimgdim(0, w, h)
 
-      Color.set("wnd_bg")
-      gfx.rect(0, 0, w, h, 1)
+    Color.set("wnd_bg")
+    gfx.rect(0, 0, w, h, 1)
 
-      for i = #self.sortedLayers, 1, -1 do
-        local layer = self.sortedLayers[i]
-          if  (layer.elementCount > 0 and not layer.hidden) then
+    for i = #self.sortedLayers, 1, -1 do
+      local layer = self.sortedLayers[i]
+        if  (layer.elementCount > 0 and not layer.hidden) then
 
-              if layer.needsRedraw or self.needsRedraw then
-                layer:redraw()
-              end
-
-              gfx.blit(layer.buff, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
+          if layer.needsRedraw or self.needsRedraw then
+            layer:redraw()
           end
-      end
 
-      -- Draw developer hints if necessary
-      if Scythe.dev_mode then
-          self:drawDev()
-      else
-          self:drawVersion()
-      end
+          gfx.blit(layer.buff, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
+        end
+    end
+
+    -- Draw developer hints if necessary
+    if Scythe.dev_mode then
+      self:drawDev()
+    else
+      self:drawVersion()
+    end
 
   end
 
@@ -229,8 +229,6 @@ function Window:handleWindowEvents()
     self.onMouseMove()
   end
 
-
-
 end
 
 function Window:updateInputState()
@@ -264,11 +262,9 @@ function Window:updateInputState()
   state.mouse.oy = last.mouse.oy
   state.mouse.off_x = last.mouse.off_x
   state.mouse.off_y = last.mouse.off_y
-  -- state.mouseover_elm = last.mouseover_elm
   state.mouseover_time = last.mouseover_time
 
   state.settooltip = function(str) self:settooltip(state.mouse.x, state.mouse.y, str) end
-  -- state.tooltip_time = last.tooltip_time
 
   self.state = state
   self.last_state = last
@@ -299,42 +295,40 @@ If no anchor is specified, it will default to the top-left corner of the screen.
             "L"
             "C"
 ]]--
-
-
 function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
 
-    local ax, ay, aw, ah = 0, 0, 0 ,0
+  local ax, ay, aw, ah = 0, 0, 0 ,0
 
-    local _, _, scr_w, scr_h = reaper.my_getViewport( x, y, x + w, y + h,
-                                                      x, y, x + w, y + h, 1)
+  local _, _, scr_w, scr_h = reaper.my_getViewport( x, y, x + w, y + h,
+                                                    x, y, x + w, y + h, 1)
 
-    if anchor == "screen" then
-        aw, ah = scr_w, scr_h
-    elseif anchor =="mouse" then
-        ax, ay = reaper.GetMousePosition()
-    end
+  if anchor == "screen" then
+    aw, ah = scr_w, scr_h
+  elseif anchor =="mouse" then
+    ax, ay = reaper.GetMousePosition()
+  end
 
-    local cx, cy = 0, 0
-    if corner then
-        local corners = {
-            TL = 	{0, 				0},
-            T =		{(aw - w) / 2, 		0},
-            TR = 	{(aw - w) - 16,		0},
-            R =		{(aw - w) - 16,		(ah - h) / 2},
-            BR = 	{(aw - w) - 16,		(ah - h) - 40},
-            B =		{(aw - w) / 2, 		(ah - h) - 40},
-            BL = 	{0, 				(ah - h) - 40},
-            L =	 	{0, 				(ah - h) / 2},
-            C =	 	{(aw - w) / 2,		(ah - h) / 2},
-        }
+  local cx, cy = 0, 0
+  if corner then
+    local corners = {
+        TL = 	{0, 				0},
+        T =		{(aw - w) / 2, 		0},
+        TR = 	{(aw - w) - 16,		0},
+        R =		{(aw - w) - 16,		(ah - h) / 2},
+        BR = 	{(aw - w) - 16,		(ah - h) - 40},
+        B =		{(aw - w) / 2, 		(ah - h) - 40},
+        BL = 	{0, 				(ah - h) - 40},
+        L =	 	{0, 				(ah - h) / 2},
+        C =	 	{(aw - w) / 2,		(ah - h) / 2},
+    }
 
-        cx, cy = table.unpack(corners[string.upper(corner)])
-    end
+    cx, cy = table.unpack(corners[string.upper(corner)])
+  end
 
-    x = x + ax + cx
-    y = y + ay + cy
+  x = x + ax + cx
+  y = y + ay + cy
 
-    return x, y
+  return x, y
 end
 
 function Window:findElementByName(name, ...)
@@ -361,7 +355,6 @@ function Window:settooltip(x, y, str)
     true
   )
   self.tooltip = str
-
 
 end
 
@@ -407,16 +400,16 @@ function Window:drawDev()
 
   for i = 0, self.w, Config.dev.grid_b do
 
-      local a = (i == 0) or (i % Config.dev.grid_a == 0)
-      gfx.a = a and 1 or 0.3
-      gfx.line(i, 0, i, self.h)
-      gfx.line(0, i, self.w, i)
-      if a then
-          gfx.x, gfx.y = i + 4, 4
-          gfx.drawstr(i)
-          gfx.x, gfx.y = 4, i + 4
-          gfx.drawstr(i)
-      end
+    local a = (i == 0) or (i % Config.dev.grid_a == 0)
+    gfx.a = a and 1 or 0.3
+    gfx.line(i, 0, i, self.h)
+    gfx.line(0, i, self.w, i)
+    if a then
+      gfx.x, gfx.y = i + 4, 4
+      gfx.drawstr(i)
+      gfx.x, gfx.y = 4, i + 4
+      gfx.drawstr(i)
+    end
 
   end
 
