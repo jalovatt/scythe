@@ -21,28 +21,29 @@ local Config = require("gui.config")
 
 local Frame = require("gui.element"):new()
 Frame.__index = Frame
+Frame.defaultProps = {
+
+  type = "Frame",
+  x = 0,
+  y = 0,
+  w = 256,
+  h = 256,
+  color = "elm_frame",
+  round = 0,
+  text = "",
+  last_text = "",
+  txt_indent = 0,
+  txt_pad = 0,
+  bg = "wnd_bg",
+  font = 4,
+  col_txt = "txt",
+  pad = 4,
+
+}
 
 function Frame:new(props)
 
-	local frame = Table.copy({
-
-	  type = "Frame",
-    x = 0,
-    y = 0,
-    w = 256,
-    h = 256,
-    color = "elm_frame",
-	  round = 0,
-    text = "",
-    last_text = "",
-	  txt_indent = 0,
-	  txt_pad = 0,
-    bg = "wnd_bg",
-    font = 4,
-	  col_txt = "txt",
-	  pad = 4,
-
-  }, props)
+	local frame = self:addDefaultProps(props)
 
   return self:assignChild(frame)
 end

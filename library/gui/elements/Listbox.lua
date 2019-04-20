@@ -22,44 +22,45 @@ require("public.string")
 -- Listbox - New
 local Listbox = require("gui.element"):new()
 Listbox.__index = Listbox
+Listbox.defaultProps =  {
+
+  type = "Listbox",
+
+  x = 0,
+  y = 0,
+  w = 96,
+  h = 128,
+
+  list = {},
+  retval = {},
+
+  caption = "",
+  pad = 4,
+
+  bg = "elm_bg",
+  cap_bg = "wnd_bg",
+  color = "txt",
+
+  -- Scrollbar fill
+  col_fill = "elm_fill",
+
+  font_cap = 3,
+
+  font_text = 4,
+
+  wnd_y = 1,
+
+  wnd_h = nil,
+  wnd_w = nil,
+  char_w = nil,
+
+  shadow = nil,
+
+}
 
 function Listbox:new(props)
 
-	local list = Table.copy({
-
-    type = "Listbox",
-
-    x = 0,
-    y = 0,
-    w = 96,
-    h = 128,
-
-    list = {},
-    retval = {},
-
-    caption = "",
-    pad = 4,
-
-    bg = "elm_bg",
-    cap_bg = "wnd_bg",
-    color = "txt",
-
-    -- Scrollbar fill
-    col_fill = "elm_fill",
-
-    font_cap = 3,
-
-    font_text = 4,
-
-    wnd_y = 1,
-
-    wnd_h = nil,
-    wnd_w = nil,
-    char_w = nil,
-
-  }, props)
-
-  list.shadow = list.shadow or (list.shadow == nil)
+	local list = self:addDefaultProps(props)
 
   return self:assignChild(list)
 end

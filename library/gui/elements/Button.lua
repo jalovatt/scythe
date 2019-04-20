@@ -23,26 +23,27 @@ local Element = require("gui.element")
 -- Button - New
 local Button = Element:new()
 Button.__index = Button
+Button.defaultProps = {
+  type = "Button",
+
+  x = 0,
+  y = 0,
+  w = 96,
+  h = 24,
+
+  caption = "Button",
+  font = 3,
+  col_txt = "txt",
+  col_fill = "elm_frame",
+
+  func = function () end,
+  params = {},
+  state = 0,
+}
 
 function Button:new(props)
 
-	local button = Table.copy({
-	  type = "Button",
-
-	  x = 0,
-    y = 0,
-    w = 96,
-    h = 24,
-
-	  caption = "Button",
-	  font = 3,
-	  col_txt = "txt",
-	  col_fill = "elm_frame",
-
-	  func = function () end,
-	  params = {},
-    state = 0,
-  }, props)
+  local button = self:addDefaultProps(props)
 
   return self:assignChild(button)
 end

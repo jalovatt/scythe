@@ -3,6 +3,7 @@ local Buffer = require("gui.buffer")
 
 local Layer = T{}
 Layer.__index = Layer
+Layer.__noCopy = true
 
 function Layer:new(props)
   local layer = props

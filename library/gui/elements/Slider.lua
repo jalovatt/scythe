@@ -22,47 +22,44 @@ local Config = require("gui.config")
 
 local Slider = require("gui.element"):new()
 Slider.__index = Slider
+Slider.defaultProps = {
+
+  type = "Slider",
+
+  x = 0,
+  y = 0,
+  w = 8,
+
+  dir = "h",
+
+  caption = "Slider",
+  bg = "wnd_bg",
+
+  font_a = 3,
+  font_b = 4,
+
+  col_txt = "txt",
+  col_hnd = "elm_frame",
+  col_fill = "elm_fill",
+
+  align_values = 0,
+  inc = 1,
+
+  cap_x = 0,
+  cap_y = 0,
+
+  show_handles = true,
+  show_values = true,
+
+}
 
 function Slider:new(props)
 --name, z, x, y, w, caption, min, max, defaults, inc, dir
-  local slider = Table.copy({
-
-    type = "Slider",
-
-    x = 0,
-    y = 0,
-    w = 8,
-
-    dir = "h",
-
-    caption = "Slider",
-    bg = "wnd_bg",
-
-    font_a = 3,
-    font_b = 4,
-
-    col_txt = "txt",
-    col_hnd = "elm_frame",
-    col_fill = "elm_fill",
-
-    align_values = 0,
-    inc = 1,
-
-    cap_x = 0,
-    cap_y = 0,
-
-  }, props)
+  local slider = self:addDefaultProps(props)
 
   slider.w, slider.h = table.unpack(slider.dir ~= "v"
   and {slider.w, 8}
   or  {8, slider.w} )
-
-  if slider.show_handles == nil then
-    slider.show_handles = true
-  end
-  if slider.show_values == nil then
-    slider.show_values = true
-  end
 
   local min = slider.min
   local max = slider.max

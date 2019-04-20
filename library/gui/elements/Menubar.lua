@@ -19,33 +19,34 @@ local Config = require("gui.config")
 
 local Menubar = require("gui.element"):new()
 Menubar.__index = Menubar
+Menubar.defaultProps = {
+
+  type = "Menubar",
+
+  x = 0,
+  y = 0,
+
+  font = 2,
+  col_txt = "txt",
+  col_bg = "elm_frame",
+  col_hover = "elm_fill",
+
+  w = 256,
+  h = 24,
+
+  -- Optional parameters should be given default values to avoid errors/crashes:
+  pad = 0,
+
+  shadow = true,
+  fullwidth = true,
+
+  menus = {},
+
+}
 
 function Menubar:new(props)
 
-	local mnu = Table.copy({
-
-    type = "Menubar",
-
-    x = 0,
-    y = 0,
-
-    font = 2,
-    col_txt = "txt",
-    col_bg = "elm_frame",
-    col_hover = "elm_fill",
-
-    w = 256,
-    h = 24,
-
-    -- Optional parameters should be given default values to avoid errors/crashes:
-    pad = 0,
-
-  }, props)
-
-  mnu.menus = mnu.menus or {}
-
-  if mnu.shadow == nil then mnu.shadow = true end
-  if mnu.fullwidth == nil then mnu.fullwidth = true end
+	local mnu = self:addDefaultProps(props)
 
   return self:assignChild(mnu)
 

@@ -12,6 +12,7 @@ local Config = require("gui.config")
 ]]--
 local Element = T{}
 Element.__index = Element
+Element.__noCopy = true
 
 function Element:new()
   return setmetatable(T{}, self)
@@ -374,6 +375,24 @@ function Element:formatOutput(val)
   end
 
   return output and tostring(output) or tostring(val)
+end
+
+function Element:addDefaultProps (props)
+  if type(props) ~= "table" then return props end
+
+  local new = Table.deepCopy(props)
+
+  for k, v in pairs(self.defaultProps) do
+    if new[k] == nil then
+      if type(v) == "table" then
+        new[k] = Table.deepCopy(v)
+      else
+        new[k] = v
+      end
+    end
+  end
+
+  return new
 end
 
 return Element

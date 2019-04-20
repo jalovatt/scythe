@@ -22,34 +22,36 @@ local Config = require("gui.config")
 
 local Knob = require("gui.element"):new()
 Knob.__index = Knob
+Knob.defaultProps = {
+  type = "Knob",
+  x = 0,
+  y = 0,
+  w = 64,
+  caption = "Knob",
+  bg = "wnd_bg",
+  cap_x = 0,
+  cap_y = 0,
+  font_a = 3,
+  font_b = 4,
+  col_txt = "txt",
+  col_head = "elm_fill",
+  col_body = "elm_frame",
+
+  min = 0,
+  max = 10,
+  inc = 1,
+
+  default = 5,
+
+  vals = true,
+}
 
 function Knob:new(props)
 
-	local knob = Table.copy({
-	  type = "Knob",
-	  x = 0,
-    y = 0,
-    w = 64,
-	  caption = "Knob",
-	  bg = "wnd_bg",
-    cap_x = 0,
-    cap_y = 0,
-	  font_a = 3,
-	  font_b = 4,
-	  col_txt = "txt",
-	  col_head = "elm_fill",
-    col_body = "elm_frame",
-
-    min = 0,
-    max = 10,
-    inc = 1,
-
-    default = 5
-  }, props)
+	local knob = self:addDefaultProps(props)
 
   knob.h = knob.w
   knob.steps = knob.steps or (math.abs(knob.max - knob.min) / knob.inc)
-  knob.vals = knob.vals or (knob.vals == nil and true)
 
   -- Determine the step angle
   knob.stepangle = (3 / 2) / knob.steps
@@ -57,9 +59,6 @@ function Knob:new(props)
   knob.curstep = knob.default
 	knob.curval = knob.curstep / knob.steps
 
-  -- knob.prototype = Knob
-	-- setmetatable(knob, self)
-  -- self.__index = self
   self:assignChild(knob)
 
   knob.retval = knob:formatretval(

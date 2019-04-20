@@ -8,6 +8,7 @@ local Config = require("gui.config")
 
 local Window = T{}
 Window.__index = Window
+Window.__noCopy = true
 
 function Window:new(props)
   local window = props

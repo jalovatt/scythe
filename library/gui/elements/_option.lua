@@ -29,39 +29,38 @@ local Table = require("public.table")
 local Option = require("gui.element"):new()
 Option.__index = Option
 
+Option.defaultProps = {
+  x = 0,
+  y = 0,
+  w = 128,
+  h = 128,
+
+  caption = "Option: ",
+
+  bg = "wnd_bg",
+
+  dir = "v",
+  pad = 4,
+
+  col_txt = "txt",
+  col_fill = "elm_fill",
+
+  font_a = 2,
+  font_b = 3,
+
+  -- Size of the option bubbles
+  opt_size = 20,
+
+  options = {"Option 1", "Option 2", "Option 3"},
+
+  frame = true,
+  shadow = true,
+
+}
+
 function Option:new(props)
 
-	local option = Table.copy({
-    x = 0,
-    y = 0,
-    w = 128,
-    h = 128,
-
-    caption = ((props.type or "Option") .. ":"),
-
-    bg = "wnd_bg",
-
-    dir = "v",
-    pad = 4,
-
-    col_txt = "txt",
-    col_fill = "elm_fill",
-
-    font_a = 2,
-    font_b = 3,
-
-    -- Size of the option bubbles
-    opt_size = 20,
-
-    options = {"Option 1", "Option 2", "Option 3"},
-
-  }, props)
-
-  if option.frame == nil then option.frame = true end
-  if option.shadow == nil then option.shadow = true end
-
-	-- setmetatable(option, self)
-  -- self.__index = self
+	local option = self:addDefaultProps(props, self.defaultProps)
   return self:assignChild(option)
 
 end

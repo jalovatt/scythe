@@ -19,44 +19,45 @@ local Config = require("gui.config")
 
 local Tabs = require("gui.element"):new()
 Tabs.__index = Tabs
+Tabs.defaultProps = {
+
+  type = "Tabs",
+
+  x = 0,
+  y = 0,
+  tab_w = 72,
+  tab_h = 20,
+
+  font_a = 3,
+  font_b = 4,
+
+  bg = "elm_bg",
+  col_txt = "txt",
+  col_tab_a = "wnd_bg",
+  col_tab_b = "tab_bg",
+
+  -- Placeholder for if I ever figure out downward tabs
+  dir = "u",
+
+  pad = 8,
+
+  first_tab_offset = 16,
+
+  -- Currently-selected option
+  retval = 1,
+  state = 1,
+
+  fullwidth = true,
+}
 
 function Tabs:new(props)
 
-	local tab = Table.copy({
-
-    type = "Tabs",
-
-    x = 0,
-    y = 0,
-    tab_w = 72,
-    tab_h = 20,
-
-    font_a = 3,
-    font_b = 4,
-
-    bg = "elm_bg",
-    col_txt = "txt",
-    col_tab_a = "wnd_bg",
-    col_tab_b = "tab_bg",
-
-    -- Placeholder for if I ever figure out downward tabs
-    dir = "u",
-
-    pad = 8,
-
-    first_tab_offset = 16,
-
-    -- Currently-selected option
-    retval = 1,
-    state = 1,
-  }, props)
+	local tab = self:addDefaultProps(props)
 
 	-- Figure out the total size of the tab frame now that we know the
   -- number of buttons, so we can do the math for clicking on it
   tab.w = (tab.tab_w + tab.pad) * #tab.tabs + 2*tab.pad + 12
   tab.h = tab.tab_h
-
-  if tab.fullwidth == nil then tab.fullwidth = true end
 
 	return self:assignChild(tab)
 end

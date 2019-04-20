@@ -86,27 +86,48 @@ Table.orderedReduce = function(t, cb, acc)
   return acc
 end
 
-Table.copy = function (source, base)
-  if type(source) ~= "table" then return source end
 
-  local meta = getmetatable(source)
-  local new = base or {}
-  for k, v in pairs(source) do
-    if type(v) == "table" then
-      if base then
-        new[k] = Table.copy(v, base[k])
-      else
-        new[k] = Table.copy(v, nil)
-      end
-    else
-      if not base or (base and new[k] == nil) then
-        new[k] = v
-      end
+-- http://lua-users.org/wiki/CopyTable
+Table.shallowCopy = function(t)
+  local copy
+  if type(t) == "table" then
+    copy = {}
+    for k, v in pairs(t) do
+        copy[k] = v
     end
+  else -- number, string, boolean, etc
+    copy = t
   end
-  setmetatable(new, meta)
+  return copy
+end
 
-  return new
+
+-- Do not provide 'copies' when calling
+-- http://lua-users.org/wiki/CopyTable
+Table.deepCopy = function(t, copies)
+  copies = copies or {}
+
+  local copy
+  if type(t) == "table" then
+      if copies[t] then
+          copy = copies[t]
+      -- Override so we don't end up working through circular references for
+      -- elements, layers, windows, and tab sets
+      elseif t.__noCopy then
+          copy = t
+      else
+          copy = {}
+
+          for k, v in next, t, nil do
+              copy[Table.deepCopy(k, copies)] = Table.deepCopy(v, copies)
+          end
+          copies[t] = copy
+          setmetatable(copy, Table.deepCopy(getmetatable(t), copies))
+      end
+  else -- number, string, boolean, etc
+      copy = t
+  end
+  return copy
 end
 
 -- Returns a string of the table's contents, indented to show nested tables

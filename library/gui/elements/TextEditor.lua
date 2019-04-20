@@ -27,9 +27,7 @@ local TextUtils = require("gui.elements._text_utils")
 local TextEditor = require("gui.element"):new()
 TextEditor.__index = TextEditor
 
-function TextEditor:new(props)
-
-	local txt = Table.copy({
+TextEditor.defaultProps = {
 
 	type = "TextEditor",
 
@@ -71,9 +69,12 @@ function TextEditor:new(props)
 
   blink = 0,
 
-  }, props)
+  shadow = true,
 
-  if txt.shadow == nil then txt.shadow = true end
+}
+
+function TextEditor:new(props)
+	local txt = self:addDefaultProps(props)
 
 	return self:assignChild(txt)
 end

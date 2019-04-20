@@ -26,44 +26,39 @@ local TextUtils = require("gui.elements._text_utils")
 
 local Textbox = require("gui.element"):new()
 Textbox.__index = Textbox
+Textbox.defaultProps = {
+
+  type = "Textbox",
+  x = 0,
+  y = 0,
+  w = 96,
+  h = 24,
+  retval = "",
+  caption = "Textbox",
+  pad = 4,
+  bg = "wnd_bg",
+  color = "txt",
+  font_a = 3,
+  font_b = "monospace",
+  cap_pos = "left",
+  undo_limit = 20,
+  undo_states = {},
+  redo_states = {},
+  wnd_pos = 0,
+  caret = 0,
+  sel_s = nil,
+  sel_e = nil,
+  char_h = nil,
+  wnd_h = nil,
+  wnd_w = nil,
+  char_w = nil,
+  focus = false,
+  blink = 0,
+  shadow = true,
+}
 
 function Textbox:new(props)
-
-	local txt = Table.copy({
-
-    type = "Textbox",
-    x = 0,
-    y = 0,
-    w = 96,
-    h = 24,
-    retval = "",
-    caption = "Textbox",
-    pad = 4,
-    bg = "wnd_bg",
-    color = "txt",
-    font_a = 3,
-    font_b = "monospace",
-    cap_pos = "left",
-    undo_limit = 20,
-    undo_states = {},
-    redo_states = {},
-    wnd_pos = 0,
-    caret = 0,
-    sel_s = nil,
-    sel_e = nil,
-    char_h = nil,
-    wnd_h = nil,
-    wnd_w = nil,
-    char_w = nil,
-    focus = false,
-    blink = 0,
-
-  }, props)
-
-
-  if txt.shadow == nil then
-    txt.shadow = true
-  end
+	local txt = self:addDefaultProps(props)
 
 	return self:assignChild(txt)
 end

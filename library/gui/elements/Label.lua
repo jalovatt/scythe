@@ -21,23 +21,25 @@ local Table = require("public.table")
 local Label = require("gui.element"):new()
 Label.__index = Label
 
+Label.defaultProps = {
+  type = "Label",
+
+  x = 0,
+  y = 0,
+  -- Placeholders; we'll get these at runtime
+  w = 0,
+  h = 0,
+
+  caption = "Label",
+  shadow =  false,
+  font =    2,
+  color =   "txt",
+  bg =      "wnd_bg",
+}
+
 function Label:new(props)
 
-	local label = Table.copy({
-    type = "Label",
-
-    x = 0,
-    y = 0,
-    -- Placeholders; we'll get these at runtime
-    w = 0,
-    h = 0,
-
-    caption = "Label",
-    shadow =  false,
-    font =    2,
-    color =   "txt",
-    bg =      "wnd_bg",
-  }, props)
+	local label = self:addDefaultProps(props)
 
   return self:assignChild(label)
 end

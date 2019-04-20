@@ -22,35 +22,36 @@ local Table, T = require("public.table"):unpack()
 
 local Menubox = require("gui.element"):new()
 Menubox.__index = Menubox
+Menubox.defaultProps = {
+
+  type = "Menubox",
+
+  x = 0,
+  y = 0,
+  w = 96,
+  h = 24,
+
+  caption = "Menubox:",
+  bg = "wnd_bg",
+
+  font_a = 3,
+  font_b = 4,
+
+  col_cap = "txt",
+  col_txt = "txt",
+
+  pad = 4,
+
+  align = 0,
+
+  retval = 1,
+
+  options = {1, 2, 3},
+}
 
 function Menubox:new(props)
   -- name, z, x, y, w, h, caption, opts, pad, noarrow
-  local menu = Table.copy({
-
-    type = "Menubox",
-
-    x = 0,
-    y = 0,
-    w = 96,
-    h = 24,
-
-    caption = "Menubox:",
-    bg = "wnd_bg",
-
-    font_a = 3,
-    font_b = 4,
-
-    col_cap = "txt",
-    col_txt = "txt",
-
-    pad = 4,
-
-    align = 0,
-
-    retval = 1,
-
-    options = {1, 2, 3},
-  }, props)
+  local menu = self:addDefaultProps(props)
 
   return self:assignChild(menu)
 end
