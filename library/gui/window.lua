@@ -174,13 +174,18 @@ function Window:removeLayers(...)
 end
 
 function Window:update()
+  if Scythe.quit then
+    self:close()
+    return
+  end
+
   if (not self.isOpen and self.isRunning) then return end
   self:sortLayers()
 
   self:updateInputState()
   self.elm_updated = false
 
-  if self:handleWindowEvents() == 0 then return end
+  self:handleWindowEvents()
 
   if self.layerCount > 0 and self.isOpen and self.isRunning then
     self:updateLayers()
@@ -200,7 +205,7 @@ function Window:handleWindowEvents()
                               or 	state.mouse.cap & 8 == 8
                               or 	state.mouse.cap & 16 == 16))
     or state.kb.char == -1
-    or state.quit == true then
+    or Scythe.quit == true then
 
     self:close()
     return 0
@@ -369,7 +374,7 @@ end
 
 
 -- Display the GUI version number
--- Set GUI.version = 0 to hide this
+-- Set Scythe.version = 0 to hide this
 function Window:drawVersion()
 
   if not Scythe.version then return 0 end
@@ -381,8 +386,6 @@ function Window:drawVersion()
 
   local str_w, str_h = gfx.measurestr(str)
 
-  --gfx.x = GUI.w - str_w - 4
-  --gfx.y = GUI.h - str_h - 4
   gfx.x = gfx.w - str_w - 6
   gfx.y = gfx.h - str_h - 4
 

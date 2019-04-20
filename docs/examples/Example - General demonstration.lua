@@ -73,8 +73,8 @@ end
 
 local function btn_click()
 
-    -- Open the Window element
-    -- Disabled until Window can be rewritten
+  -- Open the Window element
+  -- Disabled until Window can be rewritten
   -- GUI.elms.wnd_test:open()
   local tab_num = GUI.findElementByName("tabs"):val()
 

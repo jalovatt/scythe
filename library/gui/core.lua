@@ -1,10 +1,13 @@
 -- NoIndex: true
 
--- luacheck: globals Scythe
+-- luacheck: globals Scythe Error
+
 if not Scythe then
   error("Couldn't find Scythe. Please make sure the Scythe library has been loaded.")
   return
 end
+
+local Error = Error
 
 -- luacheck: globals GUI
 local GUI = {}
@@ -17,104 +20,7 @@ local Layer = require("gui.layer")
 local Window = require("gui.window")
 -- local Config = require("gui.config")
 
--- ReaPack version info
-GUI.get_script_version = function()
 
-  local package = reaper.ReaPack_GetOwner(({reaper.get_action_context()})[2])
-  if not package then return "(version error)" end
-
-  --ret, repo, cat, pkg, desc, type, ver, author, pinned, fileCount = reaper.ReaPack_GetEntryInfo( entry )
-  local package_info = {reaper.ReaPack_GetEntryInfo(package)}
-
-  reaper.ReaPack_FreeEntry(package)
-  return package_info[7]
-
-end
-GUI.script_version = GUI.get_script_version()
-
-
-
-------------------------------------
--------- Error handling ------------
-------------------------------------
-
-
--- A basic crash handler, just to add some helpful detail
--- to the Reaper error message.
-GUI.crash = function (errObject, skipMsg)
-
-  if GUI.oncrash then GUI.oncrash() end
-
-  local by_line = "([^\r\n]*)\r?\n?"
-  local trim_path = "[\\/]([^\\/]-:%d+:.+)$"
-  local err = errObject   and string.match(errObject, trim_path)
-                          or  "Couldn't get error message."
-
-  local trace = debug.traceback()
-  local stack = {}
-  for line in string.gmatch(trace, by_line) do
-
-    local str = string.match(line, trim_path) or line
-
-    stack[#stack + 1] = str
-  end
-
-  local name = ({reaper.get_action_context()})[2]:match("([^/\\_]+)$")
-
-  local ret = skipMsg
-    and 6
-    or reaper.ShowMessageBox(
-      name.." has crashed!\n\n"..
-      "Would you like to have a crash report printed "..
-      "to the Reaper console?",
-      "Oops",
-      4
-    )
-
-  if ret == 6 then
-    reaper.ShowConsoleMsg(
-      "Error: "..err.."\n\n"..
-      (GUI.error_message and tostring(GUI.error_message).."\n\n" or "") ..
-      "Stack traceback:\n\t"..table.concat(stack, "\n\t", 2).."\n\n"..
-      "Scythe:\t".. Scythe.version.."\n"..
-      "Reaper:       \t"..reaper.GetAppVersion().."\n"..
-      "Platform:     \t"..reaper.GetOS()
-    )
-  end
-
-  -- GUI.quit = true
-  -- gfx.quit()
-end
-
--- Checks for Reaper's "restricted permissions" script mode
--- GUI.script_restricted will be true if restrictions are in place
--- Call GUI.error_restricted to display an error message about restricted permissions
--- and exit the script.
-if not os then
-
-  GUI.script_restricted = true
-
-  GUI.error_restricted = function()
-
-      -- luacheck: push ignore 631
-      reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
-                  "\n\nThe script was NOT necessarily doing something malicious - restricted scripts are unable " ..
-                  "to execute many system-level tasks such as reading and writing files." ..
-                  "\n\nPlease let the script's author know, or consider running the script without restrictions if you feel comfortable.",
-                  "Script Error", 0)
-      -- luacheck: pop
-
-      -- GUI.quit = true
-      GUI.error_message = "(Restricted permissions error)"
-
-      return nil, "Error: Restricted permissions"
-
-  end
-
-  os = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
-  io = setmetatable({}, { __index = GUI.error_restricted }) -- luacheck: ignore 121
-
-end
 
 
 ------------------------------------
@@ -140,7 +46,7 @@ GUI.Init = function ()
 
     if GUI.exit then reaper.atexit(GUI.exit) end
 
-  end, GUI.crash)
+  end, Error.crash)
 end
 
 GUI.update_windows = function()
@@ -170,7 +76,7 @@ GUI.Main = function ()
 
     reaper.defer(GUI.Main)
 
-  end, GUI.crash)
+  end, Error.crash)
 end
 
 GUI.Main_Draw = function ()

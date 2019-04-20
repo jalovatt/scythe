@@ -1,4 +1,4 @@
--- luacheck: globals Scythe
+-- luacheck: globals Scythe Error
 Scythe = {}
 
 Scythe.lib_path = reaper.GetExtState("Scythe", "lib_path_v3")
@@ -13,6 +13,9 @@ package.path = package.path .. ";" ..
   trimmedPath .. "?.lua"
 
 
+if not os then Scythe.script_restricted = true end
+
+Error = require("gui.error")
 local Table = require("public.table")
 
 
