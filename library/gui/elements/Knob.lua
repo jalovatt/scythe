@@ -18,6 +18,7 @@ local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
 local Table = require("public.table")
+local Config = require("gui.config")
 
 local Knob = require("gui.element"):new()
 Knob.__index = Knob
@@ -141,7 +142,7 @@ function Knob:draw()
 	local blit_x = 1.5 * r
 
 	-- Shadow
-	for i = 1, Text.shadow_size do
+	for i = 1, Config.shadow_size do
 
 		gfx.blit(   self.buff, 1, curangle * Math.pi,
                 blit_w + 1, 0, blit_w, blit_w,

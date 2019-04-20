@@ -17,6 +17,7 @@ local Color = require("public.color")
 local GFX = require("public.gfx")
 local Text = require("public.text")
 local Table = require("public.table")
+local Config = require("gui.config")
 
 local Frame = require("gui.element"):new()
 Frame.__index = Frame
@@ -75,7 +76,7 @@ function Frame:draw()
 
   if self.shadow then
 
-    for i = 1, Text.shadow_size do
+    for i = 1, Config.shadow_size do
 
       gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 

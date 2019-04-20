@@ -13,9 +13,9 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
-local Text = require("public.text")
 local Buffer = require("gui.buffer")
 local Table = require("public.table")
+local Config = require("gui.config")
 
 local Tabs = require("gui.element"):new()
 Tabs.__index = Tabs
@@ -86,7 +86,7 @@ function Tabs:init()
         -- Inactive
         self:draw_tab(
           (tab - 1) * (x_adj),
-          (state - 1) * (self.tab_h + 4) + Text.shadow_size,
+          (state - 1) * (self.tab_h + 4) + Config.shadow_size,
           self.tab_w,
           self.tab_h,
           self.dir, self.font_b, self.col_txt, self.col_tab_b, self.tabs[tab].label)
@@ -229,7 +229,7 @@ end
 
 function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
-	local dist = Text.shadow_size
+	local dist = Config.shadow_size
   local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                          or   {y + h, y})
 

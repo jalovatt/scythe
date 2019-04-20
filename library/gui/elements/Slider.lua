@@ -18,6 +18,7 @@ local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
 local Table = require("public.table")
+local Config = require("gui.config")
 
 local Slider = require("gui.element"):new()
 Slider.__index = Slider
@@ -447,7 +448,7 @@ end
 
 function Slider:drawsliderhandle(hx, hy, hw, hh)
 
-    for j = 1, Text.shadow_size do
+    for j = 1, Config.shadow_size do
 
         gfx.blit(self.buffs[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
 

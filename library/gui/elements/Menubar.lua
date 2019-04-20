@@ -14,8 +14,8 @@ local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
-local Text = require("public.text")
 local Table = require("public.table")
+local Config = require("gui.config")
 
 local Menubar = require("gui.element"):new()
 Menubar.__index = Menubar
@@ -119,7 +119,7 @@ function Menubar:draw()
   -- Blit the menu background + shadow
   if self.shadow then
 
-    for i = 1, Text.shadow_size do
+    for i = 1, Config.shadow_size do
 
       gfx.blit(self.buff, 1, 0, 0, h, w, h, x, y + i, w, h)
 

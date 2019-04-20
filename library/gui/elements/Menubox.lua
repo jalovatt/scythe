@@ -17,6 +17,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Config = require("gui.config")
 local Table, T = require("public.table"):unpack()
 
 local Menubox = require("gui.element"):new()
@@ -92,7 +93,7 @@ function Menubox:draw()
 
 
     -- Blit the shadow + frame
-  for i = 1, Text.shadow_size do
+  for i = 1, Config.shadow_size do
     gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
   end
 

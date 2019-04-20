@@ -15,8 +15,8 @@ local Buffer = require("gui.buffer")
 local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
-local Text = require("public.text")
 local Table = require("public.table")
+local Config = require("gui.config")
 
 local Element = require("gui.element")
 
@@ -84,7 +84,7 @@ function Button:draw()
 	-- Draw the shadow if not pressed
 	if state == 0 then
 
-		for i = 1, Text.shadow_size do
+		for i = 1, Config.shadow_size do
 
 			gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 

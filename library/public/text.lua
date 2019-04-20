@@ -1,13 +1,13 @@
 local Font = require("public.font")
 local Color = require("public.color")
+local Config = require("gui.config")
 require("public.string")
 local Table, T = require("public.table"):unpack()
 
 local Text = {}
 
 
--- Global shadow size, in pixels
-Text.shadow_size = 2
+
 
 
 --[[	Prepares a table of character widths
@@ -182,7 +182,7 @@ Text.drawWithShadow = function (str, col1, col2)
   local x, y = gfx.x, gfx.y
 
   Color.set(col2 or "shadow")
-  for i = 1, Text.shadow_size do
+  for i = 1, Config.shadow_size do
       gfx.x, gfx.y = x + i, y + i
       gfx.drawstr(str)
   end
