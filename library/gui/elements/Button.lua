@@ -15,7 +15,7 @@ local Buffer = require("gui.buffer")
 local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
-local Table = require("public.table")
+-- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Element = require("gui.element")
@@ -110,7 +110,6 @@ function Button:draw()
 end
 
 
--- Button - Mouse down.
 function Button:onmousedown()
 	self.state = 1
 	self:redraw()
@@ -120,7 +119,6 @@ end
 function Button:onmouseup(state)
 	self.state = 0
 
-	-- If the mouse was released on the button, run func
 	if self:isInside(state.mouse.x, state.mouse.y) then
 
 		self.func(table.unpack(self.params))

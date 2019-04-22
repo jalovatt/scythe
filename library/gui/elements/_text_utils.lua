@@ -1,28 +1,41 @@
+-- luacheck: globals Scythe
 local TextUtils = {}
+
+function TextUtils.ctrlchar(self, state, func, ...)
+
+  if state.mouse.cap & 4 == 4 then
+    func(self, ... and table.unpack({...}))
+
+    -- Flag to bypass the "clear selection" logic in :ontype()
+    return true
+
+  else
+    self:insertchar(state.kb.char)
+  end
+
+end
 
 function TextUtils.toclipboard(self, cut)
 
   if self.sel_s and self:SWS_clipboard() then
 
-      local str = self:getselectedtext()
-      reaper.CF_SetClipboard(str)
-      if cut then self:deleteselection() end
+    local str = self:getselectedtext()
+    reaper.CF_SetClipboard(str)
+    if cut then self:deleteselection() end
 
   end
 
 end
 
-function TextUtils:fromclipboard(self)
+function TextUtils.fromclipboard(self)
 
   if self:SWS_clipboard() then
 
-      -- reaper.SNM_CreateFastString( str )
-      -- reaper.CF_GetClipboardBig( output )
-      local fast_str = reaper.SNM_CreateFastString("")
-      local str = reaper.CF_GetClipboardBig(fast_str)
-      reaper.SNM_DeleteFastString(fast_str)
+    local fast_str = reaper.SNM_CreateFastString("")
+    local str = reaper.CF_GetClipboardBig(fast_str)
+    reaper.SNM_DeleteFastString(fast_str)
 
-      self:insertstring(str, true)
+    self:insertstring(str, true)
 
   end
 
@@ -34,7 +47,7 @@ function TextUtils.undo(self)
 	table.insert(self.redo_states, self:geteditorstate() )
 	local state = table.remove(self.undo_states)
 
-    self.retval = state.retval
+  self.retval = state.retval
 	self.caret = state.caret
 
 	self:windowtocaret()

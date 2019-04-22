@@ -59,13 +59,11 @@ end
 
 function Menubox:init()
 
-  local w, h = self.w, self.h
-
   self.buff = Buffer.get()
 
   gfx.dest = self.buff
   gfx.setimgdim(self.buff, -1, -1)
-  gfx.setimgdim(self.buff, 2*w + 4, 2*h + 4)
+  gfx.setimgdim(self.buff, 2*self.w + 4, 2*self.h + 4)
 
   self:drawframe()
 
@@ -85,12 +83,8 @@ function Menubox:draw()
 
   local x, y, w, h = self.x, self.y, self.w, self.h
 
-  local caption = self.caption
-  local focus = self.focus
-
-
   -- Draw the caption
-  if caption and caption ~= "" then self:drawcaption() end
+  if self.caption and self.caption ~= "" then self:drawcaption() end
 
 
     -- Blit the shadow + frame
@@ -98,7 +92,7 @@ function Menubox:draw()
     gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
   end
 
-  gfx.blit(self.buff, 1, 0, 0, (focus and (h + 2) or 0) , w + 2, h + 2, x - 1, y - 1)
+  gfx.blit(self.buff, 1, 0, 0, (self.focus and (h + 2) or 0) , w + 2, h + 2, x - 1, y - 1)
 
   -- Draw the text
   self:drawtext()
@@ -116,6 +110,8 @@ function Menubox:val(newval)
   end
 
 end
+
+
 
 
 ------------------------------------
@@ -171,7 +167,7 @@ end
 
 function Menubox:drawframe()
 
-  local x, y, w, h = self.x, self.y, self.w, self.h
+  local w, h = self.w, self.h
   local r, g, b, a = table.unpack(Color.colors["shadow"])
   gfx.set(r, g, b, 1)
   gfx.rect(w + 3, 1, w, h, 1)
@@ -194,14 +190,13 @@ end
 
 function Menubox:drawarrow()
 
-    local x, y, w, h = self.x, self.y, self.w, self.h
+  local w, h = self.w, self.h
   gfx.rect(1 + w - h, h + 3, h, h, 1)
 
   Color.set("elm_bg")
 
   -- Triangle size
   local r = 5
-  local rh = 2 * r / 5
 
   local ox = (1 + w - h) + h / 2
   local oy = 1 + h / 2 - (r / 2)
@@ -251,7 +246,7 @@ function Menubox:drawtext()
   Font.set(self.font_b)
   Color.set(self.col_txt)
 
-  local str_w, str_h = gfx.measurestr(text)
+  local _, str_h = gfx.measurestr(text)
   gfx.x = self.x + 4
   gfx.y = self.y + (self.h - str_h) / 2
 
@@ -279,13 +274,13 @@ function Menubox:prepmenu()
     -- Check off the currently-selected option
     if i == self.retval then menu_str = menu_str .. "!" end
 
-        str_arr:insert(
-          tostring(
-            type(self.options[i]) == "table"
-              and self.options[i][1]
-              or  self.options[i]
-          )
+      str_arr:insert(
+        tostring(
+          type(self.options[i]) == "table"
+            and self.options[i][1]
+            or  self.options[i]
         )
+      )
 
     if str_arr[#str_arr] == ""
     or str_arr[#str_arr]:sub(1, 1) == ">" then

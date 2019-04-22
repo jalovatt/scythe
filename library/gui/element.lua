@@ -166,7 +166,6 @@ function Element:Update(state, last)
             state.mouse.downtime = reaper.time_precise()
             self.focus = true
             self["on"..button.btn.."mousedown"](self, state, last)
-            self:onmousedown(state, last)
 
           end
 
@@ -194,6 +193,10 @@ function Element:Update(state, last)
       end
 
     -- If it was originally clicked in this element and has been released
+    -- Important: Clicking in an element, moving the cursor, and releasing the
+    -- mouse outside of the element will still trigger an :onmouseup, since
+    -- elements like the Button need to know that the mouse has been released.
+    -- Elements should check if state.mouse is inside them
     elseif last.mouse[button.down] and last.mouse_down_elm == self then
 
       state.mouse_down_elm = nil

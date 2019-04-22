@@ -304,7 +304,7 @@ layers[4]:addElements( GUI.createElements(
     min = 0,
     max = 10,
     defaults = 20, 0.25,
-    dir = "v"
+    horizontal = false,
   },
   {
     name = "my_rng2",
@@ -316,7 +316,7 @@ layers[4]:addElements( GUI.createElements(
     min = 0,
     max = 30,
     defaults = {5, 10, 15, 20, 25},
-    dir = "v"
+    horizontal = false,
   }
 ))
 

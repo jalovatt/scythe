@@ -79,18 +79,18 @@ function Knob:init()
 	-- Figure out the points of the triangle
 
 	local r = self.w / 2
-	local rp = r * 1.5
+	local rPoint = r * 1.5
 	local curangle = 0
-	local o = rp + 1
+	local o = rPoint + 1
 
-	local w = 2 * rp + 2
+	local w = 2 * rPoint + 2
 
 	gfx.setimgdim(self.buff, 2*w, w)
 
 	local side_angle = (math.acos(0.666667) / Math.pi) * 0.9
 
-	local Ax, Ay = Math.polar2cart(curangle, rp, o, o)
-    local Bx, By = Math.polar2cart(curangle + side_angle, r - 1, o, o)
+	local Ax, Ay = Math.polar2cart(curangle, rPoint, o, o)
+  local Bx, By = Math.polar2cart(curangle + side_angle, r - 1, o, o)
 	local Cx, Cy = Math.polar2cart(curangle - side_angle, r - 1, o, o)
 
 	-- Head
@@ -226,14 +226,12 @@ end
 
 function Knob:drawcaption(o, r)
 
-  local str = self.caption
-
 	Font.set(self.font_a)
 	local cx, cy = Math.polar2cart(1/2, r * 2, o.x, o.y)
-	local str_w, str_h = gfx.measurestr(str)
+	local str_w, str_h = gfx.measurestr(self.caption)
 	gfx.x, gfx.y = cx - str_w / 2 + self.cap_x, cy - str_h / 2  + 8 + self.cap_y
 	Text.text_bg(str, self.bg)
-	Text.drawWithShadow(str, self.col_txt, "shadow")
+	Text.drawWithShadow(self.caption, self.col_txt, "shadow")
 
 end
 

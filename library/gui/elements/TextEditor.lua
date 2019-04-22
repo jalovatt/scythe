@@ -19,7 +19,7 @@ local GFX = require("public.gfx")
 local Text = require("public.text")
 local Const = require("public.const")
 local Config = require("gui.config")
-local Table = require("public.table")
+local Table, T = require("public.table"):unpack()
 require("public.string")
 
 local TextUtils = require("gui.elements._text_utils")
@@ -85,7 +85,7 @@ function TextEditor:init()
 	-- Process the initial string; split it into a table by line
 	if type(self.retval) == "string" then self:val(self.retval) end
 
-	local x, y, w, h = self.x, self.y, self.w, self.h
+	local w, h = self.w, self.h
 
 	self.buff = Buffer.get()
 
@@ -165,13 +165,11 @@ function TextEditor:onupdate()
 
 		if self.blink == 0 then
 			self.show_caret = true
-			self:redraw()
 		elseif self.blink == math.floor(Config.txt_blink_rate / 2) then
 			self.show_caret = false
-			self:redraw()
 		end
 		self.blink = (self.blink + 1) % Config.txt_blink_rate
-
+    self:redraw()
 	end
 
 end
@@ -361,7 +359,7 @@ function TextEditor:drawcaption()
 	local str = self.caption
 
 	Font.set(self.font_cap)
-	local str_w, str_h = gfx.measurestr(str)
+	local str_w = gfx.measurestr(str)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
 	Text.text_bg(str, self.cap_bg)
@@ -381,16 +379,16 @@ function TextEditor:drawtext()
 	Color.set(self.color)
 	Font.set(self.font_text)
 
-	local tmp = {}
+	local lines = {}
 	for i = self.wnd_pos.y, math.min(self:wnd_bottom() - 1, #self.retval) do
 
 		local str = tostring(self.retval[i]) or ""
-		tmp[#tmp + 1] = string.sub(str, self.wnd_pos.x + 1, self:wnd_right() - 1)
+		lines[#lines + 1] = string.sub(str, self.wnd_pos.x + 1, self:wnd_right() - 1)
 
 	end
 
 	gfx.x, gfx.y = self.x + self.pad, self.y + self.pad
-	gfx.drawstr( table.concat(tmp, "\n") )
+	gfx.drawstr( table.concat(lines, "\n") )
 
 end
 
@@ -403,10 +401,12 @@ function TextEditor:drawcaret()
 
 		Color.set("txt")
 
-		gfx.rect(	self.x + self.pad + (caret_wnd.x * self.char_w),
+		gfx.rect(
+      self.x + self.pad + (caret_wnd.x * self.char_w),
 					self.y + self.pad + (caret_wnd.y * self.char_h),
 					self.insert_caret and self.char_w or 2,
-					self.char_h - 2)
+      self.char_h - 2
+    )
 
 	end
 
@@ -424,7 +424,8 @@ function TextEditor:drawselection()
 	gfx.mode = 1
 
 	-- Get all the selection boxes that need to be drawn
-	local coords = self:getselection()
+  local coords = self:getselection()
+  local max_w = self.x + self.w - self.pad
 
 	for i = 1, #coords do
 
@@ -435,14 +436,8 @@ function TextEditor:drawselection()
 			x =	off_x + (coords[i].x - self.wnd_pos.x) * self.char_w
 			y =	off_y + (coords[i].y - self.wnd_pos.y) * self.char_h
 
-									-- Really kludgy, but it fixes a weird issue
-									-- where wnd_pos.x > 0 was drawing all the widths
-									-- one character too short
-			w =		(coords[i].w + (self.wnd_pos.x > 0 and 1 or 0)) * self.char_w
-
 			-- Keep the selection from spilling out past the scrollbar
-            -- ***recheck this, the self.x doesn't make sense***
-			w = math.min(w, self.x + self.w - x - self.pad)
+			w = math.min(coords[i].w * self.char_w, max_w - x)
 
 			gfx.rect(x, y, w, h, true)
 
@@ -461,7 +456,6 @@ end
 
 function TextEditor:drawscrollbars()
 
-	-- Do we need to be here?
 	local max_w, txt_h = self:getmaxlength(), self:getwndlength()
   local vert = txt_h > self.wnd_h
   local horz = max_w > self.wnd_w
@@ -571,11 +565,7 @@ function TextEditor:getselection()
   local sx, sy, ex, ey = self:getselectioncoords()
 
 	local x, w
-	local sel_coords = {}
-
-	local function insert_coords(x, y, w)
-		table.insert(sel_coords, {x = x, y = y, w = w})
-	end
+	local sel_coords = T{}
 
 	-- Eliminate the easiest case - start and end are the same line
 	if sy == ey then
@@ -583,7 +573,7 @@ function TextEditor:getselection()
 		x = Math.clamp(self.wnd_pos.x, sx, self:wnd_right())
 		w = Math.clamp(x, ex, self:wnd_right()) - x
 
-		insert_coords(x, sy, w)
+		sel_coords:insert({x = x, y = sy, w = w})
 
 
 	-- ...fine, we'll do it the hard way
@@ -593,19 +583,17 @@ function TextEditor:getselection()
 		x = Math.clamp(self.wnd_pos.x, sx, self:wnd_right())
 		w = math.min(self:wnd_right(), #(self.retval[sy] or "")) - x
 
-		insert_coords(x, sy, w)
+		sel_coords:insert({x = x, y = sy, w = w})
 
 
 		-- Any intermediate lines are clearly full
 		for i = self.wnd_pos.y, self:wnd_bottom() - 1 do
 
-			x, w = nil, nil
-
 			-- Is this line within the selection?
 			if i > sy and i < ey then
 
 				w = math.min(self:wnd_right(), #(self.retval[i] or "")) - self.wnd_pos.x
-				insert_coords(self.wnd_pos.x, i, w)
+				sel_coords:insert({x = self.wnd_pos.x, y = i, w = w})
 
 			-- We're past the selection
 			elseif i >= ey then
@@ -616,11 +604,10 @@ function TextEditor:getselection()
 
 		end
 
-
 		-- End
 		x = self.wnd_pos.x
 		w = math.min(self:wnd_right(), ex) - self.wnd_pos.x
-		insert_coords(x, ey, w)
+		sel_coords:insert({x = x, y = ey, w = w})
 
 
 	end
@@ -652,7 +639,6 @@ function TextEditor:selectall()
     y = #self.retval
   }
 
-
 end
 
 
@@ -662,7 +648,7 @@ function TextEditor:selectword()
 
 	if not str or str == "" then return 0 end
 
-	local sx = string.find( str:sub(1, self.caret.x), "%s[%S]+$") or 0
+	local sx = str:sub(1, self.caret.x):find("%s[%S]+$") or 0
 
 	local ex =	(	string.find( str, "%s", sx + 1)
 			    or		string.len(str) + 1 )
@@ -699,7 +685,7 @@ function TextEditor:deleteselection()
 
 		self.retval[sy] =   string.sub(self.retval[sy] or "", 1, sx)..
                         string.sub(self.retval[ey] or "", ex + 1)
-		for i = sy + 1, ey do
+		for _ = sy + 1, ey do
 			table.remove(self.retval, sy + 1)
 		end
 
@@ -777,7 +763,7 @@ function TextEditor:getmaxlength()
 	local w = 0
 
 	-- Slightly faster because we don't care about order
-	for k, v in pairs(self.retval) do
+	for _, v in pairs(self.retval) do
 		w = math.max(w, string.len(v))
 	end
 
@@ -1007,9 +993,9 @@ function TextEditor:sanitizetext(str)
 
             tmp[i] = str[i]:gsub("\t", "    ")
 
-            return tmp
-
         end
+
+        return tmp
 
     end
 
@@ -1032,20 +1018,7 @@ function TextEditor:backtab()
 
 end
 
-
-function TextEditor:ctrlchar(state, func, ...)
-
-    if state.mouse.cap & 4 == 4 then
-        func(self, ... and table.unpack({...}))
-
-        -- Flag to bypass the "clear selection" logic in :ontype()
-        return true
-
-    else
-        self:insertchar(state.kb.char)
-    end
-
-end
+TextEditor.ctrlchar = TextUtils.ctrlchar
 
 
 -- Non-typing key commands
@@ -1212,7 +1185,7 @@ TextEditor.keys = {
 
 		self:storeundostate()
 
-		if sel_s then self:deleteselection() end
+		if self.sel_s then self:deleteselection() end
 
 		local str = self.retval[self.caret.y] or ""
 		self.retval[self.caret.y] = str:sub(1, self.caret.x)

@@ -14,7 +14,7 @@ local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
-local Table = require("public.table")
+-- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Menubar = require("gui.element"):new()
@@ -34,7 +34,6 @@ Menubar.defaultProps = {
   w = 256,
   h = 24,
 
-  -- Optional parameters should be given default values to avoid errors/crashes:
   pad = 0,
 
   shadow = true,
@@ -78,8 +77,7 @@ function Menubar:init()
 
   end
 
-  self.w = self.w or 0
-  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, self:measuretitles(nil, true))
+  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or self:measuretitles(nil, true)
   self.h = self.h or gfx.texth
 
   -- Draw the background + shadow
@@ -174,7 +172,7 @@ end
 
 function Menubar:drawtitles()
 
-  local x = self.x
+  local currentX = self.x
 
   Font.set(self.font)
   Color.set(self.col_txt)
@@ -182,14 +180,14 @@ function Menubar:drawtitles()
   for i = 1, #self.menus do
 
     local str = self.menus[i].title
-    local str_w, _ = gfx.measurestr(str)
+    local str_w, str_h = gfx.measurestr(str)
 
-    gfx.x = x + (self.tab + self.pad) / 2
-    gfx.y = self.y
+    gfx.x = currentX + (self.tab + self.pad) / 2
+    gfx.y = self.y + (self.h - str_h) / 2
 
     gfx.drawstr(str)
 
-    x = x + str_w + self.tab + self.pad
+    currentX = currentX + str_w + self.tab + self.pad
 
   end
 
@@ -317,12 +315,12 @@ end
 -- Return a table of the menu titles
 function Menubar:gettitles()
 
-  local tmp = {}
+  local titles = {}
   for i = 1, #self.menus do
-    tmp[i] = self.menus.title
+    titles[i] = self.menus.title
   end
 
-  return tmp
+  return titles
 
 end
 
@@ -335,9 +333,7 @@ function Menubar:measuretitles(num, tabs)
   local len = 0
 
   for i = 1, num or #self.menus do
-
     len = len + self.menus[i].width
-
   end
 
   return not tabs

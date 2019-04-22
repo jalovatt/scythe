@@ -14,7 +14,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Buffer = require("gui.buffer")
-local Table = require("public.table")
+-- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Tabs = require("gui.element"):new()
@@ -116,18 +116,16 @@ function Tabs:draw()
 
 	local x, y = self.x + self.first_tab_offset, self.y
   local tab_w, tab_h = self.tab_w, self.tab_h
-	local pad = self.pad
-	local dir = self.dir
 	local state = self.state
 
   -- Make sure w is at least the size of the tabs.
   -- (GUI builder will let you try to set it lower)
-  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, (tab_w + pad) * #self.tabs + 2*pad + 12)
+  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, (tab_w + self.pad) * #self.tabs + 2*self.pad + 12)
 
 	Color.set(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
 
-  local x_adj = tab_w + pad - tab_h
+  local x_adj = tab_w + self.pad - tab_h
   gfx.blit(self.buffer, 1, 0, 0, (state - 1) * (tab_h + 4), self.buffer_size, (tab_h + 4), x, y)
 
     -- Keep the active tab's top separate from the window background
@@ -136,7 +134,7 @@ function Tabs:draw()
 
 	-- Cover up some ugliness at the bottom of the tabs
 	Color.set("wnd_bg")
-	gfx.rect(self.x, self.y + (dir == "u" and tab_h or -6), self.w, 6, true)
+	gfx.rect(self.x, self.y + (self.dir == "u" and tab_h or -6), self.w, 6, true)
 
 
 end
@@ -227,6 +225,18 @@ end
 -------- Drawing helpers -----------
 ------------------------------------
 
+function Tabs:draw_tab_left(x, i, y1, y2, h)
+  gfx.triangle(x + i, y1, x + i, y2, x + i - (h / 2), y2)
+end
+
+function Tabs:draw_tab_right(r, i, y1, y2, h)
+  gfx.triangle(r + i, y1, r + i, y2, r + i + (h / 2), y2)
+end
+
+function Tabs:draw_aliasing_fix(x, r, i, y1, y2, h)
+  gfx.line(x + i, y1, x + i - (h / 2), y2, 1)
+  gfx.line(r + i, y1, r + i + (h / 2), y2, 1)
+end
 
 function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
 
@@ -234,52 +244,38 @@ function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
   local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                          or   {y + h, y})
 
-  x = x + (h / 2)
-  w = w - h
+  local adjusted_x = x + (h / 2)
+  local adjusted_w = w - h
+  local adjusted_right = adjusted_x + adjusted_w
 
 	Color.set("shadow")
 
   -- tab shadow
   for i = 1, dist do
 
-    gfx.rect(x + i, y, w, h, true)
+    gfx.rect(adjusted_x + i, y, adjusted_w, h, true)
 
-    gfx.triangle( x + i, y1,
-                  x + i, y2,
-                  x + i - (h / 2), y2)
-
-    gfx.triangle( x + i + w, y1,
-                  x + i + w, y2,
-                  x + i + w + (h / 2), y2)
+    self:draw_tab_left(adjusted_x, i, y1, y2, h)
+    self:draw_tab_right(adjusted_right, i, y1, y2, h)
 
   end
 
-  -- Hide those gross, pixellated edges
-  gfx.line(x + dist, y1, x + dist - (h / 2), y2, 1)
-  gfx.line(x + dist + w, y1, x + dist + w + (h / 2), y2, 1)
+  self:draw_aliasing_fix(adjusted_x, adjusted_right, dist, y1, y2, h)
 
   Color.set(col_bg)
 
-  gfx.rect(x, y, w, h, true)
+  gfx.rect(adjusted_x, y, adjusted_w, h, true)
 
-  gfx.triangle( x, y1,
-                x, y2,
-                x - (h / 2), y2)
-
-  gfx.triangle( x + w, y1,
-                x + w, y2,
-                x + w + (h / 2), y + h)
-
-  gfx.line(x, y1, x - (h / 2), y2, 1)
-  gfx.line(x + w, y1, x + w + (h / 2), y2, 1)
-
+  self:draw_tab_left(adjusted_x, 0, y1, y2, h)
+  self:draw_tab_right(adjusted_right, 0, y1, y2, h)
+  self:draw_aliasing_fix(adjusted_x, adjusted_right, 0, y1, y2, h)
 
 	-- Draw the tab's label
 	Color.set(col_txt)
 	Font.set(font)
 
 	local str_w, str_h = gfx.measurestr(lbl)
-	gfx.x = x + ((w - str_w) / 2)
+	gfx.x = adjusted_x + ((adjusted_w - str_w) / 2)
 	gfx.y = y + ((h - str_h) / 2)
 	gfx.drawstr(lbl)
 

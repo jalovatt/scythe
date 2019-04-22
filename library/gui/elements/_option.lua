@@ -24,7 +24,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 
 local Option = require("gui.element"):new()
 Option.__index = Option
@@ -68,12 +68,12 @@ end
 
 function Option:init()
 
-    -- Make sure we're not trying to use the base class.
-    -- It shouldn't be possible, but just in case...
-    if self.type == "Option" then
-        error("Invalid GUI class - '" .. self.name .. "' was initialized as an Option element")
-        return
-    end
+  -- Make sure we're not trying to use the base class.
+  -- It shouldn't be possible, but just in case...
+  if self.type == "Option" then
+      error("Invalid GUI class - '" .. self.name .. "' was initialized as an Option element")
+      return
+  end
 
 	self.buff = self.buff or Buffer.get()
 
@@ -81,9 +81,7 @@ function Option:init()
 	gfx.setimgdim(self.buff, -1, -1)
 	gfx.setimgdim(self.buff, 2*self.opt_size + 4, 2*self.opt_size + 2)
 
-
-    self:initoptions()
-
+  self:initoptions()
 
 	if self.caption and self.caption ~= "" then
 		Font.set(self.font_a)
@@ -152,32 +150,29 @@ end
 
 function Option:drawcaption()
 
-    Font.set(self.font_a)
+  Font.set(self.font_a)
 
-    gfx.x = self.cap_x
-    gfx.y = self.y - self.cap_h
+  gfx.x = self.cap_x
+  gfx.y = self.y - self.cap_h
 
-    Text.text_bg(self.caption, self.bg)
+  Text.text_bg(self.caption, self.bg)
 
-    Text.drawWithShadow(self.caption, self.col_txt, "shadow")
+  Text.drawWithShadow(self.caption, self.col_txt, "shadow")
 
 end
 
 
 function Option:drawoptions()
-
-  local x, y, w, h = self.x, self.y, self.w, self.h
-
   local horz = self.dir == "h"
 	local pad = self.pad
 
   -- Bump everything down for the caption
-  y = y + ((self.caption and self.caption ~= "") and self.cap_h or 0) + 1.5 * pad
+  local adjusted_y = self.y + ((self.caption and self.caption ~= "") and self.cap_h or 0) + 1.5 * pad
 
   -- Bump the options down more for horizontal options
   -- with the text on top
 	if horz and self.caption ~= "" and not self.swap then
-    y = y + self.cap_h + 2*pad
+    adjusted_y = adjusted_y + self.cap_h + 2*pad
   end
 
 	local opt_size = self.opt_size
@@ -191,18 +186,18 @@ function Option:drawoptions()
 		str = self.options[i]
 		if str ~= "_" then
 
-            opt_x = x + (horz   and (i - 1) * adj + pad
-                                or  (self.swap  and (w - adj - 1)
-                                                or   pad))
+      opt_x = self.x + (horz  and (i - 1) * adj + pad
+                              or  (self.swap  and (self.w - adj - 1)
+                                              or   pad))
 
-            opt_y = y + (i - 1) * (horz and 0 or adj)
+      opt_y = adjusted_y + (i - 1) * (horz and 0 or adj)
 
-			-- Draw the option bubble
-            self:drawoption(opt_x, opt_y, opt_size, self:isoptselected(i))
+      -- Draw the option bubble
+      self:drawoption(opt_x, opt_y, opt_size, self:isoptselected(i))
 
-            self:drawvalue(opt_x,opt_y, opt_size, str)
+      self:drawvalue(opt_x, opt_y, opt_size, str)
 
-		end
+    end
 
 	end
 

@@ -64,11 +64,11 @@ end
 
 function Radio:onmouseup(state)
 
-    -- Bypass option for GUI Builder
-    if not self.focus then
-        self:redraw()
-        return
-    end
+  -- Bypass option for GUI Builder
+  if not self.focus then
+      self:redraw()
+      return
+  end
 
 	-- Set the new option, or revert to the original if the cursor
     -- isn't inside the list anymore
@@ -99,9 +99,6 @@ function Radio:onwheel(state)
                                       and -1
                                       or 1 )
 
-	--if self.state < 1 then self.state = 1 end
-	--if self.state > #self.options then self.state = #self.options end
-
 	self.retval = self.state
 
 	self:redraw()
@@ -111,24 +108,24 @@ end
 
 function Radio:isoptselected(opt)
 
-   return opt == self.state
+  return opt == self.state
 
 end
 
 
 function Radio:getnextoption(dir)
 
-    local j = dir > 0 and #self.options or 1
+  local j = dir > 0 and #self.options or 1
 
-    for i = self.state + dir, j, dir do
+  for i = self.state + dir, j, dir do
 
-        if self.options[i] ~= "_" then
-            return i
-        end
-
+    if self.options[i] ~= "_" then
+        return i
     end
 
-    return self.state
+  end
+
+  return self.state
 
 end
 

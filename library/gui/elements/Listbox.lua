@@ -16,7 +16,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 require("public.string")
 
 -- Listbox - New
@@ -98,20 +98,15 @@ end
 
 function Listbox:draw()
 
-
-	local x, y, w, h = self.x, self.y, self.w, self.h
-
-	local caption = self.caption
-
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
 	if not self.wnd_h then self:wnd_recalc() end
 
 	-- Draw the caption
-	if caption and caption ~= "" then self:drawcaption() end
+	if self.caption and self.caption ~= "" then self:drawcaption() end
 
 	-- Draw the background and frame
-	gfx.blit(self.buff, 1, 0, 0, 0, w, h, x, y)
+	gfx.blit(self.buff, 1, 0, 0, 0, self.w, self.h, self.x, self.y)
 
 	-- Draw the text
 	self:drawtext()
@@ -255,19 +250,17 @@ end
 
 function Listbox:drawcaption()
 
-	local str = self.caption
-
 	Font.set(self.font_cap)
-	local str_w, str_h = gfx.measurestr(str)
+	local str_w = gfx.measurestr(self.caption)
 	gfx.x = self.x - str_w - self.pad
 	gfx.y = self.y + self.pad
-	Text.text_bg(str, self.cap_bg)
+	Text.text_bg(self.caption, self.cap_bg)
 
 	if self.shadow then
-		Text.drawWithShadow(str, self.color, "shadow")
+		Text.drawWithShadow(self.caption, self.color, "shadow")
 	else
 		Color.set(self.color)
-		gfx.drawstr(str)
+		gfx.drawstr(self.caption)
 	end
 
 end
@@ -278,11 +271,11 @@ function Listbox:drawtext()
 	Color.set(self.color)
 	Font.set(self.font_text)
 
-	local tmp = {}
+	local outputText = {}
 	for i = self.wnd_y, math.min(self:wnd_bottom() - 1, #self.list) do
 
 		local str = tostring(self.list[i]) or ""
-    tmp[#tmp + 1] = self:formatOutput(str)
+    outputText[#outputText + 1] = self:formatOutput(str)
 
 	end
 
@@ -290,7 +283,7 @@ function Listbox:drawtext()
     local r = gfx.x + self.w - 2*self.pad
     local b = gfx.y + self.h - 2*self.pad
 
-	gfx.drawstr( table.concat(tmp, "\n"), 0, r, b)
+	gfx.drawstr( table.concat(outputText, "\n"), 0, r, b)
 
 end
 
@@ -298,9 +291,9 @@ end
 function Listbox:drawselection()
 
 	local off_x, off_y = self.x + self.pad, self.y + self.pad
-	local x, y, w, h
 
-	w = self.w - 2 * self.pad
+  local w = self.w - 2 * self.pad
+  local itemY
 
 	Color.set("elm_fill")
 	gfx.a = 0.5
@@ -310,8 +303,8 @@ function Listbox:drawselection()
 
 		if self.retval[i] and i >= self.wnd_y and i < self:wnd_bottom() then
 
-			y = off_y + (i - self.wnd_y) * self.char_h
-			gfx.rect(off_x, y, w, self.char_h, true)
+			itemY = off_y + (i - self.wnd_y) * self.char_h
+			gfx.rect(off_x, itemY, w, self.char_h, true)
 
 		end
 
@@ -365,7 +358,7 @@ function Listbox:wnd_recalc()
 
 	Font.set(self.font_text)
 
-    self.char_w, self.char_h = gfx.measurestr("_")
+  self.char_w, self.char_h = gfx.measurestr("_")
 	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
 	self.wnd_w = math.floor(self.w / self.char_w)
 
@@ -383,17 +376,12 @@ end
 -- Determine which item the user clicked
 function Listbox:getitem(y)
 
-	--local item = math.floor( ( (y - self.y) / self.h ) * self.wnd_h) + self.wnd_y
-
 	Font.set(self.font_text)
 
-	local item = math.floor(	(y - (self.y + self.pad))
-								/	self.char_h)
-				+ self.wnd_y
+  local item = math.floor((y - (self.y + self.pad)) /	self.char_h)
+    + self.wnd_y
 
-	item = Math.clamp(1, item, #self.list)
-
-	return item
+	return Math.clamp(1, item, #self.list)
 
 end
 
@@ -419,7 +407,7 @@ function Listbox:selectrange(mouse)
 
 	-- Find the first selected item
 	local first
-	for k, v in pairs(self.retval) do
+	for k in pairs(self.retval) do
 		first = first and math.min(k, first) or k
 	end
 

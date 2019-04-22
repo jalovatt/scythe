@@ -16,7 +16,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Frame = require("gui.element"):new()
@@ -129,8 +129,8 @@ function Frame:drawframe()
   -- Shadow
   local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
-	GFX.roundrect(self.w + 2, 1, self.w, self.h, round, 1, 1)
-	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
+	GFX.roundrect(w + 2, 1, w, h, round, 1, 1)
+	gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 
     -- Frame

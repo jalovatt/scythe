@@ -65,12 +65,6 @@ end
 
 function Checklist:onmouseup(state)
 
-  -- Bypass option for GUI Builder
-  if not self.focus then
-    self:redraw()
-    return
-  end
-
   local mouseopt = self:getmouseopt(state)
 
   if not mouseopt then return end
