@@ -36,7 +36,7 @@ GUI.elementClasses = {}
 GUI.Init = function ()
   xpcall( function()
     -- -- Initialize a few values
-    GUI.last_time = 0
+    GUI.lastFuncTime = 0
 
     -- Convert color presets from 0..255 to 0..1
     for _, col in pairs(Color.colors) do
@@ -44,45 +44,36 @@ GUI.Init = function ()
                                           col[3] / 255, col[4] / 255
     end
 
-    if GUI.exit then reaper.atexit(GUI.exit) end
-
   end, Error.crash)
 end
 
-GUI.update_windows = function()
-  for _, window in pairs(GUI.Windows) do
-    window:update()
-  end
-end
 
 GUI.Main = function ()
   xpcall( function ()
-    GUI.update_windows()
+    for _, window in pairs(GUI.Windows) do
+      window:update()
+    end
 
-    if GUI.quit then return end
+    if Scythe.quit then return end
 
     -- If the user gave us a function to run, check to see if it needs to be
     -- run again, and do so.
     if GUI.func then
 
       local new_time = reaper.time_precise()
-      if new_time - GUI.last_time >= (GUI.freq or 1) then
+      if new_time - GUI.lastFuncTime >= (GUI.funcTime or 1) then
         GUI.func()
-        GUI.last_time = new_time
+        GUI.lastFuncTime = new_time
       end
     end
 
-    GUI.Main_Draw()
+    for _, window in pairs(GUI.Windows) do
+      window:redraw()
+    end
 
     reaper.defer(GUI.Main)
 
   end, Error.crash)
-end
-
-GUI.Main_Draw = function ()
-  for _, window in pairs(GUI.Windows) do
-    window:redraw()
-  end
 end
 
 
@@ -169,8 +160,9 @@ end
 
 --[[	Return or change an element's value
 
-    *** DEPRECATED ***
-    This is now just a wrapper for GUI.findElementByName("elm"):val(newval)
+    This is just a wrapper for GUI.findElementByName("elm"):val(newval). Any
+    elements you plan on checking frequently should have a referenced kept
+    locally.
 
     For use with external user functions. Returns the given element's current
     value or, if specified, sets a new one.	Changing values with this is often
@@ -208,7 +200,7 @@ GUI.open_file = function(path)
 end
 
 
--- CURRENTLY BROKEN
+-- CURRENTLY BROKEN SINCE WINDOWS ARE A CLASS NOW
 -- Saves the current script window parameters to an ExtState under the given section name
 -- Returns dock, x, y, w, h
 GUI.save_window_state = function (name, title)
@@ -222,7 +214,7 @@ GUI.save_window_state = function (name, title)
 end
 
 
--- CURRENTLY BROKEN
+-- CURRENTLY BROKEN SINCE WINDOWS ARE A CLASS NOW
 -- Looks for an ExtState containing saved window parameters
 -- Returns dock, x, y, w, h
 GUI.load_window_state = function (name, title)

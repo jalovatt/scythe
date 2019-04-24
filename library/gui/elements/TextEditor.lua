@@ -673,7 +673,7 @@ function TextEditor:deleteselection()
 
 	self:storeundostate()
 
-    local sx, sy, ex, ey = self:getselectioncoords()
+  local sx, sy, ex, ey = self:getselectioncoords()
 
 	-- Easiest case; single line
 	if sy == ey then
@@ -685,10 +685,10 @@ function TextEditor:deleteselection()
 
 		self.retval[sy] =   string.sub(self.retval[sy] or "", 1, sx)..
                         string.sub(self.retval[ey] or "", ex + 1)
+
 		for _ = sy + 1, ey do
 			table.remove(self.retval, sy + 1)
 		end
-
 	end
 
 	self.caret.x, self.caret.y = sx, sy
@@ -703,18 +703,18 @@ function TextEditor:getselectedtext()
 
   local sx, sy, ex, ey = self:getselectioncoords()
 
-	local tmp = {}
+	local lines = {}
 
 	for i = 0, ey - sy do
 
-		tmp[i + 1] = self.retval[sy + i]
+		lines[i + 1] = self.retval[sy + i]
 
 	end
 
-	tmp[1] = string.sub(tmp[1], sx + 1)
-	tmp[#tmp] = string.sub(tmp[#tmp], 1, ex - (sy == ey and sx or 0))
+	lines[1] = lines[1]:sub(sx + 1)
+	lines[#lines] = lines[#lines]:sub(1, ex - (sy == ey and sx or 0))
 
-	return table.concat(tmp, "\n")
+	return table.concat(lines, "\n")
 
 end
 
@@ -764,7 +764,7 @@ function TextEditor:getmaxlength()
 
 	-- Slightly faster because we don't care about order
 	for _, v in pairs(self.retval) do
-		w = math.max(w, string.len(v))
+		w = math.max(w, v:len())
 	end
 
 	-- Pad the window out a little
@@ -828,18 +828,18 @@ end
 -- TextEditor - Get the closest character position to the given coords.
 function TextEditor:getcaret(x, y)
 
-	local tmp = {}
+	local pos = {}
 
-	tmp.x = math.floor(		((x - self.x) / self.w ) * self.wnd_w)
+	pos.x = math.floor(		((x - self.x) / self.w ) * self.wnd_w)
         + self.wnd_pos.x
-	tmp.y = math.floor(		(y - (self.y + self.pad))
-						          /	self.char_h)
+	pos.y = math.floor(   (y - (self.y + self.pad))
+						            /	self.char_h)
 			  + self.wnd_pos.y
 
-	tmp.y = Math.clamp(1, tmp.y, #self.retval)
-	tmp.x = Math.clamp(0, tmp.x, #(self.retval[tmp.y] or ""))
+	pos.y = Math.clamp(1, pos.y, #self.retval)
+	pos.x = Math.clamp(0, pos.x, #(self.retval[pos.y] or ""))
 
-	return tmp
+	return pos
 
 end
 
@@ -865,32 +865,32 @@ end
 
 function TextEditor:setscrollbar(scroll, state)
 
-    -- Vertical scroll
-    if scroll == "v" then
+  -- Vertical scroll
+  if scroll == "v" then
 
-        local len = self:getwndlength()
-        local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * len  )
-        self.wnd_pos.y = Math.round(
-                            Math.clamp(	1,
-                                        wnd_c - (self.wnd_h / 2),
-                                        len - self.wnd_h + 1
-                                    )
-                                    )
+    local len = self:getwndlength()
+    local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * len  )
+    self.wnd_pos.y = Math.round(
+      Math.clamp(	1,
+                  wnd_c - (self.wnd_h / 2),
+                  len - self.wnd_h + 1
+      )
+    )
 
-    -- Horizontal scroll
-    else
-    --self.caret.x + 4 - self.wnd_w
+  -- Horizontal scroll
+  else
+  --self.caret.x + 4 - self.wnd_w
 
-        local len = self:getmaxlength()
-        local wnd_c = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
-        self.wnd_pos.x = Math.round(
-                            Math.clamp(	0,
-                                        wnd_c - (self.wnd_w / 2),
-                                        len + 4 - self.wnd_w
-                                    )
-                                    )
+      local len = self:getmaxlength()
+      local wnd_c = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
+      self.wnd_pos.x = Math.round(
+        Math.clamp(	0,
+                    wnd_c - (self.wnd_w / 2),
+                    len + 4 - self.wnd_w
+        )
+      )
 
-    end
+  end
 
 
 end
@@ -915,16 +915,16 @@ function TextEditor:insertstring(str, move_caret)
 
 	self:storeundostate()
 
-    str = self:sanitizetext(str)
+  str = self:sanitizetext(str)
 
 	if self.sel_s then self:deleteselection() end
 
-    local sx, sy = self.caret.x, self.caret.y
+  local sx, sy = self.caret.x, self.caret.y
 
 	local tmp = self:stringtotable(str)
 
-	local pre, post =	string.sub(self.retval[sy] or "", 1, sx),
-						string.sub(self.retval[sy] or "", sx + 1)
+	local pre =	string.sub(self.retval[sy] or "", 1, sx)
+	local post = string.sub(self.retval[sy] or "", sx + 1)
 
 	if #tmp == 1 then
 
@@ -968,36 +968,29 @@ end
 
 -- Place the caret at the end of the current line
 function TextEditor:carettoend()
-	--[[
-	return #(self.retval[self.caret.y] or "") > 0
-		and #self.retval[self.caret.y]
-		or 0
-	]]--
-
     return string.len(self.retval[self.caret.y] or "")
-
 end
 
 
 -- Replace any characters that we're unable to reproduce properly
 function TextEditor:sanitizetext(str)
 
-    if type(str) == "string" then
+  if type(str) == "string" then
 
-        return str:gsub("\t", "    ")
+    return str:gsub("\t", "    ")
 
-    elseif type(str) == "table" then
+  elseif type(str) == "table" then
 
-        local tmp = {}
-        for i = 1, #str do
+    local lines = {}
+    for i = 1, #str do
 
-            tmp[i] = str[i]:gsub("\t", "    ")
-
-        end
-
-        return tmp
+      lines[i] = str[i]:gsub("\t", "    ")
 
     end
+
+    return lines
+
+  end
 
 end
 
@@ -1005,16 +998,16 @@ end
 -- Backspace by up to four " " characters, if present.
 function TextEditor:backtab()
 
-    local str = self.retval[self.caret.y]
-    local pre, post = string.sub(str, 1, self.caret.x), string.sub(str, self.caret.x + 1)
+  local str = self.retval[self.caret.y]
+  local pre, post = str:sub(1, self.caret.x), str:sub(self.caret.x + 1)
 
-    local space
-    pre, space = string.match(pre, "(.-)(%s*)$")
+  local space
+  pre, space = string.match(pre, "(.-)(%s*)$")
 
-    pre = pre .. (space and string.sub(space, 1, -5) or "")
+  pre = pre .. (space and string.sub(space, 1, -5) or "")
 
-    self.caret.x = string.len(pre)
-    self.retval[self.caret.y] = pre..post
+  self.caret.x = pre:len()
+  self.retval[self.caret.y] = pre..post
 
 end
 
@@ -1121,7 +1114,7 @@ TextEditor.keys = {
 
 			local str = self.retval[self.caret.y]
 			self.retval[self.caret.y] = str:sub(1, self.caret.x - 1)..
-                                        str:sub(self.caret.x + 1, -1)
+                                  str:sub(self.caret.x + 1, -1)
 			self.caret.x = self.caret.x - 1
 
 		-- Beginning of the line; backspace the contents to the prev. line
@@ -1138,13 +1131,13 @@ TextEditor.keys = {
 
 	[Const.char.TAB] = function(self, state)
 
-        -- Disabled until Reaper supports this properly
+    -- Disabled until Reaper supports this properly
 		--self:insertchar(9)
 
-        if state.mouse.cap & 8 == 8 then
-            self:backtab()
-        else
-            self:insertstring("    ", true)
+    if state.mouse.cap & 8 == 8 then
+      self:backtab()
+    else
+      self:insertstring("    ", true)
 		end
 
 	end,
@@ -1169,12 +1162,12 @@ TextEditor.keys = {
 
 			local str = self.retval[self.caret.y] or ""
 			self.retval[self.caret.y] = str:sub(1, self.caret.x) ..
-                                        str:sub(self.caret.x + 2)
+                                  str:sub(self.caret.x + 2)
 
 		elseif self.caret.y < self:getwndlength() then
 
 			self.retval[self.caret.y] = self.retval[self.caret.y] ..
-                                        (self.retval[self.caret.y + 1] or "")
+                                 (self.retval[self.caret.y + 1] or "")
 			table.remove(self.retval, self.caret.y + 1)
 
 		end
@@ -1198,7 +1191,7 @@ TextEditor.keys = {
 	-- A -- Select All
 	[1] = function(self, state)
 
-        return self:ctrlchar(state, self.selectall)
+    return self:ctrlchar(state, self.selectall)
 
 	end,
 
