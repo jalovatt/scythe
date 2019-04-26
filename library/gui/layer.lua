@@ -1,4 +1,4 @@
-local _, T = require("public.table"):unpack()
+local Table, T = require("public.table"):unpack()
 local Buffer = require("gui.buffer")
 
 local Layer = T{}
@@ -6,7 +6,7 @@ Layer.__index = Layer
 Layer.__noCopy = true
 
 function Layer:new(props)
-  local layer = props
+  local layer = Table.deepCopy(props)
 
   layer.elementCount = 0
   layer.elements = T{}
@@ -31,6 +31,8 @@ end
 
 function Layer:addElements(...)
   for _, elm in pairs({...}) do
+    if elm.layer then elm.layer:removeElements(elm) end
+
     self.elements[elm.name] = elm
     elm.layer = self
     self.elementCount = self.elementCount + 1

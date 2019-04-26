@@ -10,23 +10,23 @@ local Window = T{}
 Window.__index = Window
 Window.__noCopy = true
 
+Window.defaultProps = {
+  name = "Window",
+  x = 0,
+  y = 0,
+  w = 640,
+  h = 480,
+  layerCount = 0,
+  isOpen = false,
+  isRunning = true,
+  needsRedraw = false,
+}
+
 function Window:new(props)
-  local window = props
+  local window = Table.deepCopy(props)
+  Table.addMissingKeys(window, self.defaultProps)
 
-  window.name = window.name or "Window"
-
-  window.x = window.x or 0
-  window.y = window.y or 0
-  window.w = window.w or 640
-  window.h = window.h or 480
-
-  window.layerCount = 0
   window.layers = T{}
-
-  window.isOpen = false
-  window.isRunning = (window.isRunning == nil) and true
-
-  window.needsRedraw = false
 
   return setmetatable(window, self)
 

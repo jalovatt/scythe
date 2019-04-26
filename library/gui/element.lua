@@ -139,10 +139,7 @@ function Element:Update(state, last)
 
         -- Was a different element clicked?
         if not inside then
-          -- if last.mouse_down_elm == self then
-          --     -- Should already have been reset by the mouse-up, but safeguard...
-          --     state.mouse_down_elm = nil
-          -- end
+
           if self.focus then
             self.focus = false
             self:onlostfocus(state, last)
@@ -385,17 +382,7 @@ function Element:addDefaultProps (props)
 
   local new = Table.deepCopy(props)
 
-  for k, v in pairs(self.defaultProps) do
-    if new[k] == nil then
-      if type(v) == "table" then
-        new[k] = Table.deepCopy(v)
-      else
-        new[k] = v
-      end
-    end
-  end
-
-  return new
+  return Table.addMissingKeys(new, self.defaultProps)
 end
 
 return Element

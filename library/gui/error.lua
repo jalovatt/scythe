@@ -47,10 +47,6 @@ Error.crash = function (errObject, skipMsg)
 end
 
 -- Checks for Reaper's "restricted permissions" script mode
--- Scythe.script_restricted will be true if restrictions are in place
--- Call Error.error_restricted to display an error message about restricted permissions
--- and exit the script.
-
 if Scythe.script_restricted then
 
   Error.error_restricted = function()

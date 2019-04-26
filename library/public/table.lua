@@ -109,23 +109,21 @@ Table.deepCopy = function(t, copies)
 
   local copy
   if type(t) == "table" then
-      if copies[t] then
-          copy = copies[t]
-      -- Override so we don't end up working through circular references for
-      -- elements, layers, windows, and tab sets
-      elseif t.__noCopy then
-          copy = t
-      else
-          copy = {}
+    if copies[t] then
+        copy = copies[t]
+    -- Override so we don't end up working through circular references for
+    -- elements, layers, windows, and tab sets
+    else
+      copy = (t.__noCopy and t or T{})
 
-          for k, v in next, t, nil do
-              copy[Table.deepCopy(k, copies)] = Table.deepCopy(v, copies)
-          end
-          copies[t] = copy
-          setmetatable(copy, Table.deepCopy(getmetatable(t), copies))
+      for k, v in next, t, nil do
+        copy[Table.deepCopy(k, copies)] = Table.deepCopy(v, copies)
       end
+      copies[t] = copy
+      setmetatable(copy, Table.deepCopy(getmetatable(t), copies))
+    end
   else -- number, string, boolean, etc
-      copy = t
+    copy = t
   end
   return copy
 end
@@ -314,6 +312,21 @@ Table.sortHashesByKey = function(hashes, key)
 
   return sorted
 
+end
+
+
+Table.addMissingKeys = function(t, source)
+  for k, v in pairs(source) do
+    if t[k] == nil then
+      if type(v) == "table" then
+        t[k] = Table.deepCopy(v)
+      else
+        t[k] = v
+      end
+    end
+  end
+
+  return t
 end
 
 return T{Table, T}
