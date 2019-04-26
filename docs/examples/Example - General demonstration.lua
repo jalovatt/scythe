@@ -101,7 +101,7 @@ local window = GUI.createWindow({
   h = 500,
   anchor = "mouse",
   corner = "C",
-  onClose = function() GUI.quit = true end,
+  onClose = function() Scythe.quit = true end,
 })
 
 layers = table.pack( GUI.createLayers(

@@ -114,11 +114,15 @@ Table.deepCopy = function(t, copies)
     -- Override so we don't end up working through circular references for
     -- elements, layers, windows, and tab sets
     else
-      copy = (t.__noCopy and t or T{})
-
-      for k, v in next, t, nil do
-        copy[Table.deepCopy(k, copies)] = Table.deepCopy(v, copies)
+      if t.__noCopy then
+        copy = t
+      else
+        copy = {}
+        for k, v in next, t, nil do
+          copy[Table.deepCopy(k, copies)] = Table.deepCopy(v, copies)
+        end
       end
+
       copies[t] = copy
       setmetatable(copy, Table.deepCopy(getmetatable(t), copies))
     end

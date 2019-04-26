@@ -147,7 +147,7 @@ function Element:Update(state, last)
 
           return
         else
-          state.mouse_down_elm = self
+          state.mouse.down_elm = self
 
           -- Double clicked?
           if state.mouse.downtime
@@ -177,7 +177,7 @@ function Element:Update(state, last)
         end
 
       -- 		Dragging? Did the mouse start out in this element?
-      elseif last.mouse_down_elm == self then
+      elseif last.mouse.down_elm == self then
 
         if (state.mouse.dx ~= 0 or state.mouse.dy ~= 0)
         and self.focus ~= false then
@@ -186,7 +186,7 @@ function Element:Update(state, last)
           self["on"..button.btn.."drag"](self, state, last)
 
         end
-        state.mouse_down_elm = last.mouse_down_elm
+        state.mouse.down_elm = last.mouse.down_elm
       end
 
     -- If it was originally clicked in this element and has been released
@@ -194,9 +194,9 @@ function Element:Update(state, last)
     -- mouse outside of the element will still trigger an :onmouseup, since
     -- elements like the Button need to know that the mouse has been released.
     -- Elements should check if state.mouse is inside them
-    elseif last.mouse[button.down] and last.mouse_down_elm == self then
+    elseif last.mouse[button.down] and last.mouse.down_elm == self then
 
-      state.mouse_down_elm = nil
+      state.mouse.down_elm = nil
 
       if not state.mouse.dbl_clicked then
 
@@ -216,18 +216,18 @@ function Element:Update(state, last)
       -- Initial mouseover an element
       if last.mouseover_elm ~= self then
         self:onmouseenter(state, last)
-        state.mouseover_time = reaper.time_precise()
+        state.mouse.over_time = reaper.time_precise()
 
       else
         self:onmouseover(state, last)
         -- Mouse was moved; reset the timer
         if state.mouse.dx ~= 0 or state.mouse.dy ~= 0 then
 
-          state.mouseover_time = reaper.time_precise()
+          state.mouse.over_time = reaper.time_precise()
 
         -- Display a tooltip
         elseif self.tooltip
-          and (reaper.time_precise() - state.mouseover_time)
+          and (reaper.time_precise() - state.mouse.over_time)
                 >= Config.tooltip_time then
 
           state.settooltip(self.tooltip)

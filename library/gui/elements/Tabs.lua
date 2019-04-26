@@ -52,7 +52,9 @@ Tabs.defaultProps = {
 
 function Tabs:new(props)
 
-	local tab = self:addDefaultProps(props)
+  local tab = self:addDefaultProps(props)
+
+  tab.tabs = tab.tabs or {}
 
 	-- Figure out the total size of the tab frame now that we know the
   -- number of buttons, so we can do the math for clicking on it
@@ -292,7 +294,7 @@ end
 -- Updates visibility for any layers assigned to the tabs
 function Tabs:update_sets()
 
-	if not self.tabs or #self.tabs[1].layers < 1 then return end
+	if not self.tabs or #self.tabs == 0 or #self.tabs[1].layers < 1 then return end
 
 	for i = 1, #self.tabs do
     if i ~= self.state then

@@ -251,6 +251,16 @@ function Window:updateInputState()
     wheel = gfx.mouse_wheel,
     dx = gfx.mouse_x - last.mouse.x,
     dy = gfx.mouse_y - last.mouse.y,
+
+    -- Values that need to persist from one loop to the next
+    downtime = last.mouse.downtime,
+    down_elm = last.mouse.down_elm,
+    dbl_clicked = last.dbl_clicked,
+    ox = last.mouse.ox,
+    oy = last.mouse.oy,
+    off_x = last.mouse.off_x,
+    off_y = last.mouse.off_y,
+    over_time = last.mouse.over_time,
   }
 
   state.kb = {
@@ -260,15 +270,7 @@ function Window:updateInputState()
   state.cur_w = gfx.w
   state.cur_h = gfx.h
 
-  -- Values that need to persist from one loop to the next
-  state.mouse.downtime = last.mouse.downtime
-  state.mouse_down_elm = last.mouse_down_elm
-  state.mouse.dbl_clicked = last.dbl_clicked
-  state.mouse.ox = last.mouse.ox
-  state.mouse.oy = last.mouse.oy
-  state.mouse.off_x = last.mouse.off_x
-  state.mouse.off_y = last.mouse.off_y
-  state.mouseover_time = last.mouseover_time
+
 
   state.settooltip = function(str) self:settooltip(state.mouse.x, state.mouse.y, str) end
 
