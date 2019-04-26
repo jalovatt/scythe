@@ -271,7 +271,7 @@ Table.any = function(t, cb)
     if cb(v, k, t) then return true end
   end
 
-  return true
+  return false
 end
 
 -- Returns true if cb(v, k, t) is truthy for all values in the table

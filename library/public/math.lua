@@ -1,27 +1,29 @@
-local Math = {}
+local math = math
+
+local Math = setmetatable({}, math)
 
 -- Odds are you don't need too much precision here
 -- If you do, just specify Math.pi = math.pi() in your code
 Math.pi = 3.14159
 
 -- Round a number to the nearest integer (or optional decimal places)
-Math.round = function (num, places)
+Math.round = function (n, places)
 
   if not places then
-    return num > 0 and math.floor(num + 0.5) or math.ceil(num - 0.5)
+    return n > 0 and math.floor(n + 0.5) or math.ceil(n - 0.5)
   else
     places = 10^places
-    return num > 0 and math.floor(num * places + 0.5)
-                    or math.ceil(num * places - 0.5) / places
+    return n > 0 and math.floor(n * places + 0.5)
+                    or math.ceil(n * places - 0.5) / places
   end
 
 end
 
 
 -- Returns 'val', rounded to the nearest multiple of 'snap'
-Math.nearestmultiple = function (val, snap)
+Math.nearestmultiple = function (n, snap)
 
-  local int, frac = math.modf(val / snap)
+  local int, frac = math.modf(n / snap)
   return (math.floor( frac + 0.5 ) == 1 and int + 1 or int) * snap
 
 end
@@ -31,18 +33,15 @@ end
 -- Make sure num is between min and max
 -- I think it will return the correct value regardless of what
 -- order you provide the values in.
-Math.clamp = function (num, min, max)
-
-  if min > max then min, max = max, min end
-  return math.min(math.max(num, min), max)
-
+Math.clamp = function (n, a, b)
+  return math.min(math.max(n, a), b)
 end
 
 
 -- Returns an ordinal string (i.e. 30 --> 30th)
-Math.ordinal = function (num)
-  local rem = num % 10
-  num = Math.round(num)
+Math.ordinal = function (n)
+  local rem = n % 10
+  n = Math.round(n)
 
   local endings = {
     [1] = "st",
@@ -51,7 +50,7 @@ Math.ordinal = function (num)
     [3] = "rd",
   }
 
-  return num .. (endings[rem] or "")
+  return n .. (endings[rem] or "")
 end
 
 

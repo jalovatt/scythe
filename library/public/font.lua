@@ -50,8 +50,8 @@ end
 local fonts = get_OS_fonts()
 Font.fonts = {
 
-              -- Font, size, bold/italics/underline
-              -- 				^ One string: "b", "iu", etc.
+              -- Font,    size, bold/italics/underline
+              --                ^ One string: "b", "iu", etc.
               {fonts.sans, 32},	-- 1. Title
               {fonts.sans, 20},	-- 2. Header
               {fonts.sans, 16},	-- 3. Label

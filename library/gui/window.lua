@@ -20,6 +20,7 @@ Window.defaultProps = {
   isOpen = false,
   isRunning = true,
   needsRedraw = false,
+  onClose = function() Scythe.quit = true end,
 }
 
 function Window:new(props)
@@ -270,8 +271,6 @@ function Window:updateInputState()
   state.cur_w = gfx.w
   state.cur_h = gfx.h
 
-
-
   state.settooltip = function(str) self:settooltip(state.mouse.x, state.mouse.y, str) end
 
   self.state = state
@@ -319,14 +318,14 @@ function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
   local cx, cy = 0, 0
   if corner then
     local corners = {
-        TL = 	{0, 				0},
+        TL = 	{0, 				      0},
         T =		{(aw - w) / 2, 		0},
         TR = 	{(aw - w) - 16,		0},
         R =		{(aw - w) - 16,		(ah - h) / 2},
         BR = 	{(aw - w) - 16,		(ah - h) - 40},
         B =		{(aw - w) / 2, 		(ah - h) - 40},
-        BL = 	{0, 				(ah - h) - 40},
-        L =	 	{0, 				(ah - h) / 2},
+        BL = 	{0, 				      (ah - h) - 40},
+        L =	 	{0, 				      (ah - h) / 2},
         C =	 	{(aw - w) / 2,		(ah - h) / 2},
     }
 
@@ -349,7 +348,6 @@ end
 
 -- Display a tooltip
 function Window:settooltip(x, y, str)
-
   if not str or str == "" then return end
 
   --Lua: reaper.TrackCtl_SetToolTip(string fmt, integer xpos, integer ypos, boolean topmost)
@@ -402,14 +400,16 @@ function Window:drawDev()
 
   -- Draw a grid for placing elements
   Color.set("magenta")
-  gfx.setfont("Courier New", 10)
+  Font.set("monospace")
 
   for i = 0, self.w, Config.dev.grid_b do
 
-    local a = (i == 0) or (i % Config.dev.grid_a == 0)
+    local a = (i % Config.dev.grid_a == 0)
+
     gfx.a = a and 1 or 0.3
     gfx.line(i, 0, i, self.h)
     gfx.line(0, i, self.w, i)
+
     if a then
       gfx.x, gfx.y = i + 4, 4
       gfx.drawstr(i)
@@ -432,8 +432,8 @@ function Window:drawDev()
   Color.set("white")
   gfx.drawstr(str)
 
-  local snap_x, snap_y = Math.nearestmultiple(self.state.mouse.x, Config.dev.grid_b),
-                          Math.nearestmultiple(self.state.mouse.y, Config.dev.grid_b)
+  local snap_x = Math.nearestmultiple(self.state.mouse.x, Config.dev.grid_b)
+  local snap_y = Math.nearestmultiple(self.state.mouse.y, Config.dev.grid_b)
 
   gfx.x, gfx.y = self.w - str_w - 2, self.h - str_h - 2
   gfx.drawstr(" Snap: "..snap_x..", "..snap_y)

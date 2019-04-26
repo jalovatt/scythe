@@ -19,10 +19,10 @@ GFX.roundrect = function (x, y, w, h, r, antialias, fill)
     if h >= 2 * r then
 
       -- Corners
-      gfx.circle(x + r, y + r, r, 1, aa)			-- top-left
-      gfx.circle(x + w - r, y + r, r, 1, aa)		-- top-right
-      gfx.circle(x + w - r, y + h - r, r , 1, aa)	-- bottom-right
-      gfx.circle(x + r, y + h - r, r, 1, aa)		-- bottom-left
+      gfx.circle(x + r, y + r, r, 1, aa)			      -- top-left
+      gfx.circle(x + w - r, y + r, r, 1, aa)		    -- top-right
+      gfx.circle(x + w - r, y + h - r, r , 1, aa)	  -- bottom-right
+      gfx.circle(x + r, y + h - r, r, 1, aa)		    -- bottom-left
 
       -- Ends
       gfx.rect(x, y + r, r, h - r * 2)

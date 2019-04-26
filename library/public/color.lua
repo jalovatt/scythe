@@ -56,7 +56,6 @@ Color.set = function (col)
 
   -- If we're given a table of color values, just pass it right along
   if type(col) == "table" then
-
     gfx.set(col[1], col[2], col[3], col[4] or 1)
   else
     gfx.set(table.unpack(Color.colors[col]))
@@ -75,7 +74,6 @@ Color.hex2rgb = function (num)
   local red = string.sub(num, 1, 2)
   local green = string.sub(num, 3, 4)
   local blue = string.sub(num, 5, 6)
-
 
   red = tonumber(red, 16) or 0
   green = tonumber(green, 16) or 0
@@ -116,7 +114,6 @@ Color.rgb2hsv = function (r, g, b, a)
                           or	0
 
   return hue, sat, max, (a or 1)
-
 
 end
 

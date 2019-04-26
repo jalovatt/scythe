@@ -58,24 +58,19 @@ Text.get_text_width = function (str, font)
   if not Text.text_width then Text.init_txt_width() end
 
   local widths = Text.text_width[font]
-  local w = 0
-  for i = 1, string.len(str) do
 
-    w = w + widths[		string.byte(	string.sub(str, i, i)	) ]
-
-  end
-
-  return w
-
+  return Table.reduce(str:split("."),
+    function(acc, cur)
+      return acc + widths[ string.byte(cur) ]
+    end,
+    0
+  )
 end
 
 
 -- Measures a string to see how much of it will it in the given width,
 -- then returns both the trimmed string and the excess
 Text.fit_text_width = function (str, font, w)
-
-  -- local len = string.len(str)
-
   -- Assuming 'i' is the narrowest character, get an upper limit
   local max_end = math.floor( w / Text.text_width[font][string.byte("i")] )
 
@@ -124,7 +119,7 @@ Text.word_wrap = function (str, font, w, indent, pad)
 
   if not Text.text_width then Text.init_txt_width() end
 
-  local ret_str = {}
+  local ret_str = T{}
 
   local w_left, w_word
   local space = Text.text_width[font][string.byte(" ")]
@@ -137,19 +132,18 @@ Text.word_wrap = function (str, font, w, indent, pad)
 
   str:splitLines():forEach(function(line)
 
-    table.insert(ret_str, new_para)
+    ret_str:insert(new_para)
 
     -- Check for leading spaces and tabs
     local leading, rest = string.match(line, "^([%s\t]*)(.*)$")
-    if leading then table.insert(ret_str, leading) end
+    if leading then ret_str:insert(leading) end
 
     w_left = w
     rest:split("%s"):forEach(function(word)
-
       w_word = Text.get_text_width(word, font)
       if (w_word + space) > w_left then
 
-        table.insert(ret_str, new_line)
+        ret_str:insert(new_line)
         w_left = w - w_word
 
       else
@@ -158,19 +152,18 @@ Text.word_wrap = function (str, font, w, indent, pad)
 
       end
 
-      table.insert(ret_str, word)
-      table.insert(ret_str, " ")
+      ret_str:insert(word)
+      ret_str:insert(" ")
 
     end)
 
-    table.insert(ret_str, "\n")
+    ret_str:insert("\n")
 
   end)
 
-  table.remove(ret_str, #ret_str)
-  ret_str = table.concat(ret_str)
+  ret_str:remove(#ret_str)
 
-  return ret_str
+  return table.concat(ret_str)
 
 end
 

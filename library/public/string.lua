@@ -6,8 +6,16 @@ setmetatable(string, {__index = String})
 
 String.split = function(s, pattern)
   local out = T{}
-  for line in s:gmatch("[^" .. pattern .. "]+") do
-    out[#out + 1] = line
+
+  local matchPattern
+  if not pattern or pattern == "" or pattern == "." then
+    matchPattern = "."
+  else
+    matchPattern = ("[^" .. pattern .. "]+")
+  end
+
+  for segment in s:gmatch(matchPattern) do
+    out[#out + 1] = segment
   end
 
   return out
