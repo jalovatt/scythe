@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Const = {}
 
 Const.char = {

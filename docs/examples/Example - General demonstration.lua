@@ -12,13 +12,13 @@
 
 -- The Core library must be loaded prior to anything else
 
-local lib_path = reaper.GetExtState("Scythe", "lib_path_v3")
-if not lib_path or lib_path == "" then
+local libPath = reaper.GetExtState("Scythe", "libPath_v3")
+if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
--- local Scythe = loadfile(lib_path .. "scythe.lua")()
-loadfile(lib_path .. "scythe.lua")()
+-- local Scythe = loadfile(libPath .. "scythe.lua")()
+loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
 -- local Table, T = require("public.table"):unpack()
@@ -29,13 +29,13 @@ local GUI = require("gui.core")
 local layers
 
 
-local fade_elm, fade_layer
+local fadeElm, fadeLayer
 local function fade_lbl()
 
-  if fade_elm.layer then
-    fade_elm:fade(1, nil, 6)
+  if fadeElm.layer then
+    fadeElm:fade(1, nil, 6)
   else
-    fade_elm:fade(1, fade_layer, -6)
+    fadeElm:fade(1, fadeLayer, -6)
   end
 
 end
@@ -44,15 +44,15 @@ end
 
 -- Returns a list of every element on the specified z-layer and
 -- a second list of each element's values
-local function get_values_for_tab(tab_num)
+local function getValuesForTab(tab)
 
   -- The '+ 2' here is just to translate from a tab number to its'
   -- associated z layer. More complicated scripts would have to
-  -- actually access GUI.elms.tabs.z_sets[tab_num] and iterate over
+  -- actually access GUI.elms.tabs.z_sets[tab] and iterate over
   -- the table's contents (see the call to GUI.elms.tabs:update_sets
   -- below)
 
-  local layer = layers[tab_num + 2]
+  local layer = layers[tab + 2]
 
   local values = {}
   for key, elm in pairs(layer.elements) do
@@ -71,14 +71,14 @@ local function get_values_for_tab(tab_num)
 end
 
 
-local function btn_click()
+local function btnClick()
 
   -- Open the Window element
   -- Disabled until Window can be rewritten
   -- GUI.elms.wnd_test:open()
-  local tab_num = GUI.findElementByName("tabs"):val()
+  local tab = GUI.findElementByName("tabs"):val()
 
-  local msg = get_values_for_tab(tab_num)
+  local msg = getValuesForTab(tab)
   reaper.ShowMessageBox(msg, "Yay!", 0)
 
 end
@@ -145,7 +145,7 @@ layers[1]:addElements( GUI.createElements(
     w = 96,
     h = 20,
     caption = "Go!",
-    func = btn_click
+    func = btnClick
   },
   {
     name = "btn_frm",
@@ -159,12 +159,12 @@ layers[1]:addElements( GUI.createElements(
 
 layers[2]:addElements( GUI.createElement(
   {
-    name = "tab_bg",
+    name = "tabBg",
     type = "Frame",
     x = 0,
     y = 0,
     w = 448,
-    h = 20, -- false, true, "elm_bg", 0)
+    h = 20, -- false, true, "elmBg", 0)
   }
 ))
 
@@ -227,14 +227,14 @@ layers[3]:addElements( GUI.createElements(
     y = 288,
     w = 192,
     h = 128,
-    bg = "elm_bg",
+    bg = "elmBg",
     text = "this is a really long string of text with no carriage returns so hopefully "..
             "it will be wrapped correctly to fit inside this frame"
   }
 ))
 
-fade_elm = GUI.findElementByName("my_lbl")
-fade_layer = fade_elm.layer
+fadeElm = GUI.findElementByName("my_lbl")
+fadeLayer = fadeElm.layer
 
 -- We have too many values to be legible if we draw them all; we'll disable them, and
 -- have the knob's caption update itself to show the value instead.
@@ -255,7 +255,7 @@ my_knob:redraw()
 -- my_frm:val( "this is a really long string of text with no carriage returns so hopefully "..
 --             "it will be wrapped correctly to fit inside this frame"
 --           )
--- my_frm.bg = "elm_bg"
+-- my_frm.bg = "elmBg"
 
 
 -- ------------------------------------
@@ -359,7 +359,8 @@ layers[5]:addElements( GUI.createElements(
     h = 64,
     caption = "Whoa, another Checklist",
     options = {"A","B","C","_","E","F","G","_","I","J","K"},
-    dir = "h",
+    -- dir = "h",
+    horizontal = true,
     swap = true
   },
   {
@@ -371,7 +372,8 @@ layers[5]:addElements( GUI.createElements(
     h = 64,
     caption = "Horizontal options",
     options = {"A","A#","B","C","C#","D","D#","E","F","F#","G","G#"},
-    dir = "h"
+    -- dir = "h"
+    horizontal = true,
   }
 ))
 
@@ -383,7 +385,7 @@ layers[5]:addElements( GUI.createElements(
 
 -- GUI.New("wnd_test", "Window", 10, 0, 0, 312, 244, "Dialog Box", {9, 10})
 -- GUI.New("lbl_elms", "Label", 9, 16, 16, "", false, 4)
--- GUI.New("lbl_vals", "Label", 9, 96, 16, "", false, 4, nil, elm_bg)
+-- GUI.New("lbl_vals", "Label", 9, 96, 16, "", false, 4, nil, elmBg)
 -- GUI.New("btn_close", "Button", 9, 0, 184, 48, 24, "OK", wnd_OK)
 
 -- -- We want these elements out of the way until the window is opened
@@ -407,12 +409,12 @@ layers[5]:addElements( GUI.createElements(
 --     self:adjustelm(GUI.elms.lbl_vals)
 
 --     -- Set the Window's title
---  local tab_num = GUI.Val("tabs")
---     self.caption = "Element values for Tab " .. tab_num
+--  local tab = GUI.Val("tabs")
+--     self.caption = "Element values for Tab " .. tab
 
 --     -- This Window provides a readout of the values for every element
 --     -- on the current tab.
---     local strs_v, strs_val = get_values_for_tab(tab_num)
+--     local strs_v, strs_val = getValuesForTab(tab)
 
 --     GUI.Val("lbl_elms", table.concat(strs_v, "\n"))
 --     GUI.Val("lbl_vals", table.concat(strs_val, "\n"))

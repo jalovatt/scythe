@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local T = require("public.table")[2]
 
 local String = {}

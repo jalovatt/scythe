@@ -27,9 +27,9 @@ Menubar.defaultProps = {
   y = 0,
 
   font = 2,
-  col_txt = "txt",
-  col_bg = "elm_frame",
-  col_hover = "elm_fill",
+  textColor = "txt",
+  backgroundColor = "elmFrame",
+  hoverColor = "elmFill",
 
   w = 256,
   h = 24,
@@ -37,7 +37,7 @@ Menubar.defaultProps = {
   pad = 0,
 
   shadow = true,
-  fullwidth = true,
+  fullWidth = true,
 
   menus = {},
 
@@ -56,14 +56,14 @@ function Menubar:init()
 
   if gfx.w == 0 then return end
 
-  self.buff = self.buff or Buffer.get()
+  self.buffer = self.buffer or Buffer.get()
 
   -- We'll have to reset this manually since we're not running :init()
   -- until after the window is open
   local dest = gfx.dest
 
-  gfx.dest = self.buff
-  gfx.setimgdim(self.buff, -1, -1)
+  gfx.dest = self.buffer
+  gfx.setimgdim(self.buffer, -1, -1)
 
 
   -- Store some text measurements
@@ -77,13 +77,13 @@ function Menubar:init()
 
   end
 
-  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or self:measuretitles(nil, true)
+  self.w = self.fullWidth and (self.layer.window.currentW - self.x) or self:measureTitles(nil, true)
   self.h = self.h or gfx.texth
 
   -- Draw the background + shadow
-  gfx.setimgdim(self.buff, self.w, self.h * 2)
+  gfx.setimgdim(self.buffer, self.w, self.h * 2)
 
-  Color.set(self.col_bg)
+  Color.set(self.backgroundColor)
 
   gfx.rect(0, 0, self.w, self.h, true)
 
@@ -93,16 +93,16 @@ function Menubar:init()
   gfx.rect(0, self.h + 1, self.w, self.h, true)
   gfx.muladdrect(0, self.h + 1, self.w, self.h, 1, 1, 1, a, 0, 0, 0, 0 )
 
-  self.did_init = true
+  self.didInit = true
 
   gfx.dest = dest
 
 end
 
 
-function Menubar:ondelete()
+function Menubar:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -110,7 +110,7 @@ end
 
 function Menubar:draw()
 
-  if not self.did_init then self:init() end
+  if not self.didInit then self:init() end
 
   local x, y = self.x, self.y
   local w, h = self.w, self.h
@@ -118,21 +118,21 @@ function Menubar:draw()
   -- Blit the menu background + shadow
   if self.shadow then
 
-    for i = 1, Config.shadow_size do
+    for i = 1, Config.shadowSize do
 
-      gfx.blit(self.buff, 1, 0, 0, h, w, h, x, y + i, w, h)
+      gfx.blit(self.buffer, 1, 0, 0, h, w, h, x, y + i, w, h)
 
     end
 
   end
 
-  gfx.blit(self.buff, 1, 0, 0, 0, w, h, x, y, w, h)
+  gfx.blit(self.buffer, 1, 0, 0, 0, w, h, x, y, w, h)
 
   -- Draw menu titles
-  self:drawtitles()
+  self:drawTitles()
 
   -- Draw highlight
-  if self.mousemnu then self:drawhighlight() end
+  if self.mouseMenu then self:drawHover() end
 
 end
 
@@ -155,9 +155,9 @@ function Menubar:val(newval)
 end
 
 
-function Menubar:onresize()
+function Menubar:onResize()
 
-  if self.fullwidth then
+  if self.fullWidth then
     self:init()
     self:redraw()
   end
@@ -170,40 +170,46 @@ end
 ------------------------------------
 
 
-function Menubar:drawtitles()
+function Menubar:drawTitles()
 
   local currentX = self.x
 
   Font.set(self.font)
-  Color.set(self.col_txt)
+  Color.set(self.textColor)
 
   for i = 1, #self.menus do
 
     local str = self.menus[i].title
-    local str_w, str_h = gfx.measurestr(str)
+    local strWidth, strHeight = gfx.measurestr(str)
 
     gfx.x = currentX + (self.tab + self.pad) / 2
-    gfx.y = self.y + (self.h - str_h) / 2
+    gfx.y = self.y + (self.h - strHeight) / 2
 
     gfx.drawstr(str)
 
-    currentX = currentX + str_w + self.tab + self.pad
+    currentX = currentX + strWidth + self.tab + self.pad
 
   end
 
 end
 
 
-function Menubar:drawhighlight()
+function Menubar:drawHover()
 
-    if self.menus[self.mousemnu].title == "" then return end
+    if self.menus[self.mouseMenu].title == "" then return end
 
-    Color.set(self.col_hover)
+    Color.set(self.hoverColor)
     gfx.mode = 1
     --                                            Hover  Click
-    gfx.a = (self.mouse_down and self.mousemnu) and 0.3 or 0.5
+    gfx.a = (self.mouseDown and self.mouseMenu) and 0.3 or 0.5
 
-    gfx.rect(self.x + self.mousemnu_x, self.y, self.menus[self.mousemnu].width + self.tab + self.pad, self.h, true)
+    gfx.rect(
+      self.x + self.mouseMenuX,
+      self.y,
+      self.menus[self.mouseMenu].width + self.tab + self.pad,
+      self.h,
+      true
+    )
 
     gfx.a = 1
     gfx.mode = 0
@@ -219,11 +225,11 @@ end
 
 
 -- Make sure to disable the highlight if the mouse leaves
-function Menubar:onupdate(state)
+function Menubar:onUpdate(state)
 
-  if self.mousemnu and not self:isInside(state.mouse.x, state.mouse.y) then
-    self.mousemnu = nil
-    self.mousemnu_x = nil
+  if self.mouseMenu and not self:isInside(state.mouse.x, state.mouse.y) then
+    self.mouseMenu = nil
+    self.mouseMenuX = nil
     self:redraw()
 
     -- Skip the rest of the update loop for this elm
@@ -234,46 +240,46 @@ end
 
 
 
-function Menubar:onmouseup(state)
+function Menubar:onMouseUp(state)
 
-  if not self.mousemnu then return end
+  if not self.mouseMenu then return end
 
-  gfx.x, gfx.y = self.x + self:measuretitles(self.mousemnu - 1, true), self.y + self.h
-  local menu_str, sep_arr = self:prepmenu()
-  local opt = gfx.showmenu(menu_str)
+  gfx.x, gfx.y = self.x + self:measureTitles(self.mouseMenu - 1, true), self.y + self.h
+  local menuStr, separators = self:prepMenu()
+  local opt = gfx.showmenu(menuStr)
 
-	if #sep_arr > 0 then opt = self:stripseps(opt, sep_arr) end
+	if #separators > 0 then opt = self:stripSeparators(opt, separators) end
 
   if opt > 0 then
 
-    self.menus[self.mousemnu].options[opt][2]()
+    self.menus[self.mouseMenu].options[opt][2]()
 
   end
 
-  self.mouse_down = false
+  self.mouseDown = false
 	self:redraw()
 
 end
 
 
-function Menubar:onmousedown()
+function Menubar:onMouseDown()
 
-    self.mouse_down = true
+    self.mouseDown = true
     self:redraw()
 
 end
 
 
-function Menubar:onmouseover(state)
+function Menubar:onMouseOver(state)
 
-  local opt = self.mousemnu
+  local opt = self.mouseMenu
 
   local x = state.mouse.x - self.x
 
-  if  self.mousemnu_x and x > self:measuretitles(nil, true) then
+  if  self.mouseMenuX and x > self:measureTitles(nil, true) then
 
-    self.mousemnu = nil
-    self.mousemnu_x = nil
+    self.mouseMenu = nil
+    self.mouseMenuX = nil
     self:redraw()
 
     return
@@ -285,12 +291,12 @@ function Menubar:onmouseover(state)
   -- find which one the mouse is in.
   for i = 1, #self.menus do
 
-    if x <= self:measuretitles(i, true) then
+    if x <= self:measureTitles(i, true) then
 
-      self.mousemnu = i
-      self.mousemnu_x = self:measuretitles(i - 1, true)
+      self.mouseMenu = i
+      self.mouseMenuX = self:measureTitles(i - 1, true)
 
-      if self.mousemnu ~= opt then self:redraw() end
+      if self.mouseMenu ~= opt then self:redraw() end
 
       return
     end
@@ -300,9 +306,9 @@ function Menubar:onmouseover(state)
 end
 
 
-function Menubar:ondrag(state)
+function Menubar:onDrag(state)
 
-  self:onmouseover(state)
+  self:onMouseOver(state)
 
 end
 
@@ -328,7 +334,7 @@ end
 -- Returns the length of the specified number of menu titles, or
 -- all of them if 'num' isn't given
 -- Will include tabs + padding if tabs = true
-function Menubar:measuretitles(num, tabs)
+function Menubar:measureTitles(num, tabs)
 
   local len = 0
 
@@ -346,39 +352,39 @@ end
 -- Parse the current menu into a string for gfx.showmenu
 -- Returns the string and a table of separators for offsetting the
 -- value returned when the user clicks something.
-function Menubar:prepmenu()
+function Menubar:prepMenu()
 
-  local arr = self.menus[self.mousemnu].options
+  local arr = self.menus[self.mouseMenu].options
 
-  local sep_arr = {}
-	local str_arr = {}
+  local separators = {}
+	local menus = {}
 
 	for i = 1, #arr do
 
-    table.insert(str_arr, arr[i][1])
+    table.insert(menus, arr[i][1])
 
-		if str_arr[#str_arr] == ""
-		or string.sub(str_arr[#str_arr], 1, 1) == ">" then
-			table.insert(sep_arr, i)
+		if menus[#menus] == ""
+		or string.sub(menus[#menus], 1, 1) == ">" then
+			table.insert(separators, i)
 		end
 
-		table.insert( str_arr, "|" )
+		table.insert( menus, "|" )
 
 	end
 
-	local menu_str = table.concat( str_arr )
+	local menuStr = table.concat( menus )
 
-	return string.sub(menu_str, 1, string.len(menu_str) - 1), sep_arr
+	return string.sub(menuStr, 1, string.len(menuStr) - 1), separators
 
 end
 
 
 -- Adjust the returned value to account for any separators,
 -- since gfx.showmenu doesn't count them
-function Menubar:stripseps(opt, sep_arr)
+function Menubar:stripSeparators(opt, separators)
 
-  for i = 1, #sep_arr do
-    if opt >= sep_arr[i] then
+  for i = 1, #separators do
+    if opt >= separators[i] then
       opt = opt + 1
     else
       break

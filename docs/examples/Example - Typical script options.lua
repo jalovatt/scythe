@@ -9,12 +9,12 @@
 
 -- The Core library must be loaded prior to anything else
 
-local lib_path = reaper.GetExtState("Scythe", "lib_path_v3")
-if not lib_path or lib_path == "" then
+local libPath = reaper.GetExtState("Scythe", "libPath_v3")
+if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
-loadfile(lib_path .. "scythe.lua")()
+loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
 
@@ -76,7 +76,6 @@ window = GUI.createWindow({
   h = 200,
   anchor = "mouse",
   corner = "C",
-  onClose = function() GUI.quit = true end,
 })
 
 

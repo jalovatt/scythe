@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Button class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/TextEditor
-
-    Creation parameters:
-	name, z, x, y, w, h, caption, func[, ...]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -33,8 +23,8 @@ Button.defaultProps = {
 
   caption = "Button",
   font = 3,
-  col_txt = "txt",
-  col_fill = "elm_frame",
+  textColor = "txt",
+  fillColor = "elmFrame",
 
   func = function () end,
   params = {},
@@ -50,33 +40,31 @@ end
 
 
 function Button:init()
-	self.buff = self.buff or Buffer.get()
+	self.buffer = self.buffer or Buffer.get()
 
-	gfx.dest = self.buff
-	gfx.setimgdim(self.buff, -1, -1)
-  gfx.setimgdim(self.buff, 2*self.w + 4, self.h + 2)
+	gfx.dest = self.buffer
+	gfx.setimgdim(self.buffer, -1, -1)
+  gfx.setimgdim(self.buffer, 2*self.w + 4, self.h + 2)
 
-	Color.set(self.col_fill)
-	GFX.roundrect(1, 1, self.w, self.h, 4, 1, 1)
-	Color.set("elm_outline")
-	GFX.roundrect(1, 1, self.w, self.h, 4, 1, 0)
+	Color.set(self.fillColor)
+	GFX.roundRect(1, 1, self.w, self.h, 4, 1, 1)
+	Color.set("elmOutline")
+	GFX.roundRect(1, 1, self.w, self.h, 4, 1, 0)
 
 	local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
-	GFX.roundrect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
+	GFX.roundRect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 end
 
 
-function Button:ondelete()
+function Button:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
 
-
--- Button - Draw.
 function Button:draw()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
@@ -85,38 +73,38 @@ function Button:draw()
 	-- Draw the shadow if not pressed
 	if state == 0 then
 
-		for i = 1, Config.shadow_size do
+		for i = 1, Config.shadowSize do
 
-			gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
+			gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 
 		end
 
 	end
 
-	gfx.blit(self.buff, 1, 0, 0, 0, w + 2, h + 2, x + 2 * state - 1, y + 2 * state - 1)
+	gfx.blit(self.buffer, 1, 0, 0, 0, w + 2, h + 2, x + 2 * state - 1, y + 2 * state - 1)
 
 	-- Draw the caption
-	Color.set(self.col_txt)
+	Color.set(self.textColor)
 	Font.set(self.font)
 
   local str = self:formatOutput(self.caption)
   str = str:gsub([[\n]],"\n")
 
-	local str_w, str_h = gfx.measurestr(str)
-	gfx.x = x + 2 * state + ((w - str_w) / 2)
-	gfx.y = y + 2 * state + ((h - str_h) / 2)
+	local strWidth, strHeight = gfx.measurestr(str)
+	gfx.x = x + 2 * state + ((w - strWidth) / 2)
+	gfx.y = y + 2 * state + ((h - strHeight) / 2)
 	gfx.drawstr(str)
 
 end
 
 
-function Button:onmousedown()
+function Button:onMouseDown()
 	self.state = 1
 	self:redraw()
 end
 
 
-function Button:onmouseup(state)
+function Button:onMouseUp(state)
 	self.state = 0
 
 	if self:isInside(state.mouse.x, state.mouse.y) then
@@ -127,17 +115,16 @@ function Button:onmouseup(state)
 	self:redraw()
 end
 
-function Button:ondoubleclick()
+function Button:onDoubleclick()
 
 	self.state = 0
 
 end
 
-function Button:onmouser_up(state)
+function Button:onRightMouseUp(state)
+	if self:isInside(state.mouse.x, state.mouse.y) and self.rightFunc then
 
-	if self:isInside(state.mouse.x, state.mouse.y) and self.r_func then
-
-		self.r_func(table.unpack(self.r_params))
+		self.rightFunc(table.unpack(self.rightParams))
 
 	end
 end
@@ -148,7 +135,7 @@ end
 function Button:exec(r)
 
 	if r then
-		self.r_func(table.unpack(self.r_params))
+		self.rightFunc(table.unpack(self.rightParams))
 	else
 		self.func(table.unpack(self.params))
 	end

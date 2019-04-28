@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Table, T = require("public.table"):unpack()
 
 local Buffer = {}

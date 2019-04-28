@@ -22,18 +22,18 @@ function Radio:new(props)
 end
 
 
-function Radio:initoptions()
+function Radio:initOptions()
 
-	local r = self.opt_size / 2
+	local r = self.optionSize / 2
 
 	-- Option bubble
 	Color.set(self.bg)
 	gfx.circle(r + 1, r + 1, r + 2, 1, 0)
 	gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
-	Color.set("elm_frame")
+	Color.set("elmFrame")
 	gfx.circle(r + 1, r + 1, r, 0)
 	gfx.circle(3*r + 3, r + 1, r, 0)
-	Color.set(self.col_fill)
+	Color.set(self.fillColor)
 	gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
 
 
@@ -53,16 +53,16 @@ function Radio:val(newval)
 end
 
 
-function Radio:onmousedown(state)
+function Radio:onMouseDown(state)
 
-	self.state = self:getmouseopt(state) or self.state
+	self.state = self:getMouseOption(state) or self.state
 
 	self:redraw()
 
 end
 
 
-function Radio:onmouseup(state)
+function Radio:onMouseUp(state)
 
   -- Bypass option for GUI Builder
   if not self.focus then
@@ -71,7 +71,7 @@ function Radio:onmouseup(state)
   end
 
 	-- Set the new option, or revert to the original if the cursor
-    -- isn't inside the list anymore
+  -- isn't inside the list anymore
 	if self:isInside(state.mouse.x, state.mouse.y) then
 		self.retval = self.state
 	else
@@ -84,18 +84,17 @@ function Radio:onmouseup(state)
 end
 
 
-function Radio:ondrag(state)
+function Radio:onDrag(state)
 
-	self:onmousedown(state)
-
+	self:onMouseDown(state)
 	self:redraw()
 
 end
 
 
-function Radio:onwheel(state)
+function Radio:onWheel(state)
 
-  self.state = self:getnextoption(    ( (state.mouse.inc > 0) ~= (self.dir == "h") )
+  self.state = self:getNextOption(    ( (state.mouse.wheelInc > 0) ~= self.horizontal )
                                       and -1
                                       or 1 )
 
@@ -106,14 +105,14 @@ function Radio:onwheel(state)
 end
 
 
-function Radio:isoptselected(opt)
+function Radio:isOptionSelected(opt)
 
   return opt == self.state
 
 end
 
 
-function Radio:getnextoption(dir)
+function Radio:getNextOption(dir)
 
   local j = dir > 0 and #self.options or 1
 

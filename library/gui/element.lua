@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 ------------------------------------
 -------- Prototype element ---------
 ----- + all default methods --------
@@ -33,11 +35,11 @@ function Element:redraw()
 end
 
 -- Called on every update loop, unless the element is hidden or frozen
-function Element:onupdate() end
+function Element:onUpdate() end
 
 function Element:delete()
 
-  self.ondelete(self)
+  self.onDelete(self)
   if self.layer then self.layer:remove(self) end
 
 end
@@ -45,7 +47,7 @@ end
 -- Called when the element is deleted by GUI.update_elms_list() or :delete.
 -- Use it for freeing up buffers and anything else memorywise that this
 -- element was doing
-function Element:ondelete() end
+function Element:onDelete() end
 
 
 -- Set or return the element's value
@@ -53,57 +55,57 @@ function Element:ondelete() end
 -- value internally as what it's displaying
 function Element:val() end
 
-function Element:onmouseenter() end
-function Element:onmouseleave() end
+function Element:onMouseEnter() end
+function Element:onMouseLeave() end
 
 -- Called on every update loop if the mouse is over this element.
-function Element:onmouseover() end
+function Element:onMouseOver() end
 
 -- Only called once; won't repeat if the button is held
-function Element:onmousedown() end
+function Element:onMouseDown() end
 
-function Element:onmouseup() end
-function Element:ondoubleclick() end
+function Element:onMouseUp() end
+function Element:onDoubleclick() end
 
 -- Will continue being called even if you drag outside the element
-function Element:ondrag() end
+function Element:onDrag() end
 
 -- Right-click
-function Element:onr_mousedown() end
-function Element:onr_mouseup() end
-function Element:onr_doubleclick() end
-function Element:onr_drag() end
+function Element:onRightMouseDown() end
+function Element:onRightMouseUp() end
+function Element:onRightDoubleclick() end
+function Element:onRightDrag() end
 
 -- Middle-click
-function Element:onm_mousedown() end
-function Element:onm_mouseup() end
-function Element:onm_doubleclick() end
-function Element:onm_drag() end
+function Element:onMiddleMouseDown() end
+function Element:onMiddleMouseUp() end
+function Element:onMiddleDoubleclick() end
+function Element:onMiddleDrag() end
 
-function Element:onwheel() end
-function Element:ontype() end
+function Element:onWheel() end
+function Element:onType() end
 
 
 -- Elements like a Textbox that need to keep track of their focus
 -- state will use this to e.g. update the text somewhere else
 -- when the user clicks out of the box.
-function Element:onlostfocus() end
+function Element:onLostFocus() end
 
 -- Called when the script window has been resized
-function Element:onresize() end
+function Element:onResize() end
 
 
 --	See if the any of the given element's methods need to be called
 function Element:Update(state, last)
 
-  local skip = self:onupdate(state, last)
+  local skip = self:onUpdate(state, last)
 
-  if state.resized then self:onresize(state, last) end
+  if state.resized then self:onResize(state, last) end
 
-  if state.elm_updated then
+  if state.elmUpdated then
     if self.focus then
       self.focus = false
-      self:onlostfocus(state, last)
+      self:onLostFocus(state, last)
     end
 
     return
@@ -120,17 +122,17 @@ function Element:Update(state, last)
       down = "leftDown",
     },
     {
-      btn = "r_",
+      btn = "Right",
       down = "rightDown",
     },
     {
-      btn = "m_",
+      btn = "Middle",
       down = "middleDown",
     },
   }
 
   for _, button in ipairs(buttons) do
-    if state.elm_updated then break end
+    if state.elmUpdated then break end
 
     if state.mouse[button.down] then
 
@@ -142,103 +144,103 @@ function Element:Update(state, last)
 
           if self.focus then
             self.focus = false
-            self:onlostfocus(state, last)
+            self:onLostFocus(state, last)
           end
 
           return
         else
-          state.mouse.down_elm = self
+          state.mouse.downElm = self
 
           -- Double clicked?
-          if state.mouse.downtime
-          and reaper.time_precise() - state.mouse.downtime < Config.doubleclick_time
+          if state.mouse.downTime
+          and reaper.time_precise() - state.mouse.downTime < Config.doubleclickTime
           then
 
-            state.mouse.downtime = nil
-            state.mouse.dbl_clicked = true
-            self["on"..button.btn.."doubleclick"](self, state, last)
+            state.mouse.downTime = nil
+            state.mouse.doubleClicked = true
+            self["on"..button.btn.."Doubleclick"](self, state, last)
 
-          elseif not state.mouse.dbl_clicked then
+          elseif not state.mouse.doubleClicked then
 
-            state.mouse.downtime = reaper.time_precise()
+            state.mouse.downTime = reaper.time_precise()
             self.focus = true
-            self["on"..button.btn.."mousedown"](self, state, last)
+            self["on"..button.btn.."MouseDown"](self, state, last)
 
           end
 
-          state.elm_updated = true
+          state.elmUpdated = true
 
           state.mouse.ox, state.mouse.oy = x, y
 
           -- Where in the element the mouse was clicked. For dragging stuff
           -- and keeping it in the place relative to the cursor.
-          state.mouse.off_x, state.mouse.off_y = x - self.x, y - self.y
+          state.mouse.relativeX, state.mouse.relativeY = x - self.x, y - self.y
 
         end
 
       -- 		Dragging? Did the mouse start out in this element?
-      elseif last.mouse.down_elm == self then
+      elseif last.mouse.downElm == self then
 
         if (state.mouse.dx ~= 0 or state.mouse.dy ~= 0)
         and self.focus ~= false then
 
-          state.elm_updated = true
-          self["on"..button.btn.."drag"](self, state, last)
+          state.elmUpdated = true
+          self["on"..button.btn.."Drag"](self, state, last)
 
         end
-        state.mouse.down_elm = last.mouse.down_elm
+        state.mouse.downElm = last.mouse.downElm
       end
 
     -- If it was originally clicked in this element and has been released
     -- Important: Clicking in an element, moving the cursor, and releasing the
-    -- mouse outside of the element will still trigger an :onmouseup, since
+    -- mouse outside of the element will still trigger an :onMouseUp, since
     -- elements like the Button need to know that the mouse has been released.
     -- Elements should check if state.mouse is inside them
-    elseif last.mouse[button.down] and last.mouse.down_elm == self then
+    elseif last.mouse[button.down] and last.mouse.downElm == self then
 
-      state.mouse.down_elm = nil
+      state.mouse.downElm = nil
 
-      if not state.mouse.dbl_clicked then
+      if not state.mouse.doubleClicked then
 
-        self["on"..button.btn.."mouseup"](self, state, last)
+        self["on"..button.btn.."MouseUp"](self, state, last)
       end
 
-      state.elm_updated = true
+      state.elmUpdated = true
 
     end
   end
 
   -- If the mouse is hovering over the element
   if inside then
-    state.mouseover_elm = self
-    if not state.mouse.down and not state.mouse.r_down then
+    state.mouseOverElm = self
+    if not state.mouse.down and not state.mouse.rightDown then
 
       -- Initial mouseover an element
-      if last.mouseover_elm ~= self then
-        self:onmouseenter(state, last)
-        state.mouse.over_time = reaper.time_precise()
+      if last.mouseOverElm ~= self then
+        self:onMouseEnter(state, last)
+        state.mouse.mouseOverTime = reaper.time_precise()
 
       else
-        self:onmouseover(state, last)
+        self:onMouseOver(state, last)
         -- Mouse was moved; reset the timer
         if state.mouse.dx ~= 0 or state.mouse.dy ~= 0 then
 
-          state.mouse.over_time = reaper.time_precise()
+          state.mouse.mouseOverTime = reaper.time_precise()
 
         -- Display a tooltip
         elseif self.tooltip
-          and (reaper.time_precise() - state.mouse.over_time)
-                >= Config.tooltip_time then
+          and (reaper.time_precise() - state.mouse.mouseOverTime)
+                >= Config.tooltipTime then
 
-          state.settooltip(self.tooltip)
+          state.setTooltip(self.tooltip)
 
         end
       end
     end
 
   else
-    if last.mouseover_elm == self then
-      self:onmouseleave()
+    if last.mouseOverElm == self then
+      self:onMouseLeave()
     end
   end
 
@@ -246,17 +248,17 @@ function Element:Update(state, last)
   -- If the mousewheel's state has changed
   if inside and state.mouse.wheel ~= last.mouse.wheel then
 
-    state.mouse.inc = (state.mouse.wheel - last.mouse.wheel) / 120
+    state.mouse.wheelInc = (state.mouse.wheel - last.mouse.wheel) / 120
 
-    self:onwheel(state, last)
-    state.elm_updated = true
+    self:onWheel(state, last)
+    state.elmUpdated = true
 
   end
 
   -- If the element is in focus and the user typed something
   if self.focus and state.kb.char ~= 0 then
-    self:ontype(state, last)
-    state.elm_updated = true
+    self:onType(state, last)
+    state.elmUpdated = true
   end
 
 end
@@ -279,8 +281,8 @@ function Element:center (elm1, elm2)
     or (elm1.layer and elm1.layer.window and {
       x = 0,
       y = 0,
-      w = elm1.layer.window.cur_w,
-      h = elm1.layer.window.cur_h
+      w = elm1.layer.window.currentW,
+      h = elm1.layer.window.currentH
     })
 
   if not elm2
@@ -294,7 +296,7 @@ end
 
 -- Returns the specified parameters for a given element.
 -- If nothing is specified, returns all of the element's properties.
--- ex. local str = GUI.Elements.my_element:Msg("x", "y", "caption", "col_txt")
+-- ex. local str = GUI.Elements.my_element:Msg("x", "y", "caption", "textColor")
 function Element:debug(...)
 
   local arg = {...}
@@ -350,7 +352,8 @@ function Element:moveToLayer(dest)
   if dest then dest:addElements(self) end
 end
 
--- Not strictly necessary, but offers easy access to an element's parent class
+-- .prototyep isn't strictly necessary, but it offers easy access to an
+-- element's parent class
 function Element:assignChild(instance)
   setmetatable(instance, self)
   instance.prototype = self

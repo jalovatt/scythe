@@ -1,3 +1,4 @@
+-- NoIndex: true
 -- luacheck: globals Scythe
 local Error = {}
 
@@ -7,16 +8,16 @@ Error.crash = function (errObject, skipMsg)
 
   if Error.oncrash then Error.oncrash() end
 
-  local by_line = "([^\r\n]*)\r?\n?"
-  local trim_path = "[\\/]([^\\/]-:%d+:.+)$"
-  local err = errObject   and string.match(errObject, trim_path)
+  local byLine = "([^\r\n]*)\r?\n?"
+  local trimPath = "[\\/]([^\\/]-:%d+:.+)$"
+  local err = errObject   and string.match(errObject, trimPath)
                           or  "Couldn't get error message."
 
   local trace = debug.traceback()
   local stack = {}
-  for line in string.gmatch(trace, by_line) do
+  for line in string.gmatch(trace, byLine) do
 
-    local str = string.match(line, trim_path) or line
+    local str = string.match(line, trimPath) or line
 
     stack[#stack + 1] = str
   end
@@ -47,9 +48,9 @@ Error.crash = function (errObject, skipMsg)
 end
 
 -- Checks for Reaper's "restricted permissions" script mode
-if Scythe.script_restricted then
+if Scythe.scriptRestricted then
 
-  Error.error_restricted = function()
+  Error.errorRestricted = function()
 
       -- luacheck: push ignore 631
       reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
@@ -59,13 +60,12 @@ if Scythe.script_restricted then
                   "Script Error", 0)
       -- luacheck: pop
 
-      Error.pushErrorMessage = "(Script was run in restricted mode)"
       error("Restricted permissions")
 
   end
 
-  os = setmetatable({}, { __index = Error.error_restricted }) -- luacheck: ignore 121
-  io = setmetatable({}, { __index = Error.error_restricted }) -- luacheck: ignore 121
+  os = setmetatable({}, { __index = Error.errorRestricted }) -- luacheck: ignore 121
+  io = setmetatable({}, { __index = Error.errorRestricted }) -- luacheck: ignore 121
 
 end
 

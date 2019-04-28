@@ -9,12 +9,12 @@
 
 -- The Core library must be loaded prior to anything else
 
-local lib_path = reaper.GetExtState("Scythe", "lib_path_v3")
-if not lib_path or lib_path == "" then
+local libPath = reaper.GetExtState("Scythe", "libPath_v3")
+if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
-loadfile(lib_path .. "scythe.lua")()
+loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
 local _, T = require("public.table"):unpack()
@@ -192,7 +192,7 @@ for i = 1, #items do
 end
 
 
-local function add_text()
+local function addText()
 
 	-- Get the list box's selected item(s)
 	local selected = GUI.Val("lst_titles")
@@ -238,7 +238,6 @@ local window = GUI.createWindow({
   h = 272,
   anchor = "mouse",
   corner = "C",
-  onClose = function() GUI.quit = true end,
 })
 
 ------------------------------------
@@ -262,7 +261,7 @@ window:addLayers(
       type = "Menubar",
       x = 0,
       y = 0,
-      w = window.cur_w,
+      w = window.currentW,
       menus = menus,
     },
     {
@@ -275,7 +274,7 @@ window:addLayers(
       caption = "",
       multi = true,
       list = titles,
-      ondoubleclick = function(self) add_text() end
+      onDoubleclick = function(self) addText() end
     },
     {
       name = "btn_go",
@@ -285,7 +284,7 @@ window:addLayers(
       w = 32,
       h = 24,
       caption = "-->",
-      func = add_text
+      func = addText
     },
     {
       name = "txted_text",
@@ -301,12 +300,12 @@ window:addLayers(
 
 -- GUI.New("mnu_menu", "Menubar",      1,  0,   0,   menus, GUI.w)
 -- GUI.New("lst_titles", "Listbox",	1,	16,  40,  300, 208, "", true)
--- GUI.New("btn_go", "Button",			1,	324, 104, 32,  24, "-->", add_text)
+-- GUI.New("btn_go", "Button",			1,	324, 104, 32,  24, "-->", addText)
 -- GUI.New("txted_text", "TextEditor",	1,	364, 40,  420, 208, "Select an item\nor two\nor three\nor everything\n\nin the list and click the button!")
 
--- function GUI.elms.lst_titles:ondoubleclick()
+-- function GUI.elms.lst_titles:onDoubleclick()
 
--- 	add_text()
+-- 	addText()
 
 -- end
 

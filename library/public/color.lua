@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Color = {}
 
 
@@ -5,12 +7,12 @@ local Color = {}
 Color.colors = {
 
     -- Element colors
-    wnd_bg = {64, 64, 64, 255},			-- Window BG
-    tab_bg = {56, 56, 56, 255},			-- Tabs BG
-    elm_bg = {48, 48, 48, 255},			-- Element BG
-    elm_frame = {96, 96, 96, 255},		-- Element Frame
-    elm_fill = {64, 192, 64, 255},		-- Element Fill
-    elm_outline = {32, 32, 32, 255},	-- Element Outline
+    windowBg = {64, 64, 64, 255},			-- Window BG
+    tabBg = {56, 56, 56, 255},			-- Tabs BG
+    elmBg = {48, 48, 48, 255},			-- Element BG
+    elmFrame = {96, 96, 96, 255},		-- Element Frame
+    elmFill = {64, 192, 64, 255},		-- Element Fill
+    elmOutline = {32, 32, 32, 255},	-- Element Outline
     txt = {192, 192, 192, 255},			-- Text
 
     shadow = {0, 0, 0, 48},				-- Element Shadows
@@ -47,7 +49,7 @@ Color.colors = {
 
 --[[	Apply a color preset
 
-    col			Color preset string -> "elm_fill"
+    col			Color preset string -> "elmFill"
                 or
                 Color table -> {1, 0.5, 0.5[, 1]}
                                 R  G    B  [  A]
@@ -65,7 +67,7 @@ end
 
 
 -- Convert a hex color RRGGBB to 8-bit values R, G, B
-Color.hex2rgb = function (num)
+Color.hexToRgb = function (num)
 
   if string.sub(num, 1, 2) == "0x" then
     num = string.sub(num, 3)
@@ -86,7 +88,7 @@ end
 
 -- Convert rgb[a] to hsv[a]; useful for gradients
 -- Arguments/returns are given as 0-1
-Color.rgb2hsv = function (r, g, b, a)
+Color.rgbToHsv = function (r, g, b, a)
 
   local max = math.max(r, g, b)
   local min = math.min(r, g, b)
@@ -119,7 +121,7 @@ end
 
 
 -- ...and back the other way
-Color.hsv2rgb = function (h, s, v, a)
+Color.hsvToRgb = function (h, s, v, a)
 
   local chroma = v * s
 
@@ -154,45 +156,45 @@ end
     Returns the color for a given position on an HSV gradient
     between two color presets
 
-    col_a		Tables of {R, G, B[, A]}, values from 0-1
-    col_b
+    colorA		Tables of {R, G, B[, A]}, values from 0-1
+    colorB
 
-    pos			Position along the gradient, 0 = col_a, 1 = col_b
+    pos			Position along the gradient, 0 = colorA, 1 = colorB
 
     returns		r, g, b, a
 
 ]]--
-Color.gradient = function (col_a, col_b, pos)
+Color.gradient = function (colorA, colorB, pos)
 
-  col_a = {
-    Color.rgb2hsv(
+  colorA = {
+    Color.rgbToHsv(
       table.unpack(
-        type(col_a) == "table"
-          and col_a
-          or  Color.colors(col_a)
+        type(colorA) == "table"
+          and colorA
+          or  Color.colors(colorA)
       )
     )
   }
 
-  col_b = {
-    Color.rgb2hsv(
+  colorB = {
+    Color.rgbToHsv(
       table.unpack(
-        type(col_b) == "table"
-          and col_b
-          or  Color.colors(col_b)
+        type(colorB) == "table"
+          and colorB
+          or  Color.colors(colorB)
       )
     )
   }
 
-  local h = math.abs(col_a[1] + (pos * (col_b[1] - col_a[1])))
-  local s = math.abs(col_a[2] + (pos * (col_b[2] - col_a[2])))
-  local v = math.abs(col_a[3] + (pos * (col_b[3] - col_a[3])))
+  local h = math.abs(colorA[1] + (pos * (colorB[1] - colorA[1])))
+  local s = math.abs(colorA[2] + (pos * (colorB[2] - colorA[2])))
+  local v = math.abs(colorA[3] + (pos * (colorB[3] - colorA[3])))
 
-  local a = (#col_a == 4)
-      and  (math.abs(col_a[4] + (pos * (col_b[4] - col_a[4]))))
+  local a = (#colorA == 4)
+      and  (math.abs(colorA[4] + (pos * (colorB[4] - colorA[4]))))
       or  1
 
-  return Color.hsv2rgb(h, s, v, a)
+  return Color.hsvToRgb(h, s, v, a)
 
 end
 

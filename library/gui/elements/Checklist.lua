@@ -14,22 +14,22 @@ function Checklist:new(props)
 
     checklist.type = "Checklist"
 
-    checklist.optsel = checklist.optsel or {}
+    checklist.selectedOptions = checklist.selectedOptions or {}
 
     return self:assignChild(checklist)
 end
 
 
-function Checklist:initoptions()
+function Checklist:initOptions()
 
-	local size = self.opt_size
+	local size = self.optionSize
 
 	-- Option bubble
-	Color.set("elm_frame")
+	Color.set("elmFrame")
 	gfx.rect(1, 1, size, size, 0)
   gfx.rect(size + 3, 1, size, size, 0)
 
-	Color.set(self.col_fill)
+	Color.set(self.fillColor)
 	gfx.rect(size + 3 + 0.25*size, 1 + 0.25*size, 0.5*size, 0.5*size, 1)
 
 end
@@ -40,21 +40,19 @@ function Checklist:val(newval)
 	if newval then
 		if type(newval) == "table" then
 			for k, v in pairs(newval) do
-				self.optsel[tonumber(k)] = v
+				self.selectedOptions[tonumber(k)] = v
 			end
-			self:redraw()
     elseif type(newval) == "boolean" and #self.options == 1 then
-
-      self.optsel[1] = newval
-      self:redraw()
-		end
+      self.selectedOptions[1] = newval
+    end
+    self:redraw()
 	else
     if #self.options == 1 then
-      return self.optsel[1]
+      return self.selectedOptions[1]
     else
       local tmp = {}
       for i = 1, #self.options do
-        tmp[i] = not not self.optsel[i]
+        tmp[i] = not not self.selectedOptions[i]
       end
       return tmp
     end
@@ -63,13 +61,13 @@ function Checklist:val(newval)
 end
 
 
-function Checklist:onmouseup(state)
+function Checklist:onMouseUp(state)
 
-  local mouseopt = self:getmouseopt(state)
+  local mouseOption = self:getMouseOption(state)
 
-  if not mouseopt then return end
+  if not mouseOption then return end
 
-	self.optsel[mouseopt] = not self.optsel[mouseopt]
+	self.selectedOptions[mouseOption] = not self.selectedOptions[mouseOption]
 
   self.focus = false
 	self:redraw()
@@ -77,9 +75,9 @@ function Checklist:onmouseup(state)
 end
 
 
-function Checklist:isoptselected(opt)
+function Checklist:isOptionSelected(opt)
 
-  return self.optsel[opt]
+  return self.selectedOptions[opt]
 
 end
 

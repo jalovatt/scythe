@@ -6,7 +6,7 @@
     https://github.com/jalovatt/Lokasenna_GUI/wiki/Tabs
 
     Creation parameters:
-    name, z, x, y, tab_w, tab_h, opts[, pad]
+    name, z, x, y, tabW, tabH, opts[, pad]
 
 ]]--
 
@@ -25,29 +25,29 @@ Tabs.defaultProps = {
 
   x = 0,
   y = 0,
-  tab_w = 72,
-  tab_h = 20,
+  tabW = 72,
+  tabH = 20,
 
-  font_a = 3,
-  font_b = 4,
+  captionFont = 3,
+  textFont = 4,
 
-  bg = "elm_bg",
-  col_txt = "txt",
-  col_tab_a = "wnd_bg",
-  col_tab_b = "tab_bg",
+  bg = "elmBg",
+  textColor = "txt",
+  tabColorActive = "windowBg",
+  tabColorInactive = "tabBg",
 
   -- Placeholder for if I ever figure out downward tabs
   dir = "u",
 
   pad = 8,
 
-  first_tab_offset = 16,
+  firstTabOffset = 16,
 
   -- Currently-selected option
   retval = 1,
   state = 1,
 
-  fullwidth = true,
+  fullWidth = true,
 }
 
 function Tabs:new(props)
@@ -58,8 +58,8 @@ function Tabs:new(props)
 
 	-- Figure out the total size of the tab frame now that we know the
   -- number of buttons, so we can do the math for clicking on it
-  tab.w = (tab.tab_w + tab.pad) * #tab.tabs + 2*tab.pad + 12
-  tab.h = tab.tab_h
+  tab.w = (tab.tabW + tab.pad) * #tab.tabs + 2*tab.pad + 12
+  tab.h = tab.tabH
 
 	return self:assignChild(tab)
 end
@@ -68,18 +68,18 @@ end
 function Tabs:init()
 
   self.buffer = self.buffer or Buffer.get()
-  self:update_sets()
+  self:updateSets()
 
-  self.buffer_size = (#self.tabs * (self.tab_w + 4))
+  self.bufferSize = (#self.tabs * (self.tabW + 4))
 
   gfx.dest = self.buffer
   gfx.setimgdim(self.buffer, -1, -1)
-  gfx.setimgdim(self.buffer, self.buffer_size, self.buffer_size)
+  gfx.setimgdim(self.buffer, self.bufferSize, self.bufferSize)
 
   Color.set(self.bg)
-  gfx.rect(0, 0, self.buffer_size, self.buffer_size, true)
+  gfx.rect(0, 0, self.bufferSize, self.bufferSize, true)
 
-  local x_adj = self.tab_w + self.pad - self.tab_h
+  local xOffset = self.tabW + self.pad - self.tabH
 
   -- Because of anti-aliasing, we can't just draw and blit the tabs individually
   -- We'll draw the entire row separately for each state
@@ -87,56 +87,58 @@ function Tabs:init()
     for tab = #self.tabs, 1, -1 do
       if tab ~= state then
         -- Inactive
-        self:draw_tab(
-          (tab - 1) * (x_adj),
-          (state - 1) * (self.tab_h + 4) + Config.shadow_size,
-          self.tab_w,
-          self.tab_h,
-          self.dir, self.font_b, self.col_txt, self.col_tab_b, self.tabs[tab].label)
+        self:drawTab(
+          (tab - 1) * (xOffset),
+          (state - 1) * (self.tabH + 4) + Config.shadowSize,
+          self.tabW,
+          self.tabH,
+          self.dir, self.textFont, self.textColor, self.tabColorInactive, self.tabs[tab].label)
       end
     end
 
     -- Active
-    self:draw_tab(
-      (state - 1) * (x_adj),
-      (state - 1) * (self.tab_h + 4),
-      self.tab_w,
-      self.tab_h,
-      self.dir, self.font_b, self.col_txt, self.col_tab_a, self.tabs[state].label)
+    self:drawTab(
+      (state - 1) * (xOffset),
+      (state - 1) * (self.tabH + 4),
+      self.tabW,
+      self.tabH,
+      self.dir, self.textFont, self.textColor, self.tabColorActive, self.tabs[state].label)
   end
 
 end
 
-function Tabs:ondelete()
+function Tabs:onDelete()
 
-	Buffer.release(self.buffs)
+	Buffer.release(self.buffers)
 
 end
 
 
 function Tabs:draw()
 
-	local x, y = self.x + self.first_tab_offset, self.y
-  local tab_w, tab_h = self.tab_w, self.tab_h
+	local x, y = self.x + self.firstTabOffset, self.y
+  local tabW, tabH = self.tabW, self.tabH
 	local state = self.state
 
   -- Make sure w is at least the size of the tabs.
   -- (GUI builder will let you try to set it lower)
-  self.w = self.fullwidth and (self.layer.window.cur_w - self.x) or math.max(self.w, (tab_w + self.pad) * #self.tabs + 2*self.pad + 12)
+  self.w = self.fullWidth
+    and (self.layer.window.currentW - self.x)
+    or math.max(self.w, (tabW + self.pad) * #self.tabs + 2*self.pad + 12)
 
 	Color.set(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
 
-  local x_adj = tab_w + self.pad - tab_h
-  gfx.blit(self.buffer, 1, 0, 0, (state - 1) * (tab_h + 4), self.buffer_size, (tab_h + 4), x, y)
+  local xOffset = tabW + self.pad - tabH
+  gfx.blit(self.buffer, 1, 0, 0, (state - 1) * (tabH + 4), self.bufferSize, (tabH + 4), x, y)
 
     -- Keep the active tab's top separate from the window background
 	Color.set(self.bg)
-    gfx.line(x + (state - 1) * x_adj, y, x + state * x_adj, y, 1)
+    gfx.line(x + (state - 1) * xOffset, y, x + state * xOffset, y, 1)
 
 	-- Cover up some ugliness at the bottom of the tabs
-	Color.set("wnd_bg")
-	gfx.rect(self.x, self.y + (self.dir == "u" and tab_h or -6), self.w, 6, true)
+	Color.set("windowBg")
+	gfx.rect(self.x, self.y + (self.dir == "u" and tabH or -6), self.w, 6, true)
 
 
 end
@@ -148,7 +150,7 @@ function Tabs:val(newval)
 		self.state = newval
 		self.retval = self.state
 
-		self:update_sets()
+		self:updateSets()
 		self:redraw()
 	else
 		return self.state
@@ -157,8 +159,8 @@ function Tabs:val(newval)
 end
 
 
-function Tabs:onresize()
-  if self.fullwidth then self:redraw() end
+function Tabs:onResize()
+  if self.fullWidth then self:redraw() end
 end
 
 
@@ -167,28 +169,28 @@ end
 ------------------------------------
 
 
-function Tabs:onmousedown(state)
+function Tabs:onMouseDown(state)
 
-  local x_offset = (state.mouse.x - (self.x + self.first_tab_offset))
-  local width = (#self.tabs * (self.tab_w + self.pad - self.tab_h))
+  local xOffset = (state.mouse.x - (self.x + self.firstTabOffset))
+  local width = (#self.tabs * (self.tabW + self.pad - self.tabH))
 
-  local mouse_percent = x_offset / width
+  local mousePct = xOffset / width
 
-	local mouseopt = Math.clamp((math.floor(mouse_percent * #self.tabs) + 1), 1, #self.tabs)
+	local mouseOption = Math.clamp((math.floor(mousePct * #self.tabs) + 1), 1, #self.tabs)
 
-	self.state = mouseopt
+	self.state = mouseOption
 
 	self:redraw()
 
 end
 
 
-function Tabs:onmouseup(state)
+function Tabs:onMouseUp(state)
 	-- Set the new option, or revert to the original if the cursor isn't inside the list anymore
 	if self:isInside(state.mouse.x, state.mouse.y) then
 
 		self.retval = self.state
-		self:update_sets()
+		self:updateSets()
 
 	else
 		self.state = self.retval
@@ -199,23 +201,23 @@ function Tabs:onmouseup(state)
 end
 
 
-function Tabs:ondrag(state, last)
+function Tabs:onDrag(state, last)
 
-	self:onmousedown(state, last)
+	self:onMouseDown(state, last)
 	self:redraw()
 
 end
 
 
-function Tabs:onwheel(state)
+function Tabs:onWheel(state)
 
-	self.state = Math.round(self.state + state.mouse.inc)
+	self.state = Math.round(self.state + state.mouse.wheelInc)
 
 	if self.state < 1 then self.state = 1 end
 	if self.state > #self.tabs then self.state = #self.tabs end
 
 	self.retval = self.state
-	self:update_sets()
+	self:updateSets()
 	self:redraw()
 
 end
@@ -227,58 +229,58 @@ end
 -------- Drawing helpers -----------
 ------------------------------------
 
-function Tabs:draw_tab_left(x, i, y1, y2, h)
+function Tabs:drawTabLeft(x, i, y1, y2, h)
   gfx.triangle(x + i, y1, x + i, y2, x + i - (h / 2), y2)
 end
 
-function Tabs:draw_tab_right(r, i, y1, y2, h)
+function Tabs:drawTabRight(r, i, y1, y2, h)
   gfx.triangle(r + i, y1, r + i, y2, r + i + (h / 2), y2)
 end
 
-function Tabs:draw_aliasing_fix(x, r, i, y1, y2, h)
+function Tabs:drawAliasingFix(x, r, i, y1, y2, h)
   gfx.line(x + i, y1, x + i - (h / 2), y2, 1)
   gfx.line(r + i, y1, r + i + (h / 2), y2, 1)
 end
 
-function Tabs:draw_tab(x, y, w, h, dir, font, col_txt, col_bg, lbl)
+function Tabs:drawTab(x, y, w, h, dir, font, textColor, background, lbl)
 
-	local dist = Config.shadow_size
+	local dist = Config.shadowSize
   local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                          or   {y + h, y})
 
-  local adjusted_x = x + (h / 2)
-  local adjusted_w = w - h
-  local adjusted_right = adjusted_x + adjusted_w
+  local adjustedX = x + (h / 2)
+  local adjustedW = w - h
+  local adjustedRight = adjustedX + adjustedW
 
 	Color.set("shadow")
 
   -- tab shadow
   for i = 1, dist do
 
-    gfx.rect(adjusted_x + i, y, adjusted_w, h, true)
+    gfx.rect(adjustedX + i, y, adjustedW, h, true)
 
-    self:draw_tab_left(adjusted_x, i, y1, y2, h)
-    self:draw_tab_right(adjusted_right, i, y1, y2, h)
+    self:drawTabLeft(adjustedX, i, y1, y2, h)
+    self:drawTabRight(adjustedRight, i, y1, y2, h)
 
   end
 
-  self:draw_aliasing_fix(adjusted_x, adjusted_right, dist, y1, y2, h)
+  self:drawAliasingFix(adjustedX, adjustedRight, dist, y1, y2, h)
 
-  Color.set(col_bg)
+  Color.set(background)
 
-  gfx.rect(adjusted_x, y, adjusted_w, h, true)
+  gfx.rect(adjustedX, y, adjustedW, h, true)
 
-  self:draw_tab_left(adjusted_x, 0, y1, y2, h)
-  self:draw_tab_right(adjusted_right, 0, y1, y2, h)
-  self:draw_aliasing_fix(adjusted_x, adjusted_right, 0, y1, y2, h)
+  self:drawTabLeft(adjustedX, 0, y1, y2, h)
+  self:drawTabRight(adjustedRight, 0, y1, y2, h)
+  self:drawAliasingFix(adjustedX, adjustedRight, 0, y1, y2, h)
 
 	-- Draw the tab's label
-	Color.set(col_txt)
+	Color.set(textColor)
 	Font.set(font)
 
-	local str_w, str_h = gfx.measurestr(lbl)
-	gfx.x = adjusted_x + ((adjusted_w - str_w) / 2)
-	gfx.y = y + ((h - str_h) / 2)
+	local strWidth, strHeight = gfx.measurestr(lbl)
+	gfx.x = adjustedX + ((adjustedW - strWidth) / 2)
+	gfx.y = y + ((h - strHeight) / 2)
 	gfx.drawstr(lbl)
 
 end
@@ -292,7 +294,7 @@ end
 
 
 -- Updates visibility for any layers assigned to the tabs
-function Tabs:update_sets()
+function Tabs:updateSets()
 
 	if not self.tabs or #self.tabs == 0 or #self.tabs[1].layers < 1 then return end
 

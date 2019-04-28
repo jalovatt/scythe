@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - MenuBox class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Menubox
-
-    Creation parameters:
-  name, z, x, y, w, h, caption, opts[, pad, noarrow]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -32,13 +22,13 @@ Menubox.defaultProps = {
   h = 24,
 
   caption = "Menubox:",
-  bg = "wnd_bg",
+  bg = "windowBg",
 
-  font_a = 3,
-  font_b = 4,
+  captionFont = 3,
+  textFont = 4,
 
-  col_cap = "txt",
-  col_txt = "txt",
+  captionColor = "txt",
+  textColor = "txt",
 
   pad = 4,
 
@@ -50,7 +40,6 @@ Menubox.defaultProps = {
 }
 
 function Menubox:new(props)
-  -- name, z, x, y, w, h, caption, opts, pad, noarrow
   local menu = self:addDefaultProps(props)
 
   return self:assignChild(menu)
@@ -59,22 +48,22 @@ end
 
 function Menubox:init()
 
-  self.buff = Buffer.get()
+  self.buffer = Buffer.get()
 
-  gfx.dest = self.buff
-  gfx.setimgdim(self.buff, -1, -1)
-  gfx.setimgdim(self.buff, 2*self.w + 4, 2*self.h + 4)
+  gfx.dest = self.buffer
+  gfx.setimgdim(self.buffer, -1, -1)
+  gfx.setimgdim(self.buffer, 2*self.w + 4, 2*self.h + 4)
 
-  self:drawframe()
+  self:drawFrame()
 
-  if not self.noarrow then self:drawarrow() end
+  if not self.noArrow then self:drawArrow() end
 
 end
 
 
-function Menubox:ondelete()
+function Menubox:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -83,19 +72,17 @@ function Menubox:draw()
 
   local x, y, w, h = self.x, self.y, self.w, self.h
 
-  -- Draw the caption
-  if self.caption and self.caption ~= "" then self:drawcaption() end
+  if self.caption and self.caption ~= "" then self:drawCaption() end
 
 
     -- Blit the shadow + frame
-  for i = 1, Config.shadow_size do
-    gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
+  for i = 1, Config.shadowSize do
+    gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
   end
 
-  gfx.blit(self.buff, 1, 0, 0, (self.focus and (h + 2) or 0) , w + 2, h + 2, x - 1, y - 1)
+  gfx.blit(self.buffer, 1, 0, 0, (self.focus and (h + 2) or 0) , w + 2, h + 2, x - 1, y - 1)
 
-  -- Draw the text
-  self:drawtext()
+  self:drawText()
 
 end
 
@@ -119,7 +106,7 @@ end
 ------------------------------------
 
 
-function Menubox:onmouseup(state)
+function Menubox:onMouseUp(state)
 
   -- Bypass option for GUI Builder
   if not self.focus then
@@ -129,13 +116,15 @@ function Menubox:onmouseup(state)
 
   -- The menu doesn't count separators in the returned number,
   -- so we'll do it here
-  local menu_str, sep_arr = self:prepmenu()
+  local menuStr, separators = self:prepMenu()
 
   gfx.x, gfx.y = state.mouse.x, state.mouse.y
-  local curopt = gfx.showmenu(menu_str)
+  local currentOption = gfx.showmenu(menuStr)
 
-  if #sep_arr > 0 then curopt = self:stripseps(curopt, sep_arr) end
-  if curopt ~= 0 then self.retval = curopt end
+  if #separators > 0 then
+    currentOption = self:stripSeparators(currentOption, separators)
+  end
+  if currentOption ~= 0 then self.retval = currentOption end
 
   self.focus = false
   self:redraw()
@@ -144,16 +133,16 @@ end
 
 
 -- This is only so that the box will light up
-function Menubox:onmousedown()
+function Menubox:onMouseDown()
   self:redraw()
 end
 
 
-function Menubox:onwheel(state)
+function Menubox:onWheel(state)
 
   -- Check for illegal values, separators, and submenus
-    self.retval = self:validateoption(  Math.round(self.retval - state.mouse.inc),
-                                        Math.round((state.mouse.inc > 0) and 1 or -1) )
+    self.retval = self:validateOption(  Math.round(self.retval - state.mouse.wheelInc),
+                                        Math.round((state.mouse.wheelInc > 0) and 1 or -1) )
 
   self:redraw()
 
@@ -165,7 +154,7 @@ end
 ------------------------------------
 
 
-function Menubox:drawframe()
+function Menubox:drawFrame()
 
   local w, h = self.w, self.h
   local r, g, b, a = table.unpack(Color.colors["shadow"])
@@ -173,27 +162,27 @@ function Menubox:drawframe()
   gfx.rect(w + 3, 1, w, h, 1)
   gfx.muladdrect(w + 3, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
-  Color.set("elm_bg")
+  Color.set("elmBg")
   gfx.rect(1, 1, w, h)
   gfx.rect(1, w + 3, w, h)
 
-  Color.set("elm_frame")
+  Color.set("elmFrame")
   gfx.rect(1, 1, w, h, 0)
-  if not self.noarrow then gfx.rect(1 + w - h, 1, h, h, 1) end
+  if not self.noArrow then gfx.rect(1 + w - h, 1, h, h, 1) end
 
-  Color.set("elm_fill")
+  Color.set("elmFill")
   gfx.rect(1, h + 3, w, h, 0)
   gfx.rect(2, h + 4, w - 2, h - 2, 0)
 
 end
 
 
-function Menubox:drawarrow()
+function Menubox:drawArrow()
 
   local w, h = self.w, self.h
   gfx.rect(1 + w - h, h + 3, h, h, 1)
 
-  Color.set("elm_bg")
+  Color.set("elmBg")
 
   -- Triangle size
   local r = 5
@@ -201,41 +190,41 @@ function Menubox:drawarrow()
   local ox = (1 + w - h) + h / 2
   local oy = 1 + h / 2 - (r / 2)
 
-  local Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
-  local Bx, By = Math.polar2cart(0, r, ox, oy)
-  local Cx, Cy = Math.polar2cart(1, r, ox, oy)
+  local Ax, Ay = Math.polarToCart(1/2, r, ox, oy)
+  local Bx, By = Math.polarToCart(0, r, ox, oy)
+  local Cx, Cy = Math.polarToCart(1, r, ox, oy)
 
   GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
   oy = oy + h + 2
 
-  Ax, Ay = Math.polar2cart(1/2, r, ox, oy)
-  Bx, By = Math.polar2cart(0, r, ox, oy)
-  Cx, Cy = Math.polar2cart(1, r, ox, oy)
+  Ax, Ay = Math.polarToCart(1/2, r, ox, oy)
+  Bx, By = Math.polarToCart(0, r, ox, oy)
+  Cx, Cy = Math.polarToCart(1, r, ox, oy)
 
   GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
 
 end
 
 
-function Menubox:drawcaption()
+function Menubox:drawCaption()
 
-  Font.set(self.font_a)
-  local str_w, str_h = gfx.measurestr(self.caption)
+  Font.set(self.captionFont)
+  local strWidth, strHeight = gfx.measurestr(self.caption)
 
-  gfx.x = self.x - str_w - self.pad
-  gfx.y = self.y + (self.h - str_h) / 2
+  gfx.x = self.x - strWidth - self.pad
+  gfx.y = self.y + (self.h - strHeight) / 2
 
-  Text.text_bg(self.caption, self.bg)
-  Text.drawWithShadow(self.caption, self.col_cap, "shadow")
+  Text.drawBackground(self.caption, self.bg)
+  Text.drawWithShadow(self.caption, self.captionColor, "shadow")
 
 end
 
 
-function Menubox:drawtext()
+function Menubox:drawText()
 
   -- Make sure retval hasn't been accidentally set to something illegal
-  self.retval = self:validateoption(tonumber(self.retval) or 1)
+  self.retval = self:validateOption(tonumber(self.retval) or 1)
 
   -- Strip gfx.showmenu's special characters from the displayed value
   local text = self:formatOutput(
@@ -243,15 +232,15 @@ function Menubox:drawtext()
   )
 
   -- Draw the text
-  Font.set(self.font_b)
-  Color.set(self.col_txt)
+  Font.set(self.textFont)
+  Color.set(self.textColor)
 
-  local _, str_h = gfx.measurestr(text)
+  local _, strHeight = gfx.measurestr(text)
   gfx.x = self.x + 4
-  gfx.y = self.y + (self.h - str_h) / 2
+  gfx.y = self.y + (self.h - strHeight) / 2
 
-  local r = gfx.x + self.w - 8 - (self.noarrow and 0 or self.h)
-  local b = gfx.y + str_h
+  local r = gfx.x + self.w - 8 - (self.noArrow and 0 or self.h)
+  local b = gfx.y + strHeight
   gfx.drawstr(text, self.align, r, b)
 
 end
@@ -263,58 +252,57 @@ end
 
 
 -- Put together a string for gfx.showmenu from the values in options
-function Menubox:prepmenu()
+function Menubox:prepMenu()
 
-  local str_arr = T{}
-  local sep_arr = T{}
-  local menu_str = ""
+  local options = T{}
+  local separators = T{}
 
   for i = 1, #self.options do
 
-    -- Check off the currently-selected option
-    if i == self.retval then menu_str = menu_str .. "!" end
-
-      str_arr:insert(
-        tostring(
-          type(self.options[i]) == "table"
-            and self.options[i][1]
-            or  self.options[i]
-        )
+    options:insert(
+      tostring(
+        type(self.options[i]) == "table"
+          and self.options[i][1]
+          or  self.options[i]
       )
+    )
 
-    if str_arr[#str_arr] == ""
-    or str_arr[#str_arr]:sub(1, 1) == ">" then
-      sep_arr:insert(i)
+    -- Check off the currently-selected option
+    if i == self.retval then options[#options] = "!" .. options[#options] end
+
+    if options[#options] == ""
+    or options[#options]:sub(1, 1) == ">" then
+      separators:insert(i)
     end
 
-    str_arr:insert("|")
+    options:insert("|")
 
   end
 
-  menu_str = str_arr:concat()
+  local menuStr = options:concat()
 
-  return string.sub(menu_str, 1, string.len(menu_str) - 1), sep_arr
+  return string.sub(menuStr, 1, string.len(menuStr) - 1), separators
 
 end
 
 
 -- Adjust the menu's returned value to ignore any separators ( --------- )
-function Menubox:stripseps(curopt, sep_arr)
+function Menubox:stripSeparators(currentOption, separators)
 
-  for i = 1, #sep_arr do
-    if curopt >= sep_arr[i] then
-      curopt = curopt + 1
+  for i = 1, #separators do
+    if currentOption >= separators[i] then
+      currentOption = currentOption + 1
     else
       break
     end
   end
 
-  return curopt
+  return currentOption
 
 end
 
 
-function Menubox:validateoption(val, dir)
+function Menubox:validateOption(val, dir)
 
   dir = dir or 1
 

@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Slider class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Slider
-
-    Creation parameters:
-  name, z, x, y, w, caption, min, max, defaults[, inc, dir]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -33,23 +23,23 @@ Slider.defaultProps = {
   horizontal = true,
 
   caption = "Slider",
-  bg = "wnd_bg",
+  bg = "windowBg",
 
-  font_a = 3,
-  font_b = 4,
+  captionFont = 3,
+  textFont = 4,
 
-  col_txt = "txt",
-  col_hnd = "elm_frame",
-  col_fill = "elm_fill",
+  textColor = "txt",
+  handleColor = "elmFrame",
+  fillColor = "elmFill",
 
-  align_values = 0,
+  alignValues = 0,
   inc = 1,
 
-  cap_x = 0,
-  cap_y = 0,
+  captionX = 0,
+  captionY = 0,
 
-  show_handles = true,
-  show_values = true,
+  showHandles = true,
+  showValues = true,
 
 }
 
@@ -84,7 +74,7 @@ function Slider:new(props)
   -- If the user only asked for one handle
   if type(slider.defaults) == "number" then slider.defaults = {slider.defaults} end
 
-  slider:init_handles(slider.defaults)
+  slider:initHandles(slider.defaults)
 
   return slider
 end
@@ -92,47 +82,47 @@ end
 
 function Slider:init()
 
-  self.buffs = self.buffs or Buffer.get(2)
+  self.buffers = self.buffers or Buffer.get(2)
 
   -- In case we were given a new set of handles without involving GUI.Val
-  if not self.handles[1].default then self:init_handles() end
+  if not self.handles[1].default then self:initHandles() end
 
   local w, h = self.w, self.h
 
   -- Track
-  gfx.dest = self.buffs[1]
-  gfx.setimgdim(self.buffs[1], -1, -1)
-  gfx.setimgdim(self.buffs[1], w + 4, h + 4)
+  gfx.dest = self.buffers[1]
+  gfx.setimgdim(self.buffers[1], -1, -1)
+  gfx.setimgdim(self.buffers[1], w + 4, h + 4)
 
-  Color.set("elm_bg")
-  GFX.roundrect(2, 2, w, h, 4, 1, 1)
-  Color.set("elm_outline")
-  GFX.roundrect(2, 2, w, h, 4, 1, 0)
+  Color.set("elmBg")
+  GFX.roundRect(2, 2, w, h, 4, 1, 1)
+  Color.set("elmOutline")
+  GFX.roundRect(2, 2, w, h, 4, 1, 0)
 
 
   -- Handle
   local hw, hh = table.unpack(self.horizontal and {8, 16} or {16, 8})
 
-  gfx.dest = self.buffs[2]
-  gfx.setimgdim(self.buffs[2], -1, -1)
-  gfx.setimgdim(self.buffs[2], 2 * hw + 4, hh + 2)
+  gfx.dest = self.buffers[2]
+  gfx.setimgdim(self.buffers[2], -1, -1)
+  gfx.setimgdim(self.buffers[2], 2 * hw + 4, hh + 2)
 
-  Color.set(self.col_hnd)
-  GFX.roundrect(1, 1, hw, hh, 2, 1, 1)
-  Color.set("elm_outline")
-  GFX.roundrect(1, 1, hw, hh, 2, 1, 0)
+  Color.set(self.handleColor)
+  GFX.roundRect(1, 1, hw, hh, 2, 1, 1)
+  Color.set("elmOutline")
+  GFX.roundRect(1, 1, hw, hh, 2, 1, 0)
 
   local r, g, b, a = table.unpack(Color.colors["shadow"])
   gfx.set(r, g, b, 1)
-  GFX.roundrect(hw + 2, 1, hw, hh, 2, 1, 1)
+  GFX.roundRect(hw + 2, 1, hw, hh, 2, 1, 1)
   gfx.muladdrect(hw + 2, 1, hw + 2, hh + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 end
 
 
-function Slider:ondelete()
+function Slider:onDelete()
 
-  Buffer.release(self.buffs)
+  Buffer.release(self.buffers)
 
 end
 
@@ -142,7 +132,7 @@ function Slider:draw()
   local x, y, w, h = self.x, self.y, self.w, self.h
 
   -- Draw track
-  gfx.blit(self.buffs[1], 1, 0, 1, 1, w + 2, h + 2, x - 1, y - 1)
+  gfx.blit(self.buffers[1], 1, 0, 1, 1, w + 2, h + 2, x - 1, y - 1)
 
   -- To avoid a LOT of copy/pasting for vertical sliders, we can
   -- just swap x-y and w-h to effectively "rotate" all of the math
@@ -154,17 +144,17 @@ function Slider:draw()
   x, w = x + 4, w - 8
 
   -- Size of the handle
-  self.handle_w, self.handle_h = 8, h * 2
+  self.handleW, self.handleH = 8, h * 2
   local inc = w / self.steps
-  local handle_y = y + (h - self.handle_h) / 2
+  local handleY = y + (h - self.handleH) / 2
 
   -- Get the handles' coordinates and the ends of the fill bar
-  local min, max = self:updatehandlecoords(x, handle_y, inc)
+  local min, max = self:updateHandleCoords(x, handleY, inc)
 
-  self:drawfill(x, y, h, min, max, inc)
+  self:drawFill(x, y, h, min, max, inc)
 
-  self:drawsliders()
-  if self.caption and self.caption ~= "" then self:drawcaption() end
+  self:drawSliders()
+  if self.caption and self.caption ~= "" then self:drawCaption() end
 
 end
 
@@ -177,7 +167,7 @@ function Slider:val(newvals)
 
     for i = 1, #self.handles do
 
-      self:setcurstep(i, newvals[i])
+      self:setCurrentStep(i, newvals[i])
 
     end
 
@@ -211,31 +201,31 @@ end
 ------------------------------------
 
 
-function Slider:onmousedown(state)
+function Slider:onMouseDown(state)
 
   -- Snap the nearest slider to the nearest value
 
-  local mouse_val = self.horizontal
+  local mouseValue = self.horizontal
     and (state.mouse.x - self.x) / self.w
     or  (state.mouse.y - self.y) / self.h
 
-  self.cur_handle = self:getnearesthandle(mouse_val)
+  self.currentHandle = self:getNearestHandle(mouseValue)
 
-  self:setcurval(self.cur_handle, Math.clamp(mouse_val, 0, 1) )
+  self:setCurrentVal(self.currentHandle, Math.clamp(mouseValue, 0, 1) )
 
   self:redraw()
 
 end
 
 
-function Slider:ondrag(state, last)
+function Slider:onDrag(state, last)
 
   local n, ln = table.unpack(self.horizontal
     and {state.mouse.x, last.mouse.x}
     or  {state.mouse.y, last.mouse.y}
   )
 
-  local cur = self.cur_handle or 1
+  local cur = self.currentHandle or 1
 
   -- Ctrl?
   local ctrl = state.mouse.cap&4==4
@@ -243,27 +233,27 @@ function Slider:ondrag(state, last)
   -- A multiplier for how fast the slider should move. Higher values = slower
   --						Ctrl							Normal
   local adj = ctrl and math.max(1200, (8*self.steps)) or 150
-  local adj_scale = (self.horizontal and self.w or self.h) / 150
-  adj = adj * adj_scale
+  local adjustedScale = (self.horizontal and self.w or self.h) / 150
+  adj = adj * adjustedScale
 
-  self:setcurval(cur, Math.clamp( self.handles[cur].curval + ((n - ln) / adj) , 0, 1 ) )
+  self:setCurrentVal(cur, Math.clamp( self.handles[cur].currentVal + ((n - ln) / adj) , 0, 1 ) )
 
   self:redraw()
 
 end
 
 
-function Slider:onwheel(state)
+function Slider:onWheel(state)
 
-  local mouse_val = self.horizontal
+  local mouseValue = self.horizontal
     and (state.mouse.x - self.x) / self.w
     or  (state.mouse.y - self.y) / self.h
 
   local inc = Math.round( self.horizontal
-    and state.mouse.inc
-    or -state.mouse.inc )
+    and state.mouse.wheelInc
+    or -state.mouse.wheelInc )
 
-  local cur = self:getnearesthandle(mouse_val)
+  local cur = self:getNearestHandle(mouseValue)
 
   local ctrl = state.mouse.cap&4==4
 
@@ -273,38 +263,38 @@ function Slider:onwheel(state)
 
   local adj = ctrl and fine or coarse
 
-    self:setcurval(cur, Math.clamp( self.handles[cur].curval + (inc * adj / self.steps) , 0, 1) )
+    self:setCurrentVal(cur, Math.clamp( self.handles[cur].currentVal + (inc * adj / self.steps) , 0, 1) )
 
   self:redraw()
 
 end
 
 
-function Slider:ondoubleclick(state)
+function Slider:onDoubleclick(state)
 
     -- Ctrl+click - Only reset the closest slider to the mouse
   if state.mouse.cap & 4 == 4 then
 
-    local mouse_val = (state.mouse.x - self.x) / self.w
-    local small_diff, small_idx
+    local mouseValue = (state.mouse.x - self.x) / self.w
+    local smallestDiff, closestIndex
     for i = 1, #self.handles do
 
-      local diff = math.abs( self.handles[i].curval - mouse_val )
-      if not small_diff or diff < small_diff then
-        small_diff = diff
-        small_idx = i
+      local diff = math.abs( self.handles[i].currentVal - mouseValue )
+      if not smallestDiff or diff < smallestDiff then
+        smallestDiff = diff
+        closestIndex = i
       end
 
     end
 
-    self:setcurstep(small_idx, self.handles[small_idx].default)
+    self:setCurrentStep(closestIndex, self.handles[closestIndex].default)
 
   -- Reset all sliders
   else
 
     for i = 1, #self.handles do
 
-      self:setcurstep(i, self.handles[i].default)
+      self:setCurrentStep(i, self.handles[i].default)
 
     end
 
@@ -322,14 +312,14 @@ end
 ------------------------------------
 
 
-function Slider:updatehandlecoords(x, handle_y, inc)
+function Slider:updateHandleCoords(x, handleY, inc)
 
   local min, max
 
   for i = 1, #self.handles do
 
-    local center = x + inc * self.handles[i].curstep
-    self.handles[i].x, self.handles[i].y = center - (self.handle_w / 2), handle_y
+    local center = x + inc * self.handles[i].currentStep
+    self.handles[i].x, self.handles[i].y = center - (self.handleW / 2), handleY
 
     if not min or center < min then min = center end
     if not max or center > max then max = center end
@@ -341,11 +331,11 @@ function Slider:updatehandlecoords(x, handle_y, inc)
 end
 
 
-function Slider:drawfill(x, y, h, min, max, inc)
+function Slider:drawFill(x, y, h, min, max, inc)
 
     -- Get the color
   if (#self.handles > 1)
-    or self.handles[1].curstep ~= self.handles[1].default then
+    or self.handles[1].currentStep ~= self.handles[1].default then
 
       self:setfill()
 
@@ -377,50 +367,48 @@ end
 function Slider:setfill()
 
     -- If the user has given us two colors to make a gradient with
-    if self.col_fill_a and #self.handles == 1 then
+    if self.fillColorA and #self.handles == 1 then
 
       -- Make a gradient,
-      local col_a = Color.colors[self.col_fill_a]
-      local col_b = Color.colors[self.col_fill_b]
-      local grad_step = self.handles[1].curstep / self.steps
+      local gradientStep = self.handles[1].currentStep / self.steps
 
-      local r, g, b, a = Color.gradient(col_a, col_b, grad_step)
+      local r, g, b, a = Color.gradient(self.fillColorA, self.fillColorB, gradientStep)
 
       gfx.set(r, g, b, a)
 
     else
-      Color.set(self.col_fill)
+      Color.set(self.fillColor)
     end
 
 end
 
 
-function Slider:drawsliders()
+function Slider:drawSliders()
 
-    Color.set(self.col_txt)
-    Font.set(self.font_b)
+    Color.set(self.textColor)
+    Font.set(self.textFont)
 
     -- Drawing them in reverse order so overlaps match the shadow direction
     for i = #self.handles, 1, -1 do
 
-      local handle_x, handle_y = Math.round(self.handles[i].x) - 1, Math.round(self.handles[i].y) - 1
+      local handleX, handleY = Math.round(self.handles[i].x) - 1, Math.round(self.handles[i].y) - 1
 
-      if self.show_values then
+      if self.showValues then
 
         if self.horizontal then
-            self:drawslidervalue(handle_x + self.handle_w/2, handle_y + self.handle_h + 4, i)
+            self:drawSliderValue(handleX + self.handleW/2, handleY + self.handleH + 4, i)
         else
-            self:drawslidervalue(handle_y + self.handle_h + self.handle_h, handle_x, i)
+            self:drawSliderValue(handleY + self.handleH + self.handleH, handleX, i)
         end
 
       end
 
-      if self.show_handles then
+      if self.showHandles then
 
         if self.horizontal then
-            self:drawsliderhandle(handle_x, handle_y, self.handle_w, self.handle_h)
+            self:drawSliderHandle(handleX, handleY, self.handleW, self.handleH)
         else
-            self:drawsliderhandle(handle_y, handle_x, self.handle_h, self.handle_w)
+            self:drawSliderHandle(handleY, handleX, self.handleH, self.handleW)
         end
 
       end
@@ -430,41 +418,41 @@ function Slider:drawsliders()
 end
 
 
-function Slider:drawslidervalue(x, y, sldr)
+function Slider:drawSliderValue(x, y, sldr)
 
   local output = self:formatOutput(self.handles[sldr].retval)
 
   gfx.x, gfx.y = x, y
 
-  Text.text_bg(output, self.bg, self.align_values + 256)
-  gfx.drawstr(output, self.align_values + 256, gfx.x, gfx.y)
+  Text.drawBackground(output, self.bg, self.alignValues + 256)
+  gfx.drawstr(output, self.alignValues + 256, gfx.x, gfx.y)
 
 end
 
 
-function Slider:drawsliderhandle(hx, hy, hw, hh)
+function Slider:drawSliderHandle(hx, hy, hw, hh)
 
-  for j = 1, Config.shadow_size do
+  for j = 1, Config.shadowSize do
 
-    gfx.blit(self.buffs[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
+    gfx.blit(self.buffers[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
 
   end
 
-  gfx.blit(self.buffs[2], 1, 0, 0, 0, hw + 2, hh + 2, hx, hy)
+  gfx.blit(self.buffers[2], 1, 0, 0, 0, hw + 2, hh + 2, hx, hy)
 
 end
 
 
-function Slider:drawcaption()
+function Slider:drawCaption()
 
-  Font.set(self.font_a)
+  Font.set(self.captionFont)
 
-  local str_w, str_h = gfx.measurestr(self.caption)
+  local strWidth, strHeight = gfx.measurestr(self.caption)
 
-  gfx.x = self.x + (self.w - str_w) / 2 + self.cap_x
-  gfx.y = self.y - (self.horizontal and self.h or self.w) - str_h + self.cap_y
-  Text.text_bg(self.caption, self.bg)
-  Text.drawWithShadow(self.caption, self.col_txt, "shadow")
+  gfx.x = self.x + (self.w - strWidth) / 2 + self.captionX
+  gfx.y = self.y - (self.horizontal and self.h or self.w) - strHeight + self.captionY
+  Text.drawBackground(self.caption, self.bg)
+  Text.drawWithShadow(self.caption, self.textColor, "shadow")
 
 end
 
@@ -476,56 +464,56 @@ end
 ------------------------------------
 
 
-function Slider:getnearesthandle(val)
+function Slider:getNearestHandle(val)
 
-  local small_diff, small_idx
+  local smallestDiff, closestIndex
 
   for i = 1, #self.handles do
 
-    local diff = math.abs( self.handles[i].curval - val )
+    local diff = math.abs( self.handles[i].currentVal - val )
 
-    if not small_diff or (diff < small_diff) then
-      small_diff = diff
-      small_idx = i
+    if not smallestDiff or (diff < smallestDiff) then
+      smallestDiff = diff
+      closestIndex = i
 
     end
 
   end
 
-  return small_idx
+  return closestIndex
 
 end
 
 
-function Slider:setcurstep(sldr, step)
+function Slider:setCurrentStep(sldr, step)
 
-  self.handles[sldr].curstep = step
-  self.handles[sldr].curval = self.handles[sldr].curstep / self.steps
-  self:setretval(sldr)
-
-end
-
-
-function Slider:setcurval(sldr, val)
-
-  self.handles[sldr].curval = val
-  self.handles[sldr].curstep = Math.round(val * self.steps)
-  self:setretval(sldr)
+  self.handles[sldr].currentStep = step
+  self.handles[sldr].currentVal = self.handles[sldr].currentStep / self.steps
+  self:setRetval(sldr)
 
 end
 
 
-function Slider:setretval(sldr)
+function Slider:setCurrentVal(sldr, val)
+
+  self.handles[sldr].currentVal = val
+  self.handles[sldr].currentStep = Math.round(val * self.steps)
+  self:setRetval(sldr)
+
+end
+
+
+function Slider:setRetval(sldr)
 
   local val = self.horizontal
-    and self.inc * self.handles[sldr].curstep + self.min
-    or self.min - self.inc * self.handles[sldr].curstep
+    and self.inc * self.handles[sldr].currentStep + self.min
+    or self.min - self.inc * self.handles[sldr].currentStep
 
-  self.handles[sldr].retval = self:formatretval(val)
+  self.handles[sldr].retval = self:formatRetval(val)
 
 end
 
-function Slider:formatretval(val)
+function Slider:formatRetval(val)
 
   local decimal = tonumber(string.match(val, "%.(.*)") or 0)
   local places = decimal ~= 0 and string.len( decimal) or 0
@@ -533,7 +521,7 @@ function Slider:formatretval(val)
 
 end
 
-function Slider:init_handles()
+function Slider:initHandles()
 
   self.steps = math.abs(self.max - self.min) / self.inc
 
@@ -550,9 +538,9 @@ function Slider:init_handles()
 
     self.handles[i] = {}
     self.handles[i].default = (self.horizontal and step or (self.steps - step))
-    self.handles[i].curstep = step
-    self.handles[i].curval = step / self.steps
-    self.handles[i].retval = self:formatretval( ((self.max - self.min) / self.steps)
+    self.handles[i].currentStep = step
+    self.handles[i].currentVal = step / self.steps
+    self.handles[i].retval = self:formatRetval( ((self.max - self.min) / self.steps)
                                                 * step + self.min)
 
   end

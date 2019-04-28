@@ -60,10 +60,10 @@ GUI.Main = function ()
     -- run again, and do so.
     if GUI.func then
 
-      local new_time = reaper.time_precise()
-      if new_time - GUI.lastFuncTime >= (GUI.funcTime or 1) then
+      local newTime = reaper.time_precise()
+      if newTime - GUI.lastFuncTime >= (GUI.funcTime or 1) then
         GUI.func()
-        GUI.lastFuncTime = new_time
+        GUI.lastFuncTime = newTime
       end
     end
 
@@ -102,8 +102,6 @@ GUI.createElement = function (props)
   if not class then return nil end
 
   local elm = class:new(props)
-
-  if GUI.gfx_open then elm:init() end
 
   return elm
 end
@@ -203,7 +201,7 @@ end
 -- CURRENTLY BROKEN SINCE WINDOWS ARE A CLASS NOW
 -- Saves the current script window parameters to an ExtState under the given section name
 -- Returns dock, x, y, w, h
-GUI.save_window_state = function (name, title)
+GUI.saveWindowState = function (name, title)
 
   if not name then return end
   local state = {gfx.dock(-1, 0, 0, 0, 0)}
@@ -217,7 +215,7 @@ end
 -- CURRENTLY BROKEN SINCE WINDOWS ARE A CLASS NOW
 -- Looks for an ExtState containing saved window parameters
 -- Returns dock, x, y, w, h
-GUI.load_window_state = function (name, title)
+GUI.loadWindowState = function (name, title)
 
   if not name then return end
 

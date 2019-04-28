@@ -41,31 +41,31 @@ TextEditor.defaultProps = {
 	caption = "",
 	pad = 4,
 
-	bg = "elm_bg",
-  cap_bg = "wnd_bg",
+	bg = "elmBg",
+  captionBg = "windowBg",
 	color = "txt",
 
 	-- Scrollbar fill
-	col_fill = "elm_fill",
+	fillColor = "elmFill",
 
-	font_cap = 3,
+	captionFont = 3,
 
 	-- Forcing a safe monospace font to make our lives easier
-	font_text = "monospace",
+	textFont = "monospace",
 
-	wnd_pos = {x = 0, y = 1},
+	windowPosition = {x = 0, y = 1},
 	caret = {x = 0, y = 1},
 
-  char_h = nil,
-  wnd_h = nil,
-  wnd_w = nil,
-  char_w = nil,
+  charH = nil,
+  windowH = nil,
+  windowW = nil,
+  charW = nil,
 
 	focus = false,
 
-	undo_limit = 20,
-	undo_states = {},
-	redo_states = {},
+	undoLimit = 20,
+	undoStates = {},
+	redoStates = {},
 
   blink = 0,
 
@@ -87,19 +87,19 @@ function TextEditor:init()
 
 	local w, h = self.w, self.h
 
-	self.buff = Buffer.get()
+	self.buffer = Buffer.get()
 
-	gfx.dest = self.buff
-	gfx.setimgdim(self.buff, -1, -1)
-	gfx.setimgdim(self.buff, 2*w, h)
+	gfx.dest = self.buffer
+	gfx.setimgdim(self.buffer, -1, -1)
+	gfx.setimgdim(self.buffer, 2*w, h)
 
 	Color.set(self.bg)
 	gfx.rect(0, 0, 2*w, h, 1)
 
-	Color.set("elm_frame")
+	Color.set("elmFrame")
 	gfx.rect(0, 0, w, h, 0)
 
-	Color.set("elm_fill")
+	Color.set("elmFill")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
@@ -107,9 +107,9 @@ function TextEditor:init()
 end
 
 
-function TextEditor:ondelete()
+function TextEditor:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -118,27 +118,27 @@ function TextEditor:draw()
 
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
-	if not self.wnd_h then self:wnd_recalc() end
+	if not self.windowH then self:recalculateWindow() end
 
 	-- Draw the caption
-	if self.caption and self.caption ~= "" then self:drawcaption() end
+	if self.caption and self.caption ~= "" then self:drawCaption() end
 
 	-- Draw the background + frame
-	gfx.blit(self.buff, 1, 0, (self.focus and self.w or 0), 0,
+	gfx.blit(self.buffer, 1, 0, (self.focus and self.w or 0), 0,
            self.w, self.h, self.x, self.y)
 
 	-- Draw the text
-	self:drawtext()
+	self:drawText()
 
 	-- Caret
 	-- Only needs to be drawn for half of the blink cycle
 	if self.focus then
-    if self.sel_s and self.sel_e then self:drawselection() end
-    if self.show_caret then self:drawcaret() end
+    if self.selectionStart and self.selectionEnd then self:drawSelection() end
+    if self.showCaret then self:drawCaret() end
   end
 
 	-- Scrollbars
-	self:drawscrollbars()
+	self:drawScrollbars()
 
 end
 
@@ -146,10 +146,10 @@ end
 function TextEditor:val(newval)
 
 	if newval then
-		self:seteditorstate(
+		self:setEditorState(
       type(newval) == "table"
         and newval
-        or self:stringtotable(newval)
+        or self:stringToTable(newval)
     )
 		self:redraw()
 	else
@@ -159,16 +159,16 @@ function TextEditor:val(newval)
 end
 
 
-function TextEditor:onupdate()
+function TextEditor:onUpdate()
 
 	if self.focus then
 
 		if self.blink == 0 then
-			self.show_caret = true
-		elseif self.blink == math.floor(Config.txt_blink_rate / 2) then
-			self.show_caret = false
+			self.showCaret = true
+		elseif self.blink == math.floor(Config.caretBlinkRate / 2) then
+			self.showCaret = false
 		end
-		self.blink = (self.blink + 1) % Config.txt_blink_rate
+		self.blink = (self.blink + 1) % Config.caretBlinkRate
     self:redraw()
 	end
 
@@ -189,19 +189,19 @@ end
 -----------------------------------
 
 
-function TextEditor:onmousedown(state)
+function TextEditor:onMouseDown(state)
 
-	-- If over the scrollbar, or we came from :ondrag with an origin point
+	-- If over the scrollbar, or we came from :onDrag with an origin point
 	-- that was over the scrollbar...
-	local scroll = self:overscrollbar(state.mouse.x, state.mouse.y)
+	local scroll = self:isOverScrollbar(state.mouse.x, state.mouse.y)
 	if scroll then
 
-    self:setscrollbar(scroll, state)
+    self:setScrollbar(scroll, state)
 
   else
 
     -- Place the caret
-    self.caret = self:getcaret(state.mouse.x, state.mouse.y)
+    self.caret = self:getCaret(state.mouse.x, state.mouse.y)
 
     -- Reset the caret so the visual change isn't laggy
     self.blink = 0
@@ -209,12 +209,12 @@ function TextEditor:onmousedown(state)
     -- Shift+click to select text
     if state.mouse.cap & 8 == 8 and self.caret then
 
-      self.sel_s = {x = self.caret.x, y = self.caret.y}
-      self.sel_e = {x = self.caret.x, y = self.caret.y}
+      self.selectionStart = {x = self.caret.x, y = self.caret.y}
+      self.selectionEnd = {x = self.caret.x, y = self.caret.y}
 
     else
 
-      self:clearselection()
+      self:clearSelection()
 
     end
 
@@ -225,25 +225,25 @@ function TextEditor:onmousedown(state)
 end
 
 
-function TextEditor:ondoubleclick()
+function TextEditor:onDoubleclick()
 
-	self:selectword()
+	self:selectWord()
 
 end
 
 
-function TextEditor:ondrag(state, last)
+function TextEditor:onDrag(state, last)
 
-	local scroll = self:overscrollbar(state.mouse.ox, state.mouse.oy)
+	local scroll = self:isOverScrollbar(state.mouse.ox, state.mouse.oy)
 	if scroll then
 
-    self:setscrollbar(scroll, state)
+    self:setScrollbar(scroll, state)
 
 	-- Select from where the mouse is now to where it started
 	else
 
-		self.sel_s = self:getcaret(state.mouse.ox, state.mouse.oy)
-		self.sel_e = self:getcaret(state.mouse.x, last.mouse.y)
+		self.selectionStart = self:getCaret(state.mouse.ox, state.mouse.oy)
+		self.selectionEnd = self:getCaret(state.mouse.x, last.mouse.y)
 
 	end
 
@@ -252,7 +252,7 @@ function TextEditor:ondrag(state, last)
 end
 
 
-function TextEditor:ontype(state)
+function TextEditor:onType(state)
 
   local char = state.kb.char
   local mod = state.mouse.cap
@@ -262,8 +262,8 @@ function TextEditor:ontype(state)
 
 		local shift = mod & 8 == 8
 
-		if shift and not self.sel_s then
-			self.sel_s = {x = self.caret.x, y = self.caret.y}
+		if shift and not self.selectionStart then
+			self.selectionStart = {x = self.caret.x, y = self.caret.y}
 		end
 
 		-- Flag for some keys (clipboard shortcuts) to skip
@@ -272,24 +272,24 @@ function TextEditor:ontype(state)
 
 		if shift and char ~= Const.char.BACKSPACE and char ~= Const.char.TAB then
 
-			self.sel_e = {x = self.caret.x, y = self.caret.y}
+			self.selectionEnd = {x = self.caret.x, y = self.caret.y}
 
 		elseif not bypass then
 
-			self:clearselection()
+			self:clearSelection()
 
 		end
 
 	-- Typeable chars
 	elseif Math.clamp(32, char, 254) == char then
 
-		if self.sel_s then self:deleteselection() end
+		if self.selectionStart then self:deleteSelection() end
 
-		self:insertchar(char)
+		self:insertChar(char)
 
   end
 
-	self:windowtocaret()
+	self:setWindowToCaret()
 
 	-- Reset the caret so the visual change isn't laggy
 	self.blink = 0
@@ -297,13 +297,13 @@ function TextEditor:ontype(state)
 end
 
 
-function TextEditor:onwheel(state)
+function TextEditor:onWheel(state)
 
 	-- Ctrl -- maybe zoom?
 	if state.mouse.cap & 4 == 4 then
 
 		--[[ Buggy, disabled for now
-		local font = self.font_text
+		local font = self.textFont
 		font = 	(type(font) == "string" and GUI.fonts[font])
 			or	(type(font) == "table" and font)
 
@@ -313,32 +313,32 @@ function TextEditor:onwheel(state)
 
 		font[2] = Math.clamp(8, font[2] + dir, 30)
 
-		self.font_text = font
+		self.textFont = font
 
-		self:wnd_recalc()
+		self:recalculateWindow()
 		]]--
 
 	-- Shift -- Horizontal scroll
 	elseif state.mouse.cap & 8 == 8 then
 
-		local len = self:getmaxlength()
+		local len = self:getMaxLineLength()
 
-		if len <= self.wnd_w then return end
+		if len <= self.windowW then return end
 
 		-- Scroll right/left
-		local dir = state.mouse.inc > 0 and 3 or -3
-		self.wnd_pos.x = Math.clamp(0, self.wnd_pos.x + dir, len - self.wnd_w + 4)
+		local dir = state.mouse.wheelInc > 0 and 3 or -3
+		self.windowPosition.x = Math.clamp(0, self.windowPosition.x + dir, len - self.windowW + 4)
 
 	-- Vertical scroll
 	else
 
-		local len = self:getwndlength()
+		local len = self:getVerticalLength()
 
-		if len <= self.wnd_h then return end
+		if len <= self.windowH then return end
 
 		-- Scroll up/down
-		local dir = state.mouse.inc > 0 and -3 or 3
-		self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + dir, len - self.wnd_h + 1)
+		local dir = state.mouse.wheelInc > 0 and -3 or 3
+		self.windowPosition.y = Math.clamp(1, self.windowPosition.y + dir, len - self.windowH + 1)
 
 	end
 
@@ -354,15 +354,15 @@ end
 ------------------------------------
 
 
-function TextEditor:drawcaption()
+function TextEditor:drawCaption()
 
 	local str = self.caption
 
-	Font.set(self.font_cap)
-	local str_w = gfx.measurestr(str)
-	gfx.x = self.x - str_w - self.pad
+	Font.set(self.captionFont)
+	local strWidth = gfx.measurestr(str)
+	gfx.x = self.x - strWidth - self.pad
 	gfx.y = self.y + self.pad
-	Text.text_bg(str, self.cap_bg)
+	Text.drawBackground(str, self.captionBg)
 
 	if self.shadow then
 		Text.drawWithShadow(str, self.color, "shadow")
@@ -374,16 +374,16 @@ function TextEditor:drawcaption()
 end
 
 
-function TextEditor:drawtext()
+function TextEditor:drawText()
 
 	Color.set(self.color)
-	Font.set(self.font_text)
+	Font.set(self.textFont)
 
 	local lines = {}
-	for i = self.wnd_pos.y, math.min(self:wnd_bottom() - 1, #self.retval) do
+	for i = self.windowPosition.y, math.min(self:windowBottom() - 1, #self.retval) do
 
 		local str = tostring(self.retval[i]) or ""
-		lines[#lines + 1] = string.sub(str, self.wnd_pos.x + 1, self:wnd_right() - 1)
+		lines[#lines + 1] = string.sub(str, self.windowPosition.x + 1, self:windowRight() - 1)
 
 	end
 
@@ -393,19 +393,19 @@ function TextEditor:drawtext()
 end
 
 
-function TextEditor:drawcaret()
+function TextEditor:drawCaret()
 
-	local caret_wnd = self:adjusttowindow(self.caret)
+	local caretRelative = self:adjustToWindow(self.caret)
 
-	if caret_wnd.x and caret_wnd.y then
+	if caretRelative.x and caretRelative.y then
 
 		Color.set("txt")
 
 		gfx.rect(
-      self.x + self.pad + (caret_wnd.x * self.char_w),
-					self.y + self.pad + (caret_wnd.y * self.char_h),
-					self.insert_caret and self.char_w or 2,
-      self.char_h - 2
+      self.x + self.pad + (caretRelative.x * self.charW),
+					self.y + self.pad + (caretRelative.y * self.charH),
+					self.insertCaret and self.charW or 2,
+      self.charH - 2
     )
 
 	end
@@ -413,31 +413,31 @@ function TextEditor:drawcaret()
 end
 
 
-function TextEditor:drawselection()
+function TextEditor:drawSelection()
 
-	local off_x, off_y = self.x + self.pad, self.y + self.pad
+	local offsetX, offsetY = self.x + self.pad, self.y + self.pad
   local x, y, w
-  local h = self.char_h
+  local h = self.charH
 
-	Color.set("elm_fill")
+	Color.set("elmFill")
 	gfx.a = 0.5
 	gfx.mode = 1
 
 	-- Get all the selection boxes that need to be drawn
-  local coords = self:getselection()
-  local max_w = self.x + self.w - self.pad
+  local coords = self:getSelection()
+  local maxWidth = self.x + self.w - self.pad
 
 	for i = 1, #coords do
 
 		-- Make sure at least part of this line is visible
-		if self:selectionvisible(coords[i]) then
+		if self:selectionVisible(coords[i]) then
 
 			-- Convert from char/row coords to actual pixels
-			x =	off_x + (coords[i].x - self.wnd_pos.x) * self.char_w
-			y =	off_y + (coords[i].y - self.wnd_pos.y) * self.char_h
+			x =	offsetX + (coords[i].x - self.windowPosition.x) * self.charW
+			y =	offsetY + (coords[i].y - self.windowPosition.y) * self.charH
 
 			-- Keep the selection from spilling out past the scrollbar
-			w = math.min(coords[i].w * self.char_w, max_w - x)
+			w = math.min(coords[i].w * self.charW, maxWidth - x)
 
 			gfx.rect(x, y, w, h, true)
 
@@ -454,45 +454,45 @@ function TextEditor:drawselection()
 end
 
 
-function TextEditor:drawscrollbars()
+function TextEditor:drawScrollbars()
 
-	local max_w, txt_h = self:getmaxlength(), self:getwndlength()
-  local vert = txt_h > self.wnd_h
-  local horz = max_w > self.wnd_w
+	local maxWidth, textH = self:getMaxLineLength(), self:getVerticalLength()
+  local vert = textH > self.windowH
+  local horz = maxWidth > self.windowW
 
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
 	local vx, vy, vw, vh = x + w - 8 - 4, y + 4, 8, h - 16
 	local hx, hy, hw, hh = x + 4, y + h - 8 - 4, w - 16, 8
-	local fade_w = 12
+	local fadeWidh = 12
 	local _
 
     -- Only draw the empty tracks if we don't need scroll bars
 	if not (vert or horz) then goto tracks end
 
 	-- Draw a gradient to fade out the last ~16px of text
-	Color.set("elm_bg")
-	for i = 0, fade_w do
+	Color.set("elmBg")
+	for i = 0, fadeWidh do
 
-		gfx.a = i/fade_w
+		gfx.a = i/fadeWidh
 
 		if vert then
 
-			gfx.line(vx + i - fade_w, y + 2, vx + i - fade_w, y + h - 4)
+			gfx.line(vx + i - fadeWidh, y + 2, vx + i - fadeWidh, y + h - 4)
 
-			-- Fade out the top if we're not at wnd_pos.y = 1
-			_ = self.wnd_pos.y > 1 and
-				gfx.line(x + 2, y + 2 + fade_w - i, x + w - 4, y + 2 + fade_w - i)
+			-- Fade out the top if we're not at windowPosition.y = 1
+			_ = self.windowPosition.y > 1 and
+				gfx.line(x + 2, y + 2 + fadeWidh - i, x + w - 4, y + 2 + fadeWidh - i)
 
 		end
 
 		if horz then
 
-			gfx.line(x + 2, hy + i - fade_w, x + w - 4, hy + i - fade_w)
+			gfx.line(x + 2, hy + i - fadeWidh, x + w - 4, hy + i - fadeWidh)
 
-			-- Fade out the left if we're not at wnd_pos.x = 0
-			_ = self.wnd_pos.x > 0 and
-				gfx.line(x + 2 + fade_w - i, y + 2, x + 2 + fade_w - i, y + h - 4)
+			-- Fade out the left if we're not at windowPosition.x = 0
+			_ = self.windowPosition.x > 0 and
+				gfx.line(x + 2 + fadeWidh - i, y + 2, x + 2 + fadeWidh - i, y + h - 4)
 
 		end
 
@@ -505,31 +505,31 @@ function TextEditor:drawscrollbars()
   ::tracks::
 
 	-- Draw slider track
-	Color.set("tab_bg")
-	GFX.roundrect(vx, vy, vw, vh, 4, 1, 1)
-	GFX.roundrect(hx, hy, hw, hh, 4, 1, 1)
-	Color.set("elm_outline")
-	GFX.roundrect(vx, vy, vw, vh, 4, 1, 0)
-	GFX.roundrect(hx, hy, hw, hh, 4, 1, 0)
+	Color.set("tabBg")
+	GFX.roundRect(vx, vy, vw, vh, 4, 1, 1)
+	GFX.roundRect(hx, hy, hw, hh, 4, 1, 1)
+	Color.set("elmOutline")
+	GFX.roundRect(vx, vy, vw, vh, 4, 1, 0)
+	GFX.roundRect(hx, hy, hw, hh, 4, 1, 0)
 
 
 	-- Draw slider fill
-	Color.set(self.col_fill)
+	Color.set(self.fillColor)
 
 	if vert then
-		local fh = (self.wnd_h / txt_h) * vh - 4
+		local fh = (self.windowH / textH) * vh - 4
 		if fh < 4 then fh = 4 end
-		local fy = vy + ((self.wnd_pos.y - 1) / txt_h) * vh + 2
+		local fy = vy + ((self.windowPosition.y - 1) / textH) * vh + 2
 
-		GFX.roundrect(vx + 2, fy, vw - 4, fh, 2, 1, 1)
+		GFX.roundRect(vx + 2, fy, vw - 4, fh, 2, 1, 1)
 	end
 
 	if horz then
-		local fw = (self.wnd_w / (max_w + 4)) * hw - 4
+		local fw = (self.windowW / (maxWidth + 4)) * hw - 4
 		if fw < 4 then fw = 4 end
-		local fx = hx + (self.wnd_pos.x / (max_w + 4)) * hw + 2
+		local fx = hx + (self.windowPosition.x / (maxWidth + 4)) * hw + 2
 
-		GFX.roundrect(fx, hy + 2, fw, hh - 4, 2, 1, 1)
+		GFX.roundRect(fx, hy + 2, fw, hh - 4, 2, 1, 1)
 	end
 
 end
@@ -542,10 +542,10 @@ end
 ------------------------------------
 
 
-function TextEditor:getselectioncoords()
+function TextEditor:getSelectionCoords()
 
-	local sx, sy = self.sel_s.x, self.sel_s.y
-	local ex, ey = self.sel_e.x, self.sel_e.y
+	local sx, sy = self.selectionStart.x, self.selectionStart.y
+	local ex, ey = self.selectionEnd.x, self.selectionEnd.y
 
 	-- Make sure the Start is before the End
 	if sy > ey then
@@ -560,40 +560,40 @@ end
 
 
 -- Figure out what portions of the text are selected
-function TextEditor:getselection()
+function TextEditor:getSelection()
 
-  local sx, sy, ex, ey = self:getselectioncoords()
+  local sx, sy, ex, ey = self:getSelectionCoords()
 
 	local x, w
-	local sel_coords = T{}
+	local selectionCoords = T{}
 
 	-- Eliminate the easiest case - start and end are the same line
 	if sy == ey then
 
-		x = Math.clamp(self.wnd_pos.x, sx, self:wnd_right())
-		w = Math.clamp(x, ex, self:wnd_right()) - x
+		x = Math.clamp(self.windowPosition.x, sx, self:windowRight())
+		w = Math.clamp(x, ex, self:windowRight()) - x
 
-		sel_coords:insert({x = x, y = sy, w = w})
+		selectionCoords:insert({x = x, y = sy, w = w})
 
 
 	-- ...fine, we'll do it the hard way
 	else
 
 		-- Start
-		x = Math.clamp(self.wnd_pos.x, sx, self:wnd_right())
-		w = math.min(self:wnd_right(), #(self.retval[sy] or "")) - x
+		x = Math.clamp(self.windowPosition.x, sx, self:windowRight())
+		w = math.min(self:windowRight(), #(self.retval[sy] or "")) - x
 
-		sel_coords:insert({x = x, y = sy, w = w})
+		selectionCoords:insert({x = x, y = sy, w = w})
 
 
 		-- Any intermediate lines are clearly full
-		for i = self.wnd_pos.y, self:wnd_bottom() - 1 do
+		for i = self.windowPosition.y, self:windowBottom() - 1 do
 
 			-- Is this line within the selection?
 			if i > sy and i < ey then
 
-				w = math.min(self:wnd_right(), #(self.retval[i] or "")) - self.wnd_pos.x
-				sel_coords:insert({x = self.wnd_pos.x, y = i, w = w})
+				w = math.min(self:windowRight(), #(self.retval[i] or "")) - self.windowPosition.x
+				selectionCoords:insert({x = self.windowPosition.x, y = i, w = w})
 
 			-- We're past the selection
 			elseif i >= ey then
@@ -605,36 +605,36 @@ function TextEditor:getselection()
 		end
 
 		-- End
-		x = self.wnd_pos.x
-		w = math.min(self:wnd_right(), ex) - self.wnd_pos.x
-		sel_coords:insert({x = x, y = ey, w = w})
+		x = self.windowPosition.x
+		w = math.min(self:windowRight(), ex) - self.windowPosition.x
+		selectionCoords:insert({x = x, y = ey, w = w})
 
 
 	end
 
-	return sel_coords
+	return selectionCoords
 
 
 end
 
 
 -- Make sure at least part of this selection block is within the window
-function TextEditor:selectionvisible(coords)
+function TextEditor:selectionVisible(coords)
 
 	return 		    coords.w > 0                            -- Selection has width,
-			      and coords.x + coords.w > self.wnd_pos.x    -- doesn't end to the left
-            and coords.x < self:wnd_right()             -- doesn't start to the right
-			      and coords.y >= self.wnd_pos.y              -- and is on a visible line
-			      and coords.y < self:wnd_bottom()
+			      and coords.x + coords.w > self.windowPosition.x    -- doesn't end to the left
+            and coords.x < self:windowRight()             -- doesn't start to the right
+			      and coords.y >= self.windowPosition.y              -- and is on a visible line
+			      and coords.y < self:windowBottom()
 
 end
 
 
-function TextEditor:selectall()
+function TextEditor:selectAll()
 
-	self.sel_s = {x = 0, y = 1}
+	self.selectionStart = {x = 0, y = 1}
 	self.caret = {x = 0, y = 1}
-	self.sel_e = {
+	self.selectionEnd = {
     x = string.len(self.retval[#self.retval]),
     y = #self.retval
   }
@@ -642,7 +642,7 @@ function TextEditor:selectall()
 end
 
 
-function TextEditor:selectword()
+function TextEditor:selectWord()
 
 	local str = self.retval[self.caret.y] or ""
 
@@ -652,28 +652,28 @@ function TextEditor:selectword()
 
 	local ex =	(	string.find( str, "%s", sx + 1)
 			    or		string.len(str) + 1 )
-				- (self.wnd_pos.x > 0 and 2 or 1)	-- Kludge, fixes length issues
+				- (self.windowPosition.x > 0 and 2 or 1)	-- Kludge, fixes length issues
 
-	self.sel_s = {x = sx, y = self.caret.y}
-	self.sel_e = {x = ex, y = self.caret.y}
-
-end
-
-
-function TextEditor:clearselection()
-
-	self.sel_s, self.sel_e = nil, nil
+	self.selectionStart = {x = sx, y = self.caret.y}
+	self.selectionEnd = {x = ex, y = self.caret.y}
 
 end
 
 
-function TextEditor:deleteselection()
+function TextEditor:clearSelection()
 
-	if not (self.sel_s and self.sel_e) then return 0 end
+	self.selectionStart, self.selectionEnd = nil, nil
 
-	self:storeundostate()
+end
 
-  local sx, sy, ex, ey = self:getselectioncoords()
+
+function TextEditor:deleteSelection()
+
+	if not (self.selectionStart and self.selectionEnd) then return 0 end
+
+	self:storeUndoState()
+
+  local sx, sy, ex, ey = self:getSelectionCoords()
 
 	-- Easiest case; single line
 	if sy == ey then
@@ -693,15 +693,15 @@ function TextEditor:deleteselection()
 
 	self.caret.x, self.caret.y = sx, sy
 
-	self:clearselection()
-	self:windowtocaret()
+	self:clearSelection()
+	self:setWindowToCaret()
 
 end
 
 
-function TextEditor:getselectedtext()
+function TextEditor:getSelectedText()
 
-  local sx, sy, ex, ey = self:getselectioncoords()
+  local sx, sy, ex, ey = self:getSelectionCoords()
 
 	local lines = {}
 
@@ -719,8 +719,8 @@ function TextEditor:getselectedtext()
 end
 
 
-TextEditor.toclipboard = TextUtils.toclipboard
-TextEditor.fromclipboard = TextUtils.fromclipboard
+TextEditor.toClipboard = TextUtils.toClipboard
+TextEditor.fromClipboard = TextUtils.fromClipboard
 
 
 
@@ -731,34 +731,34 @@ TextEditor.fromclipboard = TextUtils.fromclipboard
 
 
 -- Updates internal values for the window size
-function TextEditor:wnd_recalc()
+function TextEditor:recalculateWindow()
 
-	Font.set(self.font_text)
-	self.char_w, self.char_h = gfx.measurestr("i")
-	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
-	self.wnd_w = math.floor(self.w / self.char_w)
+	Font.set(self.textFont)
+	self.charW, self.charH = gfx.measurestr("i")
+	self.windowH = math.floor((self.h - 2*self.pad) / self.charH)
+	self.windowW = math.floor(self.w / self.charW)
 
 end
 
 
 -- Get the right edge of the window (in chars)
-function TextEditor:wnd_right()
+function TextEditor:windowRight()
 
-	return self.wnd_pos.x + self.wnd_w
+	return self.windowPosition.x + self.windowW
 
 end
 
 
 -- Get the bottom edge of the window (in rows)
-function TextEditor:wnd_bottom()
+function TextEditor:windowBottom()
 
-	return self.wnd_pos.y + self.wnd_h
+	return self.windowPosition.y + self.windowH
 
 end
 
 
 -- Get the length of the longest line
-function TextEditor:getmaxlength()
+function TextEditor:getMaxLineLength()
 
 	local w = 0
 
@@ -774,7 +774,7 @@ end
 
 
 -- Add 2 to the table length so the horizontal scrollbar isn't in the way
-function TextEditor:getwndlength()
+function TextEditor:getVerticalLength()
 
 	return #self.retval + 2
 
@@ -784,19 +784,19 @@ end
 -- See if a given pair of coords is in the visible window
 -- If so, adjust them from absolute to window-relative
 -- If not, returns nil
-function TextEditor:adjusttowindow(coords)
+function TextEditor:adjustToWindow(coords)
 
 	local x, y = coords.x, coords.y
-	x = (Math.clamp(self.wnd_pos.x, x, self:wnd_right() - 3) == x)
-						and x - self.wnd_pos.x
+	x = (Math.clamp(self.windowPosition.x, x, self:windowRight() - 3) == x)
+						and x - self.windowPosition.x
 						or nil
 
 	-- Fixes an issue with the position being one space to the left of where it should be
 	-- when the window isn't at x = 0. Not sure why.
-	--x = x and (x + (self.wnd_pos.x == 0 and 0 or 1))
+	--x = x and (x + (self.windowPosition.x == 0 and 0 or 1))
 
-	y = (Math.clamp(self.wnd_pos.y, y, self:wnd_bottom() - 1) == y)
-						and y - self.wnd_pos.y
+	y = (Math.clamp(self.windowPosition.y, y, self:windowBottom() - 1) == y)
+						and y - self.windowPosition.y
 						or nil
 
 	return {x = x, y = y}
@@ -805,36 +805,36 @@ end
 
 
 -- Adjust the window if the caret has been moved off-screen
-function TextEditor:windowtocaret()
+function TextEditor:setWindowToCaret()
 
 	-- Horizontal
-	if self.caret.x < self.wnd_pos.x + 4 then
-		self.wnd_pos.x = math.max(0, self.caret.x - 4)
-	elseif self.caret.x > (self:wnd_right() - 4) then
-		self.wnd_pos.x = self.caret.x + 4 - self.wnd_w
+	if self.caret.x < self.windowPosition.x + 4 then
+		self.windowPosition.x = math.max(0, self.caret.x - 4)
+	elseif self.caret.x > (self:windowRight() - 4) then
+		self.windowPosition.x = self.caret.x + 4 - self.windowW
 	end
 
 	-- Vertical
-	local bot = self:wnd_bottom()
-	local adj = (	(self.caret.y < self.wnd_pos.y) and -1	)
+	local bot = self:windowBottom()
+	local adj = (	(self.caret.y < self.windowPosition.y) and -1	)
 			    or	(	(self.caret.y >= bot) and 1	)
-			    or	(	(bot > self:getwndlength() and -(bot - self:getwndlength() - 1) ) )
+			    or	(	(bot > self:getVerticalLength() and -(bot - self:getVerticalLength() - 1) ) )
 
-	if adj then self.wnd_pos.y = Math.clamp(1, self.wnd_pos.y + adj, self.caret.y) end
+	if adj then self.windowPosition.y = Math.clamp(1, self.windowPosition.y + adj, self.caret.y) end
 
 end
 
 
 -- TextEditor - Get the closest character position to the given coords.
-function TextEditor:getcaret(x, y)
+function TextEditor:getCaret(x, y)
 
 	local pos = {}
 
-	pos.x = math.floor(		((x - self.x) / self.w ) * self.wnd_w)
-        + self.wnd_pos.x
+	pos.x = math.floor(		((x - self.x) / self.w ) * self.windowW)
+        + self.windowPosition.x
 	pos.y = math.floor(   (y - (self.y + self.pad))
-						            /	self.char_h)
-			  + self.wnd_pos.y
+						            /	self.charH)
+			  + self.windowPosition.y
 
 	pos.y = Math.clamp(1, pos.y, #self.retval)
 	pos.x = Math.clamp(0, pos.x, #(self.retval[pos.y] or ""))
@@ -846,14 +846,14 @@ end
 
 -- Is the mouse over either of the scrollbars?
 -- Returns "h", "v", or false
-function TextEditor:overscrollbar(x, y)
+function TextEditor:isOverScrollbar(x, y)
 
-	if	self:getwndlength() > self.wnd_h
+	if	self:getVerticalLength() > self.windowH
 	and x >= (self.x + self.w - 12) then
 
 		return "v"
 
-	elseif 	self:getmaxlength() > self.wnd_w
+	elseif 	self:getMaxLineLength() > self.windowW
 	and	y >= (self.y + self.h - 12) then
 
 		return "h"
@@ -863,30 +863,30 @@ function TextEditor:overscrollbar(x, y)
 end
 
 
-function TextEditor:setscrollbar(scroll, state)
+function TextEditor:setScrollbar(scroll, state)
 
   -- Vertical scroll
   if scroll == "v" then
 
-    local len = self:getwndlength()
-    local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * len  )
-    self.wnd_pos.y = Math.round(
+    local len = self:getVerticalLength()
+    local windowCenter = Math.round( ((state.mouse.y - self.y) / self.h) * len  )
+    self.windowPosition.y = Math.round(
       Math.clamp(	1,
-                  wnd_c - (self.wnd_h / 2),
-                  len - self.wnd_h + 1
+                  windowCenter - (self.windowH / 2),
+                  len - self.windowH + 1
       )
     )
 
   -- Horizontal scroll
   else
-  --self.caret.x + 4 - self.wnd_w
+  --self.caret.x + 4 - self.windowW
 
-      local len = self:getmaxlength()
-      local wnd_c = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
-      self.wnd_pos.x = Math.round(
+      local len = self:getMaxLineLength()
+      local windowCenter = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
+      self.windowPosition.x = Math.round(
         Math.clamp(	0,
-                    wnd_c - (self.wnd_w / 2),
-                    len + 4 - self.wnd_w
+                    windowCenter - (self.windowW / 2),
+                    len + 4 - self.windowW
         )
       )
 
@@ -904,24 +904,24 @@ end
 
 
 -- Split a string by line into a table
-function TextEditor:stringtotable(str)
-  return self:sanitizetext(str):splitLines()
+function TextEditor:stringToTable(str)
+  return self:sanitizeText(str):splitLines()
 end
 
 
 -- Insert a string at the caret, deleting any existing selection
 -- i.e. Paste
-function TextEditor:insertstring(str, move_caret)
+function TextEditor:insertString(str, moveCaret)
 
-	self:storeundostate()
+	self:storeUndoState()
 
-  str = self:sanitizetext(str)
+  str = self:sanitizeText(str)
 
-	if self.sel_s then self:deleteselection() end
+	if self.selectionStart then self:deleteSelection() end
 
   local sx, sy = self.caret.x, self.caret.y
 
-	local tmp = self:stringtotable(str)
+	local tmp = self:stringToTable(str)
 
 	local pre =	string.sub(self.retval[sy] or "", 1, sx)
 	local post = string.sub(self.retval[sy] or "", sx + 1)
@@ -929,7 +929,7 @@ function TextEditor:insertstring(str, move_caret)
 	if #tmp == 1 then
 
 		self.retval[sy] = pre..tmp[1]..post
-		if move_caret then self.caret.x = self.caret.x + #tmp[1] end
+		if moveCaret then self.caret.x = self.caret.x + #tmp[1] end
 
 	else
 
@@ -941,7 +941,7 @@ function TextEditor:insertstring(str, move_caret)
 			table.insert(self.retval, sy + 1, tmp[i])
 		end
 
-		if move_caret then
+		if moveCaret then
 			self.caret = {	x =	string.len(tmp[#tmp]),
 							y =	self.caret.y + #tmp - 1}
 		end
@@ -952,14 +952,14 @@ end
 
 
 -- Insert typeable characters
-function TextEditor:insertchar(char)
+function TextEditor:insertChar(char)
 
-	self:storeundostate()
+	self:storeUndoState()
 
 	local str = self.retval[self.caret.y] or ""
 
 	local a, b = str:sub(1, self.caret.x),
-                 str:sub(self.caret.x + (self.insert_caret and 2 or 1))
+                 str:sub(self.caret.x + (self.insertCaret and 2 or 1))
 	self.retval[self.caret.y] = a..string.char(char)..b
 	self.caret.x = self.caret.x + 1
 
@@ -967,13 +967,13 @@ end
 
 
 -- Place the caret at the end of the current line
-function TextEditor:carettoend()
+function TextEditor:caretToEnd()
     return string.len(self.retval[self.caret.y] or "")
 end
 
 
 -- Replace any characters that we're unable to reproduce properly
-function TextEditor:sanitizetext(str)
+function TextEditor:sanitizeText(str)
 
   if type(str) == "string" then
 
@@ -996,7 +996,7 @@ end
 
 
 -- Backspace by up to four " " characters, if present.
-function TextEditor:backtab()
+function TextEditor:backTab()
 
   local str = self.retval[self.caret.y]
   local pre, post = str:sub(1, self.caret.x), str:sub(self.caret.x + 1)
@@ -1011,7 +1011,7 @@ function TextEditor:backtab()
 
 end
 
-TextEditor.ctrlchar = TextUtils.ctrlchar
+TextEditor.doCtrlChar = TextUtils.doCtrlChar
 
 
 -- Non-typing key commands
@@ -1023,7 +1023,7 @@ TextEditor.keys = {
 
 		if self.caret.x < 1 and self.caret.y > 1 then
 			self.caret.y = self.caret.y - 1
-			self.caret.x = self:carettoend()
+			self.caret.x = self:caretToEnd()
 		else
 			self.caret.x = math.max(self.caret.x - 1, 0)
 		end
@@ -1032,11 +1032,11 @@ TextEditor.keys = {
 
 	[Const.char.RIGHT] = function(self)
 
-		if self.caret.x == self:carettoend() and self.caret.y < self:getwndlength() then
+		if self.caret.x == self:caretToEnd() and self.caret.y < self:getVerticalLength() then
 			self.caret.y = self.caret.y + 1
 			self.caret.x = 0
 		else
-			self.caret.x = math.min(self.caret.x + 1, self:carettoend() )
+			self.caret.x = math.min(self.caret.x + 1, self:caretToEnd() )
 		end
 
 	end,
@@ -1047,18 +1047,18 @@ TextEditor.keys = {
 			self.caret.x = 0
 		else
 			self.caret.y = math.max(1, self.caret.y - 1)
-			self.caret.x = math.min(self.caret.x, self:carettoend() )
+			self.caret.x = math.min(self.caret.x, self:caretToEnd() )
 		end
 
 	end,
 
 	[Const.char.DOWN] = function(self)
 
-		if self.caret.y == self:getwndlength() then
+		if self.caret.y == self:getVerticalLength() then
 			self.caret.x = string.len(self.retval[#self.retval])
 		else
 			self.caret.y = math.min(self.caret.y + 1, #self.retval)
-			self.caret.x = math.min(self.caret.x, self:carettoend() )
+			self.caret.x = math.min(self.caret.x, self:caretToEnd() )
 		end
 
 	end,
@@ -1071,18 +1071,18 @@ TextEditor.keys = {
 
 	[Const.char.END] = function(self)
 
-		self.caret.x = self:carettoend()
+		self.caret.x = self:caretToEnd()
 
 	end,
 
 	[Const.char.PGUP] = function(self)
 
-		local caret_off = self.caret and (self.caret.y - self.wnd_pos.y)
+		local caretOffset = self.caret and (self.caret.y - self.windowPosition.y)
 
-		self.wnd_pos.y = math.max(1, self.wnd_pos.y - self.wnd_h)
+		self.windowPosition.y = math.max(1, self.windowPosition.y - self.windowH)
 
-		if caret_off then
-			self.caret.y = self.wnd_pos.y + caret_off
+		if caretOffset then
+			self.caret.y = self.windowPosition.y + caretOffset
 			self.caret.x = math.min(self.caret.x, string.len(self.retval[self.caret.y]))
 		end
 
@@ -1090,24 +1090,28 @@ TextEditor.keys = {
 
 	[Const.char.PGDN] = function(self)
 
-		local caret_off = self.caret and (self.caret.y - self.wnd_pos.y)
+		local caretOffset = self.caret and (self.caret.y - self.windowPosition.y)
 
-		self.wnd_pos.y = Math.clamp(1, self:getwndlength() - self.wnd_h + 1, self.wnd_pos.y + self.wnd_h)
+		self.windowPosition.y = Math.clamp(
+      1,
+      self:getVerticalLength() - self.windowH + 1,
+      self.windowPosition.y + self.windowH
+    )
 
-		if caret_off then
-			self.caret.y = self.wnd_pos.y + caret_off
+		if caretOffset then
+			self.caret.y = self.windowPosition.y + caretOffset
 			self.caret.x = math.min(self.caret.x, string.len(self.retval[self.caret.y]))
 		end
 
 	end,
 
 	[Const.char.BACKSPACE] = function(self)
-		self:storeundostate()
+		self:storeUndoState()
 
 		-- Is there a selection?
-		if self.sel_s and self.sel_e then
+		if self.selectionStart and self.selectionEnd then
 
-			self:deleteselection()
+			self:deleteSelection()
 
 		-- If we have something to backspace, delete it
 		elseif self.caret.x > 0 then
@@ -1132,39 +1136,39 @@ TextEditor.keys = {
 	[Const.char.TAB] = function(self, state)
 
     -- Disabled until Reaper supports this properly
-		--self:insertchar(9)
+		--self:insertChar(9)
 
     if state.mouse.cap & 8 == 8 then
-      self:backtab()
+      self:backTab()
     else
-      self:insertstring("    ", true)
+      self:insertString("    ", true)
 		end
 
 	end,
 
 	[Const.char.INSERT] = function(self)
 
-		self.insert_caret = not self.insert_caret
+		self.insertCaret = not self.insertCaret
 
 	end,
 
 	[Const.char.DELETE] = function(self)
 
-		self:storeundostate()
+		self:storeUndoState()
 
 		-- Is there a selection?
-		if self.sel_s then
+		if self.selectionStart then
 
-			self:deleteselection()
+			self:deleteSelection()
 
 		-- Deleting on the current line
-		elseif self.caret.x < self:carettoend() then
+		elseif self.caret.x < self:caretToEnd() then
 
 			local str = self.retval[self.caret.y] or ""
 			self.retval[self.caret.y] = str:sub(1, self.caret.x) ..
                                   str:sub(self.caret.x + 2)
 
-		elseif self.caret.y < self:getwndlength() then
+		elseif self.caret.y < self:getVerticalLength() then
 
 			self.retval[self.caret.y] = self.retval[self.caret.y] ..
                                  (self.retval[self.caret.y + 1] or "")
@@ -1176,9 +1180,9 @@ TextEditor.keys = {
 
 	[Const.char.RETURN] = function(self)
 
-		self:storeundostate()
+		self:storeUndoState()
 
-		if self.sel_s then self:deleteselection() end
+		if self.selectionStart then self:deleteSelection() end
 
 		local str = self.retval[self.caret.y] or ""
 		self.retval[self.caret.y] = str:sub(1, self.caret.x)
@@ -1191,42 +1195,42 @@ TextEditor.keys = {
 	-- A -- Select All
 	[1] = function(self, state)
 
-    return self:ctrlchar(state, self.selectall)
+    return self:doCtrlChar(state, self.selectAll)
 
 	end,
 
 	-- C -- Copy
 	[3] = function(self, state)
 
-		return self:ctrlchar(state, self.toclipboard)
+		return self:doCtrlChar(state, self.toClipboard)
 
 	end,
 
 	-- V -- Paste
 	[22] = function(self, state)
 
-		return self:ctrlchar(state, self.fromclipboard)
+		return self:doCtrlChar(state, self.fromClipboard)
 
 	end,
 
 	-- X -- Cut
 	[24] = function(self, state)
 
-		return self:ctrlchar(state, self.toclipboard, true)
+		return self:doCtrlChar(state, self.toClipboard, true)
 
 	end,
 
 	-- Y -- Redo
 	[25] = function (self, state)
 
-		return self:ctrlchar(state, self.redo)
+		return self:doCtrlChar(state, self.redo)
 
 	end,
 
 	-- Z -- Undo
 	[26] = function (self, state)
 
-		return self:ctrlchar(state, self.undo)
+		return self:doCtrlChar(state, self.undo)
 
 	end
 }
@@ -1241,9 +1245,9 @@ TextEditor.keys = {
 TextEditor.undo = TextUtils.undo
 TextEditor.redo = TextUtils.redo
 
-TextEditor.storeundostate = TextUtils.storeundostate
+TextEditor.storeUndoState = TextUtils.storeUndoState
 
-function TextEditor:geteditorstate()
+function TextEditor:getEditorState()
 
 	local state = { retval = {} }
 	for k,v in pairs(self.retval) do
@@ -1256,13 +1260,13 @@ function TextEditor:geteditorstate()
 end
 
 
-function TextEditor:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
+function TextEditor:setEditorState(retval, caret, windowPosition, selectionStart, selectionEnd)
 
     self.retval = retval or {""}
-    self.wnd_pos = wnd_pos or {x = 0, y = 1}
+    self.windowPosition = windowPosition or {x = 0, y = 1}
     self.caret = caret or {x = 0, y = 1}
-    self.sel_s = sel_s or nil
-    self.sel_e = sel_e or nil
+    self.selectionStart = selectionStart or nil
+    self.selectionEnd = selectionEnd or nil
 
 end
 

@@ -37,19 +37,20 @@ Option.defaultProps = {
 
   caption = "Option: ",
 
-  bg = "wnd_bg",
+  bg = "windowBg",
 
-  dir = "v",
+  -- dir = "v",
+  horizontal = false,
   pad = 4,
 
-  col_txt = "txt",
-  col_fill = "elm_fill",
+  textColor = "txt",
+  fillColor = "elmFill",
 
-  font_a = 2,
-  font_b = 3,
+  captionFont = 2,
+  textFont = 3,
 
   -- Size of the option bubbles
-  opt_size = 20,
+  optionSize = 20,
 
   options = {"Option 1", "Option 2", "Option 3"},
 
@@ -75,30 +76,30 @@ function Option:init()
       return
   end
 
-	self.buff = self.buff or Buffer.get()
+	self.buffer = self.buffer or Buffer.get()
 
-	gfx.dest = self.buff
-	gfx.setimgdim(self.buff, -1, -1)
-	gfx.setimgdim(self.buff, 2*self.opt_size + 4, 2*self.opt_size + 2)
+	gfx.dest = self.buffer
+	gfx.setimgdim(self.buffer, -1, -1)
+	gfx.setimgdim(self.buffer, 2*self.optionSize + 4, 2*self.optionSize + 2)
 
-  self:initoptions()
+  self:initOptions()
 
 	if self.caption and self.caption ~= "" then
-		Font.set(self.font_a)
-		local str_w, str_h = gfx.measurestr(self.caption)
-		self.cap_h = 0.5*str_h
-		self.cap_x = self.x + (self.w - str_w) / 2
+		Font.set(self.captionFont)
+		local strWidth, strHeight = gfx.measurestr(self.caption)
+		self.captionHeight = 0.5*strHeight
+		self.captionX = self.x + (self.w - strWidth) / 2
 	else
-		self.cap_h = 0
-		self.cap_x = 0
+		self.captionHeight = 0
+		self.captionX = 0
 	end
 
 end
 
 
-function Option:ondelete()
+function Option:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -106,13 +107,13 @@ end
 function Option:draw()
 
 	if self.frame then
-		Color.set("elm_frame")
+		Color.set("elmFrame")
 		gfx.rect(self.x, self.y, self.w, self.h, 0)
 	end
 
   if self.caption and self.caption ~= "" then self:drawcaption() end
 
-  self:drawoptions()
+  self:drawOptionBubbles()
 
 end
 
@@ -126,19 +127,19 @@ end
 
 
 
-function Option:getmouseopt(state)
+function Option:getMouseOption(state)
 
   local len = #self.options
 
 	-- See which option it's on
-	local mouseopt = self.dir == "h"
+	local mouseOption = self.horizontal
                 and (state.mouse.x - (self.x + self.pad))
-					      or	(state.mouse.y - (self.y + self.cap_h + 1.5*self.pad) )
+					      or	(state.mouse.y - (self.y + self.captionHeight + 1.5*self.pad) )
 
-	mouseopt = mouseopt / ((self.opt_size + self.pad) * len)
-	mouseopt = Math.clamp( math.floor(mouseopt * len) + 1 , 1, len )
+	mouseOption = mouseOption / ((self.optionSize + self.pad) * len)
+	mouseOption = Math.clamp( math.floor(mouseOption * len) + 1 , 1, len )
 
-  return self.options[mouseopt] ~= "_" and mouseopt or false
+  return self.options[mouseOption] ~= "_" and mouseOption or false
 
 end
 
@@ -150,53 +151,47 @@ end
 
 function Option:drawcaption()
 
-  Font.set(self.font_a)
+  Font.set(self.captionFont)
 
-  gfx.x = self.cap_x
-  gfx.y = self.y - self.cap_h
+  gfx.x = self.captionX
+  gfx.y = self.y - self.captionHeight
 
-  Text.text_bg(self.caption, self.bg)
+  Text.drawBackground(self.caption, self.bg)
 
-  Text.drawWithShadow(self.caption, self.col_txt, "shadow")
+  Text.drawWithShadow(self.caption, self.textColor, "shadow")
 
 end
 
 
-function Option:drawoptions()
-  local horz = self.dir == "h"
+function Option:drawOptionBubbles()
 	local pad = self.pad
 
   -- Bump everything down for the caption
-  local adjusted_y = self.y + ((self.caption and self.caption ~= "") and self.cap_h or 0) + 1.5 * pad
+  local adjustedY = self.y + ((self.caption and self.caption ~= "") and self.captionHeight or 0) + 1.5 * pad
 
   -- Bump the options down more for horizontal options
   -- with the text on top
-	if horz and self.caption ~= "" and not self.swap then
-    adjusted_y = adjusted_y + self.cap_h + 2*pad
+	if self.horizontal and self.caption ~= "" and not self.swap then
+    adjustedY = adjustedY + self.captionHeight + 2*pad
   end
 
-	local opt_size = self.opt_size
+  local offset = self.optionSize + pad
 
-  local adj = opt_size + pad
-
-  local str, opt_x, opt_y
+  local x, y
 
 	for i = 1, #self.options do
+    if self.options[i] ~= "_" then
 
-		str = self.options[i]
-		if str ~= "_" then
+      x = self.x + (
+        self.horizontal  and (i - 1) * offset + pad
+                         or  (self.swap  and (self.w - offset - 1)
+                                         or   pad)
+      )
 
-      opt_x = self.x + (horz  and (i - 1) * adj + pad
-                              or  (self.swap  and (self.w - adj - 1)
-                                              or   pad))
+      y = adjustedY + (i - 1) * (self.horizontal and 0 or offset)
 
-      opt_y = adjusted_y + (i - 1) * (horz and 0 or adj)
-
-      -- Draw the option bubble
-      self:drawoption(opt_x, opt_y, opt_size, self:isoptselected(i))
-
-      self:drawvalue(opt_x, opt_y, opt_size, str)
-
+      self:drawOptionBubble(x, y, self.optionSize, self:isOptionSelected(i))
+      self:drawOptionText(x, y, self.optionSize, self.options[i])
     end
 
 	end
@@ -204,43 +199,43 @@ function Option:drawoptions()
 end
 
 
-function Option:drawoption(opt_x, opt_y, size, selected)
+function Option:drawOptionBubble(x, y, size, selected)
 
-  gfx.blit(   self.buff, 1,  0,
+  gfx.blit(   self.buffer, 1,  0,
               selected and (size + 3) or 1, 1,
               size + 1, size + 1,
-              opt_x, opt_y)
+              x, y)
 
 end
 
 
-function Option:drawvalue(opt_x, opt_y, size, str)
+function Option:drawOptionText(x, y, size, str)
 
   if not str or str == "" then return end
 
-  Font.set(self.font_b)
+  Font.set(self.textFont)
 
   local output = self:formatOutput(str)
 
-  local str_w, str_h = gfx.measurestr(output)
+  local strWidth, strHeight = gfx.measurestr(output)
 
-  if self.dir == "h" then
+  if self.horizontal then
 
-    gfx.x = opt_x + (size - str_w) / 2
-    gfx.y = opt_y + (self.swap and (size + 4) or -size)
+    gfx.x = x + (size - strWidth) / 2
+    gfx.y = y + (self.swap and (size + 4) or -size)
 
   else
 
-    gfx.x = opt_x + (self.swap and -(str_w + 8) or 1.5*size)
-    gfx.y = opt_y + (size - str_h) / 2
+    gfx.x = x + (self.swap and -(strWidth + 8) or 1.5*size)
+    gfx.y = y + (size - strHeight) / 2
 
   end
 
-  Text.text_bg(output, self.bg)
+  Text.drawBackground(output, self.bg)
   if #self.options == 1 or self.shadow then
-    Text.drawWithShadow(output, self.col_txt, "shadow")
+    Text.drawWithShadow(output, self.textColor, "shadow")
   else
-    Color.set(self.col_txt)
+    Color.set(self.textColor)
     gfx.drawstr(output)
   end
 

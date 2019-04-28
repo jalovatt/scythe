@@ -28,14 +28,14 @@ Knob.defaultProps = {
   y = 0,
   w = 64,
   caption = "Knob",
-  bg = "wnd_bg",
-  cap_x = 0,
-  cap_y = 0,
-  font_a = 3,
-  font_b = 4,
-  col_txt = "txt",
-  col_head = "elm_fill",
-  col_body = "elm_frame",
+  bg = "windowBg",
+  captionX = 0,
+  captionY = 0,
+  captionFont = 3,
+  textFont = 4,
+  textColor = "txt",
+  headColor = "elmFill",
+  bodyColor = "elmFrame",
 
   min = 0,
   max = 10,
@@ -54,15 +54,15 @@ function Knob:new(props)
   knob.steps = knob.steps or (math.abs(knob.max - knob.min) / knob.inc)
 
   -- Determine the step angle
-  knob.stepangle = (3 / 2) / knob.steps
+  knob.stepAngle = (3 / 2) / knob.steps
 
-  knob.curstep = knob.default
-	knob.curval = knob.curstep / knob.steps
+  knob.currentStep = knob.default
+	knob.currentVal = knob.currentStep / knob.steps
 
   self:assignChild(knob)
 
-  knob.retval = knob:formatretval(
-    ((knob.max - knob.min) / knob.steps) * knob.curstep + knob.min
+  knob.retval = knob:formatRetval(
+    ((knob.max - knob.min) / knob.steps) * knob.currentStep + knob.min
   )
 
   return knob
@@ -71,88 +71,84 @@ end
 
 function Knob:init()
 
-	self.buff = self.buff or Buffer.get()
+	self.buffer = self.buffer or Buffer.get()
 
-	gfx.dest = self.buff
-	gfx.setimgdim(self.buff, -1, -1)
+	gfx.dest = self.buffer
+	gfx.setimgdim(self.buffer, -1, -1)
 
 	-- Figure out the points of the triangle
 
 	local r = self.w / 2
-	local rPoint = r * 1.5
-	local curangle = 0
-	local o = rPoint + 1
+	local tipRadius = r * 1.5
+	local currentAngle = 0
+	local o = tipRadius + 1
 
-	local w = 2 * rPoint + 2
+	local w = 2 * tipRadius + 2
 
-	gfx.setimgdim(self.buff, 2*w, w)
+	gfx.setimgdim(self.buffer, 2*w, w)
 
-	local side_angle = (math.acos(0.666667) / Math.pi) * 0.9
+	local sideAngle = (math.acos(0.666667) / Math.pi) * 0.9
 
-	local Ax, Ay = Math.polar2cart(curangle, rPoint, o, o)
-  local Bx, By = Math.polar2cart(curangle + side_angle, r - 1, o, o)
-	local Cx, Cy = Math.polar2cart(curangle - side_angle, r - 1, o, o)
+	local Ax, Ay = Math.polarToCart(currentAngle, tipRadius, o, o)
+  local Bx, By = Math.polarToCart(currentAngle + sideAngle, r - 1, o, o)
+	local Cx, Cy = Math.polarToCart(currentAngle - sideAngle, r - 1, o, o)
 
 	-- Head
-	Color.set(self.col_head)
+	Color.set(self.headColor)
 	GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
-	Color.set("elm_outline")
+	Color.set("elmOutline")
 	GFX.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
 
 	-- Body
-	Color.set(self.col_body)
+	Color.set(self.bodyColor)
 	gfx.circle(o, o, r, 1)
-	Color.set("elm_outline")
+	Color.set("elmOutline")
 	gfx.circle(o, o, r, 0)
 
 	--gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
-	gfx.blit(self.buff, 1, 0, 0, 0, w, w, w + 1, 0)
+	gfx.blit(self.buffer, 1, 0, 0, 0, w, w, w + 1, 0)
 	gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, Color.colors["shadow"][4])
 
 end
 
 
-function Knob:ondelete()
+function Knob:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
 
 -- Knob - Draw
 function Knob:draw()
-
-	local x, y = self.x, self.y
-
 	local r = self.w / 2
-	local o = {x = x + r, y = y + r}
-
+	local o = {x = self.x + r, y = self.y + r}
 
 	-- Value labels
 	if self.vals then self:drawvals(o, r) end
 
-  if self.caption and self.caption ~= "" then self:drawcaption(o, r) end
+  if self.caption and self.caption ~= "" then self:drawCaption(o, r) end
 
 
 	-- Figure out where the knob is pointing
-	local curangle = (-5 / 4) + (self.curstep * self.stepangle)
+	local currentAngle = (-5 / 4) + (self.currentStep * self.stepAngle)
 
-	local blit_w = 3 * r + 2
-	local blit_x = 1.5 * r
+	local blitWidth = 3 * r + 2
+	local blitX = 1.5 * r
 
 	-- Shadow
-	for i = 1, Config.shadow_size do
+	for i = 1, Config.shadowSize do
 
-		gfx.blit(   self.buff, 1, curangle * Math.pi,
-                blit_w + 1, 0, blit_w, blit_w,
-                o.x - blit_x + i - 1, o.y - blit_x + i - 1)
+		gfx.blit(   self.buffer, 1, currentAngle * Math.pi,
+                blitWidth + 1, 0, blitWidth, blitWidth,
+                o.x - blitX + i - 1, o.y - blitX + i - 1)
 
 	end
 
 	-- Body
-	gfx.blit(   self.buff, 1, curangle * Math.pi,
-              0, 0, blit_w, blit_w,
-              o.x - blit_x - 1, o.y - blit_x - 1)
+	gfx.blit(   self.buffer, 1, currentAngle * Math.pi,
+              0, 0, blitWidth, blitWidth,
+              o.x - blitX - 1, o.y - blitX - 1)
 
 end
 
@@ -162,7 +158,7 @@ function Knob:val(newval)
 
 	if newval then
 
-    self:setcurstep(newval)
+    self:setCurrentStep(newval)
 
 		self:redraw()
 
@@ -174,7 +170,7 @@ end
 
 
 -- Knob - Dragging.
-function Knob:ondrag(state, last)
+function Knob:onDrag(state, last)
 
   -- Ctrl?
 	local ctrl = state.mouse.cap&4==4
@@ -183,8 +179,8 @@ function Knob:ondrag(state, last)
 	--					Ctrl	Normal
 	local adj = ctrl and 1200 or 150
 
-    self:setcurval(
-      Math.clamp(self.curval + ((last.mouse.y - state.mouse.y) / adj),
+    self:setCurrentVal(
+      Math.clamp(self.currentVal + ((last.mouse.y - state.mouse.y) / adj),
       0,
       1
     ))
@@ -193,16 +189,16 @@ function Knob:ondrag(state, last)
 end
 
 
-function Knob:ondoubleclick()
+function Knob:onDoubleclick()
 
-  self:setcurstep(self.default)
+  self:setCurrentStep(self.default)
 
 	self:redraw()
 
 end
 
 
-function Knob:onwheel(state)
+function Knob:onWheel(state)
 
 	local ctrl = state.mouse.cap&4==4
 
@@ -212,7 +208,7 @@ function Knob:onwheel(state)
 
 	local adj = ctrl and fine or coarse
 
-  self:setcurval( Math.clamp( self.curval + (state.mouse.inc * adj / self.steps), 0, 1))
+  self:setCurrentVal( Math.clamp( self.currentVal + (state.mouse.wheelInc * adj / self.steps), 0, 1))
 
 	self:redraw()
 
@@ -224,14 +220,14 @@ end
 -------- Drawing methods -----------
 ------------------------------------
 
-function Knob:drawcaption(o, r)
+function Knob:drawCaption(o, r)
 
-	Font.set(self.font_a)
-	local cx, cy = Math.polar2cart(1/2, r * 2, o.x, o.y)
-	local str_w, str_h = gfx.measurestr(self.caption)
-	gfx.x, gfx.y = cx - str_w / 2 + self.cap_x, cy - str_h / 2  + 8 + self.cap_y
-	Text.text_bg(str, self.bg)
-	Text.drawWithShadow(self.caption, self.col_txt, "shadow")
+	Font.set(self.captionFont)
+	local cx, cy = Math.polarToCart(1/2, r * 2, o.x, o.y)
+	local strWidth, strHeight = gfx.measurestr(self.caption)
+	gfx.x, gfx.y = cx - strWidth / 2 + self.captionX, cy - strHeight / 2  + 8 + self.captionY
+	Text.drawBackground(self.caption, self.bg)
+	Text.drawWithShadow(self.caption, self.textColor, "shadow")
 
 end
 
@@ -240,27 +236,27 @@ function Knob:drawvals(o, r)
 
   for i = 0, self.steps do
 
-    local angle = (-5 / 4 ) + (i * self.stepangle)
+    local angle = (-5 / 4 ) + (i * self.stepAngle)
 
     -- Highlight the current value
-    if i == self.curstep then
-      Color.set(self.col_head)
-      Font.set({Font.fonts[self.font_b][1], Font.fonts[self.font_b][2] * 1.2, "b"})
+    if i == self.currentStep then
+      Color.set(self.headColor)
+      Font.set({Font.fonts[self.textFont][1], Font.fonts[self.textFont][2] * 1.2, "b"})
     else
-      Color.set(self.col_txt)
-      Font.set(self.font_b)
+      Color.set(self.textColor)
+      Font.set(self.textFont)
     end
 
     local output = self:formatOutput(
-      self:formatretval( i * self.inc + self.min )
+      self:formatRetval( i * self.inc + self.min )
     )
 
     if output ~= "" then
 
-      local str_w, str_h = gfx.measurestr(output)
-      local cx, cy = Math.polar2cart(angle, r * 2, o.x, o.y)
-      gfx.x, gfx.y = cx - str_w / 2, cy - str_h / 2
-      Text.text_bg(output, self.bg)
+      local strWidth, strHeight = gfx.measurestr(output)
+      local cx, cy = Math.polarToCart(angle, r * 2, o.x, o.y)
+      gfx.x, gfx.y = cx - strWidth / 2, cy - strHeight / 2
+      Text.drawBackground(output, self.bg)
       gfx.drawstr(output)
     end
 
@@ -275,32 +271,32 @@ end
 -------- Value helpers -------------
 ------------------------------------
 
-function Knob:setcurstep(step)
+function Knob:setCurrentStep(step)
 
-  self.curstep = step
-  self.curval = self.curstep / self.steps
-  self:setretval()
-
-end
-
-
-function Knob:setcurval(val)
-
-  self.curval = val
-  self.curstep = Math.round(val * self.steps)
-  self:setretval()
+  self.currentStep = step
+  self.currentVal = self.currentStep / self.steps
+  self:setRetval()
 
 end
 
 
-function Knob:setretval()
+function Knob:setCurrentVal(val)
 
-  self.retval = self:formatretval(self.inc * self.curstep + self.min)
+  self.currentVal = val
+  self.currentStep = Math.round(val * self.steps)
+  self:setRetval()
 
 end
 
 
-function Knob:formatretval(val)
+function Knob:setRetval()
+
+  self.retval = self:formatRetval(self.inc * self.currentStep + self.min)
+
+end
+
+
+function Knob:formatRetval(val)
   local decimal = tonumber(string.match(val, "%.(.*)") or 0)
   local places = decimal ~= 0 and string.len( decimal) or 0
   return string.format("%." .. places .. "f", val)

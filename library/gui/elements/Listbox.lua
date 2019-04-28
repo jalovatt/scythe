@@ -1,14 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Listbox class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Listbox
-
-    Creation parameters:
-	name, z, x, y, w, h[, list, multi, caption, pad]
-
-]]--
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -37,22 +28,22 @@ Listbox.defaultProps =  {
   caption = "",
   pad = 4,
 
-  bg = "elm_bg",
-  cap_bg = "wnd_bg",
+  bg = "elmBg",
+  captionBg = "windowBg",
   color = "txt",
 
   -- Scrollbar fill
-  col_fill = "elm_fill",
+  fillColor = "elmFill",
 
-  font_cap = 3,
+  captionFont = 3,
 
-  font_text = 4,
+  textFont = 4,
 
-  wnd_y = 1,
+  windowY = 1,
 
-  wnd_h = nil,
-  wnd_w = nil,
-  char_w = nil,
+  windowH = nil,
+  windowW = nil,
+  charW = nil,
 
   shadow = nil,
 
@@ -69,29 +60,29 @@ end
 function Listbox:init()
 
 	-- If we were given a CSV, process it into a table
-	if type(self.list) == "string" then self.list = self:CSVtotable(self.list) end
+	if type(self.list) == "string" then self.list = self.list:split(",") end
 
 	local w, h = self.w, self.h
 
-	self.buff = Buffer.get()
+	self.buffer = Buffer.get()
 
-	gfx.dest = self.buff
-	gfx.setimgdim(self.buff, -1, -1)
-	gfx.setimgdim(self.buff, w, h)
+	gfx.dest = self.buffer
+	gfx.setimgdim(self.buffer, -1, -1)
+	gfx.setimgdim(self.buffer, w, h)
 
 	Color.set(self.bg)
 	gfx.rect(0, 0, w, h, 1)
 
-	Color.set("elm_frame")
+	Color.set("elmFrame")
 	gfx.rect(0, 0, w, h, 0)
 
 
 end
 
 
-function Listbox:ondelete()
+function Listbox:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -100,22 +91,22 @@ function Listbox:draw()
 
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
-	if not self.wnd_h then self:wnd_recalc() end
+	if not self.windowH then self:recalculateWindow() end
 
 	-- Draw the caption
-	if self.caption and self.caption ~= "" then self:drawcaption() end
+	if self.caption and self.caption ~= "" then self:drawCaption() end
 
 	-- Draw the background and frame
-	gfx.blit(self.buff, 1, 0, 0, 0, self.w, self.h, self.x, self.y)
+	gfx.blit(self.buffer, 1, 0, 0, 0, self.w, self.h, self.x, self.y)
 
 	-- Draw the text
-	self:drawtext()
+	self:drawText()
 
 	-- Highlight any selected items
-	self:drawselection()
+	self:drawSelection()
 
 	-- Vertical scrollbar
-	if #self.list > self.wnd_h then self:drawscrollbar() end
+	if #self.list > self.windowH then self:drawScrollbar() end
 
 end
 
@@ -161,11 +152,11 @@ end
 ---------------------------------
 
 
-function Listbox:onmouseup(state)
+function Listbox:onMouseUp(state)
 
-	if not self:overscrollbar(state.mouse.x) then
+	if not self:isOverScrollBar(state.mouse.x) then
 
-		local item = self:getitem(state.mouse.y)
+		local item = self:getListItem(state.mouse.y)
 
 		if self.multi then
 
@@ -177,7 +168,7 @@ function Listbox:onmouseup(state)
 			-- Shift
 			elseif state.mouse.cap & 8 == 8 then
 
-				self:selectrange(item)
+				self:selectRange(item)
 
 			else
 
@@ -198,14 +189,20 @@ function Listbox:onmouseup(state)
 end
 
 
-function Listbox:onmousedown(state, scroll)
+function Listbox:onMouseDown(state, scroll)
 
-	-- If over the scrollbar, or we came from :ondrag with an origin point
+	-- If over the scrollbar, or we came from :onDrag with an origin point
 	-- that was over the scrollbar...
-	if scroll or self:overscrollbar(state.mouse.x) then
+	if scroll or self:isOverScrollBar(state.mouse.x) then
 
-    local wnd_c = Math.round( ((state.mouse.y - self.y) / self.h) * #self.list  )
-		self.wnd_y = math.floor( Math.clamp(1, wnd_c - (self.wnd_h / 2), #self.list - self.wnd_h + 1) )
+    local windowCenter = Math.round(
+      ((state.mouse.y - self.y) / self.h) * #self.list
+    )
+		self.windowY = math.floor(Math.clamp(
+      1,
+      windowCenter - (self.windowH / 2),
+      #self.list - self.windowH + 1
+    ))
 
 		self:redraw()
 
@@ -214,16 +211,15 @@ function Listbox:onmousedown(state, scroll)
 end
 
 
-function Listbox:ondrag(state, last)
+function Listbox:onDrag(state, last)
 
-	if self:overscrollbar(last.mouse.x) then
+	if self:isOverScrollBar(last.mouse.x) then
 
-		self:onmousedown(state, true)
+		self:onMouseDown(state, true)
 
-	-- Drag selection?
 	else
 
-
+	-- Drag selection?
 	end
 
 	self:redraw()
@@ -231,12 +227,16 @@ function Listbox:ondrag(state, last)
 end
 
 
-function Listbox:onwheel(state)
+function Listbox:onWheel(state)
 
-	local dir = state.mouse.inc > 0 and -1 or 1
+	local dir = state.mouse.wheelInc > 0 and -1 or 1
 
 	-- Scroll up/down one line
-	self.wnd_y = Math.clamp(1, self.wnd_y + dir, math.max(#self.list - self.wnd_h + 1, 1))
+	self.windowY = Math.clamp(
+    1,
+    self.windowY + dir,
+    math.max(#self.list - self.windowH + 1, 1)
+  )
 
 	self:redraw()
 
@@ -248,13 +248,13 @@ end
 ---------------------------------
 
 
-function Listbox:drawcaption()
+function Listbox:drawCaption()
 
-	Font.set(self.font_cap)
-	local str_w = gfx.measurestr(self.caption)
-	gfx.x = self.x - str_w - self.pad
+	Font.set(self.captionFont)
+	local strWidth = gfx.measurestr(self.caption)
+	gfx.x = self.x - strWidth - self.pad
 	gfx.y = self.y + self.pad
-	Text.text_bg(self.caption, self.cap_bg)
+	Text.drawBackground(self.caption, self.captionBg)
 
 	if self.shadow then
 		Text.drawWithShadow(self.caption, self.color, "shadow")
@@ -266,13 +266,13 @@ function Listbox:drawcaption()
 end
 
 
-function Listbox:drawtext()
+function Listbox:drawText()
 
 	Color.set(self.color)
-	Font.set(self.font_text)
+	Font.set(self.textFont)
 
 	local outputText = {}
-	for i = self.wnd_y, math.min(self:wnd_bottom() - 1, #self.list) do
+	for i = self.windowY, math.min(self:windowBottom() - 1, #self.list) do
 
 		local str = tostring(self.list[i]) or ""
     outputText[#outputText + 1] = self:formatOutput(str)
@@ -280,31 +280,32 @@ function Listbox:drawtext()
 	end
 
 	gfx.x, gfx.y = self.x + self.pad, self.y + self.pad
-    local r = gfx.x + self.w - 2*self.pad
-    local b = gfx.y + self.h - 2*self.pad
+  local r = gfx.x + self.w - 2*self.pad
+  local b = gfx.y + self.h - 2*self.pad
 
 	gfx.drawstr( table.concat(outputText, "\n"), 0, r, b)
 
 end
 
 
-function Listbox:drawselection()
+function Listbox:drawSelection()
 
-	local off_x, off_y = self.x + self.pad, self.y + self.pad
+  local adjustedX = self.x + self.pad
+  local adjustedY = self.y + self.pad
 
   local w = self.w - 2 * self.pad
   local itemY
 
-	Color.set("elm_fill")
+	Color.set("elmFill")
 	gfx.a = 0.5
 	gfx.mode = 1
 
 	for i = 1, #self.list do
 
-		if self.retval[i] and i >= self.wnd_y and i < self:wnd_bottom() then
+		if self.retval[i] and i >= self.windowY and i < self:windowBottom() then
 
-			itemY = off_y + (i - self.wnd_y) * self.char_h
-			gfx.rect(off_x, itemY, w, self.char_h, true)
+			itemY = adjustedY + (i - self.windowY) * self.charH
+			gfx.rect(adjustedX, itemY, w, self.charH, true)
 
 		end
 
@@ -316,34 +317,39 @@ function Listbox:drawselection()
 end
 
 
-function Listbox:drawscrollbar()
+function Listbox:drawScrollbar()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
 	local sx, sy, sw, sh = x + w - 8 - 4, y + 4, 8, h - 12
 
 
 	-- Draw a gradient to fade out the last ~16px of text
-	Color.set("elm_bg")
+  Color.set("elmBg")
+
+  local scrollOffset = sx - 15
+  local scrollY1 = y + 2
+  local scrollY2 = y + h - 4
+
 	for i = 0, 15 do
-		gfx.a = i/15
-		gfx.line(sx + i - 15, y + 2, sx + i - 15, y + h - 4)
+		gfx.a = i / 15
+		gfx.line(scrollOffset + i, scrollY1, scrollOffset + i, scrollY2)
 	end
 
 	gfx.rect(sx, y + 2, sw + 2, h - 4, true)
 
 	-- Draw slider track
-	Color.set("tab_bg")
-	GFX.roundrect(sx, sy, sw, sh, 4, 1, 1)
-	Color.set("elm_outline")
-	GFX.roundrect(sx, sy, sw, sh, 4, 1, 0)
+	Color.set("tabBg")
+	GFX.roundRect(sx, sy, sw, sh, 4, 1, 1)
+	Color.set("elmOutline")
+	GFX.roundRect(sx, sy, sw, sh, 4, 1, 0)
 
 	-- Draw slider fill
-	local fh = (self.wnd_h / #self.list) * sh - 4
+	local fh = (self.windowH / #self.list) * sh - 4
 	if fh < 4 then fh = 4 end
-	local fy = sy + ((self.wnd_y - 1) / #self.list) * sh + 2
+	local fy = sy + ((self.windowY - 1) / #self.list) * sh + 2
 
-	Color.set(self.col_fill)
-	GFX.roundrect(sx + 2, fy, sw - 4, fh, 2, 1, 1)
+	Color.set(self.fillColor)
+	GFX.roundRect(sx + 2, fy, sw - 4, fh, 2, 1, 1)
 
 end
 
@@ -354,56 +360,48 @@ end
 
 
 -- Updates internal values for the window size
-function Listbox:wnd_recalc()
+function Listbox:recalculateWindow()
 
-	Font.set(self.font_text)
+	Font.set(self.textFont)
 
-  self.char_w, self.char_h = gfx.measurestr("_")
-	self.wnd_h = math.floor((self.h - 2*self.pad) / self.char_h)
-	self.wnd_w = math.floor(self.w / self.char_w)
+  self.charW, self.charH = gfx.measurestr("_")
+	self.windowH = math.floor((self.h - 2*self.pad) / self.charH)
+	self.windowW = math.floor(self.w / self.charW)
 
 end
 
 
 -- Get the bottom edge of the window (in rows)
-function Listbox:wnd_bottom()
+function Listbox:windowBottom()
 
-	return self.wnd_y + self.wnd_h
+	return self.windowY + self.windowH
 
 end
 
 
 -- Determine which item the user clicked
-function Listbox:getitem(y)
+function Listbox:getListItem(y)
 
-	Font.set(self.font_text)
+	Font.set(self.textFont)
 
-  local item = math.floor((y - (self.y + self.pad)) /	self.char_h)
-    + self.wnd_y
+  local item = math.floor((y - (self.y + self.pad)) /	self.charH)
+    + self.windowY
 
 	return Math.clamp(1, item, #self.list)
 
 end
 
 
--- Split a CSV into a table
-function Listbox:CSVtotable(str)
-
-  return str:split(",")
-
-end
-
-
 -- Is the mouse over the scrollbar (true) or the text area (false)?
-function Listbox:overscrollbar(x)
+function Listbox:isOverScrollBar(x)
 
-	return (#self.list > self.wnd_h and x >= (self.x + self.w - 12))
+	return (#self.list > self.windowH and x >= (self.x + self.w - 12))
 
 end
 
 
 -- Selects from the first selected item to the current mouse position
-function Listbox:selectrange(mouse)
+function Listbox:selectRange(mouse)
 
 	-- Find the first selected item
 	local first

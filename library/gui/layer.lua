@@ -1,3 +1,4 @@
+-- NoIndex: true
 local Table, T = require("public.table"):unpack()
 local Buffer = require("gui.buffer")
 
@@ -55,7 +56,7 @@ end
 
 
 function Layer:init()
-  self.buff = Buffer.get()
+  self.buffer = Buffer.get()
 
   for _, elm in pairs(self.elements) do
     elm:init()
@@ -64,7 +65,7 @@ end
 
 function Layer:delete()
   self:removeElements(table.unpack(self.elements))
-  Buffer.release(self.buff)
+  Buffer.release(self.buffer)
   self.window.needsRedraw = true
 end
 
@@ -83,10 +84,10 @@ function Layer:redraw()
   -- from their own :draw method. e.g. Labels fading out
   self.needsRedraw = false
 
-  gfx.setimgdim(self.buff, -1, -1)
-  gfx.setimgdim(self.buff, self.window.cur_w, self.window.cur_h)
+  gfx.setimgdim(self.buffer, -1, -1)
+  gfx.setimgdim(self.buffer, self.window.currentW, self.window.currentH)
 
-  gfx.dest = self.buff
+  gfx.dest = self.buffer
 
   for _, elm in pairs(self.elements) do
     -- Reset these just in case an element or some user code forgot to,

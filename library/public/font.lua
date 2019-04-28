@@ -1,3 +1,4 @@
+-- NoIndex: true
 
 --[[	Font and color presets
 
@@ -5,7 +6,7 @@
     and Color.set. i.e.
 
     Font.set(2)				applies the Header preset
-    Color.set("elm_fill")	applies the Element Fill color preset
+    Color.set("elmFill")	applies the Element Fill color preset
 
     Colors are converted from 0-255 to 0-1 when GUI.Init() runs,
     so if you need to access the values directly at any point be
@@ -15,7 +16,7 @@
 local Font = {}
 
 
-local OS_fonts = {
+local osFonts = {
 
   Windows = {
     sans = "Calibri",
@@ -34,20 +35,20 @@ local OS_fonts = {
 
 }
 
-local get_OS_fonts = function()
+local getOsFonts = function()
 
   local os = reaper.GetOS()
   if os:match("Win") then
-    return OS_fonts.Windows
+    return osFonts.Windows
   elseif os:match("OSX") then
-    return OS_fonts.OSX
+    return osFonts.OSX
   else
-    return OS_fonts.Linux
+    return osFonts.Linux
   end
 
 end
 
-local fonts = get_OS_fonts()
+local fonts = getOsFonts()
 Font.fonts = {
 
               -- Font,    size, bold/italics/underline

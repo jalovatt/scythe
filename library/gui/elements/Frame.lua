@@ -28,15 +28,15 @@ Frame.defaultProps = {
   y = 0,
   w = 256,
   h = 256,
-  color = "elm_frame",
+  color = "elmFrame",
   round = 0,
   text = "",
-  last_text = "",
-  txt_indent = 0,
-  txt_pad = 0,
-  bg = "wnd_bg",
+  lastText = "",
+  textIndent = 0,
+  textPad = 0,
+  bg = "windowBg",
   font = 4,
-  col_txt = "txt",
+  textColor = "txt",
   pad = 4,
 
 }
@@ -51,22 +51,22 @@ end
 
 function Frame:init()
 
-    self.buff = self.buff or Buffer.get()
+    self.buffer = self.buffer or Buffer.get()
 
-    gfx.dest = self.buff
-    gfx.setimgdim(self.buff, -1, -1)
-    gfx.setimgdim(self.buff, 2 * self.w + 4, self.h + 2)
+    gfx.dest = self.buffer
+    gfx.setimgdim(self.buffer, -1, -1)
+    gfx.setimgdim(self.buffer, 2 * self.w + 4, self.h + 2)
 
-    self:drawframe()
+    self:drawFrame()
 
-    self:drawtext()
+    self:drawText()
 
 end
 
 
-function Frame:ondelete()
+function Frame:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -77,15 +77,15 @@ function Frame:draw()
 
   if self.shadow then
 
-    for i = 1, Config.shadow_size do
+    for i = 1, Config.shadowSize do
 
-      gfx.blit(self.buff, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
+      gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 
     end
 
   end
 
-  gfx.blit(self.buff, 1, 0, 0, 0, w + 2, h + 2, x - 1, y - 1)
+  gfx.blit(self.buffer, 1, 0, 0, 0, w + 2, h + 2, x - 1, y - 1)
 
 end
 
@@ -94,7 +94,7 @@ function Frame:val(new)
 
 	if new then
 		self.text = new
-    if self.buff then self:init() end
+    if self.buffer then self:init() end
 		self:redraw()
 	else
 		return string.gsub(self.text, "\n", "")
@@ -110,7 +110,7 @@ end
 ------------------------------------
 
 
-function Frame:drawframe()
+function Frame:drawFrame()
 
   local w, h = self.w, self.h
 	local fill = self.fill
@@ -120,7 +120,7 @@ function Frame:drawframe()
   if self.bg then
     Color.set(self.bg)
     if round > 0 then
-      GFX.roundrect(1, 1, w, h, round, 1, true)
+      GFX.roundRect(1, 1, w, h, round, 1, true)
     else
       gfx.rect(1, 1, w, h, true)
     end
@@ -129,14 +129,14 @@ function Frame:drawframe()
   -- Shadow
   local r, g, b, a = table.unpack(Color.colors["shadow"])
 	gfx.set(r, g, b, 1)
-	GFX.roundrect(w + 2, 1, w, h, round, 1, 1)
+	GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
 	gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 
     -- Frame
 	Color.set(self.color)
 	if round > 0 then
-		GFX.roundrect(1, 1, w, h, round, 1, fill)
+		GFX.roundRect(1, 1, w, h, round, 1, fill)
 	else
 		gfx.rect(1, 1, w, h, fill)
 	end
@@ -144,20 +144,20 @@ function Frame:drawframe()
 end
 
 
-function Frame:drawtext()
+function Frame:drawText()
 
 	if self.text and self.text:len() > 0 then
 
-    if self.text ~= self.last_text then
-      self.text = self:wrap_text(self.text)
-      self.last_text = self.text
+    if self.text ~= self.lastText then
+      self.text = self:wrapText(self.text)
+      self.lastText = self.text
     end
 
 		Font.set(self.font)
-		Color.set(self.col_txt)
+		Color.set(self.textColor)
 
 		gfx.x, gfx.y = self.pad + 1, self.pad + 1
-		if not self.fill then Text.text_bg(self.text, self.bg) end
+		if not self.fill then Text.drawBackground(self.text, self.bg) end
 		gfx.drawstr(self.text)
 
 	end
@@ -172,10 +172,10 @@ end
 ------------------------------------
 
 
-function Frame:wrap_text(text)
+function Frame:wrapText(text)
 
-  return Text.word_wrap(text, self.font, self.w - 2*self.pad,
-                        self.txt_indent, self.txt_pad)
+  return Text.wrapText(text, self.font, self.w - 2*self.pad,
+                        self.textIndent, self.textPad)
 
 end
 

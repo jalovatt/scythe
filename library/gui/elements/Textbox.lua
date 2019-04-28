@@ -36,22 +36,22 @@ Textbox.defaultProps = {
   retval = "",
   caption = "Textbox",
   pad = 4,
-  bg = "wnd_bg",
+  bg = "windowBg",
   color = "txt",
-  font_a = 3,
-  font_b = "monospace",
-  cap_pos = "left",
-  undo_limit = 20,
-  undo_states = {},
-  redo_states = {},
-  wnd_pos = 0,
+  captionFont = 3,
+  textFont = "monospace",
+  captionPosition = "left",
+  undoLimit = 20,
+  undoStates = {},
+  redoStates = {},
+  windowPosition = 0,
   caret = 0,
-  sel_s = nil,
-  sel_e = nil,
-  char_h = nil,
-  wnd_h = nil,
-  wnd_w = nil,
-  char_w = nil,
+  selectionStart = nil,
+  selectionEnd = nil,
+  charH = nil,
+  windowH = nil,
+  windowW = nil,
+  charW = nil,
   focus = false,
   blink = 0,
   shadow = true,
@@ -68,32 +68,32 @@ function Textbox:init()
 
 	local w, h = self.w, self.h
 
-	self.buff = Buffer.get()
+	self.buffer = Buffer.get()
 
-	gfx.dest = self.buff
-	gfx.setimgdim(self.buff, -1, -1)
-	gfx.setimgdim(self.buff, 2*w, h)
+	gfx.dest = self.buffer
+	gfx.setimgdim(self.buffer, -1, -1)
+	gfx.setimgdim(self.buffer, 2*w, h)
 
-	Color.set("elm_bg")
+	Color.set("elmBg")
 	gfx.rect(0, 0, 2*w, h, 1)
 
-	Color.set("elm_frame")
+	Color.set("elmFrame")
 	gfx.rect(0, 0, w, h, 0)
 
-	Color.set("elm_fill")
+	Color.set("elmFill")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
   -- Make sure we calculate this ASAP to avoid errors with
   -- dynamically-generated textboxes
-  if gfx.w > 0 then self:wnd_recalc() end
+  if gfx.w > 0 then self:recalculateWindow() end
 
 end
 
 
-function Textbox:ondelete()
+function Textbox:onDelete()
 
-	Buffer.release(self.buff)
+	Buffer.release(self.buffer)
 
 end
 
@@ -102,24 +102,24 @@ function Textbox:draw()
 
 	-- Some values can't be set in :init() because the window isn't
 	-- open yet - measurements won't work.
-	if not self.wnd_w then self:wnd_recalc() end
+	if not self.windowW then self:recalculateWindow() end
 
-	if self.caption and self.caption ~= "" then self:drawcaption() end
+	if self.caption and self.caption ~= "" then self:drawCaption() end
 
 	-- Blit the textbox frame, and make it brighter if focused.
-	gfx.blit(self.buff, 1, 0, (self.focus and self.w or 0), 0,
+	gfx.blit(self.buffer, 1, 0, (self.focus and self.w or 0), 0,
            self.w, self.h, self.x, self.y)
 
-  if self.retval ~= "" then self:drawtext() end
+  if self.retval ~= "" then self:drawText() end
 
 	if self.focus then
 
-		if self.sel_s then self:drawselection() end
-		if self.show_caret then self:drawcaret() end
+		if self.selectionStart then self:drawSelection() end
+		if self.showCaret then self:drawCaret() end
 
 	end
 
-  self:drawgradient()
+  self:drawGradient()
 
 end
 
@@ -127,7 +127,7 @@ end
 function Textbox:val(newval)
 
 	if newval then
-    self:seteditorstate(tostring(newval))
+    self:setEditorState(tostring(newval))
 		self:redraw()
 	else
 		return self.retval
@@ -137,25 +137,25 @@ end
 
 
 -- Just for making the caret blink
-function Textbox:onupdate()
+function Textbox:onUpdate()
 
 	if self.focus then
 
 		if self.blink == 0 then
-			self.show_caret = true
+			self.showCaret = true
 			self:redraw()
-		elseif self.blink == math.floor(Config.txt_blink_rate / 2) then
-			self.show_caret = false
+		elseif self.blink == math.floor(Config.caretBlinkRate / 2) then
+			self.showCaret = false
 			self:redraw()
 		end
-		self.blink = (self.blink + 1) % Config.txt_blink_rate
+		self.blink = (self.blink + 1) % Config.caretBlinkRate
 
 	end
 
 end
 
 -- Make sure the box highlight goes away
-function Textbox:lostfocus()
+function Textbox:lostFocus()
 
     self:redraw()
 
@@ -168,9 +168,9 @@ end
 ------------------------------------
 
 
-function Textbox:onmousedown(state)
+function Textbox:onMouseDown(state)
 
-  self.caret = self:getcaret(state.mouse.x)
+  self.caret = self:getCaret(state.mouse.x)
 
   -- Reset the caret so the visual change isn't laggy
   self.blink = 0
@@ -178,11 +178,11 @@ function Textbox:onmousedown(state)
   -- Shift+click to select text
   if state.mouse.cap & 8 == 8 and self.caret then
 
-    self.sel_s, self.sel_e = self.caret, self.caret
+    self.selectionStart, self.selectionEnd = self.caret, self.caret
 
   else
 
-    self.sel_s, self.sel_e = nil, nil
+    self.selectionStart, self.selectionEnd = nil, nil
 
   end
 
@@ -191,24 +191,24 @@ function Textbox:onmousedown(state)
 end
 
 
-function Textbox:ondoubleclick(state)
+function Textbox:onDoubleclick(state)
 
-	self:selectword(state)
+	self:selectWord(state)
 
 end
 
 
-function Textbox:ondrag(state)
+function Textbox:onDrag(state)
 
-	self.sel_s = self:getcaret(state.mouse.ox, state.mouse.oy)
-  self.sel_e = self:getcaret(state.mouse.x, state.mouse.y)
+	self.selectionStart = self:getCaret(state.mouse.ox, state.mouse.oy)
+  self.selectionEnd = self:getCaret(state.mouse.x, state.mouse.y)
 
 	self:redraw()
 
 end
 
 
-function Textbox:ontype(state)
+function Textbox:onType(state)
 
 	local char = state.kb.char
 
@@ -218,7 +218,7 @@ function Textbox:ontype(state)
     local shift = state.mouse.cap & 8 == 8
 
     if shift and not self.sel then
-      self.sel_s = self.caret
+      self.selectionStart = self.caret
     end
 
     -- Flag for some keys (clipboard shortcuts) to skip
@@ -227,23 +227,23 @@ function Textbox:ontype(state)
 
     if shift and char ~= Const.char.BACKSPACE then
 
-      self.sel_e = self.caret
+      self.selectionEnd = self.caret
 
     elseif not bypass then
 
-      self.sel_s, self.sel_e = nil, nil
+      self.selectionStart, self.selectionEnd = nil, nil
 
     end
 
   -- Typeable chars
   elseif Math.clamp(32, char, 254) == char then
 
-    if self.sel_s then self:deleteselection() end
+    if self.selectionStart then self:deleteSelection() end
 
-    self:insertchar(char)
+    self:insertChar(char)
 
   end
-  self:windowtocaret()
+  self:setWindowToCaret()
 
   -- Make sure no functions crash because they got a type==number
   self.retval = tostring(self.retval)
@@ -254,15 +254,15 @@ function Textbox:ontype(state)
 end
 
 
-function Textbox:onwheel(state)
+function Textbox:onWheel(state)
 
   local len = string.len(self.retval)
 
-  if len <= self.wnd_w then return end
+  if len <= self.windowW then return end
 
   -- Scroll right/left
   local dir = state > 0 and 3 or -3
-  self.wnd_pos = Math.clamp(0, self.wnd_pos + dir, len + 2 - self.wnd_w)
+  self.windowPosition = Math.clamp(0, self.windowPosition + dir, len + 2 - self.windowW)
 
   self:redraw()
 
@@ -276,33 +276,33 @@ end
 ------------------------------------
 
 
-function Textbox:drawcaption()
+function Textbox:drawCaption()
 
   local caption = self.caption
 
-  Font.set(self.font_a)
+  Font.set(self.captionFont)
 
-  local str_w, str_h = gfx.measurestr(caption)
+  local strWidth, strHeight = gfx.measurestr(caption)
 
-  if self.cap_pos == "left" then
-    gfx.x = self.x - str_w - self.pad
-    gfx.y = self.y + (self.h - str_h) / 2
+  if self.captionPosition == "left" then
+    gfx.x = self.x - strWidth - self.pad
+    gfx.y = self.y + (self.h - strHeight) / 2
 
-  elseif self.cap_pos == "top" then
-    gfx.x = self.x + (self.w - str_w) / 2
-    gfx.y = self.y - str_h - self.pad
+  elseif self.captionPosition == "top" then
+    gfx.x = self.x + (self.w - strWidth) / 2
+    gfx.y = self.y - strHeight - self.pad
 
-  elseif self.cap_pos == "right" then
+  elseif self.captionPosition == "right" then
     gfx.x = self.x + self.w + self.pad
-    gfx.y = self.y + (self.h - str_h) / 2
+    gfx.y = self.y + (self.h - strHeight) / 2
 
-  elseif self.cap_pos == "bottom" then
-    gfx.x = self.x + (self.w - str_w) / 2
+  elseif self.captionPosition == "bottom" then
+    gfx.x = self.x + (self.w - strWidth) / 2
     gfx.y = self.y + self.h + self.pad
 
   end
 
-  Text.text_bg(caption, self.bg)
+  Text.drawBackground(caption, self.bg)
 
   if self.shadow then
     Text.drawWithShadow(caption, self.color, "shadow")
@@ -314,12 +314,12 @@ function Textbox:drawcaption()
 end
 
 
-function Textbox:drawtext()
+function Textbox:drawText()
 
 	Color.set(self.color)
-	Font.set(self.font_b)
+	Font.set(self.textFont)
 
-  local str = string.sub(self.retval, self.wnd_pos + 1)
+  local str = string.sub(self.retval, self.windowPosition + 1)
 
   -- I don't think self.pad should affect the text at all. Looks weird,
   -- messes with the amount of visible text too much.
@@ -333,50 +333,50 @@ function Textbox:drawtext()
 end
 
 
-function Textbox:drawcaret()
+function Textbox:drawCaret()
 
-  local caret_wnd = self:adjusttowindow(self.caret)
+  local caretRelative = self:adjustToWindow(self.caret)
 
-  if caret_wnd then
+  if caretRelative then
 
       Color.set("txt")
 
-      local caret_h = self.char_h - 2
+      local caretH = self.charH - 2
 
-      gfx.rect(   self.x + (caret_wnd * self.char_w) + 4,
-                  self.y + (self.h - caret_h) / 2,
-                  self.insert_caret and self.char_w or 2,
-                  caret_h)
+      gfx.rect(   self.x + (caretRelative * self.charW) + 4,
+                  self.y + (self.h - caretH) / 2,
+                  self.insertCaret and self.charW or 2,
+                  caretH)
 
   end
 
 end
 
 
-function Textbox:drawselection()
+function Textbox:drawSelection()
 
-  Color.set("elm_fill")
+  Color.set("elmFill")
   gfx.a = 0.5
   gfx.mode = 1
 
-  local s, e = self.sel_s, self.sel_e
+  local s, e = self.selectionStart, self.selectionEnd
 
   if e < s then s, e = e, s end
 
 
-  local x = Math.clamp(self.wnd_pos, s, self:wnd_right())
-  local w = Math.clamp(x, e, self:wnd_right()) - x
+  local x = Math.clamp(self.windowPosition, s, self:windowRight())
+  local w = Math.clamp(x, e, self:windowRight()) - x
 
-  if self:selectionvisible(x, w) then
+  if self:isSelectionVisible(x, w) then
 
     -- Convert from char-based coords to actual pixels
-    x = self.x + (x - self.wnd_pos) * self.char_w + 4
+    x = self.x + (x - self.windowPosition) * self.charW + 4
 
-    local h = self.char_h - 2
+    local h = self.charH - 2
 
     local y = self.y + (self.h - h) / 2
 
-    w = w * self.char_w
+    w = w * self.charW
     w = math.min(w, self.x + self.w - x - self.pad)
 
 
@@ -394,29 +394,30 @@ function Textbox:drawselection()
 end
 
 
-function Textbox:drawgradient()
+function Textbox:drawGradient()
 
-  local left, right = self.wnd_pos > 0, self.wnd_pos < (string.len(self.retval) - self.wnd_w + 2)
+  local left = self.windowPosition > 0
+  local right = self.windowPosition < (string.len(self.retval) - self.windowW + 2)
   if not (left or right) then return end
 
-  local fade_w = 8
+  local fadeW = 8
 
-  Color.set("elm_bg")
+  Color.set("elmBg")
 
-  local left_x = self.x + 2 + fade_w
-  local right_x = self.x + self.w - 3 - fade_w
-  for i = 0, fade_w do
+  local leftX = self.x + 2 + fadeW
+  local rightX = self.x + self.w - 3 - fadeW
+  for i = 0, fadeW do
 
-    gfx.a = i/fade_w
+    gfx.a = i/fadeW
 
     -- Left
     if left then
-      gfx.line(left_x - i, self.y + 2, left_x - i, self.y + self.h - 4)
+      gfx.line(leftX - i, self.y + 2, leftX - i, self.y + self.h - 4)
     end
 
     -- Right
     if right then
-      gfx.line(right_x + i, self.y + 2, right_x + i, self.y + self.h - 4)
+      gfx.line(rightX + i, self.y + 2, rightX + i, self.y + self.h - 4)
     end
 
   end
@@ -432,45 +433,45 @@ end
 
 
 -- Make sure at least part of the selection is visible
-function Textbox:selectionvisible(x, w)
+function Textbox:isSelectionVisible(x, w)
 
 	return w > 0                  -- Selection has width,
-    and x + w > self.wnd_pos    -- doesn't end to the left
-    and x < self:wnd_right()    -- and doesn't start to the right
+    and x + w > self.windowPosition    -- doesn't end to the left
+    and x < self:windowRight()    -- and doesn't start to the right
 
 end
 
 
-function Textbox:selectall()
+function Textbox:selectAll()
 
-  self.sel_s = 0
+  self.selectionStart = 0
   self.caret = 0
-  self.sel_e = string.len(self.retval)
+  self.selectionEnd = string.len(self.retval)
 
 end
 
 
-function Textbox:selectword()
+function Textbox:selectWord()
 
   local str = self.retval
 
   if not str or str == "" then return 0 end
 
-  self.sel_s = string.find( str:sub(1, self.caret), "%s[%S]+$") or 0
-  self.sel_e = (      string.find( str, "%s", self.sel_s + 1)
+  self.selectionStart = string.find( str:sub(1, self.caret), "%s[%S]+$") or 0
+  self.selectionEnd = (      string.find( str, "%s", self.selectionStart + 1)
                   or  string.len(str) + 1)
-              - (self.wnd_pos > 0 and 2 or 1) -- Kludge, fixes length issues
+              - (self.windowPosition > 0 and 2 or 1) -- Kludge, fixes length issues
 
 end
 
 
-function Textbox:deleteselection()
+function Textbox:deleteSelection()
 
-  if not (self.sel_s and self.sel_e) then return 0 end
+  if not (self.selectionStart and self.selectionEnd) then return 0 end
 
-  self:storeundostate()
+  self:storeUndoState()
 
-  local s, e = self.sel_s, self.sel_e
+  local s, e = self.selectionStart, self.selectionEnd
 
   if s > e then s, e = e, s end
 
@@ -479,16 +480,16 @@ function Textbox:deleteselection()
 
   self.caret = s
 
-  self.sel_s, self.sel_e = nil, nil
-  self:windowtocaret()
+  self.selectionStart, self.selectionEnd = nil, nil
+  self:setWindowToCaret()
 
 
 end
 
 
-function Textbox:getselectedtext()
+function Textbox:getSelectedText()
 
-  local s, e = self.sel_s, self.sel_e
+  local s, e = self.selectionStart, self.selectionEnd
 
   if s > e then s, e = e, s end
 
@@ -497,8 +498,8 @@ function Textbox:getselectedtext()
 end
 
 
-Textbox.toclipboard = TextUtils.toclipboard
-Textbox.fromclipboard = TextUtils.fromclipboard
+Textbox.toClipboard = TextUtils.toClipboard
+Textbox.fromClipboard = TextUtils.fromClipboard
 
 
 
@@ -507,19 +508,19 @@ Textbox.fromclipboard = TextUtils.fromclipboard
 ------------------------------------
 
 
-function Textbox:wnd_recalc()
+function Textbox:recalculateWindow()
 
-  Font.set(self.font_b)
+  Font.set(self.textFont)
 
-  self.char_w, self.char_h = gfx.measurestr("i")
-  self.wnd_w = math.floor(self.w / self.char_w)
+  self.charW, self.charH = gfx.measurestr("i")
+  self.windowW = math.floor(self.w / self.charW)
 
 end
 
 
-function Textbox:wnd_right()
+function Textbox:windowRight()
 
-  return self.wnd_pos + self.wnd_w
+  return self.windowPosition + self.windowW
 
 end
 
@@ -527,30 +528,30 @@ end
 -- See if a given position is in the visible window
 -- If so, adjust it from absolute to window-relative
 -- If not, returns nil
-function Textbox:adjusttowindow(x)
+function Textbox:adjustToWindow(x)
 
-  return ( Math.clamp(self.wnd_pos, x, self:wnd_right() - 1) == x )
-    and x - self.wnd_pos
+  return ( Math.clamp(self.windowPosition, x, self:windowRight() - 1) == x )
+    and x - self.windowPosition
     or nil
 
 end
 
 
-function Textbox:windowtocaret()
+function Textbox:setWindowToCaret()
 
-  if self.caret < self.wnd_pos + 1 then
-    self.wnd_pos = math.max(0, self.caret - 1)
-  elseif self.caret > (self:wnd_right() - 2) then
-    self.wnd_pos = self.caret + 2 - self.wnd_w
+  if self.caret < self.windowPosition + 1 then
+    self.windowPosition = math.max(0, self.caret - 1)
+  elseif self.caret > (self:windowRight() - 2) then
+    self.windowPosition = self.caret + 2 - self.windowW
   end
 
 end
 
 
-function Textbox:getcaret(x)
+function Textbox:getCaret(x)
 
-  local caret_x = math.floor(  ((x - self.x) / self.w) * self.wnd_w) + self.wnd_pos
-  return Math.clamp(0, caret_x, string.len(self.retval or ""))
+  local caretX = math.floor(  ((x - self.x) / self.w) * self.windowW) + self.windowPosition
+  return Math.clamp(0, caretX, string.len(self.retval or ""))
 
 end
 
@@ -562,30 +563,30 @@ end
 ------------------------------------
 
 
-function Textbox:insertstring(str, move_caret)
+function Textbox:insertString(str, moveCaret)
 
-  self:storeundostate()
+  self:storeUndoState()
 
-  local sanitized = self:sanitizetext(str)
+  local sanitized = self:sanitizeText(str)
 
-  if self.sel_s then self:deleteselection() end
+  if self.selectionStart then self:deleteSelection() end
 
   local pre, post =   string.sub(self.retval or "", 1, self.caret),
                       string.sub(self.retval or "", self.caret + 1)
 
   self.retval = pre .. tostring(sanitized) .. post
 
-  if move_caret then self.caret = self.caret + string.len(sanitized) end
+  if moveCaret then self.caret = self.caret + string.len(sanitized) end
 
 end
 
 
-function Textbox:insertchar(char)
+function Textbox:insertChar(char)
 
-  self:storeundostate()
+  self:storeUndoState()
 
   local a, b = string.sub(self.retval, 1, self.caret),
-                string.sub(self.retval, self.caret + (self.insert_caret and 2 or 1))
+               string.sub(self.retval, self.caret + (self.insertCaret and 2 or 1))
 
   self.retval = a..string.char(char)..b
   self.caret = self.caret + 1
@@ -601,13 +602,13 @@ end
 
 
 -- Replace any characters that we're unable to reproduce properly
-function Textbox:sanitizetext(str)
+function Textbox:sanitizeText(str)
 
   return tostring(str):gsub("\t", "    "):gsub("[\n\r]", " ")
 
 end
 
-Textbox.ctrlchar = TextUtils.ctrlchar
+Textbox.doCtrlChar = TextUtils.doCtrlChar
 
 
 -- Non-typing key commands
@@ -641,11 +642,11 @@ Textbox.keys = {
 
   [Const.char.BACKSPACE] = function(self)
 
-    self:storeundostate()
+    self:storeUndoState()
 
-    if self.sel_s then
+    if self.selectionStart then
 
-      self:deleteselection()
+      self:deleteSelection()
 
     else
 
@@ -662,17 +663,17 @@ Textbox.keys = {
 
   [Const.char.INSERT] = function(self)
 
-    self.insert_caret = not self.insert_caret
+    self.insertCaret = not self.insertCaret
 
   end,
 
   [Const.char.DELETE] = function(self)
 
-    self:storeundostate()
+    self:storeUndoState()
 
-    if self.sel_s then
+    if self.selectionStart then
 
-      self:deleteselection()
+      self:deleteSelection()
 
     else
 
@@ -687,7 +688,7 @@ Textbox.keys = {
   [Const.char.RETURN] = function(self)
 
     self.focus = false
-    self:lostfocus()
+    self:lostFocus()
     self:redraw()
 
   end,
@@ -714,42 +715,42 @@ Textbox.keys = {
 	-- A -- Select All
 	[1] = function(self, state)
 
-		return self:ctrlchar(state, self.selectall)
+		return self:doCtrlChar(state, self.selectAll)
 
 	end,
 
 	-- C -- Copy
 	[3] = function(self, state)
 
-		return self:ctrlchar(state, self.toclipboard)
+		return self:doCtrlChar(state, self.toClipboard)
 
 	end,
 
 	-- V -- Paste
 	[22] = function(self, state)
 
-    return self:ctrlchar(state, self.fromclipboard)
+    return self:doCtrlChar(state, self.fromClipboard)
 
 	end,
 
 	-- X -- Cut
 	[24] = function(self, state)
 
-		return self:ctrlchar(state, self.toclipboard, true)
+		return self:doCtrlChar(state, self.toClipboard, true)
 
 	end,
 
 	-- Y -- Redo
 	[25] = function (self, state)
 
-		return self:ctrlchar(state, self.redo)
+		return self:doCtrlChar(state, self.redo)
 
 	end,
 
 	-- Z -- Undo
 	[26] = function (self, state)
 
-		return self:ctrlchar(state, self.undo)
+		return self:doCtrlChar(state, self.undo)
 
 	end
 
@@ -767,20 +768,20 @@ Textbox.keys = {
 Textbox.undo = TextUtils.undo
 Textbox.redo = TextUtils.redo
 
-Textbox.storeundostate = TextUtils.storeundostate
+Textbox.storeUndoState = TextUtils.storeUndoState
 
-function Textbox:geteditorstate()
+function Textbox:getEditorState()
 
 	return { retval = self.retval, caret = self.caret }
 
 end
 
-function Textbox:seteditorstate(retval, caret, wnd_pos, sel_s, sel_e)
+function Textbox:setEditorState(retval, caret, windowPosition, selectionStart, selectionEnd)
 
   self.retval = retval or ""
   self.caret = math.min(caret and caret or self.caret, string.len(self.retval))
-  self.wnd_pos = wnd_pos or 0
-  self.sel_s, self.sel_e = sel_s or nil, sel_e or nil
+  self.windowPosition = windowPosition or 0
+  self.selectionStart, self.selectionEnd = selectionStart or nil, selectionEnd or nil
 
 end
 

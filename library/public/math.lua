@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local math = math
 
 local Math = setmetatable({}, math)
@@ -21,7 +23,7 @@ end
 
 
 -- Returns 'val', rounded to the nearest multiple of 'snap'
-Math.nearestmultiple = function (n, snap)
+Math.nearestMultiple = function (n, snap)
 
   local int, frac = math.modf(n / snap)
   return (math.floor( frac + 0.5 ) == 1 and int + 1 or int) * snap
@@ -59,7 +61,7 @@ end
     Will return coordinates relative to an origin of (0,0), or absolute
     coordinates if an origin point is specified
 ]]--
-Math.polar2cart = function (angle, radius, ox, oy)
+Math.polarToCart = function (angle, radius, ox, oy)
 
   local theta = angle * Math.pi
   local x = radius * math.cos(theta)
@@ -78,7 +80,7 @@ end
     an angle (in radians) and radius. The angle is given without reference
     to Pi; that is, pi/4 rads would return as simply 0.25
 ]]--
-Math.cart2polar = function (x, y, ox, oy)
+Math.cartToPolar = function (x, y, ox, oy)
 
   local dx, dy = x - (ox or 0), y - (oy or 0)
 

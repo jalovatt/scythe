@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Font = require("public.font")
 local Color = require("public.color")
 local Config = require("gui.config")
@@ -15,25 +17,25 @@ local Text = {}
     Iterates through all of the GUI.fonts[] presets, storing the widths
     of every printable ASCII character in a table.
 
-    Accessable via:		Text.text_width[font_num][char_num]
+    Accessable via:		Text.textWidth[font_num][char_num]
 
     - Requires a window to have been opened in Reaper
 
-    - 'get_txt_width' and 'word_wrap' will automatically run this
+    - 'get_txt_width' and 'wrapText' will automatically run this
       if it hasn't been run already; it may be rather clunky to use
       on demand depending on what your script is doing, so it's
       probably better to run this immediately after initiliazing
       the window and then have the width table ready to use.
 ]]--
 
-Text.init_txt_width = function ()
+Text.initTextWidth = function ()
 
-  Text.text_width = {}
+  Text.textWidth = {}
   local arr
   for k in pairs(Font.fonts) do
 
     Font.set(k)
-    Text.text_width[k] = {}
+    Text.textWidth[k] = {}
     arr = {}
 
     for i = 1, 255 do
@@ -42,7 +44,7 @@ Text.init_txt_width = function ()
 
     end
 
-    Text.text_width[k] = arr
+    Text.textWidth[k] = arr
 
   end
 
@@ -53,11 +55,11 @@ end
 -- (as a GUI.fonts[] preset number or name)
 -- Most of the time it's simpler to use gfx.measurestr(), but scripts
 -- with a lot of text should use this instead - it's 10-12x faster.
-Text.get_text_width = function (str, font)
+Text.getTextWidth = function (str, font)
 
-  if not Text.text_width then Text.init_txt_width() end
+  if not Text.textWidth then Text.initTextWidth() end
 
-  local widths = Text.text_width[font]
+  local widths = Text.textWidth[font]
 
   return Table.reduce(str:split("."),
     function(acc, cur)
@@ -70,13 +72,13 @@ end
 
 -- Measures a string to see how much of it will it in the given width,
 -- then returns both the trimmed string and the excess
-Text.fit_text_width = function (str, font, w)
+Text.fitTextWidth = function (str, font, w)
   -- Assuming 'i' is the narrowest character, get an upper limit
-  local max_end = math.floor( w / Text.text_width[font][string.byte("i")] )
+  local maxEnd = math.floor( w / Text.textWidth[font][string.byte("i")] )
 
-  for i = max_end, 1, -1 do
+  for i = maxEnd, 1, -1 do
 
-    if Text.get_text_width( string.sub(str, 1, i), font ) < w then
+    if Text.getTextWidth( string.sub(str, 1, i), font ) < w then
 
       return string.sub(str, 1, i), string.sub(str, i + 1)
 
@@ -112,58 +114,58 @@ end
 
 
     This function expands on the "greedy" algorithm found here:
-    https://en.wikipedia.org/wiki/Line_wrap_and_word_wrap#Algorithm
+    https://en.wikipedia.org/wiki/Line_wrap_and_wrapText#Algorithm
 
 ]]--
-Text.word_wrap = function (str, font, w, indent, pad)
+Text.wrapText = function (str, font, w, indent, pad)
 
-  if not Text.text_width then Text.init_txt_width() end
+  if not Text.textWidth then Text.initTextWidth() end
 
-  local ret_str = T{}
+  local ret = T{}
 
-  local w_left, w_word
-  local space = Text.text_width[font][string.byte(" ")]
+  local widthLeft, widthWord
+  local space = Text.textWidth[font][string.byte(" ")]
 
-  local new_para = indent and string.rep(" ", indent) or 0
+  local newParagraph = indent and string.rep(" ", indent) or 0
 
-  local w_pad = pad   and Text.get_text_width( string.sub(str, 1, pad), font )
+  local widthPad = pad   and Text.getTextWidth( string.sub(str, 1, pad), font )
                       or 0
-  local new_line = "\n"..string.rep(" ", math.floor(w_pad / space)	)
+  local newLine = "\n"..string.rep(" ", math.floor(widthPad / space)	)
 
   str:splitLines():forEach(function(line)
 
-    ret_str:insert(new_para)
+    ret:insert(newParagraph)
 
     -- Check for leading spaces and tabs
     local leading, rest = string.match(line, "^([%s\t]*)(.*)$")
-    if leading then ret_str:insert(leading) end
+    if leading then ret:insert(leading) end
 
-    w_left = w
+    widthLeft = w
     rest:split("%s"):forEach(function(word)
-      w_word = Text.get_text_width(word, font)
-      if (w_word + space) > w_left then
+      widthWord = Text.getTextWidth(word, font)
+      if (widthWord + space) > widthLeft then
 
-        ret_str:insert(new_line)
-        w_left = w - w_word
+        ret:insert(newLine)
+        widthLeft = w - widthWord
 
       else
 
-        w_left = w_left - (w_word + space)
+        widthLeft = widthLeft - (widthWord + space)
 
       end
 
-      ret_str:insert(word)
-      ret_str:insert(" ")
+      ret:insert(word)
+      ret:insert(" ")
 
     end)
 
-    ret_str:insert("\n")
+    ret:insert("\n")
 
   end)
 
-  ret_str:remove(#ret_str)
+  ret:remove(#ret)
 
-  return table.concat(ret_str)
+  return table.concat(ret)
 
 end
 
@@ -175,7 +177,7 @@ Text.drawWithShadow = function (str, col1, col2)
   local x, y = gfx.x, gfx.y
 
   Color.set(col2 or "shadow")
-  for i = 1, Config.shadow_size do
+  for i = 1, Config.shadowSize do
       gfx.x, gfx.y = x + i, y + i
       gfx.drawstr(str)
   end
@@ -223,20 +225,20 @@ end
     Font.set(self.font)
     Color.set(self.col)
 
-    Text.text_bg(self.text)
+    Text.drawBackground(self.text)
 
     gfx.drawstr(self.text)
 
     Also accepts an optional background color:
-    Text.text_bg(self.text, "elm_bg")
+    Text.drawBackground(self.text, "elmBg")
 
 ]]--
-Text.text_bg = function (str, col, align)
+Text.drawBackground = function (str, col, align)
 
   local x, y = gfx.x, gfx.y
   local r, g, b, a = gfx.r, gfx.g, gfx.b, gfx.a
 
-  col = col or "wnd_bg"
+  col = col or "windowBg"
 
   Color.set(col)
 

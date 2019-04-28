@@ -1,6 +1,8 @@
+-- NoIndex: true
+
 local Config = {}
 
-Config.doubleclick_time = 0.30
+Config.doubleclickTime = 0.30
 
 --[[
     How fast the caret in textboxes should blink, measured in GUI update loops.
@@ -11,22 +13,22 @@ Config.doubleclick_time = 0.30
     issues in scripts with lots of drawing to do. In that case, raising it to
     24 or 32 will still look alright but require less redrawing.
 ]]--
-Config.txt_blink_rate = 16
+Config.caretBlinkRate = 16
 
 -- Global shadow size, in pixels
-Config.shadow_size = 2
+Config.shadowSize = 2
 
 
 -- Delay time when hovering over an element before displaying a tooltip
-Config.tooltip_time = 0.8
+Config.tooltipTime = 0.8
 
 -- Developer mode settings
 Config.dev = {
 
-  -- grid_a must be a multiple of grid_b, or it will
+  -- gridMajor must be a multiple of gridMinor, or it will
   -- probably never be drawn
-  grid_a = 128,
-  grid_b = 16
+  gridMajor = 128,
+  gridMinor = 16
 
 }
 

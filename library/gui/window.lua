@@ -1,3 +1,4 @@
+-- NoIndex: true
 -- luacheck: globals Scythe
 
 local Table, T = require("public.table"):unpack()
@@ -37,7 +38,7 @@ function Window:open()
   -- TODO: Restore previous size and position
 
   -- Create the window
-  local bg = Table.map(Color.colors.wnd_bg,
+  local bg = Table.map(Color.colors.windowBg,
     function(val) return val * 255 end
   )
   gfx.clear = reaper.ColorToNative(table.unpack(bg))
@@ -49,12 +50,12 @@ function Window:open()
 
   gfx.init(self.name, self.w, self.h, self.dock or 0, self.x, self.y)
 
-  self.cur_w, self.cur_h = gfx.w, gfx.h
+  self.currentW, self.currentH = gfx.w, gfx.h
 
   -- Measure the window's title bar, in case we need it
-  local _, _, wnd_y, _, _ = gfx.dock(-1, 0, 0, 0, 0)
-  local _, gui_y = gfx.clienttoscreen(0, 0)
-  self.title_height = gui_y - wnd_y
+  local _, _, windowY, _, _ = gfx.dock(-1, 0, 0, 0, 0)
+  local _, innerY = gfx.clienttoscreen(0, 0)
+  self.titleHeight = innerY - windowY
 
 
   -- Initialize a few values
@@ -69,7 +70,7 @@ function Window:open()
     }
   }
 
-  self.last_state = self.state
+  self.lastState = self.state
 
   self.isOpen = true
 
@@ -86,7 +87,7 @@ end
 
 function Window:close()
   -- TODO: Store current size and position
-  self:cleartooltip()
+  self:clearTooltip()
   self.isOpen = false
   self:onClose()
   gfx.quit()
@@ -104,7 +105,7 @@ function Window:redraw()
   if self.layerCount == 0 then return end
 
   -- Redraw all of the elements, starting from the bottom up.
-  local w, h = self.cur_w, self.cur_h
+  local w, h = self.currentW, self.currentH
 
   if self.layers:any(function(l) return l.needsRedraw end)
     or self.needsRedraw then
@@ -117,7 +118,7 @@ function Window:redraw()
     gfx.setimgdim(0, -1, -1)
     gfx.setimgdim(0, w, h)
 
-    Color.set("wnd_bg")
+    Color.set("windowBg")
     gfx.rect(0, 0, w, h, 1)
 
     for i = #self.sortedLayers, 1, -1 do
@@ -128,12 +129,12 @@ function Window:redraw()
             layer:redraw()
           end
 
-          gfx.blit(layer.buff, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
+          gfx.blit(layer.buffer, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
         end
     end
 
     -- Draw developer hints if necessary
-    if Scythe.dev_mode then
+    if Scythe.developerMode then
       self:drawDev()
     else
       self:drawVersion()
@@ -185,7 +186,7 @@ function Window:update()
   self:sortLayers()
 
   self:updateInputState()
-  self.elm_updated = false
+  self.elmUpdated = false
 
   self:handleWindowEvents()
 
@@ -193,14 +194,14 @@ function Window:update()
     self:updateLayers()
   end
 
-  if self.tooltip and not self.state.mouseover_elm then
-    self:cleartooltip()
+  if self.tooltip and not self.state.mouseOverElm then
+    self:clearTooltip()
   end
 
 end
 
 function Window:handleWindowEvents()
-  local state, last = self.state, self.last_state
+  local state, last = self.state, self.lastState
 
   -- Window closed
   if (state.kb.char == 27 and not (  state.mouse.cap & 4 == 4
@@ -216,15 +217,15 @@ function Window:handleWindowEvents()
   -- Dev mode toggle
   if  state.kb.char == 282         and state.mouse.cap & 4 ~= 0
   and state.mouse.cap & 8 ~= 0  and state.mouse.cap & 16 ~= 0 then
-    Scythe.dev_mode = not Scythe.dev_mode
-    self.elm_updated = true
+    Scythe.developerMode = not Scythe.developerMode
+    self.elmUpdated = true
     self.needsRedraw = true
   end
 
   if not self.last then return end
 
   -- Window resized
-  if (state.cur_w ~= last.cur_w or state.cur_h ~= last.cur_h)
+  if (state.currentW ~= last.currentW or state.currentH ~= last.currentH)
   and self.onResize then
     self.onResize()
     state.resized = true
@@ -254,33 +255,33 @@ function Window:updateInputState()
     dy = gfx.mouse_y - last.mouse.y,
 
     -- Values that need to persist from one loop to the next
-    downtime = last.mouse.downtime,
-    down_elm = last.mouse.down_elm,
-    dbl_clicked = last.dbl_clicked,
+    downTime = last.mouse.downTime,
+    downElm = last.mouse.downElm,
+    doubleClicked = last.doubleClicked,
     ox = last.mouse.ox,
     oy = last.mouse.oy,
-    off_x = last.mouse.off_x,
-    off_y = last.mouse.off_y,
-    over_time = last.mouse.over_time,
+    relativeX = last.mouse.relativeX,
+    relativeY = last.mouse.relativeY,
+    mouseOverTime = last.mouse.mouseOverTime,
   }
 
   state.kb = {
     char = gfx.getchar(),
   }
 
-  state.cur_w = gfx.w
-  state.cur_h = gfx.h
+  state.currentW = gfx.w
+  state.currentH = gfx.h
 
-  state.settooltip = function(str) self:settooltip(state.mouse.x, state.mouse.y, str) end
+  state.setTooltip = function(str) self:setTooltip(state.mouse.x, state.mouse.y, str) end
 
   self.state = state
-  self.last_state = last
+  self.lastState = last
 
 end
 
 function Window:updateLayers()
   for i = 1, self.layerCount do
-    self.sortedLayers[i]:update(self.state, self.last_state)
+    self.sortedLayers[i]:update(self.state, self.lastState)
   end
 end
 
@@ -306,11 +307,11 @@ function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
 
   local ax, ay, aw, ah = 0, 0, 0 ,0
 
-  local _, _, scr_w, scr_h = reaper.my_getViewport( x, y, x + w, y + h,
-                                                    x, y, x + w, y + h, 1)
+  local _, _, screenW, screenH = reaper.my_getViewport( x, y, x + w, y + h,
+                                                        x, y, x + w, y + h, 1)
 
   if anchor == "screen" then
-    aw, ah = scr_w, scr_h
+    aw, ah = screenW, screenH
   elseif anchor =="mouse" then
     ax, ay = reaper.GetMousePosition()
   end
@@ -347,7 +348,7 @@ end
 
 
 -- Display a tooltip
-function Window:settooltip(x, y, str)
+function Window:setTooltip(x, y, str)
   if not str or str == "" then return end
 
   --Lua: reaper.TrackCtl_SetToolTip(string fmt, integer xpos, integer ypos, boolean topmost)
@@ -366,7 +367,7 @@ end
 
 
 -- Clear the tooltip
-function Window:cleartooltip()
+function Window:clearTooltip()
 
   reaper.TrackCtl_SetToolTip("", 0, 0, true)
   self.tooltip = nil
@@ -385,26 +386,26 @@ function Window:drawVersion()
   Font.set("version")
   Color.set("txt")
 
-  local str_w, str_h = gfx.measurestr(str)
+  local strWidth, strHeight = gfx.measurestr(str)
 
-  gfx.x = gfx.w - str_w - 6
-  gfx.y = gfx.h - str_h - 4
+  gfx.x = gfx.w - strWidth - 6
+  gfx.y = gfx.h - strHeight - 4
 
   gfx.drawstr(str)
 
 end
 
 -- Draws a grid overlay and some developer hints
--- Toggled via Ctrl+Shift+Alt+Z, or by setting Scythe.dev_mode = true
+-- Toggled via Ctrl+Shift+Alt+Z, or by setting Scythe.developerMode = true
 function Window:drawDev()
 
   -- Draw a grid for placing elements
   Color.set("magenta")
   Font.set("monospace")
 
-  for i = 0, self.w, Config.dev.grid_b do
+  for i = 0, self.w, Config.dev.gridMinor do
 
-    local a = (i % Config.dev.grid_a == 0)
+    local a = (i % Config.dev.gridMajor == 0)
 
     gfx.a = a and 1 or 0.3
     gfx.line(i, 0, i, self.h)
@@ -423,20 +424,20 @@ function Window:drawDev()
     math.modf(self.state.mouse.x)..", "..
     math.modf(self.state.mouse.y).." "
 
-  local str_w, str_h = gfx.measurestr(str)
-  gfx.x, gfx.y = self.w - str_w - 2, self.h - 2*str_h - 2
+  local strWidth, strHeight = gfx.measurestr(str)
+  gfx.x, gfx.y = self.w - strWidth - 2, self.h - 2*strHeight - 2
 
   Color.set("black")
-  gfx.rect(gfx.x - 2, gfx.y - 2, str_w + 4, 2*str_h + 4, true)
+  gfx.rect(gfx.x - 2, gfx.y - 2, strWidth + 4, 2*strHeight + 4, true)
 
   Color.set("white")
   gfx.drawstr(str)
 
-  local snap_x = Math.nearestmultiple(self.state.mouse.x, Config.dev.grid_b)
-  local snap_y = Math.nearestmultiple(self.state.mouse.y, Config.dev.grid_b)
+  local snapX = Math.nearestMultiple(self.state.mouse.x, Config.dev.gridMinor)
+  local snapY = Math.nearestMultiple(self.state.mouse.y, Config.dev.gridMinor)
 
-  gfx.x, gfx.y = self.w - str_w - 2, self.h - str_h - 2
-  gfx.drawstr(" Snap: "..snap_x..", "..snap_y)
+  gfx.x, gfx.y = self.w - strWidth - 2, self.h - strHeight - 2
+  gfx.drawstr(" Snap: "..snapX..", "..snapY)
 
   gfx.a = 1
 

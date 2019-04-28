@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local GFX = {}
 
 
@@ -7,7 +9,7 @@ local GFX = {}
 
 
 -- Improved roundrect() function with fill, adapted from mwe's EEL example.
-GFX.roundrect = function (x, y, w, h, r, antialias, fill)
+GFX.roundRect = function (x, y, w, h, r, antialias, fill)
 
   local aa = antialias or 1
   fill = fill or 0

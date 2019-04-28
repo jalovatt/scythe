@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Table = {}
 setmetatable(Table, {__index = table})
 
@@ -134,19 +136,19 @@ end
 
 -- Returns a string of the table's contents, indented to show nested tables
 -- If 't' contains classes, or a lot of nested tables, etc, be wary of using larger
--- values for max_depth - this function will happily freeze Reaper for ten minutes.
-Table.stringify = function (t, max_depth, cur_depth)
+-- values for maxDepth - this function will happily freeze Reaper for ten minutes.
+Table.stringify = function (t, maxDepth, currentDepth)
   local ret = {}
-  cur_depth = cur_depth or 0
+  currentDepth = currentDepth or 0
 
   for n,v in pairs(t) do
-    ret[#ret+1] = string.rep("  ", cur_depth) .. tostring(n) .. " = "
+    ret[#ret+1] = string.rep("  ", currentDepth) .. tostring(n) .. " = "
 
     if type(v) == "table" then
       ret[#ret] = ret[#ret] .. "table:"
 
-      if not max_depth or cur_depth <= max_depth then
-        ret[#ret+1] = Table.stringify(v, max_depth, cur_depth + 1)
+      if not maxDepth or currentDepth <= maxDepth then
+        ret[#ret+1] = Table.stringify(v, maxDepth, currentDepth + 1)
       end
     else
       ret[#ret] = ret[#ret] .. tostring(v)
@@ -162,14 +164,14 @@ end
 Table.deepEquals = function (a, b)
   if type(a) ~= "table" or type(b) ~= "table" then return false end
 
-  local key_exists = {}
+  local keyExist = {}
   for k1, v1 in pairs(a) do
     local v2 = b[k1]
     if v2 == nil or not Table.compare(v1, v2) then return false end
-    key_exists[k1] = true
+    keyExist[k1] = true
   end
   for k2 in pairs(b) do
-    if not key_exists[k2] then return false end
+    if not keyExist[k2] then return false end
   end
 
   return true

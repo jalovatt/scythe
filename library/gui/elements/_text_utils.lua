@@ -1,41 +1,41 @@
+-- NoIndex: true
 -- luacheck: globals Scythe
 local TextUtils = {}
 
-function TextUtils.ctrlchar(self, state, func, ...)
+function TextUtils.doCtrlChar(self, state, func, ...)
 
   if state.mouse.cap & 4 == 4 then
     func(self, ... and table.unpack({...}))
 
-    -- Flag to bypass the "clear selection" logic in :ontype()
+    -- Flag to bypass the "clear selection" logic in :onType()
     return true
 
   else
-    self:insertchar(state.kb.char)
+    self:insertChar(state.kb.char)
   end
 
 end
 
-function TextUtils.toclipboard(self, cut)
+function TextUtils.toClipboard(self, cut)
+  if self.selectionStart and self:SWS_clipboard() then
 
-  if self.sel_s and self:SWS_clipboard() then
-
-    local str = self:getselectedtext()
+    local str = self:getSelectedText()
     reaper.CF_SetClipboard(str)
-    if cut then self:deleteselection() end
+    if cut then self:deleteSelection() end
 
   end
 
 end
 
-function TextUtils.fromclipboard(self)
+function TextUtils.fromClipboard(self)
 
   if self:SWS_clipboard() then
 
-    local fast_str = reaper.SNM_CreateFastString("")
-    local str = reaper.CF_GetClipboardBig(fast_str)
-    reaper.SNM_DeleteFastString(fast_str)
+    local fastStr = reaper.SNM_CreateFastString("")
+    local str = reaper.CF_GetClipboardBig(fastStr)
+    reaper.SNM_DeleteFastString(fastStr)
 
-    self:insertstring(str, true)
+    self:insertString(str, true)
 
   end
 
@@ -43,22 +43,22 @@ end
 
 function TextUtils.undo(self)
 
-	if #self.undo_states == 0 then return end
-	table.insert(self.redo_states, self:geteditorstate() )
-	local state = table.remove(self.undo_states)
+	if #self.undoStates == 0 then return end
+	table.insert(self.redoStates, self:getEditorState() )
+	local state = table.remove(self.undoStates)
 
   self.retval = state.retval
 	self.caret = state.caret
 
-	self:windowtocaret()
+	self:setWindowToCaret()
 
 end
 
-function TextUtils.storeundostate(self)
+function TextUtils.storeUndoState(self)
 
-  table.insert(self.undo_states, self:geteditorstate() )
-	if #self.undo_states > self.undo_limit then table.remove(self.undo_states, 1) end
-	self.redo_states = {}
+  table.insert(self.undoStates, self:getEditorState() )
+	if #self.undoStates > self.undoLimit then table.remove(self.undoStates, 1) end
+	self.redoStates = {}
 
 end
 
@@ -66,7 +66,7 @@ end
 -- (v2.9.7 or greater)
 function TextUtils.SWS_clipboard(self)
 
-	if Scythe.SWS_exists then
+	if Scythe.hasSWS then
 		return true
 	else
 
