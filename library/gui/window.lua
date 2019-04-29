@@ -80,9 +80,26 @@ function Window:open()
   end
 end
 
+function Window:reopen(params)
+  -- params: x, y, w, h, dock
+  local currentDock,currentX,currentY,currentW,currentH = gfx.dock(-1,0,0,0,0)
+
+  gfx.quit()
+  gfx.init(
+    self.name,
+    params.w or currentW,
+    params.h or currentH,
+    params.dock or currentDock,
+    params.x or currentX,
+    params.y or currentY
+  )
+
+  self.currentW = gfx.w
+  self.currentH = gfx.h
+end
+
 function Window:sortLayers()
   self.sortedLayers = self.layers:sortHashesByKey("z")
-  -- self.z_max = self.sortedLayers[self.layerCount].z
 end
 
 function Window:close()
@@ -222,12 +239,12 @@ function Window:handleWindowEvents()
     self.needsRedraw = true
   end
 
-  if not self.last then return end
+  if not self.lastState then return end
 
   -- Window resized
-  if (state.currentW ~= last.currentW or state.currentH ~= last.currentH)
-  and self.onResize then
-    self.onResize()
+  if last.currentW
+  and (state.currentW ~= last.currentW or state.currentH ~= last.currentH) then
+    if self.onResize then self.onResize() end
     state.resized = true
   end
 
