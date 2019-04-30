@@ -1,13 +1,13 @@
 -- NoIndex: true
 
 --[[
-	Lokasenna_GUI example
+	Scythe example
 
 	- Getting user input before running an action; i.e. replacing GetUserInputs
 
 ]]--
 
--- The Core library must be loaded prior to anything else
+-- The core library must be loaded prior to anything else
 
 local libPath = reaper.GetExtState("Scythe", "libPath_v3")
 if not libPath or libPath == "" then
@@ -18,9 +18,11 @@ loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
 
--- local Table = require("public.table")
-
 local window
+
+
+
+
 ------------------------------------
 -------- Functions  ----------------
 ------------------------------------
@@ -35,6 +37,7 @@ local function btn_click()
 	local time_sel, sel_track, glue = opts[1], opts[2], opts[3]
 
   local menu = window:findElementByName("mnu_mode")
+
 	-- Be nice, give the user an Undo point
 	reaper.Undo_BeginBlock()
 
@@ -47,11 +50,10 @@ local function btn_click()
 		.."Glue the processed items together afterward: "..tostring(glue)
 	, "Yay!", 0)
 
-
 	reaper.Undo_EndBlock("Typical script options", 0)
 
 	-- Exit the script on the next update
-	GUI.quit = true
+	Scythe.quit = true
 
 end
 
@@ -61,11 +63,6 @@ end
 ------------------------------------
 -------- Window settings -----------
 ------------------------------------
-
-
-GUI.name = "Example - Typical script options"
-GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 400, 200
-GUI.anchor, GUI.corner = "mouse", "C"
 
 
 window = GUI.createWindow({
@@ -83,19 +80,6 @@ window = GUI.createWindow({
 -------- GUI Elements --------------
 ------------------------------------
 
-
---[[
-
-	Button		z, 	x, 	y, 	w, 	h, caption, func[, ...]
-	Checklist	z, 	x, 	y, 	w, 	h, caption, opts[, dir, pad]
-	Menubox		z, 	x, 	y, 	w, 	h, caption, opts, pad, noarrow]
-	Slider		z, 	x, 	y, 	w, 	caption, min, max, defaults[, inc, dir]
-
-]]--
-
-
-
--- reaper.ShowConsoleMsg( Table.stringify(elements) )
 
 local layer = GUI.createLayer({name = "Layer1", z = 1})
 

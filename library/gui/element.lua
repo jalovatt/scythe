@@ -14,7 +14,7 @@ local Config = require("gui.config")
 ]]--
 local Element = T{}
 Element.__index = Element
-Element.__noCopy = true
+Element.__noRecursive = true
 
 function Element:new()
   return setmetatable(T{}, self)

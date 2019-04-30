@@ -1,13 +1,13 @@
 -- NoIndex: true
 
 --[[
-	Lokasenna_GUI example
+	Scythe example
 
 	- Demonstration of the Listbox, Menubar, and TextEditor classes
 
 ]]--
 
--- The Core library must be loaded prior to anything else
+-- The core library must be loaded prior to anything else
 
 local libPath = reaper.GetExtState("Scythe", "libPath_v3")
 if not libPath or libPath == "" then
@@ -17,7 +17,7 @@ end
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
-local _, T = require("public.table"):unpack()
+local Table, T = require("public.table"):unpack()
 
 ------------------------------------
 -------- Menu functions ------------
@@ -72,49 +72,49 @@ local mnu_help = {
 -- Must be structured like this (.title, .options, etc)
 local menus = {
 
-    {title = "File", options = {
-        {"New",                 mnu_file.new},
-        {""},
-        {"Open",                mnu_file.open},
-        {">Recent Files"},
-            {"blah.txt",        mnu_file.recent_blah},
-            {"stuff.txt",       mnu_file.recent_stuff},
-            {"<readme.md",      mnu_file.recent_readme},
-        {"Save",                mnu_file.save},
-        {"Save As",             mnu_file.save_as},
-        {""},
-        {"#Print",               mnu_file.print},
-        {"#Print Preview",       mnu_file.print_preview},
-        {""},
-        {"Exit",                mnu_file.exit}
-    }},
+  {title = "File", options = {
+    {"New",                 mnu_file.new},
+    {""},
+    {"Open",                mnu_file.open},
+    {">Recent Files"},
+      {"blah.txt",        mnu_file.recent_blah},
+      {"stuff.txt",       mnu_file.recent_stuff},
+      {"<readme.md",      mnu_file.recent_readme},
+    {"Save",                mnu_file.save},
+    {"Save As",             mnu_file.save_as},
+    {""},
+    {"#Print",               mnu_file.print},
+    {"#Print Preview",       mnu_file.print_preview},
+    {""},
+    {"Exit",                mnu_file.exit}
+  }},
 
-    {title = "Edit", options = {
-        {"Cut",                 mnu_edit.cut},
-        {"Copy",                mnu_edit.copy},
-        {">Copy to Clipboard"},
-            {"Current full file path",  mnu_edit.copy_path},
-            {"Current filename",        mnu_edit.copy_file},
-            {"<Current directory path",  mnu_edit.copy_dir},
-        {"Paste",               mnu_edit.paste},
-        {"Delete",              mnu_edit.delete},
-        {""},
-        {"Select All",          mnu_edit.select_all}
-    }},
+  {title = "Edit", options = {
+    {"Cut",                 mnu_edit.cut},
+    {"Copy",                mnu_edit.copy},
+    {">Copy to Clipboard"},
+      {"Current full file path",  mnu_edit.copy_path},
+      {"Current filename",        mnu_edit.copy_file},
+      {"<Current directory path",  mnu_edit.copy_dir},
+    {"Paste",               mnu_edit.paste},
+    {"Delete",              mnu_edit.delete},
+    {""},
+    {"Select All",          mnu_edit.select_all}
+  }},
 
-    {title = "View", options = {
-        {"!Always On Top",       mnu_view.always_on_top},
-        {"Toggle Full-Screen",  mnu_view.toggle_full_screen},
-        {"Hide Menu",           mnu_view.hide_menu}
-    }},
+  {title = "View", options = {
+    {"!Always On Top",       mnu_view.always_on_top},
+    {"Toggle Full-Screen",  mnu_view.toggle_full_screen},
+    {"Hide Menu",           mnu_view.hide_menu}
+  }},
 
-    {title = "Help", options = {
-        {"Help",                mnu_help.help},
-        {"#Open Website",        mnu_help.open_website},
-        {""},
-        {"#Check For Updates",   mnu_help.check_for_updates},
-        {"About",               mnu_help.about},
-    }},
+  {title = "Help", options = {
+    {"Help",                mnu_help.help},
+    {"#Open Website",        mnu_help.open_website},
+    {""},
+    {"#Check For Updates",   mnu_help.check_for_updates},
+    {"About",               mnu_help.about},
+  }},
 }
 
 
@@ -125,7 +125,7 @@ local menus = {
 ------------------------------------
 
 
-local items = {
+local items = T{
 
 	{"Pride and Prejudice",
 [[It is a truth universally acknowledged, that a single man in possession of a good fortune
@@ -186,10 +186,7 @@ before you, so that her skirt slips up to the tops of her stockings?]]}
 
 }
 
-local titles = T{}
-for i = 1, #items do
-	titles[i] = items[i][1]
-end
+local titles = items:map(function(val) return val[1] end)
 
 
 local function addText()
@@ -200,20 +197,11 @@ local function addText()
 	-- Make sure it's a table, just to be consistent with the multi-select logic
 	if type(selected) == "number" then selected = {[selected] = true} end
 
-	-- Get and sort the selected item numbers
-	local vals = {}
-	for k in pairs(selected) do
-		table.insert(vals, k)
-	end
-
-	table.sort(vals)
-
-	-- Replace the numbers with the appropriate text
-	for i = 1, #vals do
-		vals[i] = items[vals[i]][2]
-	end
-
-	local str = table.concat(vals, "\n\n")
+  -- Showing off some our fancy chainable Table methods
+  local str = Table.reduce(selected, function(acc, _, i) acc[#acc + 1] = i; return acc end, T{})
+    :chainableSort()
+    :map(function(val) return items[val][2] end)
+    :concat("\n\n")
 
 	GUI.Val("txted_text", str)
 
@@ -226,9 +214,6 @@ end
 -------- Window settings -----------
 ------------------------------------
 
-GUI.name = "Example - Menubar, Listbox, and TextEditor"
-GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 800, 272
-GUI.anchor, GUI.corner = "mouse", "C"
 
 local window = GUI.createWindow({
   name = "Example - Menubar, Listbox, and TextEditor",
@@ -240,74 +225,53 @@ local window = GUI.createWindow({
   corner = "C",
 })
 
-------------------------------------
--------- GUI Elements --------------
-------------------------------------
-
-
---[[
-
-    Menubar     z,  x,  y,  menus[, w, h, pad])
-	Button		z, 	x, 	y, 	w, 	h, caption, func[, ...]
-	Listbox		z, 	x, 	y, 	w, 	h[, list, multi, caption, pad])
-	TextEditor	z,	x,	y,	w,	h[, text, caption, pad])
-
-]]--
 
 window:addLayers(
-  GUI.createLayer({name = "Layer1", z = 1}):addElements( GUI.createElements(
-    {
-      name = "mnu_menu",
-      type = "Menubar",
-      x = 0,
-      y = 0,
-      w = window.currentW,
-      menus = menus,
-    },
-    {
-      name = "lst_titles",
-      type = "Listbox",
-      x = 16,
-      y = 40,
-      w = 300,
-      h = 208,
-      caption = "",
-      multi = true,
-      list = titles,
-      onDoubleclick = function(self) addText() end
-    },
-    {
-      name = "btn_go",
-      type = "Button",
-      x = 324,
-      y = 104,
-      w = 32,
-      h = 24,
-      caption = "-->",
-      func = addText
-    },
-    {
-      name = "txted_text",
-      type = "TextEditor",
-      x = 364,
-      y = 40,
-      w = 420,
-      h = 208,
-      text = "Select an item\nor two\nor three\nor everything\n\nin the list and click the button!",
-    }
-  ))
+  GUI.createLayer({name = "Layer1", z = 1})
+    :addElements(
+      GUI.createElements(
+        {
+          name = "mnu_menu",
+          type = "Menubar",
+          x = 0,
+          y = 0,
+          w = window.currentW,
+          menus = menus,
+        },
+        {
+          name = "lst_titles",
+          type = "Listbox",
+          x = 16,
+          y = 40,
+          w = 300,
+          h = 208,
+          caption = "",
+          multi = true,
+          list = titles,
+          onDoubleclick = function(self) addText() end
+        },
+        {
+          name = "btn_go",
+          type = "Button",
+          x = 324,
+          y = 104,
+          w = 32,
+          h = 24,
+          caption = "-->",
+          func = addText
+        },
+        {
+          name = "txted_text",
+          type = "TextEditor",
+          x = 364,
+          y = 40,
+          w = 420,
+          h = 208,
+          retval = "Select an item\n  or two\n    or three\n      or everything in the list\n\nand click the button!",
+        }
+      )
+    )
 )
-
--- GUI.New("mnu_menu", "Menubar",      1,  0,   0,   menus, GUI.w)
--- GUI.New("lst_titles", "Listbox",	1,	16,  40,  300, 208, "", true)
--- GUI.New("btn_go", "Button",			1,	324, 104, 32,  24, "-->", addText)
--- GUI.New("txted_text", "TextEditor",	1,	364, 40,  420, 208, "Select an item\nor two\nor three\nor everything\n\nin the list and click the button!")
-
--- function GUI.elms.lst_titles:onDoubleclick()
-
--- 	addText()
-
--- end
 
 
 GUI.Init()

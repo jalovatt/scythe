@@ -116,7 +116,7 @@ Table.deepCopy = function(t, copies)
     -- Override so we don't end up working through circular references for
     -- elements, layers, windows, and tab sets
     else
-      if t.__noCopy then
+      if t.__noRecursive then
         copy = t
       else
         copy = {}
@@ -159,19 +159,34 @@ Table.stringify = function (t, maxDepth, currentDepth)
 end
 
 
+Table.shallowEquals = function (a, b)
+  if type(a) ~= "table" or type(b) ~= "table" then return false end
+
+  local seenKeys = {}
+  for k1, v1 in pairs(a) do
+    if b[k1] ~= v1 then return false end
+    seenKeys[k1] = true
+  end
+  for k2 in pairs(b) do
+    if not seenKeys[k2] then return false end
+  end
+
+  return true
+end
+
 -- Recursively compares the contents of two tables, since Lua doesn't offer it
 -- Returns true if all of table a's keys and values match all of table b's.
 Table.deepEquals = function (a, b)
   if type(a) ~= "table" or type(b) ~= "table" then return false end
 
-  local keyExist = {}
+  local seenKeys = {}
   for k1, v1 in pairs(a) do
     local v2 = b[k1]
-    if v2 == nil or not Table.compare(v1, v2) then return false end
-    keyExist[k1] = true
+    if v2 == nil or not Table.deepEquals(v1, v2) then return false end
+    seenKeys[k1] = true
   end
   for k2 in pairs(b) do
-    if not keyExist[k2] then return false end
+    if not seenKeys[k2] then return false end
   end
 
   return true
@@ -332,6 +347,13 @@ Table.addMissingKeys = function(t, source)
     end
   end
 
+  return t
+end
+
+
+-- Just a wrapper so we can chain this
+Table.chainableSort = function(t, func)
+  table.sort(t, func)
   return t
 end
 
