@@ -383,7 +383,7 @@ end
 function Element:addDefaultProps (props)
   if type(props) ~= "table" then return props end
 
-  local new = Table.deepCopy(props)
+  local new = Table.deepCopy(props or {})
 
   return Table.addMissingKeys(new, self.defaultProps)
 end

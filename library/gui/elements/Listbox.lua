@@ -7,14 +7,14 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
--- local Table = require("public.table")
+local Table, T = require("public.table"):unpack()
 require("public.string")
 
 -- Listbox - New
 local Listbox = require("gui.element"):new()
 Listbox.__index = Listbox
 Listbox.defaultProps =  {
-
+  name = "listbox",
   type = "Listbox",
 
   x = 0,
@@ -134,7 +134,21 @@ function Listbox:val(newval)
 	else
 
 		if self.multi then
-			return self.retval
+      -- return self.retval
+
+      return Table.reduce(
+        self.list,
+        function(acc, _, i)
+          if (self.retval[i] ~= nil) then
+            acc[i] = true
+          else
+            acc[i] = false
+          end
+
+          return acc
+        end,
+        T{}
+      )
     else
       -- luacheck: ignore 512 (loop executing once)
 			for k in pairs(self.retval) do

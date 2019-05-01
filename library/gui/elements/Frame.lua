@@ -22,7 +22,7 @@ local Config = require("gui.config")
 local Frame = require("gui.element"):new()
 Frame.__index = Frame
 Frame.defaultProps = {
-
+  name = "frame",
   type = "Frame",
   x = 0,
   y = 0,

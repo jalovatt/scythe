@@ -14,6 +14,7 @@ local Element = require("gui.element")
 local Button = Element:new()
 Button.__index = Button
 Button.defaultProps = {
+  name = "button",
   type = "Button",
 
   x = 0,

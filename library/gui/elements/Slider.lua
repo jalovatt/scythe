@@ -18,7 +18,7 @@ Slider.defaultProps = {
 
   x = 0,
   y = 0,
-  w = 8,
+  w = 64,
 
   horizontal = true,
 
@@ -31,6 +31,10 @@ Slider.defaultProps = {
   textColor = "txt",
   handleColor = "elmFrame",
   fillColor = "elmFill",
+
+  min = 0,
+  max = 10,
+  defaults = 5,
 
   alignValues = 0,
   inc = 1,
@@ -51,6 +55,8 @@ function Slider:new(props)
     or  {8, slider.w}
   )
 
+
+
   local min = slider.min
   local max = slider.max
 
@@ -60,10 +66,10 @@ function Slider:new(props)
     max = max + 1
   end
 
-  if not self.horizontal then
+
+  if not slider.horizontal then
     min, max = max, min
   end
-
   slider.min, slider.max = min, max
 
   -- setmetatable(slider, self)

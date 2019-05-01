@@ -7,7 +7,7 @@ Layer.__index = Layer
 Layer.__noRecursive = true
 
 function Layer:new(props)
-  local layer = Table.deepCopy(props)
+  local layer = Table.deepCopy(props or {})
 
   layer.elementCount = 0
   layer.elements = T{}

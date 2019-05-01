@@ -22,6 +22,7 @@ local Label = require("gui.element"):new()
 Label.__index = Label
 
 Label.defaultProps = {
+  name = "label",
   type = "Label",
 
   x = 0,

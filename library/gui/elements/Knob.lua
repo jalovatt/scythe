@@ -23,6 +23,7 @@ local Config = require("gui.config")
 local Knob = require("gui.element"):new()
 Knob.__index = Knob
 Knob.defaultProps = {
+  name = "knob",
   type = "Knob",
   x = 0,
   y = 0,

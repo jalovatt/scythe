@@ -18,6 +18,8 @@ Window.defaultProps = {
   w = 640,
   h = 480,
   layerCount = 0,
+  anchor = "screen",
+  corner = "C",
   isOpen = false,
   isRunning = true,
   needsRedraw = false,
@@ -25,7 +27,7 @@ Window.defaultProps = {
 }
 
 function Window:new(props)
-  local window = Table.deepCopy(props)
+  local window = Table.deepCopy(props or {})
   Table.addMissingKeys(window, self.defaultProps)
 
   window.layers = T{}

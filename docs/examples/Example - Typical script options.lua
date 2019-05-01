@@ -3,7 +3,8 @@
 --[[
 	Scythe example
 
-	- Getting user input before running an action; i.e. replacing GetUserInputs
+  - Getting user input before running an action rather than having to use
+    GetUserInputs or put user-configurable settings in the script file
 
 ]]--
 
@@ -43,8 +44,7 @@ local function btn_click()
 
 	reaper.ShowMessageBox(
 		"This is where we pretend to perform some sort of fancy operation with the user's settings.\n\n"
-		.."Working in "..tostring(menu.options[mode])
-		.." mode with a threshold of "..tostring(thresh).."db.\n\n"
+		.."Working in "..tostring(menu.options[mode]).." mode with a threshold of "..tostring(thresh).."db.\n\n"
 		.."Apply only to time selection: "..tostring(time_sel).."\n"
 		.."Apply only to selected track: "..tostring(sel_track).."\n"
 		.."Glue the processed items together afterward: "..tostring(glue)

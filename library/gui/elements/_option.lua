@@ -30,6 +30,8 @@ local Option = require("gui.element"):new()
 Option.__index = Option
 
 Option.defaultProps = {
+  name = "option",
+
   x = 0,
   y = 0,
   w = 128,
@@ -39,7 +41,6 @@ Option.defaultProps = {
 
   bg = "windowBg",
 
-  -- dir = "v",
   horizontal = false,
   pad = 4,
 

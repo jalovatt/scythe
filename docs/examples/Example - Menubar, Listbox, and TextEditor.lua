@@ -197,11 +197,15 @@ local function addText()
 	-- Make sure it's a table, just to be consistent with the multi-select logic
 	if type(selected) == "number" then selected = {[selected] = true} end
 
-  -- Showing off some our fancy chainable Table methods
-  local str = Table.reduce(selected, function(acc, _, i) acc[#acc + 1] = i; return acc end, T{})
-    :chainableSort()
-    :map(function(val) return items[val][2] end)
-    :concat("\n\n")
+  -- Grab the text for all selected items, then combine it into one string
+  local str = selected:reduce(
+    function(acc, val, i)
+      if val then acc[#acc + 1] = items[i][2] end
+      return acc
+    end,
+    T{}
+  )
+  :concat("\n\n")
 
 	GUI.Val("txted_text", str)
 

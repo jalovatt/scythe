@@ -20,7 +20,7 @@ local Config = require("gui.config")
 local Menubar = require("gui.element"):new()
 Menubar.__index = Menubar
 Menubar.defaultProps = {
-
+  name = "menubar",
   type = "Menubar",
 
   x = 0,
