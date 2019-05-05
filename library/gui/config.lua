@@ -20,13 +20,12 @@ Config.shadowSize = 2
 
 
 -- Delay time when hovering over an element before displaying a tooltip
-Config.tooltipTime = 0.8
+Config.tooltipTime = 0.7
 
 -- Developer mode settings
 Config.dev = {
 
-  -- gridMajor must be a multiple of gridMinor, or it will
-  -- probably never be drawn
+  -- gridMajor must be a multiple of gridMinor
   gridMajor = 128,
   gridMinor = 16
 

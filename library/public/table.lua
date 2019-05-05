@@ -5,12 +5,16 @@ setmetatable(Table, {__index = table})
 
 local T = function(t) return setmetatable(t, {__index = Table}) end
 
+-- Iterates over the given table, calling cb(value, key, table) for each element
+-- ** Not guaranteed to run in order of the elements' indices **
 Table.forEach = function(t, cb)
   for k, v in pairs(t) do
     cb(v, k, t)
   end
 end
 
+-- Identical to Table.forEach, but guaranteed to run in numerical order on only
+-- the array portion of the given table
 Table.orderedForEach = function(t, cb)
   local l = #t
 
@@ -19,6 +23,8 @@ Table.orderedForEach = function(t, cb)
   end
 end
 
+-- Iterates over the given table, calling cb(value, key, table) for each element
+-- and returning a new table with cb's returned values and the original keys
 Table.map = function(t, cb)
   local mapped = T{}
 
@@ -29,6 +35,8 @@ Table.map = function(t, cb)
   return mapped
 end
 
+-- Identical to Table.map, but guaranteed to run in numerical order on only the
+-- array portion of the given table
 Table.orderedMap = function(t, cb)
   local mapped = T{}
   local l = #t
@@ -40,6 +48,9 @@ Table.orderedMap = function(t, cb)
   return mapped
 end
 
+-- Returns a new table containing only those elements of the given table for which
+-- cb(value, key, table) returns true. ** Not guaranteed to return elements in
+-- their original order **
 Table.filter = function(t, cb)
   local filtered, l = T{}, 0
 
@@ -53,6 +64,8 @@ Table.filter = function(t, cb)
   return filtered
 end
 
+-- Identical to Table.filter, but guarantee to run in numerical order on only the
+-- array portion of the given table
 Table.orderedFilter = function(t, cb)
   local filtered, fl = T{}, 0
   local l = #t
@@ -67,6 +80,10 @@ Table.orderedFilter = function(t, cb)
   return filtered
 end
 
+-- Iterates over a given table with the given accumulator (or 0, if not provided),
+-- calling cb(accumulator, value, key, table) for each element.
+-- ** cb's returned value is passed as the accumulator to the next iteration **
+-- ** Not guaranteed to run in numerical order **
 Table.reduce = function(t, cb, acc)
   if acc == nil then acc = 0 end
 
@@ -77,6 +94,8 @@ Table.reduce = function(t, cb, acc)
   return acc
 end
 
+-- Identical to Table.reduce, but guarantee to run in numerical order on only the
+-- array portion of the given table
 Table.orderedReduce = function(t, cb, acc)
   if acc == nil then acc = 0 end
 
@@ -88,8 +107,9 @@ Table.orderedReduce = function(t, cb, acc)
   return acc
 end
 
-
--- http://lua-users.org/wiki/CopyTable
+-- Performs a shallow copy of the given table - that is, only the "top" level of
+-- elements is considered. Any tables are copied by reference to the new table.
+-- Taken from: http://lua-users.org/wiki/CopyTable
 Table.shallowCopy = function(t)
   local copy
   if type(t) == "table" then
@@ -104,8 +124,12 @@ Table.shallowCopy = function(t)
 end
 
 
--- Do not provide 'copies' when calling
--- http://lua-users.org/wiki/CopyTable
+-- Performs a deep copy of the given table - any tables are recursively deep-copied
+-- to the new table. To keep items from being deep-copied and/or prevent circular
+-- references from causing a stack overflow, tables with .__noRecursiveCopy will
+-- by copied by reference.
+-- ** Do not provide 'copies' when calling **
+-- Adapted from: http://lua-users.org/wiki/CopyTable
 Table.deepCopy = function(t, copies)
   copies = copies or {}
 
@@ -113,10 +137,11 @@ Table.deepCopy = function(t, copies)
   if type(t) == "table" then
     if copies[t] then
         copy = copies[t]
-    -- Override so we don't end up working through circular references for
-    -- elements, layers, windows, and tab sets
+
     else
-      if t.__noRecursive then
+      -- Override so we don't end up working through circular references for
+      -- elements, layers, etc
+      if t.__noRecursiveCopy then
         copy = t
       else
         copy = {}
@@ -159,6 +184,8 @@ Table.stringify = function (t, maxDepth, currentDepth)
 end
 
 
+-- Performs a shallow comparison of two tables. Only "top-level" elements are
+-- considered; functions and tables are compared by reference.
 Table.shallowEquals = function (a, b)
   if type(a) ~= "table" or type(b) ~= "table" then return false end
 
@@ -270,19 +297,21 @@ Table.invert = function(t)
 end
 
 
--- Looks through a table using ipairs (specify a different function with 'iter') and returns
--- the first value for which cb(value) is truthy.
+-- Looks through a table using ipairs (provide a different iterator function with
+-- 'iter') and returns the first value for which cb(value, key, table) is truthy.
 Table.find = function(t, cb, iter)
   iter = iter or ipairs
 
   local result
-  for _, v in iter(t) do
-    result = cb(v)
+  for k, v in iter(t) do
+    result = cb(v, k, t)
 
     if result then return result end
   end
 end
 
+-- Looks through a table and returns 'true' if cb(value, key, table) is true for
+-- any elements
 Table.any = function(t, cb)
   for k, v in pairs(t) do
     if cb(v, k, t) then return true end
@@ -291,7 +320,7 @@ Table.any = function(t, cb)
   return false
 end
 
--- Returns true if cb(v, k, t) is truthy for all values in the table
+-- Returns true if cb(v, k, t) is true for all values in the table
 Table.all = function(t, cb)
   for k, v in pairs(t) do
     if not cb(v, k, t) then return false end
@@ -300,7 +329,7 @@ Table.all = function(t, cb)
   return true
 end
 
--- Returns true if cb(v, k, t) is falsy for all values in the table
+-- Returns true if cb(v, k, t) is false for all values in the table
 Table.none = function(t, cb)
   for k, v in pairs(t) do
     if cb(v, k, t) then return false end
@@ -310,7 +339,7 @@ Table.none = function(t, cb)
 end
 
 -- Returns the length of a table, counting both indexed and keyed elements
-Table.length = function(t)
+Table.fullLength = function(t)
   local len = 0
   for _ in pairs(t) do
     len = len + 1
@@ -336,6 +365,8 @@ Table.sortHashesByKey = function(hashes, key)
 end
 
 
+-- Using 'source' as a base, adds any key/value pairs to t for which it doesn't
+-- already have an entry (t[k] == nil)
 Table.addMissingKeys = function(t, source)
   for k, v in pairs(source) do
     if t[k] == nil then

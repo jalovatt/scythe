@@ -219,7 +219,7 @@ layers[3]:addElements( GUI.createElements(
     y = 224,
     w = 96,
     h = 20,
-    caption = "Text:"
+    caption = "Text:",
   },
   {
     name = "my_frm",

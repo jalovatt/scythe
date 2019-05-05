@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Tabs class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Tabs
-
-    Creation parameters:
-    name, z, x, y, tabW, tabH, opts[, pad]
-
-]]--
-
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
@@ -58,7 +48,7 @@ function Tabs:new(props)
 
 	-- Figure out the total size of the tab frame now that we know the
   -- number of buttons, so we can do the math for clicking on it
-  tab.w = (tab.tabW + tab.pad) * #tab.tabs + 2*tab.pad + 12
+  tab.w = Tabs.getOverallWidth(tab)
   tab.h = tab.tabH
 
 	return self:assignChild(tab)
@@ -124,22 +114,24 @@ function Tabs:draw()
   -- (GUI builder will let you try to set it lower)
   self.w = self.fullWidth
     and (self.layer.window.currentW - self.x)
-    or math.max(self.w, (tabW + self.pad) * #self.tabs + 2*self.pad + 12)
+    or math.max(self.w, self:getOverallWidth())
 
+  -- Background
 	Color.set(self.bg)
 	gfx.rect(x - 16, y, self.w, self.h, true)
 
+  -- Current tab state
   local xOffset = tabW + self.pad - tabH
-  gfx.blit(self.buffer, 1, 0, 0, (state - 1) * (tabH + 4), self.bufferSize, (tabH + 4), x, y)
+  gfx.blit(
+    self.buffer, 1, 0,
+    0, (state - 1) * (tabH + 4),
+    self.bufferSize, (tabH),
+    x, y
+  )
 
-    -- Keep the active tab's top separate from the window background
+  -- Keep the active tab's top separate from the window background
 	Color.set(self.bg)
-    gfx.line(x + (state - 1) * xOffset, y, x + state * xOffset, y, 1)
-
-	-- Cover up some ugliness at the bottom of the tabs
-	Color.set("windowBg")
-	gfx.rect(self.x, self.y + (self.dir == "u" and tabH or -6), self.w, 6, true)
-
+  gfx.line(x + (state - 1) * xOffset, y, x + state * xOffset, y, 1)
 
 end
 
@@ -229,18 +221,6 @@ end
 -------- Drawing helpers -----------
 ------------------------------------
 
-function Tabs:drawTabLeft(x, i, y1, y2, h)
-  gfx.triangle(x + i, y1, x + i, y2, x + i - (h / 2), y2)
-end
-
-function Tabs:drawTabRight(r, i, y1, y2, h)
-  gfx.triangle(r + i, y1, r + i, y2, r + i + (h / 2), y2)
-end
-
-function Tabs:drawAliasingFix(x, r, i, y1, y2, h)
-  gfx.line(x + i, y1, x + i - (h / 2), y2, 1)
-  gfx.line(r + i, y1, r + i + (h / 2), y2, 1)
-end
 
 function Tabs:drawTab(x, y, w, h, dir, font, textColor, background, lbl)
 
@@ -286,11 +266,30 @@ function Tabs:drawTab(x, y, w, h, dir, font, textColor, background, lbl)
 end
 
 
+function Tabs:drawTabLeft(x, i, y1, y2, h)
+  gfx.triangle(x + i, y1, x + i, y2, x + i - (h / 2), y2)
+end
+
+function Tabs:drawTabRight(r, i, y1, y2, h)
+  gfx.triangle(r + i, y1, r + i, y2, r + i + (h / 2), y2)
+end
+
+function Tabs:drawAliasingFix(x, r, i, y1, y2, h)
+  gfx.line(x + i, y1, x + i - (h / 2), y2, 1)
+  gfx.line(r + i, y1, r + i + (h / 2), y2, 1)
+end
+
+
 
 
 ------------------------------------
--------- tab helpers ---------------
+-------- Tab helpers ---------------
 ------------------------------------
+
+
+function Tabs:getOverallWidth()
+  return (self.tabW + self.pad) * #self.tabs + 2*self.pad + 12
+end
 
 
 -- Updates visibility for any layers assigned to the tabs
@@ -299,16 +298,15 @@ function Tabs:updateSets()
 	if not self.tabs or #self.tabs == 0 or #self.tabs[1].layers < 1 then return end
 
 	for i = 1, #self.tabs do
-    if i ~= self.state then
-      for _, layer in pairs(self.tabs[i].layers) do
+    local show = (i == self.state)
+    for _, layer in pairs(self.tabs[i].layers) do
+      if show then
+        layer:show()
+      else
         layer:hide()
       end
     end
 	end
-
-  for _, layer in pairs(self.tabs[self.state].layers) do
-    layer:show()
-  end
 
 end
 

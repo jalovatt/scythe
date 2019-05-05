@@ -10,7 +10,7 @@ local Text = require("public.text")
 local Table, T = require("public.table"):unpack()
 require("public.string")
 
--- Listbox - New
+
 local Listbox = require("gui.element"):new()
 Listbox.__index = Listbox
 Listbox.defaultProps =  {
@@ -50,7 +50,6 @@ Listbox.defaultProps =  {
 }
 
 function Listbox:new(props)
-
 	local list = self:addDefaultProps(props)
 
   return self:assignChild(list)
@@ -76,21 +75,18 @@ function Listbox:init()
 	Color.set("elmFrame")
 	gfx.rect(0, 0, w, h, 0)
 
-
 end
 
 
 function Listbox:onDelete()
-
 	Buffer.release(self.buffer)
-
 end
 
 
 function Listbox:draw()
 
 	-- Some values can't be set in :init() because the window isn't
-	-- open yet - measurements won't work.
+	-- open yet - text measurements won't work.
 	if not self.windowH then self:recalculateWindow() end
 
 	-- Draw the caption
@@ -134,21 +130,7 @@ function Listbox:val(newval)
 	else
 
 		if self.multi then
-      -- return self.retval
-
-      return Table.reduce(
-        self.list,
-        function(acc, _, i)
-          if (self.retval[i] ~= nil) then
-            acc[i] = true
-          else
-            acc[i] = false
-          end
-
-          return acc
-        end,
-        T{}
-      )
+      return Table.map(self.list, function(_, i) return not not self.retval[i] end)
     else
       -- luacheck: ignore 512 (loop executing once)
 			for k in pairs(self.retval) do
@@ -159,6 +141,8 @@ function Listbox:val(newval)
 	end
 
 end
+
+
 
 
 ---------------------------------
@@ -176,30 +160,23 @@ function Listbox:onMouseUp(state)
 
 			-- Ctrl
 			if state.mouse.cap & 4 == 4 then
-
 				self.retval[item] = not self.retval[item]
 
 			-- Shift
 			elseif state.mouse.cap & 8 == 8 then
-
 				self:selectRange(item)
-
 			else
-
 				self.retval = {[item] = true}
-
 			end
 
 		else
 
 			self.retval = {[item] = true}
-
 		end
 
 	end
 
 	self:redraw()
-
 end
 
 
@@ -257,6 +234,8 @@ function Listbox:onWheel(state)
 end
 
 
+
+
 ---------------------------------
 -------- Drawing methods---------
 ---------------------------------
@@ -265,9 +244,11 @@ end
 function Listbox:drawCaption()
 
 	Font.set(self.captionFont)
-	local strWidth = gfx.measurestr(self.caption)
+  local strWidth = gfx.measurestr(self.caption)
+
 	gfx.x = self.x - strWidth - self.pad
-	gfx.y = self.y + self.pad
+  gfx.y = self.y + self.pad
+
 	Text.drawBackground(self.caption, self.captionBg)
 
 	if self.shadow then
@@ -340,13 +321,13 @@ function Listbox:drawScrollbar()
 	-- Draw a gradient to fade out the last ~16px of text
   Color.set("elmBg")
 
-  local scrollOffset = sx - 15
-  local scrollY1 = y + 2
-  local scrollY2 = y + h - 4
+  local gradientOffset = sx - 15
+  local gradientTop = y + 2
+  local gradientBottom = y + h - 4
 
 	for i = 0, 15 do
 		gfx.a = i / 15
-		gfx.line(scrollOffset + i, scrollY1, scrollOffset + i, scrollY2)
+		gfx.line(gradientOffset + i, gradientTop, gradientOffset + i, gradientBottom)
 	end
 
 	gfx.rect(sx, y + 2, sw + 2, h - 4, true)
@@ -366,6 +347,8 @@ function Listbox:drawScrollbar()
 	GFX.roundRect(sx + 2, fy, sw - 4, fh, 2, 1, 1)
 
 end
+
+
 
 
 ---------------------------------

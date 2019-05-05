@@ -10,7 +10,6 @@ local Config = require("gui.config")
 
 local Element = require("gui.element")
 
--- Button - New
 local Button = Element:new()
 Button.__index = Button
 Button.defaultProps = {
@@ -73,13 +72,9 @@ function Button:draw()
 
 	-- Draw the shadow if not pressed
 	if state == 0 then
-
 		for i = 1, Config.shadowSize do
-
 			gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
-
 		end
-
 	end
 
 	gfx.blit(self.buffer, 1, 0, 0, 0, w + 2, h + 2, x + 2 * state - 1, y + 2 * state - 1)
@@ -116,11 +111,13 @@ function Button:onMouseUp(state)
 	self:redraw()
 end
 
+
 function Button:onDoubleclick()
 
 	self.state = 0
 
 end
+
 
 function Button:onRightMouseUp(state)
 	if self:isInside(state.mouse.x, state.mouse.y) and self.rightFunc then
@@ -132,7 +129,7 @@ end
 
 
 -- Button - Execute (extra method)
--- Used for allowing hotkeys to press a button
+-- Used for allowing hotkeys to press a button programmatically
 function Button:exec(r)
 
 	if r then

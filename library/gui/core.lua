@@ -28,13 +28,13 @@ local Window = require("gui.window")
 ------------------------------------
 
 GUI.Windows = T{}
--- GUI.Layers = T{}
 
 -- Loaded classes
 GUI.elementClasses = {}
 
 GUI.Init = function ()
   xpcall( function()
+
     -- -- Initialize a few values
     GUI.lastFuncTime = 0
 
@@ -83,6 +83,7 @@ end
 -------- Element functions ---------
 ------------------------------------
 
+
 GUI.addElementClass = function(type)
   local ret, val = pcall(require, ("gui.elements."..type))
 
@@ -99,11 +100,7 @@ GUI.createElement = function (props)
   local class = GUI.elementClasses[props.type]
              or GUI.addElementClass(props.type)
 
-  if not class then return nil end
-
-  local elm = class:new(props)
-
-  return elm
+  return class and class:new(props)
 end
 
 GUI.createElements = function (...)
@@ -117,9 +114,7 @@ GUI.createElements = function (...)
 end
 
 GUI.createLayer = function(props)
-  local layer = Layer:new(props)
-
-  return layer
+  return Layer:new(props)
 end
 
 GUI.createLayers = function (...)
@@ -159,11 +154,11 @@ end
 --[[	Return or change an element's value
 
     This is just a wrapper for GUI.findElementByName("elm"):val(newval). Any
-    elements you plan on checking frequently should have a referenced kept
+    elements you plan on checking frequently should have a reference kept
     locally.
 
     For use with external user functions. Returns the given element's current
-    value or, if specified, sets a new one.	Changing values with this is often
+    value or, if specified, sets a new one.	Changing values with this is
     preferable to setting them directly, as most :val methods will also update
     some internal parameters and redraw the element when called.
 ]]--
@@ -176,63 +171,6 @@ GUI.Val = function (elmName, newval)
   else
       return elm:val()
   end
-end
-
-
-------------------------------------
--------- File/Storage functions ----
-------------------------------------
-
--- To open files in their default app, or URLs in a browser
--- Using os.execute because reaper.ExecProcess behaves weird
--- occasionally stops working entirely on my system.
-GUI.open_file = function(path)
-
-  local OS = reaper.GetOS()
-
-  local cmd = ( string.match(OS, "Win") and "start" or "open" ) ..
-              ' "" "' .. path .. '"'
-
-  os.execute(cmd)
-
-end
-
-
--- CURRENTLY BROKEN SINCE WINDOWS ARE A CLASS NOW
--- Saves the current script window parameters to an ExtState under the given section name
--- Returns dock, x, y, w, h
-GUI.saveWindowState = function (name, title)
-
-  if not name then return end
-  local state = {gfx.dock(-1, 0, 0, 0, 0)}
-  reaper.SetExtState(name, title or "window", table.concat(state, ","), true)
-
-  return table.unpack(state)
-
-end
-
-
--- CURRENTLY BROKEN SINCE WINDOWS ARE A CLASS NOW
--- Looks for an ExtState containing saved window parameters
--- Returns dock, x, y, w, h
-GUI.loadWindowState = function (name, title)
-
-  if not name then return end
-
-  local str = reaper.GetExtState(name, title or "window")
-  if not str or str == "" then return end
-
-  local dock, x, y, w, h =
-    str:match("([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
-
-  if not (dock and x and y and w and h) then return end
-  GUI.dock, GUI.x, GUI.y, GUI.w, GUI.h = dock, x, y, w, h
-
-  -- Probably don't want these messing up where the user put the window
-  GUI.anchor, GUI.corner = nil, nil
-
-  return dock, x, y, w, h
-
 end
 
 return GUI

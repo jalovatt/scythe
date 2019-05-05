@@ -6,7 +6,8 @@ local Error = {}
 -- to the Reaper error message.
 Error.crash = function (errObject, skipMsg)
 
-  if Error.oncrash then Error.oncrash() end
+  -- Global hook for any user functions to perform when an error is thrown
+  if Error.onCrash then Error.onCrash(errObject) end
 
   local byLine = "([^\r\n]*)\r?\n?"
   local trimPath = "[\\/]([^\\/]-:%d+:.+)$"
@@ -47,10 +48,11 @@ Error.crash = function (errObject, skipMsg)
   Scythe.quit = true
 end
 
--- Checks for Reaper's "restricted permissions" script mode
+-- Checks for Reaper's "restricted permissions" script mode and sets a relevant
+-- error message in case the script tries to do something it can't.
 if Scythe.scriptRestricted then
 
-  Error.errorRestricted = function()
+  Error.errorRestricted = function(t, key)
 
       -- luacheck: push ignore 631
       reaper.MB(  "This script tried to access a function that isn't available in Reaper's 'restricted permissions' mode." ..
@@ -60,7 +62,7 @@ if Scythe.scriptRestricted then
                   "Script Error", 0)
       -- luacheck: pop
 
-      error("Restricted permissions")
+      error("Restricted permissions, unable to call " .. t .. "." .. key)
 
   end
 

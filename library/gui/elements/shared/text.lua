@@ -1,5 +1,6 @@
 -- NoIndex: true
 -- luacheck: globals Scythe
+
 local TextUtils = {}
 
 function TextUtils.doCtrlChar(self, state, func, ...)
@@ -66,7 +67,7 @@ end
 -- (v2.9.7 or greater)
 function TextUtils.SWS_clipboard(self)
 
-	if Scythe.hasSWS then
+	if (Scythe.hasSWS and reaper.CF_GetClipboardBig) then
 		return true
 	else
 

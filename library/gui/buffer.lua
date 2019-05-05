@@ -32,7 +32,6 @@ Buffer.get = function (num)
 
       end
 
-      -- Something bad happened, probably my fault
       error("Unable to find an unused graphics buffer")
 
       ::skip::

@@ -9,7 +9,7 @@ local Config = require("gui.config")
 
 local Window = T{}
 Window.__index = Window
-Window.__noRecursive = true
+Window.__noRecursiveCopy = true
 
 Window.defaultProps = {
   name = "Window",
@@ -123,7 +123,6 @@ end
 function Window:redraw()
   if self.layerCount == 0 then return end
 
-  -- Redraw all of the elements, starting from the bottom up.
   local w, h = self.currentW, self.currentH
 
   if self.layers:any(function(l) return l.needsRedraw end)
@@ -140,6 +139,7 @@ function Window:redraw()
     Color.set("windowBg")
     gfx.rect(0, 0, w, h, 1)
 
+    -- Drawing from back to front
     for i = #self.sortedLayers, 1, -1 do
       local layer = self.sortedLayers[i]
         if  (layer.elementCount > 0 and not layer.hidden) then
@@ -263,25 +263,25 @@ function Window:updateInputState()
   local state = T{}
 
   state.mouse = {
-    x = gfx.mouse_x,
-    y = gfx.mouse_y,
+    x           = gfx.mouse_x,
+    y           = gfx.mouse_y,
     cap         = gfx.mouse_cap,
-    leftDown    = gfx.mouse_cap & 1 == 1,
-    rightDown   = gfx.mouse_cap & 2 == 2,
-    middleDown  = gfx.mouse_cap & 64 == 64,
-    wheel = gfx.mouse_wheel,
-    dx = gfx.mouse_x - last.mouse.x,
-    dy = gfx.mouse_y - last.mouse.y,
+    left        = gfx.mouse_cap & 1 == 1,
+    right       = gfx.mouse_cap & 2 == 2,
+    middle      = gfx.mouse_cap & 64 == 64,
+    wheel       = gfx.mouse_wheel,
+    dx          = gfx.mouse_x - last.mouse.x,
+    dy          = gfx.mouse_y - last.mouse.y,
 
     -- Values that need to persist from one loop to the next
-    downTime = last.mouse.downTime,
-    downElm = last.mouse.downElm,
-    doubleClicked = last.doubleClicked,
-    ox = last.mouse.ox,
-    oy = last.mouse.oy,
-    relativeX = last.mouse.relativeX,
-    relativeY = last.mouse.relativeY,
-    mouseOverTime = last.mouse.mouseOverTime,
+    downTime        = last.mouse.downTime,
+    downElm         = last.mouse.downElm,
+    doubleClicked   = last.doubleClicked,
+    ox              = last.mouse.ox,
+    oy              = last.mouse.oy,
+    relativeX       = last.mouse.relativeX,
+    relativeY       = last.mouse.relativeY,
+    mouseOverTime   = last.mouse.mouseOverTime,
   }
 
   state.kb = {
@@ -370,10 +370,6 @@ end
 function Window:setTooltip(x, y, str)
   if not str or str == "" then return end
 
-  --Lua: reaper.TrackCtl_SetToolTip(string fmt, integer xpos, integer ypos, boolean topmost)
-  --displays tooltip at location, or removes if empty string
-  -- local x, y = gfx.clienttoscreen(0, 0)
-
   reaper.TrackCtl_SetToolTip(
     str,
     self.x + x + 16,
@@ -394,8 +390,7 @@ function Window:clearTooltip()
 end
 
 
--- Display the GUI version number
--- Set Scythe.version = 0 to hide this
+-- Display the library version number
 function Window:drawVersion()
 
   if not Scythe.version then return 0 end
@@ -439,6 +434,7 @@ function Window:drawDev()
 
   end
 
+  -- Mouse coordinates
   local str = "Mouse: "..
     math.modf(self.state.mouse.x)..", "..
     math.modf(self.state.mouse.y).." "
@@ -452,6 +448,7 @@ function Window:drawDev()
   Color.set("white")
   gfx.drawstr(str)
 
+  -- Mouse coordinates snapped to the grid
   local snapX = Math.nearestMultiple(self.state.mouse.x, Config.dev.gridMinor)
   local snapY = Math.nearestMultiple(self.state.mouse.y, Config.dev.gridMinor)
 
@@ -461,8 +458,5 @@ function Window:drawDev()
   gfx.a = 1
 
 end
-
-
-
 
 return Window

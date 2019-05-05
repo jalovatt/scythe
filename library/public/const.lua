@@ -2,7 +2,7 @@
 
 local Const = {}
 
-Const.char = {
+Const.chars = {
 
   ESCAPE	    = 27,
   SPACE		    = 32,
@@ -34,5 +34,7 @@ Const.char = {
   F12			    = 6697266
 
 }
+
+Const.PI = 3.141593
 
 return Const

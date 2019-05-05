@@ -1,18 +1,5 @@
 -- NoIndex: true
 
---[[	Font and color presets
-
-    Can be set using the accompanying functions GUI.font
-    and Color.set. i.e.
-
-    Font.set(2)				applies the Header preset
-    Color.set("elmFill")	applies the Element Fill color preset
-
-    Colors are converted from 0-255 to 0-1 when GUI.Init() runs,
-    so if you need to access the values directly at any point be
-    aware of which format you're getting in return.
-
-]]--
 local Font = {}
 
 
@@ -29,8 +16,8 @@ local osFonts = {
   },
 
   Linux = {
-    sans = "Arial",
-    mono = "DejaVuSansMono"
+    sans = "Liberation Sans",
+    mono = "Liberation Mono"
   }
 
 }
@@ -67,7 +54,7 @@ Font.fonts = {
 
     fnt			Font preset number
                 or
-            A preset table -> Font.set({"Arial", 10, "i"})
+            {"Arial", 10, "i"}
 
 ]]--
 Font.set = function (fontIn)

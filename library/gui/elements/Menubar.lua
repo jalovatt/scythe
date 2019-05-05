@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Menubar clas
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Menubar
-
-    Creation parameters:
-	name, z, x, y, menus[, w, h, pad]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -54,6 +44,7 @@ end
 
 function Menubar:init()
 
+  -- We can't get any text measurements until there's a window open
   if gfx.w == 0 then return end
 
   self.buffer = self.buffer or Buffer.get()
@@ -72,9 +63,7 @@ function Menubar:init()
   self.tab = gfx.measurestr(" ") * 4
 
   for i = 1, #self.menus do
-
     self.menus[i].width = gfx.measurestr(self.menus[i].title)
-
   end
 
   self.w = self.fullWidth and (self.layer.window.currentW - self.x) or self:measureTitles(nil, true)
@@ -165,6 +154,8 @@ function Menubar:onResize()
 end
 
 
+
+
 ------------------------------------
 -------- Drawing methods -----------
 ------------------------------------
@@ -251,9 +242,7 @@ function Menubar:onMouseUp(state)
 	if #separators > 0 then opt = self:stripSeparators(opt, separators) end
 
   if opt > 0 then
-
     self.menus[self.mouseMenu].options[opt][2]()
-
   end
 
   self.mouseDown = false
@@ -264,8 +253,8 @@ end
 
 function Menubar:onMouseDown()
 
-    self.mouseDown = true
-    self:redraw()
+  self.mouseDown = true
+  self:redraw()
 
 end
 
@@ -287,7 +276,7 @@ function Menubar:onMouseOver(state)
   end
 
 
-  -- Iterate through the titles by overall width until we
+  -- Iterate through the titles by their cumulative width until we
   -- find which one the mouse is in.
   for i = 1, #self.menus do
 
@@ -307,28 +296,15 @@ end
 
 
 function Menubar:onDrag(state)
-
   self:onMouseOver(state)
-
 end
+
+
 
 
 ------------------------------------
 -------- Menu methods --------------
 ------------------------------------
-
-
--- Return a table of the menu titles
-function Menubar:gettitles()
-
-  local titles = {}
-  for i = 1, #self.menus do
-    titles[i] = self.menus.title
-  end
-
-  return titles
-
-end
 
 
 -- Returns the length of the specified number of menu titles, or

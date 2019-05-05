@@ -1,14 +1,12 @@
 -- NoIndex: true
-
 local math = math
 
-local Math = setmetatable({}, math)
+local Const = require("public.const")
 
--- Odds are you don't need too much precision here
--- If you do, just specify Math.pi = math.pi() in your code
-Math.pi = 3.14159
+local Math = {}
 
 -- Round a number to the nearest integer (or optional decimal places)
+-- (Rounds up at n.5)
 Math.round = function (n, places)
 
   if not places then
@@ -16,7 +14,7 @@ Math.round = function (n, places)
   else
     places = 10^places
     return n > 0 and math.floor(n * places + 0.5)
-                    or math.ceil(n * places - 0.5) / places
+                  or math.ceil(n * places - 0.5) / places
   end
 
 end
@@ -32,9 +30,8 @@ end
 
 
 
--- Make sure num is between min and max
--- I think it will return the correct value regardless of what
--- order you provide the values in.
+-- Makes sure n is between min and max
+-- The returned value is also the median of the three given
 Math.clamp = function (n, a, b)
   return math.min(math.max(n, a), b)
 end
@@ -57,13 +54,13 @@ end
 
 
 --[[
-    Takes an angle in radians (omit Pi) and a radius, returns x, y
+    Takes an angle in radians (omitting Pi) and a radius, returns x, y
     Will return coordinates relative to an origin of (0,0), or absolute
     coordinates if an origin point is specified
 ]]--
 Math.polarToCart = function (angle, radius, ox, oy)
 
-  local theta = angle * Math.pi
+  local theta = angle * Const.PI
   local x = radius * math.cos(theta)
   local y = radius * math.sin(theta)
 
@@ -78,13 +75,13 @@ end
 --[[
     Takes cartesian coords, with optional origin coords, and returns
     an angle (in radians) and radius. The angle is given without reference
-    to Pi; that is, pi/4 rads would return as simply 0.25
+    to Pi; that is, Pi/4 radians would return as simply 0.25
 ]]--
 Math.cartToPolar = function (x, y, ox, oy)
 
   local dx, dy = x - (ox or 0), y - (oy or 0)
 
-  local angle = math.atan(dy, dx) / Math.pi
+  local angle = math.atan(dy, dx) / Const.PI
   local r = math.sqrt(dx * dx + dy * dy)
 
   return angle, r

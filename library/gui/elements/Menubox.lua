@@ -141,8 +141,8 @@ end
 function Menubox:onWheel(state)
 
   -- Check for illegal values, separators, and submenus
-    self.retval = self:validateOption(  Math.round(self.retval - state.mouse.wheelInc),
-                                        Math.round((state.mouse.wheelInc > 0) and 1 or -1) )
+  self.retval = self:validateOption(  Math.round(self.retval - state.mouse.wheelInc),
+                                      Math.round((state.mouse.wheelInc > 0) and 1 or -1) )
 
   self:redraw()
 
@@ -244,6 +244,8 @@ function Menubox:drawText()
   gfx.drawstr(text, self.align, r, b)
 
 end
+
+
 
 
 ------------------------------------

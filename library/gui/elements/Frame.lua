@@ -97,7 +97,7 @@ function Frame:val(new)
     if self.buffer then self:init() end
 		self:redraw()
 	else
-		return string.gsub(self.text, "\n", "")
+		return self.text:gsub("\n", "")
 	end
 
 end
@@ -148,6 +148,7 @@ function Frame:drawText()
 
 	if self.text and self.text:len() > 0 then
 
+    -- Rewrap the text if it changed
     if self.text ~= self.lastText then
       self.text = self:wrapText(self.text)
       self.lastText = self.text

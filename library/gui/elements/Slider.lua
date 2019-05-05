@@ -55,8 +55,6 @@ function Slider:new(props)
     or  {8, slider.w}
   )
 
-
-
   local min = slider.min
   local max = slider.max
 
@@ -66,17 +64,15 @@ function Slider:new(props)
     max = max + 1
   end
 
-
   if not slider.horizontal then
     min, max = max, min
   end
   slider.min, slider.max = min, max
 
-  -- setmetatable(slider, self)
-  -- self.__index = self
   self:assignChild(slider)
 
   slider.defaults = slider.defaults
+
   -- If the user only asked for one handle
   if type(slider.defaults) == "number" then slider.defaults = {slider.defaults} end
 
@@ -210,7 +206,6 @@ end
 function Slider:onMouseDown(state)
 
   -- Snap the nearest slider to the nearest value
-
   local mouseValue = self.horizontal
     and (state.mouse.x - self.x) / self.w
     or  (state.mouse.y - self.y) / self.h
@@ -341,85 +336,83 @@ function Slider:drawFill(x, y, h, min, max, inc)
 
     -- Get the color
   if (#self.handles > 1)
-    or self.handles[1].currentStep ~= self.handles[1].default then
+  or self.handles[1].currentStep ~= self.handles[1].default then
 
-      self:setfill()
+    self:setfill()
 
-    end
+  end
 
-    -- Cap for the fill bar
-    if #self.handles == 1 then
-      min = x + inc * self.handles[1].default
-
-      if self.horizontal then
-        gfx.circle(min, y + (h / 2), h / 2 - 1, 1, 1)
-      else
-        gfx.circle(y + (h / 2), min, h / 2 - 1, 1, 1)
-      end
-
-    end
-
-    if min > max then min, max = max, min end
+  -- Cap for the fill bar
+  if #self.handles == 1 then
+    min = x + inc * self.handles[1].default
 
     if self.horizontal then
-      gfx.rect(min, y + 1, max - min, h - 1, 1)
+      gfx.circle(min, y + (h / 2), h / 2 - 1, 1, 1)
     else
-      gfx.rect(y + 1, min, h - 1, max - min, 1)
+      gfx.circle(y + (h / 2), min, h / 2 - 1, 1, 1)
     end
+
+  end
+
+  if min > max then min, max = max, min end
+
+  if self.horizontal then
+    gfx.rect(min, y + 1, max - min, h - 1, 1)
+  else
+    gfx.rect(y + 1, min, h - 1, max - min, 1)
+  end
 
 end
 
 
 function Slider:setfill()
 
-    -- If the user has given us two colors to make a gradient with
-    if self.fillColorA and #self.handles == 1 then
+  -- If the user has given us two colors to make a gradient with
+  if self.fillColorA and #self.handles == 1 then
 
-      -- Make a gradient,
-      local gradientStep = self.handles[1].currentStep / self.steps
+    local gradientStep = self.handles[1].currentStep / self.steps
+    local r, g, b, a = Color.gradient(self.fillColorA, self.fillColorB, gradientStep)
 
-      local r, g, b, a = Color.gradient(self.fillColorA, self.fillColorB, gradientStep)
+    gfx.set(r, g, b, a)
 
-      gfx.set(r, g, b, a)
-
-    else
-      Color.set(self.fillColor)
-    end
+  else
+    Color.set(self.fillColor)
+  end
 
 end
 
 
 function Slider:drawSliders()
 
-    Color.set(self.textColor)
-    Font.set(self.textFont)
+  Color.set(self.textColor)
+  Font.set(self.textFont)
 
-    -- Drawing them in reverse order so overlaps match the shadow direction
-    for i = #self.handles, 1, -1 do
+  -- Drawing them in reverse order so overlaps match the shadow direction
+  for i = #self.handles, 1, -1 do
 
-      local handleX, handleY = Math.round(self.handles[i].x) - 1, Math.round(self.handles[i].y) - 1
+    local handleX, handleY = Math.round(self.handles[i].x) - 1, Math.round(self.handles[i].y) - 1
 
-      if self.showValues then
+    if self.showValues then
 
-        if self.horizontal then
-            self:drawSliderValue(handleX + self.handleW/2, handleY + self.handleH + 4, i)
-        else
-            self:drawSliderValue(handleY + self.handleH + self.handleH, handleX, i)
-        end
-
-      end
-
-      if self.showHandles then
-
-        if self.horizontal then
-            self:drawSliderHandle(handleX, handleY, self.handleW, self.handleH)
-        else
-            self:drawSliderHandle(handleY, handleX, self.handleH, self.handleW)
-        end
-
+      if self.horizontal then
+          self:drawSliderValue(handleX + self.handleW/2, handleY + self.handleH + 4, i)
+      else
+          self:drawSliderValue(handleY + self.handleH + self.handleH, handleX, i)
       end
 
     end
+
+    if self.showHandles then
+
+      if self.horizontal then
+          self:drawSliderHandle(handleX, handleY, self.handleW, self.handleH)
+      else
+          self:drawSliderHandle(handleY, handleX, self.handleH, self.handleW)
+      end
+
+    end
+
+  end
 
 end
 
@@ -548,7 +541,6 @@ function Slider:initHandles()
     self.handles[i].currentVal = step / self.steps
     self.handles[i].retval = self:formatRetval( ((self.max - self.min) / self.steps)
                                                 * step + self.min)
-
   end
 
 end

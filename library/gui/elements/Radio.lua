@@ -1,24 +1,20 @@
-
-------------------------------------
--------- Radio methods -------------
-------------------------------------
+-- NoIndex: true
 
 local Color = require("public.color")
 
-local Option = require("gui.elements._option")
+local Option = require("gui.elements.shared.option")
 
 local Radio = setmetatable({}, {__index = Option})
 Radio.__index = Radio
 
 function Radio:new(props)
+  local radio = Option:new(props)
 
-    local radio = Option:new(props)
+  radio.type = "Radio"
 
-    radio.type = "Radio"
+  radio.retval, radio.state = 1, 1
 
-    radio.retval, radio.state = 1, 1
-
-    return self:assignChild(radio)
+  return self:assignChild(radio)
 end
 
 
@@ -35,7 +31,6 @@ function Radio:initOptions()
 	gfx.circle(3*r + 3, r + 1, r, 0)
 	Color.set(self.fillColor)
 	gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
-
 
 end
 
@@ -66,8 +61,8 @@ function Radio:onMouseUp(state)
 
   -- Bypass option for GUI Builder
   if not self.focus then
-      self:redraw()
-      return
+    self:redraw()
+    return
   end
 
 	-- Set the new option, or revert to the original if the cursor
@@ -78,7 +73,7 @@ function Radio:onMouseUp(state)
 		self.state = self.retval
 	end
 
-    self.focus = false
+  self.focus = false
 	self:redraw()
 
 end

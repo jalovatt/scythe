@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - TextEditor class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/TextEditor
-
-    Creation parameters:
-	name, z, x, y, w, h[, text, caption, pad]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -19,10 +9,10 @@ local GFX = require("public.gfx")
 local Text = require("public.text")
 local Const = require("public.const")
 local Config = require("gui.config")
-local Table, T = require("public.table"):unpack()
+local _, T = require("public.table"):unpack()
 require("public.string")
 
-local TextUtils = require("gui.elements._text_utils")
+local TextUtils = require("gui.elements.shared.text")
 
 local TextEditor = require("gui.element"):new()
 TextEditor.__index = TextEditor
@@ -120,24 +110,19 @@ function TextEditor:draw()
 	-- open yet - measurements won't work.
 	if not self.windowH then self:recalculateWindow() end
 
-	-- Draw the caption
 	if self.caption and self.caption ~= "" then self:drawCaption() end
 
-	-- Draw the background + frame
+	-- Element body
 	gfx.blit(self.buffer, 1, 0, (self.focus and self.w or 0), 0,
            self.w, self.h, self.x, self.y)
 
-	-- Draw the text
 	self:drawText()
 
-	-- Caret
-	-- Only needs to be drawn for half of the blink cycle
 	if self.focus then
     if self.selectionStart and self.selectionEnd then self:drawSelection() end
     if self.showCaret then self:drawCaret() end
   end
 
-	-- Scrollbars
 	self:drawScrollbars()
 
 end
@@ -191,8 +176,6 @@ end
 
 function TextEditor:onMouseDown(state)
 
-	-- If over the scrollbar, or we came from :onDrag with an origin point
-	-- that was over the scrollbar...
 	local scroll = self:isOverScrollbar(state.mouse.x, state.mouse.y)
 	if scroll then
 
@@ -200,7 +183,6 @@ function TextEditor:onMouseDown(state)
 
   else
 
-    -- Place the caret
     self.caret = self:getCaret(state.mouse.x, state.mouse.y)
 
     -- Reset the caret so the visual change isn't laggy
@@ -266,11 +248,11 @@ function TextEditor:onType(state)
 			self.selectionStart = {x = self.caret.x, y = self.caret.y}
 		end
 
-		-- Flag for some keys (clipboard shortcuts) to skip
+		-- Flag for some keys (e.g. clipboard shortcuts) to skip
 		-- the next section
     local bypass = self.keys[char](self, state)
 
-		if shift and char ~= Const.char.BACKSPACE and char ~= Const.char.TAB then
+		if shift and char ~= Const.chars.BACKSPACE and char ~= Const.chars.TAB then
 
 			self.selectionEnd = {x = self.caret.x, y = self.caret.y}
 
@@ -299,27 +281,8 @@ end
 
 function TextEditor:onWheel(state)
 
-	-- Ctrl -- maybe zoom?
-	if state.mouse.cap & 4 == 4 then
-
-		--[[ Buggy, disabled for now
-		local font = self.textFont
-		font = 	(type(font) == "string" and GUI.fonts[font])
-			or	(type(font) == "table" and font)
-
-		if not font then return end
-
-		local dir = inc > 0 and 4 or -4
-
-		font[2] = Math.clamp(8, font[2] + dir, 30)
-
-		self.textFont = font
-
-		self:recalculateWindow()
-		]]--
-
 	-- Shift -- Horizontal scroll
-	elseif state.mouse.cap & 8 == 8 then
+	if state.mouse.cap & 8 == 8 then
 
 		local len = self:getMaxLineLength()
 
@@ -429,7 +392,6 @@ function TextEditor:drawSelection()
 
 	for i = 1, #coords do
 
-		-- Make sure at least part of this line is visible
 		if self:selectionVisible(coords[i]) then
 
 			-- Convert from char/row coords to actual pixels
@@ -464,35 +426,35 @@ function TextEditor:drawScrollbars()
 	local x, y, w, h = self.x, self.y, self.w, self.h
 	local vx, vy, vw, vh = x + w - 8 - 4, y + 4, 8, h - 16
 	local hx, hy, hw, hh = x + 4, y + h - 8 - 4, w - 16, 8
-	local fadeWidh = 12
+	local fadeWidth = 12
 	local _
 
-    -- Only draw the empty tracks if we don't need scroll bars
+  -- If we don't need scrollbars then don't draw the handles
 	if not (vert or horz) then goto tracks end
 
-	-- Draw a gradient to fade out the last ~16px of text
+  -- Draw a gradient to fade out the last ~16px of text
 	Color.set("elmBg")
-	for i = 0, fadeWidh do
+	for i = 0, fadeWidth do
 
-		gfx.a = i/fadeWidh
+		gfx.a = i/fadeWidth
 
 		if vert then
 
-			gfx.line(vx + i - fadeWidh, y + 2, vx + i - fadeWidh, y + h - 4)
+			gfx.line(vx + i - fadeWidth, y + 2, vx + i - fadeWidth, y + h - 4)
 
 			-- Fade out the top if we're not at windowPosition.y = 1
 			_ = self.windowPosition.y > 1 and
-				gfx.line(x + 2, y + 2 + fadeWidh - i, x + w - 4, y + 2 + fadeWidh - i)
+				gfx.line(x + 2, y + 2 + fadeWidth - i, x + w - 4, y + 2 + fadeWidth - i)
 
 		end
 
 		if horz then
 
-			gfx.line(x + 2, hy + i - fadeWidh, x + w - 4, hy + i - fadeWidh)
+			gfx.line(x + 2, hy + i - fadeWidth, x + w - 4, hy + i - fadeWidth)
 
 			-- Fade out the left if we're not at windowPosition.x = 0
 			_ = self.windowPosition.x > 0 and
-				gfx.line(x + 2 + fadeWidh - i, y + 2, x + 2 + fadeWidh - i, y + h - 4)
+				gfx.line(x + 2 + fadeWidth - i, y + 2, x + 2 + fadeWidth - i, y + h - 4)
 
 		end
 
@@ -597,9 +559,7 @@ function TextEditor:getSelection()
 
 			-- We're past the selection
 			elseif i >= ey then
-
 				break
-
 			end
 
 		end
@@ -608,7 +568,6 @@ function TextEditor:getSelection()
 		x = self.windowPosition.x
 		w = math.min(self:windowRight(), ex) - self.windowPosition.x
 		selectionCoords:insert({x = x, y = ey, w = w})
-
 
 	end
 
@@ -621,11 +580,11 @@ end
 -- Make sure at least part of this selection block is within the window
 function TextEditor:selectionVisible(coords)
 
-	return 		    coords.w > 0                            -- Selection has width,
-			      and coords.x + coords.w > self.windowPosition.x    -- doesn't end to the left
-            and coords.x < self:windowRight()             -- doesn't start to the right
-			      and coords.y >= self.windowPosition.y              -- and is on a visible line
-			      and coords.y < self:windowBottom()
+	return 		    coords.w > 0
+			      and coords.x + coords.w > self.windowPosition.x -- doesn't end to the left
+            and coords.x < self:windowRight()               -- doesn't start to the right
+			      and coords.y >= self.windowPosition.y
+			      and coords.y < self:windowBottom()              -- and is on a visible line
 
 end
 
@@ -646,13 +605,13 @@ function TextEditor:selectWord()
 
 	local str = self.retval[self.caret.y] or ""
 
-	if not str or str == "" then return 0 end
+	if str == "" then return 0 end
 
 	local sx = str:sub(1, self.caret.x):find("%s[%S]+$") or 0
 
-	local ex =	(	string.find( str, "%s", sx + 1)
-			    or		string.len(str) + 1 )
-				- (self.windowPosition.x > 0 and 2 or 1)	-- Kludge, fixes length issues
+	local ex =	(
+    string.find( str, "%s", sx + 1) or string.len(str) + 1
+  ) - (self.windowPosition.x > 0 and 2 or 1)	-- Kludge, fixes length issues
 
 	self.selectionStart = {x = sx, y = self.caret.y}
 	self.selectionEnd = {x = ex, y = self.caret.y}
@@ -743,17 +702,13 @@ end
 
 -- Get the right edge of the window (in chars)
 function TextEditor:windowRight()
-
 	return self.windowPosition.x + self.windowW
-
 end
 
 
 -- Get the bottom edge of the window (in rows)
 function TextEditor:windowBottom()
-
 	return self.windowPosition.y + self.windowH
-
 end
 
 
@@ -775,9 +730,7 @@ end
 
 -- Add 2 to the table length so the horizontal scrollbar isn't in the way
 function TextEditor:getVerticalLength()
-
 	return #self.retval + 2
-
 end
 
 
@@ -790,10 +743,6 @@ function TextEditor:adjustToWindow(coords)
 	x = (Math.clamp(self.windowPosition.x, x, self:windowRight() - 3) == x)
 						and x - self.windowPosition.x
 						or nil
-
-	-- Fixes an issue with the position being one space to the left of where it should be
-	-- when the window isn't at x = 0. Not sure why.
-	--x = x and (x + (self.windowPosition.x == 0 and 0 or 1))
 
 	y = (Math.clamp(self.windowPosition.y, y, self:windowBottom() - 1) == y)
 						and y - self.windowPosition.y
@@ -815,10 +764,10 @@ function TextEditor:setWindowToCaret()
 	end
 
 	-- Vertical
-	local bot = self:windowBottom()
+	local bottom = self:windowBottom()
 	local adj = (	(self.caret.y < self.windowPosition.y) and -1	)
-			    or	(	(self.caret.y >= bot) and 1	)
-			    or	(	(bot > self:getVerticalLength() and -(bot - self:getVerticalLength() - 1) ) )
+			    or	(	(self.caret.y >= bottom) and 1	)
+			    or	(	(bottom > self:getVerticalLength() and -(bottom - self:getVerticalLength() - 1) ) )
 
 	if adj then self.windowPosition.y = Math.clamp(1, self.windowPosition.y + adj, self.caret.y) end
 
@@ -830,11 +779,10 @@ function TextEditor:getCaret(x, y)
 
 	local pos = {}
 
-	pos.x = math.floor(		((x - self.x) / self.w ) * self.windowW)
-        + self.windowPosition.x
-	pos.y = math.floor(   (y - (self.y + self.pad))
-						            /	self.charH)
-			  + self.windowPosition.y
+	pos.x = math.floor(((x - self.x) / self.w ) * self.windowW)
+          + self.windowPosition.x
+	pos.y = math.floor((y - (self.y + self.pad)) /	self.charH)
+			    + self.windowPosition.y
 
 	pos.y = Math.clamp(1, pos.y, #self.retval)
 	pos.x = Math.clamp(0, pos.x, #(self.retval[pos.y] or ""))
@@ -879,16 +827,15 @@ function TextEditor:setScrollbar(scroll, state)
 
   -- Horizontal scroll
   else
-  --self.caret.x + 4 - self.windowW
 
-      local len = self:getMaxLineLength()
-      local windowCenter = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
-      self.windowPosition.x = Math.round(
-        Math.clamp(	0,
-                    windowCenter - (self.windowW / 2),
-                    len + 4 - self.windowW
-        )
+    local len = self:getMaxLineLength()
+    local windowCenter = Math.round( ((state.mouse.x - self.x) / self.w) * len   )
+    self.windowPosition.x = Math.round(
+      Math.clamp(	0,
+                  windowCenter - (self.windowW / 2),
+                  len + 4 - self.windowW
       )
+    )
 
   end
 
@@ -959,7 +906,8 @@ function TextEditor:insertChar(char)
 	local str = self.retval[self.caret.y] or ""
 
 	local a, b = str:sub(1, self.caret.x),
-                 str:sub(self.caret.x + (self.insertCaret and 2 or 1))
+               str:sub(self.caret.x + (self.insertCaret and 2 or 1))
+
 	self.retval[self.caret.y] = a..string.char(char)..b
 	self.caret.x = self.caret.x + 1
 
@@ -1004,7 +952,7 @@ function TextEditor:backTab()
   local space
   pre, space = string.match(pre, "(.-)(%s*)$")
 
-  pre = pre .. (space and string.sub(space, 1, -5) or "")
+  pre = pre .. (space and string.sub(space, 1, -3) or "")
 
   self.caret.x = pre:len()
   self.retval[self.caret.y] = pre..post
@@ -1019,7 +967,7 @@ TextEditor.doCtrlChar = TextUtils.doCtrlChar
 -- long if/then/else structures.
 TextEditor.keys = {
 
-	[Const.char.LEFT] = function(self)
+	[Const.chars.LEFT] = function(self)
 
 		if self.caret.x < 1 and self.caret.y > 1 then
 			self.caret.y = self.caret.y - 1
@@ -1030,7 +978,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.RIGHT] = function(self)
+	[Const.chars.RIGHT] = function(self)
 
 		if self.caret.x == self:caretToEnd() and self.caret.y < self:getVerticalLength() then
 			self.caret.y = self.caret.y + 1
@@ -1041,7 +989,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.UP] = function(self)
+	[Const.chars.UP] = function(self)
 
 		if self.caret.y == 1 then
 			self.caret.x = 0
@@ -1052,7 +1000,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.DOWN] = function(self)
+	[Const.chars.DOWN] = function(self)
 
 		if self.caret.y == self:getVerticalLength() then
 			self.caret.x = string.len(self.retval[#self.retval])
@@ -1063,19 +1011,19 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.HOME] = function(self)
+	[Const.chars.HOME] = function(self)
 
 		self.caret.x = 0
 
 	end,
 
-	[Const.char.END] = function(self)
+	[Const.chars.END] = function(self)
 
 		self.caret.x = self:caretToEnd()
 
 	end,
 
-	[Const.char.PGUP] = function(self)
+	[Const.chars.PGUP] = function(self)
 
 		local caretOffset = self.caret and (self.caret.y - self.windowPosition.y)
 
@@ -1088,7 +1036,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.PGDN] = function(self)
+	[Const.chars.PGDN] = function(self)
 
 		local caretOffset = self.caret and (self.caret.y - self.windowPosition.y)
 
@@ -1105,7 +1053,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.BACKSPACE] = function(self)
+	[Const.chars.BACKSPACE] = function(self)
 		self:storeUndoState()
 
 		-- Is there a selection?
@@ -1133,7 +1081,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.TAB] = function(self, state)
+	[Const.chars.TAB] = function(self, state)
 
     -- Disabled until Reaper supports this properly
 		--self:insertChar(9)
@@ -1141,18 +1089,18 @@ TextEditor.keys = {
     if state.mouse.cap & 8 == 8 then
       self:backTab()
     else
-      self:insertString("    ", true)
+      self:insertString("  ", true)
 		end
 
 	end,
 
-	[Const.char.INSERT] = function(self)
+	[Const.chars.INSERT] = function(self)
 
 		self.insertCaret = not self.insertCaret
 
 	end,
 
-	[Const.char.DELETE] = function(self)
+	[Const.chars.DELETE] = function(self)
 
 		self:storeUndoState()
 
@@ -1178,7 +1126,7 @@ TextEditor.keys = {
 
 	end,
 
-	[Const.char.RETURN] = function(self)
+	[Const.chars.RETURN] = function(self)
 
 		self:storeUndoState()
 
@@ -1194,44 +1142,32 @@ TextEditor.keys = {
 
 	-- A -- Select All
 	[1] = function(self, state)
-
     return self:doCtrlChar(state, self.selectAll)
-
 	end,
 
 	-- C -- Copy
 	[3] = function(self, state)
-
 		return self:doCtrlChar(state, self.toClipboard)
-
 	end,
 
 	-- V -- Paste
 	[22] = function(self, state)
-
 		return self:doCtrlChar(state, self.fromClipboard)
-
 	end,
 
 	-- X -- Cut
 	[24] = function(self, state)
-
 		return self:doCtrlChar(state, self.toClipboard, true)
-
 	end,
 
 	-- Y -- Redo
 	[25] = function (self, state)
-
 		return self:doCtrlChar(state, self.redo)
-
 	end,
 
 	-- Z -- Undo
 	[26] = function (self, state)
-
 		return self:doCtrlChar(state, self.undo)
-
 	end
 }
 
@@ -1242,10 +1178,12 @@ TextEditor.keys = {
 -------- Misc. Functions -----------
 ------------------------------------
 
+
 TextEditor.undo = TextUtils.undo
 TextEditor.redo = TextUtils.redo
 
 TextEditor.storeUndoState = TextUtils.storeUndoState
+
 
 function TextEditor:getEditorState()
 

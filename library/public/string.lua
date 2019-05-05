@@ -6,6 +6,9 @@ local String = {}
 setmetatable(String, {__index = getmetatable("")})
 setmetatable(string, {__index = String})
 
+-- Splits a string into table elements at each occurrence of the given pattern
+-- (the pattern is not included in the table strings)
+-- If no pattern is given, splits at every character
 String.split = function(s, pattern)
   local out = T{}
 
@@ -25,6 +28,7 @@ end
 
 local linesPattern = "([^\r\n]*)\r?\n?"
 
+-- Splits a string into table elements by line
 String.splitLines = function(s)
   local out = T{}
   for line in s:gmatch(linesPattern) do

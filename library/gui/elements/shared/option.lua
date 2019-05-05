@@ -1,24 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Options classes
-
-    This file provides two separate element classes:
-
-    Radio       A list of options from which the user can only choose one at a time.
-    Checklist   A list of options from which the user can choose any, all or none.
-
-    Both classes take the same parameters on creation, and offer the same parameters
-    afterward - their usage only differs when it comes to their respective :val methods.
-
-    For documentation, see the class pages on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Checklist
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Radio
-
-    Creation parameters:
-	name, z, x, y, w, h, caption, opts[, dir, pad]
-
-]]--
-
 local Buffer = require("gui.buffer")
 local Font = require("public.font")
 local Color = require("public.color")
@@ -71,7 +52,7 @@ end
 function Option:init()
 
   -- Make sure we're not trying to use the base class.
-  -- It shouldn't be possible, but just in case...
+  -- It shouldn't be possible to get this far, but just in case...
   if self.type == "Option" then
       error("Invalid GUI class - '" .. self.name .. "' was initialized as an Option element")
       return
@@ -126,8 +107,6 @@ end
 ------------------------------------
 
 
-
-
 function Option:getMouseOption(state)
 
   local len = #self.options
@@ -143,6 +122,8 @@ function Option:getMouseOption(state)
   return self.options[mouseOption] ~= "_" and mouseOption or false
 
 end
+
+
 
 
 ------------------------------------
@@ -168,10 +149,11 @@ function Option:drawOptionBubbles()
 	local pad = self.pad
 
   -- Bump everything down for the caption
-  local adjustedY = self.y + ((self.caption and self.caption ~= "") and self.captionHeight or 0) + 1.5 * pad
+  local adjustedY = self.y + (
+    (self.caption and self.caption ~= "") and self.captionHeight or 0
+  ) + 1.5 * pad
 
-  -- Bump the options down more for horizontal options
-  -- with the text on top
+  -- Bump the options down in horizontal mode with the text on top
 	if self.horizontal and self.caption ~= "" and not self.swap then
     adjustedY = adjustedY + self.captionHeight + 2*pad
   end

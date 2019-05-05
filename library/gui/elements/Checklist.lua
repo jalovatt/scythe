@@ -1,10 +1,9 @@
-------------------------------------
--------- Checklist methods ---------
-------------------------------------
+-- NoIndex: true
 
 local Color = require("public.color")
+local Table = require("public.table")
 
-local Option = require("gui.elements._option")
+local Option = require("gui.elements.shared.option")
 
 local Checklist = setmetatable({}, {__index = Option})
 Checklist.__index = Checklist
@@ -24,11 +23,12 @@ function Checklist:initOptions()
 
 	local size = self.optionSize
 
-	-- Option bubble
+	-- Option frame
 	Color.set("elmFrame")
 	gfx.rect(1, 1, size, size, 0)
   gfx.rect(size + 3, 1, size, size, 0)
 
+  -- Option fill
 	Color.set(self.fillColor)
 	gfx.rect(size + 3 + 0.25*size, 1 + 0.25*size, 0.5*size, 0.5*size, 1)
 
@@ -50,11 +50,7 @@ function Checklist:val(newval)
     if #self.options == 1 then
       return self.selectedOptions[1]
     else
-      local tmp = {}
-      for i = 1, #self.options do
-        tmp[i] = not not self.selectedOptions[i]
-      end
-      return tmp
+      return Table.map(self.selectedOptions, function(val) return not not val end)
     end
 	end
 

@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Knob class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Knob
-
-    Creation parameters:
-	name, z, x, y, w, caption, min, max, default,[ inc, vals]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -19,6 +9,7 @@ local GFX = require("public.gfx")
 local Text = require("public.text")
 local Table = require("public.table")
 local Config = require("gui.config")
+local Const = require("public.const")
 
 local Knob = require("gui.element"):new()
 Knob.__index = Knob
@@ -44,8 +35,11 @@ Knob.defaultProps = {
 
   default = 5,
 
-  vals = true,
+  showValues = true,
 }
+
+local KNOB_RANGE_RADIANS = 3 / 2
+local KNOB_ANGLE_OFFSET_RADIANS = -5 / 4
 
 function Knob:new(props)
 
@@ -54,8 +48,7 @@ function Knob:new(props)
   knob.h = knob.w
   knob.steps = knob.steps or (math.abs(knob.max - knob.min) / knob.inc)
 
-  -- Determine the step angle
-  knob.stepAngle = (3 / 2) / knob.steps
+  knob.stepAngle = KNOB_RANGE_RADIANS / knob.steps
 
   knob.currentStep = knob.default
 	knob.currentVal = knob.currentStep / knob.steps
@@ -78,7 +71,6 @@ function Knob:init()
 	gfx.setimgdim(self.buffer, -1, -1)
 
 	-- Figure out the points of the triangle
-
 	local r = self.w / 2
 	local tipRadius = r * 1.5
 	local currentAngle = 0
@@ -86,13 +78,13 @@ function Knob:init()
 
 	local w = 2 * tipRadius + 2
 
-	gfx.setimgdim(self.buffer, 2*w, w)
-
-	local sideAngle = (math.acos(0.666667) / Math.pi) * 0.9
+	local sideAngle = (math.acos(0.666667) / Const.PI) * 0.9
 
 	local Ax, Ay = Math.polarToCart(currentAngle, tipRadius, o, o)
   local Bx, By = Math.polarToCart(currentAngle + sideAngle, r - 1, o, o)
 	local Cx, Cy = Math.polarToCart(currentAngle - sideAngle, r - 1, o, o)
+
+  gfx.setimgdim(self.buffer, 2*w, w)
 
 	-- Head
 	Color.set(self.headColor)
@@ -120,19 +112,18 @@ function Knob:onDelete()
 end
 
 
--- Knob - Draw
 function Knob:draw()
 	local r = self.w / 2
 	local o = {x = self.x + r, y = self.y + r}
 
 	-- Value labels
-	if self.vals then self:drawvals(o, r) end
+	if self.showValues then self:drawValues(o, r) end
 
   if self.caption and self.caption ~= "" then self:drawCaption(o, r) end
 
 
 	-- Figure out where the knob is pointing
-	local currentAngle = (-5 / 4) + (self.currentStep * self.stepAngle)
+	local currentAngle = KNOB_ANGLE_OFFSET_RADIANS + (self.currentStep * self.stepAngle)
 
 	local blitWidth = 3 * r + 2
 	local blitX = 1.5 * r
@@ -140,27 +131,25 @@ function Knob:draw()
 	-- Shadow
 	for i = 1, Config.shadowSize do
 
-		gfx.blit(   self.buffer, 1, currentAngle * Math.pi,
+		gfx.blit(   self.buffer, 1, currentAngle * Const.PI,
                 blitWidth + 1, 0, blitWidth, blitWidth,
                 o.x - blitX + i - 1, o.y - blitX + i - 1)
 
 	end
 
 	-- Body
-	gfx.blit(   self.buffer, 1, currentAngle * Math.pi,
+	gfx.blit(   self.buffer, 1, currentAngle * Const.PI,
               0, 0, blitWidth, blitWidth,
               o.x - blitX - 1, o.y - blitX - 1)
 
 end
 
 
--- Knob - Get/set value
 function Knob:val(newval)
 
 	if newval then
 
     self:setCurrentStep(newval)
-
 		self:redraw()
 
 	else
@@ -170,7 +159,6 @@ function Knob:val(newval)
 end
 
 
--- Knob - Dragging.
 function Knob:onDrag(state, last)
 
   -- Ctrl?
@@ -193,7 +181,6 @@ end
 function Knob:onDoubleclick()
 
   self:setCurrentStep(self.default)
-
 	self:redraw()
 
 end
@@ -221,19 +208,23 @@ end
 -------- Drawing methods -----------
 ------------------------------------
 
+
 function Knob:drawCaption(o, r)
 
+  local cx, cy = Math.polarToCart(1/2, r * 2, o.x, o.y)
+
 	Font.set(self.captionFont)
-	local cx, cy = Math.polarToCart(1/2, r * 2, o.x, o.y)
-	local strWidth, strHeight = gfx.measurestr(self.caption)
-	gfx.x, gfx.y = cx - strWidth / 2 + self.captionX, cy - strHeight / 2  + 8 + self.captionY
+  local strWidth, strHeight = gfx.measurestr(self.caption)
+
+  gfx.x, gfx.y = cx - strWidth / 2 + self.captionX, cy - strHeight / 2  + 8 + self.captionY
+
 	Text.drawBackground(self.caption, self.bg)
 	Text.drawWithShadow(self.caption, self.textColor, "shadow")
 
 end
 
 
-function Knob:drawvals(o, r)
+function Knob:drawValues(o, r)
 
   for i = 0, self.steps do
 
@@ -253,7 +244,6 @@ function Knob:drawvals(o, r)
     )
 
     if output ~= "" then
-
       local strWidth, strHeight = gfx.measurestr(output)
       local cx, cy = Math.polarToCart(angle, r * 2, o.x, o.y)
       gfx.x, gfx.y = cx - strWidth / 2, cy - strHeight / 2
@@ -272,28 +262,23 @@ end
 -------- Value helpers -------------
 ------------------------------------
 
-function Knob:setCurrentStep(step)
 
+function Knob:setCurrentStep(step)
   self.currentStep = step
   self.currentVal = self.currentStep / self.steps
   self:setRetval()
-
 end
 
 
 function Knob:setCurrentVal(val)
-
   self.currentVal = val
   self.currentStep = Math.round(val * self.steps)
   self:setRetval()
-
 end
 
 
 function Knob:setRetval()
-
   self.retval = self:formatRetval(self.inc * self.currentStep + self.min)
-
 end
 
 

@@ -2,12 +2,6 @@
 
 local GFX = {}
 
-
-------------------------------------
--------- Drawing functions ---------
-------------------------------------
-
-
 -- Improved roundrect() function with fill, adapted from mwe's EEL example.
 GFX.roundRect = function (x, y, w, h, r, antialias, fill)
 
@@ -61,7 +55,6 @@ GFX.triangle = function (fill, ...)
 
   else
 
-    -- Store all of the provided coordinates into an array
     local coords = {...}
 
     -- Duplicate the first pair at the end, so the last line will

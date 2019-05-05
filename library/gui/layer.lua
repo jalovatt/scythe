@@ -4,7 +4,7 @@ local Buffer = require("gui.buffer")
 
 local Layer = T{}
 Layer.__index = Layer
-Layer.__noRecursive = true
+Layer.__noRecursiveCopy = true
 
 function Layer:new(props)
   local layer = Table.deepCopy(props or {})
@@ -80,7 +80,7 @@ end
 
 function Layer:redraw()
 
-  -- Set this before we redraw, so that elms can call a redraw
+  -- Set this before we redraw, so that elms can call a subsequent redraw
   -- from their own :draw method. e.g. Labels fading out
   self.needsRedraw = false
 

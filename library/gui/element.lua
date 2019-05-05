@@ -1,32 +1,23 @@
 -- NoIndex: true
 
-------------------------------------
--------- Prototype element ---------
------ + all default methods --------
-------------------------------------
-
 local Table, T = require("public.table"):unpack()
 local Config = require("gui.config")
 
---[[
-    All classes will use this as their template, so that
-    elements are initialized with every method available.
-]]--
 local Element = T{}
 Element.__index = Element
-Element.__noRecursive = true
+Element.__noRecursiveCopy = true
 
 function Element:new()
   return setmetatable(T{}, self)
 end
 
--- Called a) when the script window is first opened
--- 		  b) when any element is created via GUI.New after that
+-- Called when the script window is first opened
+-- Used for any do-it-once processing, notably graphics
 -- i.e. Elements can draw themselves to a buffer once on :init()
 -- and then just blit/rotate/etc as needed afterward
 function Element:init() end
 
--- Called whenever the element's z layer is told to redraw
+-- Called whenever the element's layer is redrawn
 function Element:draw() end
 
 -- Ask for a redraw on the next update
@@ -37,6 +28,8 @@ end
 -- Called on every update loop, unless the element is hidden or frozen
 function Element:onUpdate() end
 
+-- Removes the element from its parent layer and frees up any resources the
+-- element had requested (e.g. graphics buffers)
 function Element:delete()
 
   self.onDelete(self)
@@ -44,15 +37,16 @@ function Element:delete()
 
 end
 
--- Called when the element is deleted by GUI.update_elms_list() or :delete.
+-- Called when the element is deleted.
 -- Use it for freeing up buffers and anything else memorywise that this
 -- element was doing
 function Element:onDelete() end
 
 
 -- Set or return the element's value
--- Can be useful for something like a Slider that doesn't have the same
--- value internally as what it's displaying
+-- Most elements don't track their values internally in the same format as
+-- their output, so it's important to use this when accessing them to ensure
+-- that right behavior.
 function Element:val() end
 
 function Element:onMouseEnter() end
@@ -119,15 +113,15 @@ function Element:Update(state, last)
   local buttons = {
     {
       btn = "",
-      down = "leftDown",
+      down = "left",
     },
     {
       btn = "Right",
-      down = "rightDown",
+      down = "right",
     },
     {
       btn = "Middle",
-      down = "middleDown",
+      down = "middle",
     },
   }
 
@@ -213,7 +207,7 @@ function Element:Update(state, last)
   -- If the mouse is hovering over the element
   if inside then
     state.mouseOverElm = self
-    if not state.mouse.down and not state.mouse.rightDown then
+    if not state.mouse.down and not state.mouse.right then
 
       -- Initial mouseover an element
       if last.mouseOverElm ~= self then
@@ -296,7 +290,7 @@ end
 
 -- Returns the specified parameters for a given element.
 -- If nothing is specified, returns all of the element's properties.
--- ex. local str = GUI.Elements.my_element:Msg("x", "y", "caption", "textColor")
+-- ex. local str = my_element:debug("x", "y", "caption", "textColor")
 function Element:debug(...)
 
   local arg = {...}
@@ -352,8 +346,8 @@ function Element:moveToLayer(dest)
   if dest then dest:addElements(self) end
 end
 
--- .prototyep isn't strictly necessary, but it offers easy access to an
--- element's parent class
+-- .prototype isn't strictly necessary, but it offers easy access to an
+-- element's parent class for scripters without needing to know about metatables
 function Element:assignChild(instance)
   setmetatable(instance, self)
   instance.prototype = self
@@ -361,6 +355,9 @@ function Element:assignChild(instance)
   return instance
 end
 
+-- Most elements will accept a .output property, specifying how to display
+-- their values. If given a table, the element's value will be used as a key. If
+-- given a function, the element's value will be passed to it.
 function Element:formatOutput(val)
   local output
 
@@ -380,6 +377,9 @@ function Element:formatOutput(val)
   return output and tostring(output) or tostring(val)
 end
 
+
+-- Use the given table of properties to make sure the element has everything
+-- needed to display it.
 function Element:addDefaultProps (props)
   if type(props) ~= "table" then return props end
 

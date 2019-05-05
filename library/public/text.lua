@@ -9,23 +9,19 @@ local Table, T = require("public.table"):unpack()
 local Text = {}
 
 
+--[[
+  Iterates through all of the font prese+ts, storing the widths
+  of every printable ASCII character in a table.
 
+  Accessable via:		Text.textWidth[font_num][char_num]
 
+  - Requires a window to have been opened in Reaper
 
---[[	Prepares a table of character widths
-
-    Iterates through all of the GUI.fonts[] presets, storing the widths
-    of every printable ASCII character in a table.
-
-    Accessable via:		Text.textWidth[font_num][char_num]
-
-    - Requires a window to have been opened in Reaper
-
-    - 'get_txt_width' and 'wrapText' will automatically run this
-      if it hasn't been run already; it may be rather clunky to use
-      on demand depending on what your script is doing, so it's
-      probably better to run this immediately after initiliazing
-      the window and then have the width table ready to use.
+  - 'get_txt_width' and 'wrapText' will automatically run this
+    if it hasn't been run already; it may be rather clunky to use
+    on demand depending on what your script is doing, so it's
+    probably better to run this immediately after initializing
+    the window and then have the width table ready to use later.
 ]]--
 
 Text.initTextWidth = function ()
@@ -52,7 +48,7 @@ end
 
 
 -- Returns the total width (in pixels) for a given string and font
--- (as a GUI.fonts[] preset number or name)
+-- (as a preset number or name)
 -- Most of the time it's simpler to use gfx.measurestr(), but scripts
 -- with a lot of text should use this instead - it's 10-12x faster.
 Text.getTextWidth = function (str, font)
@@ -73,7 +69,7 @@ end
 -- Measures a string to see how much of it will it in the given width,
 -- then returns both the trimmed string and the excess
 Text.fitTextWidth = function (str, font, w)
-  -- Assuming 'i' is the narrowest character, get an upper limit
+  -- Assuming 'i' is the narrowest character, get an upper limit to save time
   local maxEnd = math.floor( w / Text.textWidth[font][string.byte("i")] )
 
   for i = maxEnd, 1, -1 do
@@ -93,28 +89,28 @@ Text.fitTextWidth = function (str, font, w)
 end
 
 
---[[	Returns 'str' wrapped to fit a given pixel width
+--[[
+  Returns 'str' wrapped to fit a given pixel width
 
-    str		String. Can include line breaks/paragraphs; they should be preserved.
-    font	Font preset number
-    w		Pixel width
-    indent	Number of spaces to indent the first line of each paragraph
-            (The algorithm skips tab characters and leading spaces, so
-            use this parameter instead)
+  str		String. Can include line breaks/paragraphs; they should be preserved.
+  font	Font preset number
+  w		Pixel width
+  indent	Number of spaces to indent the first line of each paragraph
+          (The algorithm skips tab characters and leading spaces, so
+          use this parameter instead)
 
-    i.e.	Blah blah blah blah		-> indent = 2 ->	  Blah blah blah blah
-            blah blah blah blah							blah blah blah blah
-
-
-    pad		Indent wrapped lines by the first __ characters of the paragraph
-            (For use with bullet points, etc)
-
-    i.e.	- Blah blah blah blah	-> pad = 2 ->	- Blah blah blah blah
-            blah blah blah blah				  	 	  blah blah blah blah
+  i.e.	Blah blah blah blah		-> indent = 2 ->   Blah blah blah blah
+        blah blah blah blah						       	 blah blah blah blah
 
 
-    This function expands on the "greedy" algorithm found here:
-    https://en.wikipedia.org/wiki/Line_wrap_and_wrapText#Algorithm
+  pad		Indent wrapped lines by the first __ characters of the paragraph
+        (For use with bullet points, etc)
+
+  i.e.	- Blah blah blah blah	-> pad = 2 ->	Blah blah blah blah
+          blah blah blah blah				  	 	    blah blah blah blah
+
+  This function expands on the "greedy" algorithm found here:
+  https://en.wikipedia.org/wiki/Line_wrap_and_wrapText#Algorithm
 
 ]]--
 Text.wrapText = function (str, font, w, indent, pad)
@@ -214,7 +210,7 @@ end
 
 --[[	Draw a background rectangle for the given string
 
-    A solid background is necessary for blitting z layers
+    A solid background is necessary for blitting some elements
     on their own; antialiased text with a transparent background
     looks like complete shit. This function draws a rectangle 2px
     larger than your text on all sides.

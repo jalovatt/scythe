@@ -66,16 +66,15 @@ Color.set = function (col)
 end
 
 
--- Convert a hex color RRGGBB to 8-bit values R, G, B
-Color.hexToRgb = function (num)
+-- Convert a hex string RRGGBB to 8-bit values R, G, B
+Color.hexToRgb = function (hexStr)
 
-  if string.sub(num, 1, 2) == "0x" then
-    num = string.sub(num, 3)
-  end
+  -- Trim any "0x" or "#" prefixes
+  hexStr = hexStr:sub(-6)
 
-  local red = string.sub(num, 1, 2)
-  local green = string.sub(num, 3, 4)
-  local blue = string.sub(num, 5, 6)
+  local red = string.sub(hexStr, 1, 2)
+  local green = string.sub(hexStr, 3, 4)
+  local blue = string.sub(hexStr, 5, 6)
 
   red = tonumber(red, 16) or 0
   green = tonumber(green, 16) or 0
@@ -156,8 +155,8 @@ end
     Returns the color for a given position on an HSV gradient
     between two color presets
 
-    colorA		Tables of {R, G, B[, A]}, values from 0-1
-    colorB
+    colorA		Tables of {R, G, B[, A]}, values from 0-1,
+    colorB    or color preset strings
 
     pos			Position along the gradient, 0 = colorA, 1 = colorB
 

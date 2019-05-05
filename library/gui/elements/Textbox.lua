@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Textbox class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Textbox
-
-    Creation parameters:
-	name, z, x, y, w, h[, caption, pad]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -22,36 +12,46 @@ local Config = require("gui.config")
 
 local Const = require("public.const")
 
-local TextUtils = require("gui.elements._text_utils")
+local TextUtils = require("gui.elements.shared.text")
 
 local Textbox = require("gui.element"):new()
 Textbox.__index = Textbox
 Textbox.defaultProps = {
 
   type = "Textbox",
+
   x = 0,
   y = 0,
   w = 96,
   h = 24,
+
   retval = "",
   caption = "Textbox",
+
   pad = 4,
+
   bg = "windowBg",
   color = "txt",
+
   captionFont = 3,
   textFont = "monospace",
   captionPosition = "left",
+
   undoLimit = 20,
   undoStates = {},
   redoStates = {},
+
+  windowW = nil,
+  windowH = nil,
   windowPosition = 0,
+
   caret = 0,
   selectionStart = nil,
   selectionEnd = nil,
-  charH = nil,
-  windowH = nil,
-  windowW = nil,
+
   charW = nil,
+  charH = nil,
+
   focus = false,
   blink = 0,
   shadow = true,
@@ -77,9 +77,11 @@ function Textbox:init()
 	Color.set("elmBg")
 	gfx.rect(0, 0, 2*w, h, 1)
 
+  -- Inactive frame
 	Color.set("elmFrame")
 	gfx.rect(0, 0, w, h, 0)
 
+  -- Active frame
 	Color.set("elmFill")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
@@ -143,13 +145,11 @@ function Textbox:onUpdate()
 
 		if self.blink == 0 then
 			self.showCaret = true
-			self:redraw()
 		elseif self.blink == math.floor(Config.caretBlinkRate / 2) then
 			self.showCaret = false
-			self:redraw()
-		end
+    end
+    self:redraw()
 		self.blink = (self.blink + 1) % Config.caretBlinkRate
-
 	end
 
 end
@@ -170,7 +170,7 @@ end
 
 function Textbox:onMouseDown(state)
 
-  self.caret = self:getCaret(state.mouse.x)
+  self.caret = self:calcCaretPosition(state.mouse.x)
 
   -- Reset the caret so the visual change isn't laggy
   self.blink = 0
@@ -200,8 +200,8 @@ end
 
 function Textbox:onDrag(state)
 
-	self.selectionStart = self:getCaret(state.mouse.ox, state.mouse.oy)
-  self.selectionEnd = self:getCaret(state.mouse.x, state.mouse.y)
+	self.selectionStart = self:calcCaretPosition(state.mouse.ox, state.mouse.oy)
+  self.selectionEnd = self:calcCaretPosition(state.mouse.x, state.mouse.y)
 
 	self:redraw()
 
@@ -213,7 +213,7 @@ function Textbox:onType(state)
 	local char = state.kb.char
 
   -- Navigation keys, Return, clipboard stuff, etc
-  if self.keys[char] then
+  if self.processKey[char] then
 
     local shift = state.mouse.cap & 8 == 8
 
@@ -222,10 +222,10 @@ function Textbox:onType(state)
     end
 
     -- Flag for some keys (clipboard shortcuts) to skip
-    -- the next section
-    local bypass = self.keys[char](self, state)
+    -- changing the selection range
+    local bypass = self.processKey[char](self, state)
 
-    if shift and char ~= Const.char.BACKSPACE then
+    if shift and char ~= Const.chars.BACKSPACE then
 
       self.selectionEnd = self.caret
 
@@ -276,6 +276,18 @@ end
 ------------------------------------
 
 
+function Textbox:getCaptionCoords(w, h)
+  if self.captionPosition == "left" then
+    return (self.x - w - self.pad), (self.y + (self.h - h) / 2)
+  elseif self.captionPosition == "top" then
+    return (self.x + (self.w - w) / 2), (self.y - h - self.pad)
+  elseif self.captionPosition == "right" then
+    return (self.x + self.w + self.pad), (self.y + (self.h - h) / 2)
+  elseif self.captionPosition == "bottom" then
+    return (self.x + (self.w - w) / 2), (self.y + self.h + self.pad)
+  end
+end
+
 function Textbox:drawCaption()
 
   local caption = self.caption
@@ -284,23 +296,7 @@ function Textbox:drawCaption()
 
   local strWidth, strHeight = gfx.measurestr(caption)
 
-  if self.captionPosition == "left" then
-    gfx.x = self.x - strWidth - self.pad
-    gfx.y = self.y + (self.h - strHeight) / 2
-
-  elseif self.captionPosition == "top" then
-    gfx.x = self.x + (self.w - strWidth) / 2
-    gfx.y = self.y - strHeight - self.pad
-
-  elseif self.captionPosition == "right" then
-    gfx.x = self.x + self.w + self.pad
-    gfx.y = self.y + (self.h - strHeight) / 2
-
-  elseif self.captionPosition == "bottom" then
-    gfx.x = self.x + (self.w - strWidth) / 2
-    gfx.y = self.y + self.h + self.pad
-
-  end
+  gfx.x, gfx.y = self:getCaptionCoords(strWidth, strHeight)
 
   Text.drawBackground(caption, self.bg)
 
@@ -321,11 +317,9 @@ function Textbox:drawText()
 
   local str = string.sub(self.retval, self.windowPosition + 1)
 
-  -- I don't think self.pad should affect the text at all. Looks weird,
-  -- messes with the amount of visible text too much.
-	gfx.x = self.x + 4 -- + self.pad
+	gfx.x = self.x + 4
 	gfx.y = self.y + (self.h - gfx.texth) / 2
-  local r = gfx.x + self.w - 8 -- - 2*self.pad
+  local r = gfx.x + self.w - 8
   local b = gfx.y + gfx.texth
 
 	gfx.drawstr(str, 0, r, b)
@@ -363,7 +357,6 @@ function Textbox:drawSelection()
 
   if e < s then s, e = e, s end
 
-
   local x = Math.clamp(self.windowPosition, s, self:windowRight())
   local w = Math.clamp(x, e, self:windowRight()) - x
 
@@ -378,8 +371,6 @@ function Textbox:drawSelection()
 
     w = w * self.charW
     w = math.min(w, self.x + self.w - x - self.pad)
-
-
 
     gfx.rect(x, y, w, h, true)
 
@@ -406,18 +397,18 @@ function Textbox:drawGradient()
 
   local leftX = self.x + 2 + fadeW
   local rightX = self.x + self.w - 3 - fadeW
+  local top = self.y + 2
+  local bottom = self.y + self.h - 4
   for i = 0, fadeW do
 
     gfx.a = i/fadeW
 
-    -- Left
     if left then
-      gfx.line(leftX - i, self.y + 2, leftX - i, self.y + self.h - 4)
+      gfx.line(leftX - i, top, leftX - i, bottom)
     end
 
-    -- Right
     if right then
-      gfx.line(rightX + i, self.y + 2, rightX + i, self.y + self.h - 4)
+      gfx.line(rightX + i, top, rightX + i, bottom)
     end
 
   end
@@ -432,12 +423,11 @@ end
 ------------------------------------
 
 
--- Make sure at least part of the selection is visible
 function Textbox:isSelectionVisible(x, w)
 
-	return w > 0                  -- Selection has width,
-    and x + w > self.windowPosition    -- doesn't end to the left
-    and x < self:windowRight()    -- and doesn't start to the right
+	return w > 0
+    and x + w > self.windowPosition -- doesn't end to the left
+    and x < self:windowRight()      -- and doesn't start to the right
 
 end
 
@@ -458,9 +448,9 @@ function Textbox:selectWord()
   if not str or str == "" then return 0 end
 
   self.selectionStart = string.find( str:sub(1, self.caret), "%s[%S]+$") or 0
-  self.selectionEnd = (      string.find( str, "%s", self.selectionStart + 1)
-                  or  string.len(str) + 1)
-              - (self.windowPosition > 0 and 2 or 1) -- Kludge, fixes length issues
+  self.selectionEnd = (
+    string.find( str, "%s", self.selectionStart + 1) or string.len(str) + 1
+  ) - (self.windowPosition > 0 and 2 or 1) -- Kludge, fixes length issues
 
 end
 
@@ -483,7 +473,6 @@ function Textbox:deleteSelection()
   self.selectionStart, self.selectionEnd = nil, nil
   self:setWindowToCaret()
 
-
 end
 
 
@@ -493,7 +482,7 @@ function Textbox:getSelectedText()
 
   if s > e then s, e = e, s end
 
-  return string.sub(self.retval, s + 1, e)
+  return self.retval:sub(s + 1, e)
 
 end
 
@@ -548,7 +537,7 @@ function Textbox:setWindowToCaret()
 end
 
 
-function Textbox:getCaret(x)
+function Textbox:calcCaretPosition(x)
 
   local caretX = math.floor(  ((x - self.x) / self.w) * self.windowW) + self.windowPosition
   return Math.clamp(0, caretX, string.len(self.retval or ""))
@@ -614,33 +603,25 @@ Textbox.doCtrlChar = TextUtils.doCtrlChar
 -- Non-typing key commands
 -- A table of functions is more efficient to access than using really
 -- long if/then/else structures.
-Textbox.keys = {
+Textbox.processKey = {
 
-  [Const.char.LEFT] = function(self)
-
+  [Const.chars.LEFT] = function(self)
     self.caret = math.max( 0, self.caret - 1)
-
   end,
 
-  [Const.char.RIGHT] = function(self)
-
+  [Const.chars.RIGHT] = function(self)
     self.caret = math.min( string.len(self.retval), self.caret + 1 )
-
   end,
 
-  [Const.char.UP] = function(self)
-
+  [Const.chars.UP] = function(self)
     self.caret = 0
-
   end,
 
-  [Const.char.DOWN] = function(self)
-
+  [Const.chars.DOWN] = function(self)
     self.caret = string.len(self.retval)
-
   end,
 
-  [Const.char.BACKSPACE] = function(self)
+  [Const.chars.BACKSPACE] = function(self)
 
     self:storeUndoState()
 
@@ -661,13 +642,11 @@ Textbox.keys = {
 
   end,
 
-  [Const.char.INSERT] = function(self)
-
+  [Const.chars.INSERT] = function(self)
     self.insertCaret = not self.insertCaret
-
   end,
 
-  [Const.char.DELETE] = function(self)
+  [Const.chars.DELETE] = function(self)
 
     self:storeUndoState()
 
@@ -685,7 +664,7 @@ Textbox.keys = {
 
   end,
 
-  [Const.char.RETURN] = function(self)
+  [Const.chars.RETURN] = function(self)
 
     self.focus = false
     self:lostFocus()
@@ -693,19 +672,15 @@ Textbox.keys = {
 
   end,
 
-  [Const.char.HOME] = function(self)
-
+  [Const.chars.HOME] = function(self)
     self.caret = 0
-
   end,
 
-  [Const.char.END] = function(self)
-
+  [Const.chars.END] = function(self)
     self.caret = string.len(self.retval)
-
   end,
 
-  [Const.char.TAB] = function(self)
+  [Const.chars.TAB] = function(self)
 
     -- tab functionality has been temporarily removed because it was broken anyway
     -- GUI.tab_to_next(self)
@@ -714,44 +689,32 @@ Textbox.keys = {
 
 	-- A -- Select All
 	[1] = function(self, state)
-
 		return self:doCtrlChar(state, self.selectAll)
-
 	end,
 
 	-- C -- Copy
 	[3] = function(self, state)
-
 		return self:doCtrlChar(state, self.toClipboard)
-
 	end,
 
 	-- V -- Paste
 	[22] = function(self, state)
-
     return self:doCtrlChar(state, self.fromClipboard)
-
 	end,
 
 	-- X -- Cut
 	[24] = function(self, state)
-
 		return self:doCtrlChar(state, self.toClipboard, true)
-
 	end,
 
 	-- Y -- Redo
 	[25] = function (self, state)
-
 		return self:doCtrlChar(state, self.redo)
-
 	end,
 
 	-- Z -- Undo
 	[26] = function (self, state)
-
 		return self:doCtrlChar(state, self.undo)
-
 	end
 
 
@@ -771,9 +734,7 @@ Textbox.redo = TextUtils.redo
 Textbox.storeUndoState = TextUtils.storeUndoState
 
 function Textbox:getEditorState()
-
 	return { retval = self.retval, caret = self.caret }
-
 end
 
 function Textbox:setEditorState(retval, caret, windowPosition, selectionStart, selectionEnd)

@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Label class.
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Label
-
-    Creation parameters:
-	name, z, x, y, caption[, shadow, font, color, bg]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
@@ -38,8 +28,8 @@ Label.defaultProps = {
   bg =      "windowBg",
 }
 
-function Label:new(props)
 
+function Label:new(props)
 	local label = self:addDefaultProps(props)
 
   return self:assignChild(label)
@@ -48,44 +38,44 @@ end
 
 function Label:init()
 
-    -- We can't do font measurements without an open window
-    if gfx.w == 0 then return end
+  -- We can't do font measurements without an open window
+  if gfx.w == 0 then return end
 
-    self.buffers = self.buffers or Buffer.get(2)
+  self.buffers = self.buffers or Buffer.get(2)
 
-    Font.set(self.font)
+  Font.set(self.font)
 
-    local output = self:formatOutput(self.caption)
-    self.w, self.h = gfx.measurestr(output)
+  local output = self:formatOutput(self.caption)
+  self.w, self.h = gfx.measurestr(output)
 
-    local w, h = self.w + 4, self.h + 4
+  local w, h = self.w + 4, self.h + 4
 
-    -- Because we might be doing this in mid-draw-loop,
-    -- make sure we put this back the way we found it
-    local dest = gfx.dest
+  -- Because we might be doing this mid-Draw,
+  -- make sure we put this back the way we found it
+  local dest = gfx.dest
 
 
-    -- Keeping the background separate from the text to avoid graphical
-    -- issues when the text is faded.
-    gfx.dest = self.buffers[1]
-    gfx.setimgdim(self.buffers[1], -1, -1)
-    gfx.setimgdim(self.buffers[1], w, h)
+  -- Keeping the background separate from the text to avoid graphical
+  -- issues when the text is faded.
+  gfx.dest = self.buffers[1]
+  gfx.setimgdim(self.buffers[1], -1, -1)
+  gfx.setimgdim(self.buffers[1], w, h)
 
-    Color.set(self.bg)
-    gfx.rect(0, 0, w, h)
+  Color.set(self.bg)
+  gfx.rect(0, 0, w, h)
 
-    -- Text + shadow
-    gfx.dest = self.buffers[2]
-    gfx.setimgdim(self.buffers[2], -1, -1)
-    gfx.setimgdim(self.buffers[2], w, h)
+  -- Text + shadow
+  gfx.dest = self.buffers[2]
+  gfx.setimgdim(self.buffers[2], -1, -1)
+  gfx.setimgdim(self.buffers[2], w, h)
 
-    -- Text needs a background or the antialiasing will look like shit
-    Color.set(self.bg)
-    gfx.rect(0, 0, w, h)
+  -- Text needs a background or the antialiasing will look like shit
+  Color.set(self.bg)
+  gfx.rect(0, 0, w, h)
 
-    gfx.x, gfx.y = 2, 2
+  gfx.x, gfx.y = 2, 2
 
-    Color.set(self.color)
+  Color.set(self.color)
 
 	if self.shadow then
     Text.drawWithShadow(output, self.color, "shadow")
@@ -93,20 +83,17 @@ function Label:init()
     gfx.drawstr(output)
   end
 
-    gfx.dest = dest
+  gfx.dest = dest
 
 end
 
 
 function Label:onDelete()
-
 	Buffer.release(self.buffers)
-
 end
 
 
 function Label:fade(len, dest, curve)
-
   if curve < 0 then self:moveToLayer(dest) end
 
 	self.fadeParams = {
@@ -117,7 +104,6 @@ function Label:fade(len, dest, curve)
   }
 
 	self:redraw()
-
 end
 
 
@@ -126,7 +112,7 @@ function Label:draw()
     -- Font stuff doesn't work until we definitely have a gfx window
 	if self.w == 0 then self:init() end
 
-  local a = self.fadeParams and self:getFadeAlpha() or 1
+  local a = self.fadeParams and self:updateFadeAlpha() or 1
   if a == 0 then return end
 
   gfx.x, gfx.y = self.x - 2, self.y - 2
@@ -157,7 +143,7 @@ function Label:val(newval)
 end
 
 
-function Label:getFadeAlpha()
+function Label:updateFadeAlpha()
 
   local sign = self.fadeParams.curve > 0 and 1 or -1
 
@@ -175,7 +161,6 @@ function Label:getFadeAlpha()
     self.fadeParams = nil
     return 0
   elseif sign == -1 and a > 0.98 then
-    -- self:moveToLayer(self.fadeParams.dest)
     self.fadeParams = nil
     return 1
   end
