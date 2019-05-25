@@ -16,4 +16,16 @@ This is a big project, and I would love some help.
 
 - In lieu of proper testing (which may come later), the repo includes several example scripts. Use those as a reference to make sure that any changes haven't broken anything. New features may require more examples or modifications to the existing ones. Ideally, nothing should be considered "done" if it isn't being demonstrated in an example.
 
+## Coding Style
+
+For the most part, I've tried to follow [the Olivine Labs style guide](https://github.com/Olivine-Labs/lua-style-guide), with a few exceptions such as double-quotes for strings.
+
+The big ones:
+
+- 2 spaces for indents
+- `pascalCase` for names
+- Everything should be `local` unless there's a very good reason
+
+I also use [Luacheck](https://github.com/mpeterv/luacheck) to help spot potential bugs or style problems. There are extensions for most popular editors to provide live checking of your code. A `.luacheckrc` file is included with the repo, and I'm certainly open to changing the rules it uses.
+
 Cheers!
