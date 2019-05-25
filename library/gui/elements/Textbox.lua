@@ -217,7 +217,7 @@ function Textbox:onType(state)
 
     local shift = state.mouse.cap & 8 == 8
 
-    if shift and not self.sel then
+    if shift and not self.selectionStart then
       self.selectionStart = self.caret
     end
 
