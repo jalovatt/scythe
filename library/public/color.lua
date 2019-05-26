@@ -2,43 +2,6 @@
 
 local Color = {}
 
-Color.colors = {
-
-  -- Element colors
-  windowBg = Color.fromRgba(64, 64, 64, 255),			-- Window BG
-  tabBg = Color.fromRgba(56, 56, 56, 255),			-- Tabs BG
-  elmBg = Color.fromRgba(48, 48, 48, 255),			-- Element BG
-  elmFrame = Color.fromRgba(96, 96, 96, 255),		-- Element Frame
-  elmFill = Color.fromRgba(64, 192, 64, 255),		-- Element Fill
-  elmOutline = Color.fromRgba(32, 32, 32, 255),	-- Element Outline
-  txt = Color.fromRgba(192, 192, 192, 255),			-- Text
-
-  shadow = Color.fromRgba(0, 0, 0, 48),				-- Element Shadows
-  faded = Color.fromRgba(0, 0, 0, 64),
-
-  -- Standard 16 colors
-  black = Color.fromRgba(0, 0, 0, 255),
-  white = Color.fromRgba(255, 255, 255, 255),
-  red = Color.fromRgba(255, 0, 0, 255),
-  lime = Color.fromRgba(0, 255, 0, 255),
-  blue = Color.fromRgba(0, 0, 255, 255),
-  yellow = Color.fromRgba(255, 255, 0, 255),
-  cyan = Color.fromRgba(0, 255, 255, 255),
-  magenta = Color.fromRgba(255, 0, 255, 255),
-  silver = Color.fromRgba(192, 192, 192, 255),
-  gray = Color.fromRgba(128, 128, 128, 255),
-  maroon = Color.fromRgba(128, 0, 0, 255),
-  olive = Color.fromRgba(128, 128, 0, 255),
-  green = Color.fromRgba(0, 128, 0, 255),
-  purple = Color.fromRgba(128, 0, 128, 255),
-  teal = Color.fromRgba(0, 128, 128, 255),
-  navy = Color.fromRgba(0, 0, 128, 255),
-
-  none = Color.fromRgba(0, 0, 0, 0),
-
-
-}
-
 --[[	Apply a color preset
 
     col			Color preset string -> "elmFill"
@@ -52,10 +15,24 @@ Color.set = function (col)
   if type(col) == "table" then
     gfx.set(col[1], col[2], col[3], col[4] or 1)
   else
-    gfx.set(table.unpack(Color.colors[col]))
+
+    -- Recurse through the presets; allows presets to be set as other presets
+    -- Should probably have a limit to avoid infinite loops if red = "blue" = "red"...
+    local val = Color.colors[col]
+    while type(val) == "string" do
+      val = Color.colors[val]
+    end
+
+    if not val then
+      error("Couldn't find color preset: '" .. col .. "'")
+    end
+
+    gfx.set(table.unpack(val))
   end
 
 end
+
+
 
 
 -- Converts a color from 0-255 RGBA to 0-1
@@ -83,7 +60,7 @@ Color.fromHex = function (hexStr)
   blue = tonumber(blue, 16) or 0
   alpha = alpha and tonumber(alpha, 16) or 255
 
-  return red / 255, green / 255, blue / 255, alpha / 255
+  return {red / 255, green / 255, blue / 255, alpha / 255}
 end
 
 -- Converts a color from 0-1 RGBA to hex
@@ -121,7 +98,7 @@ Color.toHsv = function (r, g, b, a)
   local sat = (max ~= 0) 	and	((max - min) / max)
                           or	0
 
-  return hue, sat, max, (a or 1)
+  return {hue, sat, max, (a or 1)}
 
 end
 
@@ -153,7 +130,7 @@ Color.fromHsv = function (h, s, v, a)
 
   local min = v - chroma
 
-  return r + min, g + min, b + min, (a or 1)
+  return {r + min, g + min, b + min, (a or 1)}
 
 end
 
@@ -172,25 +149,21 @@ end
 ]]--
 Color.gradient = function (colorA, colorB, pos)
 
-  colorA = {
-    Color.toHsv(
-      table.unpack(
-        type(colorA) == "table"
-          and colorA
-          or  Color.colors(colorA)
-      )
+  colorA = Color.toHsv(
+    table.unpack(
+      type(colorA) == "table"
+        and colorA
+        or  Color.colors(colorA)
     )
-  }
+  )
 
-  colorB = {
-    Color.toHsv(
-      table.unpack(
-        type(colorB) == "table"
-          and colorB
-          or  Color.colors(colorB)
-      )
+  colorB = Color.toHsv(
+    table.unpack(
+      type(colorB) == "table"
+        and colorB
+        or  Color.colors(colorB)
     )
-  }
+  )
 
   local h = math.abs(colorA[1] + (pos * (colorB[1] - colorA[1])))
   local s = math.abs(colorA[2] + (pos * (colorB[2] - colorA[2])))
@@ -203,5 +176,45 @@ Color.gradient = function (colorA, colorB, pos)
   return Color.fromHsv(h, s, v, a)
 
 end
+
+Color.colors = {
+
+  test1 = "test2",
+  test2 = "test3",
+  test3 = "red",
+
+  -- Element colors
+  windowBg = Color.fromRgba(64, 64, 64, 255),			-- Window BG
+  tabBg = Color.fromRgba(56, 56, 56, 255),			-- Tabs BG
+  elmBg = Color.fromRgba(48, 48, 48, 255),			-- Element BG
+  elmFrame = Color.fromRgba(96, 96, 96, 255),		-- Element Frame
+  elmFill = Color.fromRgba(64, 192, 64, 255),		-- Element Fill
+  elmOutline = Color.fromRgba(32, 32, 32, 255),	-- Element Outline
+  txt = Color.fromRgba(192, 192, 192, 255),			-- Text
+
+  shadow = Color.fromRgba(0, 0, 0, 48),				-- Element Shadows
+  faded = Color.fromRgba(0, 0, 0, 64),
+
+  -- Standard 16 colors
+  black = Color.fromRgba(0, 0, 0, 255),
+  white = Color.fromRgba(255, 255, 255, 255),
+  red = Color.fromRgba(255, 0, 0, 255),
+  lime = Color.fromRgba(0, 255, 0, 255),
+  blue = Color.fromRgba(0, 0, 255, 255),
+  yellow = Color.fromRgba(255, 255, 0, 255),
+  cyan = Color.fromRgba(0, 255, 255, 255),
+  magenta = Color.fromRgba(255, 0, 255, 255),
+  silver = Color.fromRgba(192, 192, 192, 255),
+  gray = Color.fromRgba(128, 128, 128, 255),
+  maroon = Color.fromRgba(128, 0, 0, 255),
+  olive = Color.fromRgba(128, 128, 0, 255),
+  green = Color.fromRgba(0, 128, 0, 255),
+  purple = Color.fromRgba(128, 0, 128, 255),
+  teal = Color.fromRgba(0, 128, 128, 255),
+  navy = Color.fromRgba(0, 0, 128, 255),
+
+  none = Color.fromRgba(0, 0, 0, 0),
+
+}
 
 return Color
