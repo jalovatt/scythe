@@ -2,50 +2,42 @@
 
 local Color = {}
 
-
-
 Color.colors = {
 
-    -- Element colors
-    windowBg = {64, 64, 64, 255},			-- Window BG
-    tabBg = {56, 56, 56, 255},			-- Tabs BG
-    elmBg = {48, 48, 48, 255},			-- Element BG
-    elmFrame = {96, 96, 96, 255},		-- Element Frame
-    elmFill = {64, 192, 64, 255},		-- Element Fill
-    elmOutline = {32, 32, 32, 255},	-- Element Outline
-    txt = {192, 192, 192, 255},			-- Text
+  -- Element colors
+  windowBg = Color.fromRgba(64, 64, 64, 255),			-- Window BG
+  tabBg = Color.fromRgba(56, 56, 56, 255),			-- Tabs BG
+  elmBg = Color.fromRgba(48, 48, 48, 255),			-- Element BG
+  elmFrame = Color.fromRgba(96, 96, 96, 255),		-- Element Frame
+  elmFill = Color.fromRgba(64, 192, 64, 255),		-- Element Fill
+  elmOutline = Color.fromRgba(32, 32, 32, 255),	-- Element Outline
+  txt = Color.fromRgba(192, 192, 192, 255),			-- Text
 
-    shadow = {0, 0, 0, 48},				-- Element Shadows
-    faded = {0, 0, 0, 64},
+  shadow = Color.fromRgba(0, 0, 0, 48),				-- Element Shadows
+  faded = Color.fromRgba(0, 0, 0, 64),
 
-    -- Standard 16 colors
-    black = {0, 0, 0, 255},
-    white = {255, 255, 255, 255},
-    red = {255, 0, 0, 255},
-    lime = {0, 255, 0, 255},
-    blue =  {0, 0, 255, 255},
-    yellow = {255, 255, 0, 255},
-    cyan = {0, 255, 255, 255},
-    magenta = {255, 0, 255, 255},
-    silver = {192, 192, 192, 255},
-    gray = {128, 128, 128, 255},
-    maroon = {128, 0, 0, 255},
-    olive = {128, 128, 0, 255},
-    green = {0, 128, 0, 255},
-    purple = {128, 0, 128, 255},
-    teal = {0, 128, 128, 255},
-    navy = {0, 0, 128, 255},
+  -- Standard 16 colors
+  black = Color.fromRgba(0, 0, 0, 255),
+  white = Color.fromRgba(255, 255, 255, 255),
+  red = Color.fromRgba(255, 0, 0, 255),
+  lime = Color.fromRgba(0, 255, 0, 255),
+  blue = Color.fromRgba(0, 0, 255, 255),
+  yellow = Color.fromRgba(255, 255, 0, 255),
+  cyan = Color.fromRgba(0, 255, 255, 255),
+  magenta = Color.fromRgba(255, 0, 255, 255),
+  silver = Color.fromRgba(192, 192, 192, 255),
+  gray = Color.fromRgba(128, 128, 128, 255),
+  maroon = Color.fromRgba(128, 0, 0, 255),
+  olive = Color.fromRgba(128, 128, 0, 255),
+  green = Color.fromRgba(0, 128, 0, 255),
+  purple = Color.fromRgba(128, 0, 128, 255),
+  teal = Color.fromRgba(0, 128, 128, 255),
+  navy = Color.fromRgba(0, 0, 128, 255),
 
-    none = {0, 0, 0, 0},
+  none = Color.fromRgba(0, 0, 0, 0),
 
 
 }
-
-
-------------------------------------
--------- Color functions -----------
-------------------------------------
-
 
 --[[	Apply a color preset
 
@@ -66,28 +58,43 @@ Color.set = function (col)
 end
 
 
--- Convert a hex string RRGGBB to 8-bit values R, G, B
-Color.hexToRgb = function (hexStr)
+-- Converts a color from 0-255 RGBA to 0-1
+-- Returns a table of {R, G, B, A}
+Color.fromRgba = function(r, g, b, a)
+  return {r / 255, g / 255, b / 255, (a and (a / 255) or 1)}
+end
+
+-- Converts a color from 0-1 RGBA to 0-255
+Color.toRgba = function(r, g, b, a)
+  return {r * 255, g * 255, b * 255, (a and (a * 255) or 1)}
+end
+
+-- Convert a hex string RRGGBBAA to 0-1 RGBA
+Color.fromHex = function (hexStr)
 
   -- Trim any "0x" or "#" prefixes
-  hexStr = hexStr:sub(-6)
+  local hex = hexStr:match("[0-9A-F]+$")
 
-  local red = string.sub(hexStr, 1, 2)
-  local green = string.sub(hexStr, 3, 4)
-  local blue = string.sub(hexStr, 5, 6)
+  local red, green, blue = hex:match("([0-9A-F][0-9A-F])([0-9A-F][0-9A-F])([0-9A-F][0-9A-F])")
+  local alpha = (hex:len() == 8) and hex:match("([0-9A-F][0-9A-F])$")
 
   red = tonumber(red, 16) or 0
   green = tonumber(green, 16) or 0
   blue = tonumber(blue, 16) or 0
+  alpha = alpha and tonumber(alpha, 16) or 255
 
-  return red, green, blue
-
+  return red / 255, green / 255, blue / 255, alpha / 255
 end
 
+-- Converts a color from 0-1 RGBA to hex
+Color.toHex = function(r, g, b, a)
+  return string.format("%X%X%X", r * 255, g * 255, b * 255)
+      .. (a and string.format("%X", a * 255) or "")
+end
 
 -- Convert rgb[a] to hsv[a]; useful for gradients
 -- Arguments/returns are given as 0-1
-Color.rgbToHsv = function (r, g, b, a)
+Color.toHsv = function (r, g, b, a)
 
   local max = math.max(r, g, b)
   local min = math.min(r, g, b)
@@ -120,7 +127,7 @@ end
 
 
 -- ...and back the other way
-Color.hsvToRgb = function (h, s, v, a)
+Color.fromHsv = function (h, s, v, a)
 
   local chroma = v * s
 
@@ -166,7 +173,7 @@ end
 Color.gradient = function (colorA, colorB, pos)
 
   colorA = {
-    Color.rgbToHsv(
+    Color.toHsv(
       table.unpack(
         type(colorA) == "table"
           and colorA
@@ -176,7 +183,7 @@ Color.gradient = function (colorA, colorB, pos)
   }
 
   colorB = {
-    Color.rgbToHsv(
+    Color.toHsv(
       table.unpack(
         type(colorB) == "table"
           and colorB
@@ -193,10 +200,8 @@ Color.gradient = function (colorA, colorB, pos)
       and  (math.abs(colorA[4] + (pos * (colorB[4] - colorA[4]))))
       or  1
 
-  return Color.hsvToRgb(h, s, v, a)
+  return Color.fromHsv(h, s, v, a)
 
 end
-
-
 
 return Color
