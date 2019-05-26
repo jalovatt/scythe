@@ -231,6 +231,15 @@ layers[3]:addElements( GUI.createElements(
     bg = "elmBg",
     text = "this is a really long string of text with no carriage returns so hopefully "..
             "it will be wrapped correctly to fit inside this frame"
+  },
+  {
+    name = "my_picker",
+    type = "ColorPicker",
+    x = 320,
+    y = 300,
+    w = 24,
+    h = 24,
+    caption = "Click me too! ->",
   }
 ))
 

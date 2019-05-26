@@ -1,15 +1,5 @@
 -- NoIndex: true
 
---[[	Lokasenna_GUI - Frame class
-
-    For documentation, see this class's page on the project wiki:
-    https://github.com/jalovatt/Lokasenna_GUI/wiki/Frame
-
-    Creation parameters:
-	name, z, x, y, w, h[, shadow, fill, color, round]
-
-]]--
-
 local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
