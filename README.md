@@ -4,6 +4,14 @@ This repository is the home of Scythe (formerly Lokasenna_GUI), a graphical fram
 
 Everything here is a work in progress, and **under no circumstances should this be used in scripts intended for public release**. When the time comes, a stable release will be made available via ReaPack.
 
+## Installing
+
+- Clone the repo to your system.
+
+- In Reaper, browse to where you've placed the repo and run `set-scythe-path.lua`. This won't affect your Lokasenna_GUI v2 installation, so don't worry. :)
+
+- Have a look in the `examples` folder for the current test scripts, which also demonstrate the syntax changes compared to v2.
+
 ## Contributing
 
 This is a big project, and I would love some help.
