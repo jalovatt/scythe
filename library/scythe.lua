@@ -9,7 +9,7 @@ if not Scythe.libPath or Scythe.libPath == "" then
     return
 end
 
-local trimmedPath = Scythe.libPath:match("(.*".."/"..")")
+local trimmedPath = Scythe.libPath:match("(.*".."[/\\]"..")")
 
 package.path = package.path .. ";" ..
   trimmedPath .. "?.lua"
