@@ -18,8 +18,8 @@ if not libPath or libPath == "" then
 end
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
-local T = require("public.table")[2]
-local test = require("test.core")
+local Table, T = require("public.table"):unpack()
+local Test = require("test.core")
 
 local testFile = Scythe.scriptPath
 
@@ -97,15 +97,15 @@ local function selectFile()
   end
 end
 
-local testEnv = {
-  describe = test.describe,
-  it = test.it,
-  expect = test.expect,
-}
+local testEnv = Table.shallowCopy(Test)
+testEnv.Table = Table
 setmetatable(testEnv, {__index = _G})
 
 local function runTests()
   local tests, ret, err
+
+  reaper.ClearConsole()
+  Msg("Running tests...\n")
 
   tests, err = loadfile(testFile, "bt", testEnv)
   if err then
@@ -117,6 +117,8 @@ local function runTests()
   if not ret then
     Msg("Failed to test file:\n\t" .. testFile .. "\n\nError: " .. tostring(err))
   end
+
+  Msg("\nDone!")
 end
 
 

@@ -8,14 +8,24 @@ local function Msg(msg, indents)
   end
 end
 
-local function describe(msg, cb)
+local Test = {}
+
+function Test.describe(msg, cb)
   Msg(msg)
   cb()
 end
 
-local function it(msg, cb)
+function Test.xdescribe(msg)
+  Msg(msg .. " (SKIPPED)")
+end
+
+function Test.test(msg, cb)
   Msg(msg, 1)
   cb()
+end
+
+function Test.xtest(msg)
+  Msg(msg .. " (SKIPPED)", 1)
 end
 
 
@@ -42,7 +52,6 @@ local function deepEquals(a, b)
 end
 
 local function pass()
-  Msg(".", 2)
   return true
 end
 
@@ -87,8 +96,8 @@ local function matcher(exp)
   return matchers
 end
 
-local function expect(val)
+function Test.expect(val)
   return matcher(val)
 end
 
-return {describe = describe, it = it, expect = expect}
+return Test

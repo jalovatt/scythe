@@ -38,11 +38,15 @@ end
 -- Converts a color from 0-255 RGBA to 0-1
 -- Returns a table of {R, G, B, A}
 Color.fromRgba = function(r, g, b, a)
+  if type(r) == "table" then r, g, b, a = table.unpack(r) end
+
   return {r / 255, g / 255, b / 255, (a and (a / 255) or 1)}
 end
 
 -- Converts a color from 0-1 RGBA to 0-255
 Color.toRgba = function(r, g, b, a)
+  if type(r) == "table" then r, g, b, a = table.unpack(r) end
+
   return {r * 255, g * 255, b * 255, (a and (a * 255) or 1)}
 end
 

@@ -42,18 +42,18 @@ local testVars6 = {
 }
 
 describe("basic test", function()
-  it("should compare numbers", function()
+  test("should compare numbers", function()
     expect(testVars.x == 1).toEqual(true)
     expect(testVars.y == testVars.z).toEqual(false)
     expect(testVars.z).toEqual(2)
   end)
 
-  it("should compare by reference", function()
+  test("should compare by reference", function()
     expect(testVars).toEqual(testVars2)
     expect(testVars).toNotEqual(testVars3)
   end)
 
-  it("should deep-compare", function()
+  test("should deep-compare", function()
     expect(testVars).toDeepEqual(testVars2)
     expect(testVars).toDeepEqual(testVars3)
     expect(testVars).toNotDeepEqual(testVars4)
