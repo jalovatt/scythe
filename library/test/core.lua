@@ -16,7 +16,7 @@ function Test.describe(msg, cb)
 end
 
 function Test.xdescribe(msg)
-  Msg(msg .. " (SKIPPED)")
+  Msg(msg .. " (skipped)")
 end
 
 function Test.test(msg, cb)
@@ -25,15 +25,41 @@ function Test.test(msg, cb)
 end
 
 function Test.xtest(msg)
-  Msg(msg .. " (SKIPPED)", 1)
+  Msg(msg .. " (skipped)", 1)
 end
 
+-- Returns true if a and b are equal to the given number of decimal places
+local function almostEquals(a, b, places)
+  return math.abs(a - b) <= (1 / (10^(places or 1)))
+end
 
 local function deepEquals(a, b)
   for k, v in pairs(a) do
     if b[k] ~= v then
       if (type(v) == "table" and type(b[k]) == "table") then
         if not deepEquals(v, b[k]) then
+          return false
+        end
+      else
+        return false
+      end
+    end
+  end
+
+  for k, v in pairs(b) do
+    if (not a[k] and v ~= nil) then
+      return false
+    end
+  end
+
+  return true
+end
+
+local function almostDeepEquals(a, b, places)
+  for k, v in pairs(a) do
+    if b[k] ~= v and not (type(b[k]) == "number" and type(v) == "number" and almostEquals(b[k], v, places)) then
+      if (type(v) == "table" and type(b[k]) == "table") then
+        if not almostDeepEquals(v, b[k], places) then
           return false
         end
       else
@@ -77,6 +103,14 @@ local function matcher(exp)
         return pass()
       end
     end,
+    toAlmostEqual = function(compare, places)
+      if not places then places = 3 end
+      if (almostEquals(exp, compare, places)) then
+        return pass()
+      else
+        return fail("to almost equal (to "..places.." places)", exp, compare)
+      end
+    end,
     toDeepEqual = function(compare)
       if (deepEquals(exp, compare)) then
         return pass()
@@ -89,6 +123,14 @@ local function matcher(exp)
         return fail("to not deep-equal", exp, compare)
       else
         return pass()
+      end
+    end,
+    toAlmostDeepEqual = function(compare, places)
+      if not places then places = 3 end
+      if (almostDeepEquals(exp, compare, places)) then
+        return pass()
+      else
+        return fail("to almost deep-equal (to "..places.." places)", exp, compare)
       end
     end,
   }
