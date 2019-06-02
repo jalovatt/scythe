@@ -1,5 +1,4 @@
 -- NoIndex: true
--- luacheck: globals Scythe
 
 local TextUtils = {}
 

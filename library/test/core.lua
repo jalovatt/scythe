@@ -8,24 +8,30 @@ local function Msg(msg, indents)
   end
 end
 
+
+local function validateMsg(msg)
+  return ((msg and msg ~= "") and msg or ".")
+end
+
+
 local Test = {}
 
 function Test.describe(msg, cb)
-  Msg(msg)
+  Msg(validateMsg(msg))
   cb()
 end
 
 function Test.xdescribe(msg)
-  Msg(msg .. " (skipped)")
+  Msg(validateMsg(msg) .. " (skipped)")
 end
 
 function Test.test(msg, cb)
-  Msg(msg, 1)
+  Msg(validateMsg(msg), 1)
   cb()
 end
 
 function Test.xtest(msg)
-  Msg(msg .. " (skipped)", 1)
+  Msg(validateMsg(msg) .. " (skipped)", 1)
 end
 
 -- Returns true if a and b are equal to the given number of decimal places
