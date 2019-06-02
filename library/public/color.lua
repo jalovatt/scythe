@@ -1,4 +1,5 @@
 -- NoIndex: true
+local Math = require("public.math")
 
 local Color = {}
 
@@ -10,10 +11,12 @@ local Color = {}
                                 R  G    B  [  A]
 ]]--
 Color.set = function (col)
+  local r, g, b, a
 
   -- If we're given a table of color values, just pass it right along
   if type(col) == "table" then
-    gfx.set(col[1], col[2], col[3], col[4] or 1)
+    r, g, b, a = table.unpack(col)
+    a = a or 1
   else
 
     -- Recurse through the presets; allows presets to be set as other presets
@@ -27,9 +30,11 @@ Color.set = function (col)
       error("Couldn't find color preset: '" .. col .. "'")
     end
 
-    gfx.set(table.unpack(val))
+    r, g, b, a = table.unpack(val)
   end
 
+  gfx.set(r, g, b, a)
+  return {gfx.r, gfx.g, gfx.b, gfx.a}
 end
 
 
@@ -38,11 +43,15 @@ end
 -- Converts a color from 0-255 RGBA to 0-1
 -- Returns a table of {R, G, B, A}
 Color.fromRgba = function(r, g, b, a)
+  if type(r) == "table" then r, g, b, a = table.unpack(r) end
+
   return {r / 255, g / 255, b / 255, (a and (a / 255) or 1)}
 end
 
 -- Converts a color from 0-1 RGBA to 0-255
 Color.toRgba = function(r, g, b, a)
+  if type(r) == "table" then r, g, b, a = table.unpack(r) end
+
   return {r * 255, g * 255, b * 255, (a and (a * 255) or 1)}
 end
 
@@ -65,12 +74,12 @@ end
 
 -- Converts a color from 0-1 RGBA to hex
 Color.toHex = function(r, g, b, a)
-  return string.format("%X%X%X", r * 255, g * 255, b * 255)
-      .. (a and string.format("%X", a * 255) or "")
+  return string.format("%02X%02X%02X", Math.round(r * 255), Math.round(g * 255), Math.round(b * 255))
+      .. (a and string.format("%02X", Math.round(a * 255)) or "")
 end
 
 -- Convert rgb[a] to hsv[a]; useful for gradients
--- Arguments/returns are given as 0-1
+-- Arguments are given as 0-1, returns are h = 0-360, s,v,a = 0-1
 Color.toHsv = function (r, g, b, a)
 
   local max = math.max(r, g, b)
@@ -79,7 +88,7 @@ Color.toHsv = function (r, g, b, a)
 
   -- Dividing by zero is never a good idea
   if chroma == 0 then
-    return 0, 0, max, (a or 1)
+    return {0, 0, max, (a or 1)}
   end
 
   local hue
@@ -98,13 +107,16 @@ Color.toHsv = function (r, g, b, a)
   local sat = (max ~= 0) 	and	((max - min) / max)
                           or	0
 
-  return {hue, sat, max, (a or 1)}
+  return {hue * 360, sat, max, (a or 1)}
 
 end
 
 
 -- ...and back the other way
-Color.fromHsv = function (h, s, v, a)
+Color.fromHsv = function (hAngle, s, v, a)
+
+  -- % will be wrong for hAngle < 0
+  local h = Math.mod(hAngle, 360) / 360
 
   local chroma = v * s
 

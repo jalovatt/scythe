@@ -129,7 +129,7 @@ end
 function Textbox:val(newval)
 
 	if newval then
-    self:setEditorState(tostring(newval))
+    self:setEditorState(tostring(newval), nil, string.len(newval) + 2 - self.windowW)
 		self:redraw()
 	else
 		return self.retval

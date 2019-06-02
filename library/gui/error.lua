@@ -1,5 +1,5 @@
 -- NoIndex: true
--- luacheck: globals Scythe
+
 local Error = {}
 
 -- A basic crash handler, just to add some helpful detail

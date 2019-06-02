@@ -298,7 +298,8 @@ end
 
 
 -- Looks through a table using ipairs (provide a different iterator function with
--- 'iter') and returns the first value for which cb(value, key, table) is truthy.
+-- 'iter'), returning the first value and index for which cb(value, key, table) is
+-- truthy.
 Table.find = function(t, cb, iter)
   iter = iter or ipairs
 
@@ -306,7 +307,7 @@ Table.find = function(t, cb, iter)
   for k, v in iter(t) do
     result = cb(v, k, t)
 
-    if result then return result end
+    if result then return result, k end
   end
 end
 
