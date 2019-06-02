@@ -65,12 +65,6 @@ Math.ordinal = function (n)
   return n .. ending
 end
 
--- Lua's % operator is a remainder, not a true modulo - it will give the
--- wrong value for negative, such as negative degrees on a circle (% 360)
-Math.mod = function(n, m)
-  return n - (m * math.floor(n / m))
-end
-
 --[[
     Takes an angle in radians (omitting Pi) and a radius, returns x, y
     Will return coordinates relative to an origin of (0,0), or absolute

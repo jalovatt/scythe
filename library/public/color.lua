@@ -116,7 +116,7 @@ end
 Color.fromHsv = function (hAngle, s, v, a)
 
   -- % will be wrong for hAngle < 0
-  local h = Math.mod(hAngle, 360) / 360
+  local h = (hAngle % 360) / 360
 
   local chroma = v * s
 
