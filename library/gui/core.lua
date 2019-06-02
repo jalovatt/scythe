@@ -1,7 +1,5 @@
 -- NoIndex: true
 
--- luacheck: globals Scythe Error
-
 if not Scythe then
   error("Couldn't find Scythe. Please make sure the Scythe library has been loaded.")
   return
@@ -9,16 +7,10 @@ end
 
 local Error = Error
 
--- luacheck: globals GUI
 local GUI = {}
-
-local Table, T = require("public.table"):unpack()
--- local Font = require("public.font")
-local Color = require("public.color")
--- local Math = require("public.math")
+local T = require("public.table")[2]
 local Layer = require("gui.layer")
 local Window = require("gui.window")
--- local Config = require("gui.config")
 
 
 

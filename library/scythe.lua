@@ -1,6 +1,5 @@
 -- NoIndex: true
 
--- luacheck: globals Scythe Error
 Scythe = {}
 
 Scythe.libPath = reaper.GetExtState("Scythe", "libPath_v3")
@@ -55,7 +54,6 @@ Scythe.Msg = function (...)
   reaper.ShowConsoleMsg(out:concat(", ").."\n")
 end
 
--- luacheck: globals Msg
 if not Msg then Msg = Scythe.Msg end
 
 -- return Scythe

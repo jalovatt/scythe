@@ -2,6 +2,7 @@ globals = {
   "reaper",
   "gfx",
   "Scythe",
+  "Error",
   "Msg",
   "describe",
   "expect",
