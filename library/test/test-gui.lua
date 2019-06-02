@@ -116,16 +116,29 @@ local function runTests()
 
   tests, err = loadfile(testFile, "bt", testEnv)
   if err then
-    Msg("Failed to load file:\n\t" .. testFile .. "\n\nError: " .. tostring(err))
+    Msg("Failed to load test file:\n\t" .. testFile .. "\n\nError: " .. tostring(err))
   end
+
+  Test.initialize()
 
   ret, err = pcall( function() tests() end)
 
   if not ret then
-    Msg("Failed to test file:\n\t" .. testFile .. "\n\nError: " .. tostring(err))
+    Msg("Test file failed:\n\t" .. testFile .. "\n\nError: " .. tostring(err))
   end
 
-  Msg("\nDone!")
+  Msg("\nDone!\n")
+
+  local log = Test.getLoggedData()
+  Msg(
+    "Ran " .. log.tests.total .. " tests in " .. log.suites.total .. " suites:\n" ..
+    "  " .. log.tests.passed .. " passed\n" ..
+    "  " .. log.tests.failed .. " failed\n" ..
+    "\n  " .. log.tests.skipped .. " tests skipped\n" ..
+    "  " .. log.suites.skipped .. " suites skipped"
+  )
+
+
 end
 
 

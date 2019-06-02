@@ -13,26 +13,85 @@ local function validateMsg(msg)
   return ((msg and msg ~= "") and msg or ".")
 end
 
+local loggedData = {suites = {}, tests = {}}
+local currentTestPassed
 
 local Test = {}
 
+function Test.initialize()
+  loggedData.suites.ran = 0
+  loggedData.suites.skipped = 0
+  loggedData.tests.ran = 0
+  loggedData.tests.failed = 0
+  loggedData.tests.passed = 0
+  loggedData.tests.skipped = 0
+end
+
+function Test.getLoggedData()
+  loggedData.suites.total = loggedData.suites.ran + loggedData.suites.skipped
+  loggedData.tests.total = loggedData.tests.ran + loggedData.tests.skipped
+
+  return loggedData
+end
+
+local log = {
+  suiteRan = function() loggedData.suites.ran = loggedData.suites.ran + 1 end,
+  suiteSkipped = function() loggedData.suites.skipped = loggedData.suites.skipped + 1 end,
+  testRan = function() loggedData.tests.ran = loggedData.tests.ran + 1 end,
+  testPassed = function() loggedData.tests.passed = loggedData.tests.passed + 1 end,
+  testSkipped = function() loggedData.tests.skipped = loggedData.tests.skipped + 1 end,
+  testFailed = function() loggedData.tests.failed = loggedData.tests.failed + 1 end,
+}
+
 function Test.describe(msg, cb)
+  log.suiteRan()
   Msg(validateMsg(msg))
   cb()
 end
 
 function Test.xdescribe(msg)
+  log.suiteSkipped()
   Msg(validateMsg(msg) .. " (skipped)")
 end
 
 function Test.test(msg, cb)
+  currentTestPassed = true
+  log.testRan()
+
   Msg(validateMsg(msg), 1)
   cb()
+
+  if currentTestPassed then
+    log.testPassed()
+  else
+    log.testFailed()
+  end
+
 end
 
 function Test.xtest(msg)
+  log.testSkipped()
   Msg(validateMsg(msg) .. " (skipped)", 1)
 end
+
+local function pass()
+
+
+  return true
+end
+
+local function fail(str, a, b)
+  Msg("fail", 2)
+  Msg("expected " .. tostring(a) .. " " .. str .. " " .. tostring(b), 3)
+
+  currentTestPassed = false
+  log.testFailed()
+
+  return false
+end
+
+
+
 
 -- Returns true if a and b are equal to the given number of decimal places
 local function almostEquals(a, b, places)
@@ -81,16 +140,6 @@ local function almostDeepEquals(a, b, places)
   end
 
   return true
-end
-
-local function pass()
-  return true
-end
-
-local function fail(str, a, b)
-  Msg("fail", 2)
-  Msg("expected " .. tostring(a) .. " " .. str .. " " .. tostring(b), 3)
-  return false
 end
 
 local function matcher(exp)
