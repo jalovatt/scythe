@@ -39,17 +39,30 @@ end
 
 -- Returns an ordinal string (i.e. 30 --> 30th)
 Math.ordinal = function (n)
-  local rem = n % 10
   n = Math.round(n)
 
-  local endings = {
-    [1] = "st",
-    [2] = "nd",
-    [13] = "th",
-    [3] = "rd",
+  local endings2 = {
+    ["11"] = "th",
+    ["13"] = "th",
   }
 
-  return n .. (endings[rem] or "")
+  local endings1 = {
+    ["1"] = "st",
+    ["2"] = "nd",
+    ["3"] = "rd",
+  }
+
+  local str = tostring(n)
+  local ending
+  if endings2[str:sub(-2)] then
+    ending = endings2[str:sub(-2)]
+  elseif endings1[str:sub(-1)] then
+    ending = endings1[str:sub(-1)]
+  else
+    ending = "th"
+  end
+
+  return n .. ending
 end
 
 -- Lua's % operator is a remainder, not a true modulo - it will give the

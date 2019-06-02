@@ -37,3 +37,5 @@ String.splitLines = function(s)
 
   return out
 end
+
+return String
