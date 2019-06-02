@@ -99,6 +99,13 @@ end
 
 local testEnv = Table.shallowCopy(Test)
 testEnv.Table = Table
+
+-- Allow tests to hot-reload modules that the GUI is using
+testEnv.require = function(str)
+  package.loaded[str] = nil
+  return require(str)
+end
+
 setmetatable(testEnv, {__index = _G})
 
 local function runTests()
