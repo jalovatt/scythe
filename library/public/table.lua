@@ -126,7 +126,7 @@ end
 
 -- Performs a deep copy of the given table - any tables are recursively deep-copied
 -- to the new table. To keep items from being deep-copied and/or prevent circular
--- references from causing a stack overflow, tables with .__noRecursiveCopy will
+-- references from causing a stack overflow, tables with .__noRecursion will
 -- by copied by reference.
 -- ** Do not provide 'copies' when calling **
 -- Adapted from: http://lua-users.org/wiki/CopyTable
@@ -141,7 +141,7 @@ Table.deepCopy = function(t, copies)
     else
       -- Override so we don't end up working through circular references for
       -- elements, layers, etc
-      if t.__noRecursiveCopy then
+      if t.__noRecursion then
         copy = t
       else
         copy = {}
@@ -172,7 +172,7 @@ Table.stringify = function (t, maxDepth, currentDepth)
     if type(v) == "table" then
       ret[#ret] = ret[#ret] .. "table:"
 
-      if not maxDepth or currentDepth <= maxDepth then
+      if (not maxDepth or currentDepth <= maxDepth) and not v.__noRecursion then
         ret[#ret+1] = Table.stringify(v, maxDepth, currentDepth + 1)
       end
     else

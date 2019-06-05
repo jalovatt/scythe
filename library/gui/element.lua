@@ -5,7 +5,7 @@ local Config = require("gui.config")
 
 local Element = T{}
 Element.__index = Element
-Element.__noRecursiveCopy = true
+Element.__noRecursion = true
 
 function Element:new()
   return setmetatable(T{}, self)
@@ -318,7 +318,7 @@ function Element:debug(...)
       -- with some sort of override in the element classes
       -- local depth = (k == "layer" or k == "tabs") and 2
       if (k == "layer") then
-        strs[#strs + 1] = Table.stringify(v, 0, 1)
+        strs[#strs + 1] = Table.stringify(v, nil, 1)
       elseif (k == "tabs") then
         local tabs = {}
         for _, tab in pairs(v) do

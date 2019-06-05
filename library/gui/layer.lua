@@ -4,7 +4,7 @@ local Buffer = require("gui.buffer")
 
 local Layer = T{}
 Layer.__index = Layer
-Layer.__noRecursiveCopy = true
+Layer.__noRecursion = true
 
 function Layer:new(props)
   local layer = Table.deepCopy(props or {})

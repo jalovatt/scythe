@@ -8,7 +8,7 @@ local Config = require("gui.config")
 
 local Window = T{}
 Window.__index = Window
-Window.__noRecursiveCopy = true
+Window.__noRecursion = true
 
 Window.defaultProps = {
   name = "Window",
