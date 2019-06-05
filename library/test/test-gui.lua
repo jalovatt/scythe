@@ -132,10 +132,10 @@ local function runTests()
   local log = Test.getLoggedData()
   Msg(
     "Ran " .. log.tests.total .. " tests in " .. log.suites.total .. " suites:\n" ..
-    "  " .. log.tests.passed .. " passed\n" ..
-    "  " .. log.tests.failed .. " failed\n" ..
-    "\n  " .. log.tests.skipped .. " tests skipped\n" ..
-    "  " .. log.suites.skipped .. " suites skipped"
+    "\t" .. log.tests.passed .. " passed\n" ..
+    "\t" .. log.tests.failed .. " failed\n" ..
+    "\n\t" .. log.tests.skipped .. " tests skipped\n" ..
+    "\t" .. log.suites.skipped .. " suites skipped"
   )
 
 

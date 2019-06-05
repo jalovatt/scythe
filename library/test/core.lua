@@ -1,5 +1,5 @@
 local function Msg(msg, indents)
-  local str = string.rep("  ", indents or 0) .. msg
+  local str = string.rep("\t", indents or 0) .. msg
   if (reaper) then
     reaper.ShowConsoleMsg(str)
     reaper.ShowConsoleMsg("\n")
@@ -47,6 +47,7 @@ function Test.describe(msg, cb)
   log.suiteRan()
   Msg(validateMsg(msg))
   cb()
+  Msg(" ")
 end
 
 function Test.xdescribe(msg)

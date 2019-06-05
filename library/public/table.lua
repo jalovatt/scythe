@@ -52,7 +52,7 @@ end
 -- cb(value, key, table) returns true. ** Not guaranteed to return elements in
 -- their original order **
 Table.filter = function(t, cb)
-  local filtered, l = T{}, 0
+  local filtered, l = T{}, 1
 
   for k, v in pairs(t) do
     if cb(v, k, t) then
@@ -67,7 +67,7 @@ end
 -- Identical to Table.filter, but guarantee to run in numerical order on only the
 -- array portion of the given table
 Table.orderedFilter = function(t, cb)
-  local filtered, fl = T{}, 0
+  local filtered, fl = T{}, 1
   local l = #t
 
   for i = 1, l do
