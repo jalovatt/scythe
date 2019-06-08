@@ -1,5 +1,10 @@
 # Scythe 3.x changelog
 
+## June 08, 2019
+
+- Add tests for most public modules
+- **Breaking:** Restructure the library to keep dev stuff in its own folder
+
 ## June 01, 2019
 
 - Add a basic test framework and GUI
