@@ -1,5 +1,8 @@
 -- NoIndex: true
 
+local args = {...}
+local scytheOptions = args and args[1] or {}
+
 Scythe = {}
 
 Scythe.libPath = reaper.GetExtState("Scythe", "libPath_v3")
@@ -8,17 +11,27 @@ if not Scythe.libPath or Scythe.libPath == "" then
     return
 end
 
-local trimmedPath = Scythe.libPath:match("(.*".."[/\\]"..")")
+local function addPaths()
+  local paths = {
+    Scythe.libPath:match("(.*[/\\])")
+  }
 
-package.path = package.path .. ";" ..
-  trimmedPath .. "?.lua"
+  if scytheOptions.dev then
+    paths[#paths + 1] = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]") .. "development/"
+  end
+
+  for i, path in pairs(paths) do
+    paths[i] = ";" .. path .. "?.lua"
+  end
+
+  package.path = package.path .. table.concat(paths, "")
+end
+addPaths()
+
+local Message = require("public.message")
 
 
 if not os then Scythe.scriptRestricted = true end
-
-Error = require("gui.error")
-local Table = require("public.table")
-
 
 Scythe.scriptPath, Scythe.scriptName = ({reaper.get_action_context()})[2]
   :match("(.-)([^/\\]+).lua$")
@@ -46,14 +59,7 @@ end)()
 -- Also might need to know this
 Scythe.hasSWS = reaper.APIExists("CF_GetClipboardBig")
 
--- Print arguments to the Reaper console.
-Scythe.Msg = function (...)
-  local out = Table.map({...},
-    function (str) return tostring(str) end
-  )
-  reaper.ShowConsoleMsg(out:concat(", ").."\n")
-end
-
-if not Msg then Msg = Scythe.Msg end
+-- if not Error then Error = require("gui.error") end
+if not Msg then Msg = Message.Msg end
 
 -- return Scythe
