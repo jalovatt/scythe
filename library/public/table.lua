@@ -172,7 +172,7 @@ Table.stringify = function (t, maxDepth, currentDepth)
     if type(v) == "table" then
       ret[#ret] = ret[#ret] .. "table:"
 
-      if (not maxDepth or currentDepth <= maxDepth) and not v.__noRecursion then
+      if (not maxDepth or currentDepth < maxDepth) and not v.__noRecursion then
         ret[#ret+1] = Table.stringify(v, maxDepth, currentDepth + 1)
       end
     else
@@ -205,11 +205,19 @@ end
 -- Returns true if all of table a's keys and values match all of table b's.
 Table.deepEquals = function (a, b)
   if type(a) ~= "table" or type(b) ~= "table" then return false end
+  if (a.__noRecursion and a == b) then return true end
 
   local seenKeys = {}
   for k1, v1 in pairs(a) do
     local v2 = b[k1]
-    if v2 == nil or not Table.deepEquals(v1, v2) then return false end
+
+    if v2 == nil then return false end
+    if type(v1) ~= "table" then
+      if v1 ~= v2 then return false end
+    else
+      if v1 ~= v2 and not Table.deepEquals(v1, v2) then return false end
+    end
+
     seenKeys[k1] = true
   end
   for k2 in pairs(b) do
@@ -219,10 +227,21 @@ Table.deepEquals = function (a, b)
   return true
 end
 
+local fullSortTypes = {
+  boolean = {number = true, string = true, ["function"] = true, table = true},
+  number = {boolean = false, string = true, ["function"] = true, table = true},
+  string = {boolean = false, number = false, ["function"] = true, table = true},
+  ["function"] = {boolean = false, number = false, string = false, table = true},
+  table = {boolean = false, number = false, string = false, ["function"] = false},
+}
 
--- 	Sorting function adapted from: http://lua-users.org/wiki/SortedIteration
+-- Use as a callback for table.sort:
+-- local t = {"a", 1, {}, 5}
+-- table.sort(t, Table.fullSort)
+-- --> t == {1, 5, "a", {}}
+-- Sorting function adapted from: http://lua-users.org/wiki/SortedIteration
+-- Sorts values of different types (bool < num < string < reference)
 Table.fullSort = function (op1, op2)
-
   -- Sort strings that begin with a number as if they were numbers,
   -- i.e. so that 12 > "6 apples"
   if type(op1) == "string" and string.match(op1, "^(%-?%d+)") then
@@ -232,11 +251,9 @@ Table.fullSort = function (op1, op2)
     op2 = tonumber( string.match(op2, "^(%-?%d+)") )
   end
 
-  --if op1 == "0" then op1 = 0 end
-  --if op2 == "0" then op2 = 0 end
   local type1, type2 = type(op1), type(op2)
   if type1 ~= type2 then --cmp by type
-    return type1 < type2
+    return fullSortTypes[type1][type2]
   elseif type1 == "number" and type2 == "number"
       or type1 == "string" and type2 == "string" then
     return op1 < op2 --comp by default
@@ -258,7 +275,7 @@ end
 
 ]]--
 Table.kpairs = function (t, f)
-  if f == "full" then
+  if not f then
     f = Table.fullSort
   end
 
@@ -271,9 +288,10 @@ Table.kpairs = function (t, f)
   local iter = function ()   -- iterator function
 
     i = i + 1
-
-    if a[i] == nil then return nil
-    else return a[i], t[a[i]]
+    if a[i] == nil then
+      return nil
+    else
+      return a[i], t[a[i]]
     end
 
   end
@@ -285,7 +303,7 @@ end
 -- Accepts a table, and returns a table with the keys and values swapped, i.e.
 -- {a = 1, b = 2, c = 3} --> {1 = "a", 2 = "b", 3 = "c"}
 -- This will behave unpredictably if given a table where the same value exists
--- over multiple keys
+-- over multiple keys (booleans, for instance)
 Table.invert = function(t)
   local inv = T{}
 
@@ -309,6 +327,8 @@ Table.find = function(t, cb, iter)
 
     if result then return result, k end
   end
+
+  return false
 end
 
 -- Looks through a table and returns 'true' if cb(value, key, table) is true for
@@ -366,6 +386,7 @@ Table.sortHashesByKey = function(hashes, key)
 end
 
 
+-- ** OPERATES IN-PLACE ON THE GIVEN TABLE **
 -- Using 'source' as a base, adds any key/value pairs to t for which it doesn't
 -- already have an entry (t[k] == nil)
 Table.addMissingKeys = function(t, source)
@@ -382,7 +403,7 @@ Table.addMissingKeys = function(t, source)
   return t
 end
 
-
+-- ** OPERATES IN-PLACE ON THE GIVEN TABLE **
 -- Just a wrapper so we can chain this
 Table.chainableSort = function(t, func)
   table.sort(t, func)

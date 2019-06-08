@@ -74,7 +74,7 @@ describe("Table.orderedMap", function()
   end)
 end)
 
-xdescribe("Table.filter", function()
+describe("Table.filter", function()
   test("returns a table", function()
     local out = Table.filter({})
     expect(type(out)).toEqual("table")
@@ -90,7 +90,7 @@ xdescribe("Table.filter", function()
 
 end)
 
-xdescribe("Table.orderedFilter", function()
+describe("Table.orderedFilter", function()
   test("returns a table", function()
     local out = Table.orderedFilter({})
     expect(type(out)).toEqual("table")
@@ -111,8 +111,8 @@ xdescribe("Table.orderedFilter", function()
     end)
     expect(out[1]).toEqual("b")
     expect(out[2]).toEqual("d")
-    expect(out[2]).toEqual("g")
-    expect(out[3]).toEqual("i")
+    expect(out[3]).toEqual("g")
+    expect(out[4]).toEqual("i")
   end)
 end)
 
@@ -152,7 +152,7 @@ describe("Table.orderedReduce", function()
     local t = {1, 2, 3, 4, 5, 6, 7}
     local source = {}
 
-    local out = Table.reduce(t, function(acc)
+    local out = Table.orderedReduce(t, function(acc)
       return acc
     end, source)
     expect(out).toEqual(source)
@@ -161,7 +161,7 @@ describe("Table.orderedReduce", function()
 
   test("defaults the accumulator to 0", function()
     local t = {1, 2, 3, 4, 5, 6, 7}
-    local out = Table.reduce(t, function(acc)
+    local out = Table.orderedReduce(t, function(acc)
       return acc
     end)
 
@@ -170,7 +170,7 @@ describe("Table.orderedReduce", function()
 
   test("performs an operation on every element", function()
     local t = {1, 2, 3, 4, 5, 6, 7}
-    local out = Table.reduce(t, function(acc, val)
+    local out = Table.orderedReduce(t, function(acc, val)
       return acc + val
     end)
 
@@ -191,7 +191,7 @@ end)
 
 describe("Table.shallowCopy", function()
   test("returns a table", function()
-    local out = Table.map({})
+    local out = Table.shallowCopy({})
     expect(type(out)).toEqual("table")
   end)
 
@@ -232,67 +232,480 @@ describe("Table.deepCopy", function()
     expect(tOut.a).toNotEqual(tIn.a)
   end)
 
-  test("Deep-copies tables recursively", function()
+  test("deep-copies tables recursively", function()
     local tIn = {a = {b = {c = "test"}}}
     local tOut = Table.deepCopy(tIn)
-    expect(tOut.a).toNotEqual(tIn)
-    expect(tOut.a.b).toNotEqual(tIn)
+    expect(tOut.a).toNotEqual(tIn.a)
+    expect(tOut.a.b).toNotEqual(tIn.a.b)
+    expect(tOut.a.b.c).toEqual("test")
+  end)
+
+  test("returns references to any elements with .__noRecursion", function()
+    local tIn = {a = {
+      b = {
+        c = "test",
+        __noRecursion = true
+      }
+    }}
+    local tOut = Table.deepCopy(tIn)
+    expect(tOut.a).toNotEqual(tIn.a)
+    expect(tOut.a.b).toEqual(tIn.a.b)
     expect(tOut.a.b.c).toEqual("test")
   end)
 end)
 
-xdescribe("Table.stringify", function()
+describe("Table.stringify", function()
+  test("stringifies a table", function()
+    local t = {
+      a = 1,
+      b = 2,
+      c = 3,
+    }
+    local str = Table.stringify(t)
+    expect(str:match("a = 1")).toEqual("a = 1")
+    expect(str:match("b = 2")).toEqual("b = 2")
+    expect(str:match("c = 3")).toEqual("c = 3")
+  end)
+
+
+  test("indents a nested table", function()
+    local t = {
+      a = 1,
+      b = 2,
+      c = 3,
+      d = {
+        e = 4,
+        f = {
+          g = 5
+        },
+      },
+    }
+    local str = Table.stringify(t)
+    expect(str:match("  e = 4")).toEqual("  e = 4")
+    expect(str:match("    g = 5")).toEqual("    g = 5")
+  end)
+
+  test("stops at the given max. depth", function()
+    local t = {
+      a = 1,
+      b = 2,
+      c = 3,
+      d = {
+        e = 4,
+        f = {
+          g = 5,
+          h = {
+            i = 6,
+            j = {
+              k = 7
+            },
+          },
+        },
+      },
+    }
+    local str = Table.stringify(t, 2)
+    expect(str:match("i")).toEqual(nil)
+    expect(str:match("k")).toEqual(nil)
+  end)
+
+  test("stops at elements with .__noRecursion", function()
+    local t = {
+      a = 1,
+      b = 2,
+      c = 3,
+      d = {
+        e = 4,
+        __noRecursion = true,
+        f = {
+          g = 5,
+          h = {
+            i = 6,
+            j = {
+              k = 7
+            },
+          },
+        },
+      },
+    }
+    local str = Table.stringify(t)
+    expect(str:match("g")).toEqual(nil)
+  end)
 
 end)
 
-xdescribe("Table.shallowEquals", function()
+describe("Table.shallowEquals", function()
+  test("should consider a table equal to itself", function()
+    local t = {}
+    expect(Table.shallowEquals(t, t)).toEqual(true)
+  end)
+
+  test("should consider two tables with the same primitive content equal", function()
+    local a = {1, 2, 3, a = 4, b = 5}
+    local b = {1, 2, 3, a = 4, b = 5}
+    expect(Table.shallowEquals(a, b)).toEqual(true)
+  end)
+
+  test("should consider two tables with different primitive content unequal", function()
+    local a = {1, 3, 3, a = 4, b = 5}
+    local b = {1, 2, 3, a = 4, b = 5}
+    expect(Table.shallowEquals(a, b)).toEqual(false)
+  end)
+
+  test("should consider two tables with the same nested tables equal", function()
+    local t = {}
+    local a = {t = t}
+    local b = {t = t}
+
+    expect(Table.shallowEquals(a, b)).toEqual(true)
+  end)
+
+  test("should consider two tables with different nested tables unequal", function()
+    local a = {t = {}}
+    local b = {t = {}}
+
+    expect(Table.shallowEquals(a, b)).toEqual(false)
+  end)
 
 end)
 
-xdescribe("Table.deepEquals", function()
+describe("Table.deepEquals", function()
+  test("should consider a table equal to itself", function()
+    local t = {}
+    expect(Table.deepEquals(t, t)).toEqual(true)
+  end)
+
+  test("should consider two tables with the same primitive content equal", function()
+    local a = {1, 2, 3, a = 4, b = 5}
+    local b = {1, 2, 3, a = 4, b = 5}
+    expect(Table.deepEquals(a, b)).toEqual(true)
+  end)
+
+  test("should consider two tables with different primitive content unequal", function()
+    local a = {1, 3, 3, a = 4, b = 5}
+    local b = {1, 2, 3, a = 4, b = 5}
+    expect(Table.deepEquals(a, b)).toEqual(false)
+  end)
+
+  test("should consider two tables with the same nested tables equal", function()
+    local t = {}
+    local a = {t = t}
+    local b = {t = t}
+
+    expect(Table.deepEquals(a, b)).toEqual(true)
+  end)
+
+  test("should consider two tables with nested tables equal", function()
+    local a = {t = {}}
+    local b = {t = {}}
+
+    expect(Table.deepEquals(a, b)).toEqual(true)
+  end)
+
+  test("should consider two tables with identical deeply nested tables equal", function()
+    local a = {t1 = {1, 2, 3}, t2 = {a = {4, 5}, b = {6, 7}}, t3 = {t4 = {t5 = {8, 9, 10}}, func = math.sin}}
+    local b = {t1 = {1, 2, 3}, t2 = {a = {4, 5}, b = {6, 7}}, t3 = {t4 = {t5 = {8, 9, 10}}, func = math.sin}}
+
+    expect(Table.deepEquals(a, b)).toEqual(true)
+  end)
+
+  test("should consider two tables with different deeply nested tables equal", function()
+    local a = {t1 = {1, 2, 4}, t2 = {a = {4, 5}, b = {6, 7}}, t3 = {t4 = {t5 = {8, 9, 10}}, func = math.sin}}
+    local b = {t1 = {1, 2, 3}, t2 = {a = {4, 5}, b = {6, 2}}, t3 = {t6 = {t5 = {8, 9, 10}}, func = math.cos}}
+
+    expect(Table.deepEquals(a, b)).toEqual(false)
+  end)
+end)
+
+describe("Table.fullSort", function()
+  test("sorts strings", function()
+    expect(Table.fullSort("a", "b")).toEqual(true)
+    expect(Table.fullSort("d", "h")).toEqual(true)
+    expect(Table.fullSort("hello there", "the quick brown fox")).toEqual(true)
+    expect(Table.fullSort("n", "e")).toEqual(false)
+    expect(Table.fullSort("t", "q")).toEqual(false)
+    expect(Table.fullSort("good night", "good morning")).toEqual(false)
+  end)
+
+  test("sorts numbers", function()
+    expect(Table.fullSort(1, 2)).toEqual(true)
+    expect(Table.fullSort(80893, 2838423)).toEqual(true)
+    expect(Table.fullSort(87, 43)).toEqual(false)
+    expect(Table.fullSort(32452, 2341)).toEqual(false)
+  end)
+
+  test("sorts booleans < numbers", function()
+    expect(Table.fullSort(true, false)).toEqual(true)
+    expect(Table.fullSort(false, true)).toEqual(false)
+  end)
+
+  test("sorts numbers < strings", function()
+    expect(Table.fullSort(1, "a")).toEqual(true)
+    expect(Table.fullSort(80893, "hello there")).toEqual(true)
+    expect(Table.fullSort("good night", 43)).toEqual(false)
+    expect(Table.fullSort("test", 2341)).toEqual(false)
+  end)
+
+  test("sorts alphanumeric strings as num < str", function()
+    expect(Table.fullSort("1e", "a")).toEqual(true)
+    expect(Table.fullSort("80893", "hello there")).toEqual(true)
+    expect(Table.fullSort("good night", "43 things")).toEqual(false)
+    expect(Table.fullSort("test", "2341")).toEqual(false)
+  end)
+
+  test("sorts strings < references", function()
+    local t = {}
+    expect(Table.fullSort("math.sin", math.sin)).toEqual(true)
+    expect(Table.fullSort("table", t)).toEqual(true)
+    expect(Table.fullSort(t, tostring(t))).toEqual(false)
+    expect(Table.fullSort(expect, "expect")).toEqual(false)
+  end)
+end)
+
+describe("Table.kpairs", function()
+  test("iterates over numeric keys in order", function()
+    local tIn = {1, 2, 3, 4}
+    local tOut = {}
+    for _, v in Table.kpairs(tIn) do
+      table.insert(tOut, v)
+    end
+
+    expect(tOut[1]).toEqual(1)
+    expect(tOut[2]).toEqual(2)
+    expect(tOut[3]).toEqual(3)
+    expect(tOut[4]).toEqual(4)
+  end)
+
+  test("iterates over string keys in order", function()
+    local tIn = {b = 2, c = 3, a = 1, d = 4}
+    local tOut = {}
+    for _, v in Table.kpairs(tIn) do
+      table.insert(tOut, v)
+    end
+
+    expect(tOut[1]).toEqual(1)
+    expect(tOut[2]).toEqual(2)
+    expect(tOut[3]).toEqual(3)
+    expect(tOut[4]).toEqual(4)
+  end)
+
+  test("iterates over mixed keys in alphanumeric order", function()
+    local tIn = {a = 1, 2, 3, d = 4}
+    local tOut = {}
+    for _, v in Table.kpairs(tIn) do
+      table.insert(tOut, v)
+    end
+
+    expect(tOut[1]).toEqual(2)
+    expect(tOut[2]).toEqual(3)
+    expect(tOut[3]).toEqual(1)
+    expect(tOut[4]).toEqual(4)
+  end)
 
 end)
 
-xdescribe("Table.fullSort", function()
+describe("Table.invert", function()
+  test("inverts the contents of a table", function()
+    local t = {}
+    local tIn = {4, 5, 6, a = "hello", b = "world", c = t, d = math.sin}
+    local tOut = Table.invert(tIn)
+
+    expect(tOut[4]).toEqual(1)
+    expect(tOut[5]).toEqual(2)
+    expect(tOut[6]).toEqual(3)
+
+    expect(tOut.hello).toEqual("a")
+    expect(tOut.world).toEqual("b")
+
+    expect(tOut[t]).toEqual("c")
+    expect(tOut[math.sin]).toEqual("d")
+  end)
 
 end)
 
-xdescribe("Table.kpairs", function()
+describe("Table.find", function()
+  test("returns true if there is a match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.find(t, function(val) return val == "hello" end)).toEqual(true)
+    expect(Table.find(t, function(val) return val % 2 == 0 end)).toEqual(true)
+  end)
+
+  test("returns false if there is no match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.find(t, function(val) return val == "goodbye" end)).toEqual(false)
+    expect(Table.find(t, function(val) return tonumber(val) and (val % 4 == 0) end)).toEqual(false)
+  end)
+
+  test("returns the index of the match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    local _, idx = Table.find(t, function(val) return val == "world" end)
+
+    expect(idx).toEqual(5)
+  end)
+end)
+
+describe("Table.any", function()
+  test("returns true if any entries match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.any(t, function(val) return val end)).toEqual(true)
+    expect(Table.any(t, function(val) return tostring(val):len() < 5 end)).toEqual(true)
+  end)
+
+  test("returns false if no entries match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.any(t, function(val) return type(val) == "boolean" end)).toEqual(false)
+    expect(Table.any(t, function(val) return tostring(val):len() == 3 end)).toEqual(false)
+  end)
+end)
+
+describe("Table.all", function()
+  test("returns true if all entries match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.all(t, function(val) return val end)).toEqual(true)
+    expect(Table.all(t, function(val) return tostring(val):len() < 10 end)).toEqual(true)
+  end)
+
+  test("returns false if at least one entry doesn't match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.all(t, function(val) return type(val) == "number" end)).toEqual(false)
+    expect(Table.all(t, function(val) return tostring(val):len() < 5 end)).toEqual(false)
+  end)
+end)
+
+describe("Table.none", function()
+  test("returns false if any entries match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.none(t, function(val) return val end)).toEqual(false)
+    expect(Table.none(t, function(val) return tostring(val):len() < 5 end)).toEqual(false)
+  end)
+
+  test("returns true if no entries match", function()
+    local t = {1, 2, 3, "hello", "world"}
+
+    expect(Table.none(t, function(val) return type(val) == "boolean" end)).toEqual(true)
+    expect(Table.none(t, function(val) return tostring(val):len() == 3 end)).toEqual(true)
+  end)
+end)
+
+describe("Table.fullLength", function()
+  test("", function()
+    local t = {1, 2, 3, a = "4", b = "5"}
+    expect(Table.fullLength(t)).toEqual(5)
+  end)
+
+  test("", function()
+    local t = {1, 2, 3, a = "4", b = "5", 1, 2, 3, aa = "4", bb = "5"}
+    expect(Table.fullLength(t)).toEqual(10)
+  end)
+  test("", function()
+    local nested = {}
+    local t = {1, 2, 3, a = "4", b = "5", [nested] = 4, [math.sin] = 5}
+    expect(Table.fullLength(t)).toEqual(7)
+  end)
 
 end)
 
-xdescribe("Table.invert", function()
+describe("Table.sortHashesByKey", function()
+  test("", function()
+    local tIn = {
+      {z = 4},
+      {z = 1},
+      {z = 2},
+      {z = 8},
+      {z = 10},
+      {z = 3},
+      {z = 7},
+    }
+
+    local tOut = Table.sortHashesByKey(tIn, "z")
+
+    expect(tOut[1].z).toEqual(1)
+    expect(tOut[2].z).toEqual(2)
+    expect(tOut[3].z).toEqual(3)
+    expect(tOut[4].z).toEqual(4)
+    expect(tOut[5].z).toEqual(7)
+    expect(tOut[6].z).toEqual(8)
+    expect(tOut[7].z).toEqual(10)
+  end)
 
 end)
 
-xdescribe("Table.find", function()
+describe("Table.addMissingKeys", function()
+  test("returns the original table", function()
+    local tIn = {a = 1, b = 2}
+    local source = {a = 4, b = 3, c = 8, d = 9}
+
+    local tOut = Table.addMissingKeys(tIn, source)
+
+    expect(tIn).toEqual(tOut)
+  end)
+
+  test("adds missing keys to the table", function()
+    local t = {a = 1, b = 2}
+    local source = {a = 4, b = 3, c = 8, d = 9}
+
+    expect(t.c).toEqual(nil)
+    expect(t.d).toEqual(nil)
+
+    Table.addMissingKeys(t, source)
+
+    expect(t.c).toEqual(8)
+    expect(t.d).toEqual(9)
+  end)
+
+  test("doesn't alter the existing keys", function()
+    local t = {a = 1, b = 2}
+    local source = {a = 4, b = 3, c = 8, d = 9}
+
+    expect(t.a).toEqual(1)
+    expect(t.b).toEqual(2)
+
+    Table.addMissingKeys(t, source)
+
+    expect(t.a).toEqual(1)
+    expect(t.b).toEqual(2)
+  end)
 
 end)
 
-xdescribe("Table.any", function()
+describe("Table.chainableSort", function()
+  test("returns the original table", function()
+    local tIn = {6, 3, 1, 5, 2, 4}
+    local tOut = Table.chainableSort(tIn)
 
-end)
+    expect(tIn).toEqual(tOut)
+  end)
 
-xdescribe("Table.all", function()
+  test("sorts the table", function()
+    local tIn = {6, 3, 1, 5, 2, 4}
+    local tOut = Table.chainableSort(tIn)
 
-end)
+    expect(tOut[1]).toEqual(1)
+    expect(tOut[2]).toEqual(2)
+    expect(tOut[3]).toEqual(3)
+    expect(tOut[4]).toEqual(4)
+    expect(tOut[5]).toEqual(5)
+    expect(tOut[6]).toEqual(6)
+  end)
 
-xdescribe("Table.none", function()
+  test("sorts the table using a given function", function()
+    local tIn = {6, 3, 1, 5, 2, 4}
+    local tOut = Table.chainableSort(tIn, function(a, b)
+      return b < a
+    end)
 
-end)
-
-xdescribe("Table.fullLength", function()
-
-end)
-
-xdescribe("Table.sortHashesByKey", function()
-
-end)
-
-xdescribe("Table.addMissingKeys", function()
-
-end)
-
-xdescribe("Table.chainableSort", function()
-
+    expect(tOut[1]).toEqual(6)
+    expect(tOut[2]).toEqual(5)
+    expect(tOut[3]).toEqual(4)
+    expect(tOut[4]).toEqual(3)
+    expect(tOut[5]).toEqual(2)
+    expect(tOut[6]).toEqual(1)
+  end)
 end)
