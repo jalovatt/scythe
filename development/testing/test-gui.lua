@@ -1,29 +1,20 @@
 -- NoIndex: true
 
 --[[
-	Scythe example
-
-  - The bare minimum required to display a window and some elements
-  - Elements now have defaults defined for all of their parameters, in case
-    you forget to include them or are happy with the defaults
-
+	Scythe testing tool
 ]]--
-
--- The core library must be loaded prior to anything else
 
 local libPath = reaper.GetExtState("Scythe", "libPath_v3")
 if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
-loadfile(libPath .. "scythe.lua")()
+loadfile(libPath .. "scythe.lua")({dev = true})
 local GUI = require("gui.core")
 local Table, T = require("public.table"):unpack()
-local Test = require("test.core")
+local Test = require("testing.lib.core")
 
 local testFile = Scythe.scriptPath
-
-
 
 
 ------------------------------------

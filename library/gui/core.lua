@@ -5,7 +5,7 @@ if not Scythe then
   return
 end
 
-local Error = Error
+local Error = require("gui.error")
 
 local GUI = {}
 local T = require("public.table")[2]
