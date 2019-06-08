@@ -2,8 +2,9 @@
 
 ## June 08, 2019
 
-- Add tests for most public modules
 - **Breaking:** Restructure the library to keep dev stuff in its own folder
+- Scripts can load the library with `loadfile(libPath .. "scythe.lua")({dev = true})` to have the development folder added to _package.path_.
+- Add tests for most public modules
 
 ## June 01, 2019
 
