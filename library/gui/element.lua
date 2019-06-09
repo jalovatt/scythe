@@ -356,22 +356,22 @@ function Element:assignChild(instance)
 end
 
 -- Most elements will accept a .output property, specifying how to display
--- their values. If given a table, the element's value will be used as a key. If
--- given a function, the element's value will be passed to it.
+-- their values depending on .output's type:
+-- String: Returns the string, with any occurrences of '%val%' replaced by the element's value
+-- Table: The element's value will be used as a key
+-- Function: The element's value will be passed to it
 function Element:formatOutput(val)
+  if not self.output then return tostring(val) end
+
   local output
+  local t = type(self.output)
 
-  if self.output then
-    local t = type(self.output)
-
-    if t == "string" or t == "number" then
-      output = self.output
-    elseif t == "table" then
-      output = self.output[val]
-    elseif t == "function" then
-      output = self.output(val)
-    end
-
+  if t == "string" or t == "number" then
+    output = self.output:gsub("%%val%%", val)
+  elseif t == "table" then
+    output = self.output[val]
+  elseif t == "function" then
+    output = self.output(val)
   end
 
   return output and tostring(output) or tostring(val)

@@ -308,6 +308,7 @@ layers[4]:addElements( GUI.createElements(
     max = 10,
     defaults = 20, 0.25,
     horizontal = false,
+    output = "Value: %val%",
   },
   {
     name = "my_rng2",
