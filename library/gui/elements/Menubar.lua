@@ -242,7 +242,11 @@ function Menubar:onMouseUp(state)
 	if #separators > 0 then opt = self:stripSeparators(opt, separators) end
 
   if opt > 0 then
-    self.menus[self.mouseMenu].options[opt][2]()
+    local option = self.menus[self.mouseMenu].options[opt]
+    if option.func then
+      local params = option.params or {}
+      option.func(table.unpack(params))
+    end
   end
 
   self.mouseDown = false
@@ -337,7 +341,7 @@ function Menubar:prepMenu()
 
 	for i = 1, #arr do
 
-    table.insert(menus, arr[i][1])
+    table.insert(menus, arr[i].caption)
 
 		if menus[#menus] == ""
 		or string.sub(menus[#menus], 1, 1) == ">" then

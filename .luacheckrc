@@ -11,4 +11,4 @@ globals = {
   "xtest"
 }
 max_line_length = false
-ignore = {"212/self"}
+ignore = {"212/self", "212/state"}

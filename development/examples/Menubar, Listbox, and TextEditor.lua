@@ -17,7 +17,7 @@ end
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
-local Table, T = require("public.table"):unpack()
+local _, T = require("public.table"):unpack()
 
 ------------------------------------
 -------- Menu functions ------------
@@ -61,6 +61,10 @@ local mnu_help = {
   about = function() GUI.Val("txted_text", "help: about") end
 }
 
+local mnu_params_func = function(label, param)
+  GUI.Val("txted_text", "Parameter " .. label .. " was: " .. param)
+end
+
 
 
 ------------------------------------
@@ -73,47 +77,54 @@ local mnu_help = {
 local menus = {
 
   {title = "File", options = {
-    {"New",                 mnu_file.new},
-    {""},
-    {"Open",                mnu_file.open},
-    {">Recent Files"},
-      {"blah.txt",        mnu_file.recent_blah},
-      {"stuff.txt",       mnu_file.recent_stuff},
-      {"<readme.md",      mnu_file.recent_readme},
-    {"Save",                mnu_file.save},
-    {"Save As",             mnu_file.save_as},
-    {""},
-    {"#Print",               mnu_file.print},
-    {"#Print Preview",       mnu_file.print_preview},
-    {""},
-    {"Exit",                mnu_file.exit}
+    {caption = "New",                       func = mnu_file.new},
+    {caption = ""},
+    {caption = "Open",                      func = mnu_file.open},
+    {caption = ">Recent Files"},
+      {caption = "blah.txt",                func = mnu_file.recent_blah},
+      {caption = "stuff.txt",               func = mnu_file.recent_stuff},
+      {caption = "<readme.md",              func = mnu_file.recent_readme},
+    {caption = "Save",                      func = mnu_file.save},
+    {caption = "Save As",                   func = mnu_file.save_as},
+    {caption = ""},
+    {caption = "#Print",                    func = mnu_file.print},
+    {caption = "#Print Preview",            func = mnu_file.print_preview},
+    {caption = ""},
+    {caption = "Exit",                      func = mnu_file.exit}
   }},
 
   {title = "Edit", options = {
-    {"Cut",                 mnu_edit.cut},
-    {"Copy",                mnu_edit.copy},
-    {">Copy to Clipboard"},
-      {"Current full file path",  mnu_edit.copy_path},
-      {"Current filename",        mnu_edit.copy_file},
-      {"<Current directory path",  mnu_edit.copy_dir},
-    {"Paste",               mnu_edit.paste},
-    {"Delete",              mnu_edit.delete},
-    {""},
-    {"Select All",          mnu_edit.select_all}
+    {caption = "Cut",                       func = mnu_edit.cut},
+    {caption = "Copy",                      func = mnu_edit.copy},
+    {caption = ">Copy to Clipboard"},
+      {caption = "Current full file path",  func = mnu_edit.copy_path},
+      {caption = "Current filename",        func = mnu_edit.copy_file},
+      {caption = "<Current directory path", func = mnu_edit.copy_dir},
+    {caption = "Paste",                     func = mnu_edit.paste},
+    {caption = "Delete",                    func = mnu_edit.delete},
+    {caption = ""},
+    {caption = "Select All",                func = mnu_edit.select_all}
   }},
 
   {title = "View", options = {
-    {"!Always On Top",       mnu_view.always_on_top},
-    {"Toggle Full-Screen",  mnu_view.toggle_full_screen},
-    {"Hide Menu",           mnu_view.hide_menu}
+    {caption = "!Always On Top",            func = mnu_view.always_on_top},
+    {caption = "Toggle Full-Screen",        func = mnu_view.toggle_full_screen},
+    {caption = "Hide Menu",                 func = mnu_view.hide_menu}
   }},
 
   {title = "Help", options = {
-    {"Help",                mnu_help.help},
-    {"#Open Website",        mnu_help.open_website},
-    {""},
-    {"#Check For Updates",   mnu_help.check_for_updates},
-    {"About",               mnu_help.about},
+    {caption = "Help",                      func = mnu_help.help},
+    {caption = "#Open Website",             func = mnu_help.open_website},
+    {caption = ""},
+    {caption = "#Check For Updates",        func = mnu_help.check_for_updates},
+    {caption = "About",                     func = mnu_help.about},
+  }},
+
+  {title = "Parameters", options = {
+    {caption = "Parameter A",               func = mnu_params_func,    params = {"A", "hello!"}},
+    {caption = "Parameter B",               func = mnu_params_func,    params = {"B", "bonjour!"}},
+    {caption = "Parameter C",               func = mnu_params_func,    params = {"C", "g'day!"}},
+    {caption = "Parameter D",               func = mnu_params_func,    params = {"D", "guten tag!"}},
   }},
 }
 
