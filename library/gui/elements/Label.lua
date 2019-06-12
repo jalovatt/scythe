@@ -6,7 +6,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
 
-local Table = require("public.table")
+-- local Table = require("public.table")
 
 local Label = require("gui.element"):new()
 Label.__index = Label

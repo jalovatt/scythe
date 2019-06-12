@@ -1,5 +1,16 @@
 # Scythe 3.x changelog
 
+## June 12, 2019
+
+- **Breaking:** _GUI.Init_ has been removed, since it wasn't doing anything anymore now that we have the window class. Starting a script just requires:
+
+  ```lua
+  myWindow:open()
+  GUI.Main()
+  ```
+
+- Moved `error.lua` to the public folder so non-GUI scripts can make use of it
+
 ## June 09, 2019
 
 - If `Element.output` is given a string, any occurrences of `%val%` will be replaced with the element's value
