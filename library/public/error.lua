@@ -39,9 +39,9 @@ Error.handleError = function (errObject)
     reaper.ShowConsoleMsg(
       "Error: "..err.."\n\n"..
       "Stack traceback:\n\t"..table.concat(stack, "\n\t", 2).."\n\n"..
-      "Scythe:\t".. Scythe.version.."\n"..
-      "Reaper:       \t"..reaper.GetAppVersion().."\n"..
-      "Platform:     \t"..reaper.GetOS()
+      "Scythe:      \t".. Scythe.version.."\n"..
+      "Reaper:      \t"..reaper.GetAppVersion().."\n"..
+      "Platform:    \t"..reaper.GetOS()
     )
   end
 
