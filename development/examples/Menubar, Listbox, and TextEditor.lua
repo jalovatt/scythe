@@ -289,6 +289,5 @@ window:addLayers(
 )
 
 
-GUI.Init()
 window:open()
 GUI.Main()

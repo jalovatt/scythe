@@ -13,6 +13,9 @@ local Layer = require("gui.layer")
 local Window = require("gui.window")
 
 
+-- -- Initialize a few values
+GUI.lastFuncTime = 0
+
 
 
 ------------------------------------
@@ -23,22 +26,6 @@ GUI.Windows = T{}
 
 -- Loaded classes
 GUI.elementClasses = {}
-
-GUI.Init = function ()
-  xpcall( function()
-
-    -- -- Initialize a few values
-    GUI.lastFuncTime = 0
-
-    -- -- Convert color presets from 0..255 to 0..1
-    -- for _, col in pairs(Color.colors) do
-    --   col[1], col[2], col[3], col[4] =    col[1] / 255, col[2] / 255,
-    --                                       col[3] / 255, col[4] / 255
-    -- end
-
-  end, Error.handleError)
-end
-
 
 GUI.Main = function ()
   xpcall( function ()
