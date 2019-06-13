@@ -394,12 +394,10 @@ end
 
 
 function Element:showDevMenu(state)
-  -- gfx.showmenu("first item, followed by separator||!second item, checked|>third item which spawns a submenu|#first item in submenu, grayed out|<second and last item in submenu|fourth item in top menu")
   gfx.x = state.mouse.x
   gfx.y = state.mouse.y
-  local ret = gfx.showmenu("List properties in console")
-
-  if ret == 1 then
+  local ret = gfx.showmenu("#"..self.name.."||List properties in console")
+  if ret == 2 then
     Msg(self:debug())
   end
 end
