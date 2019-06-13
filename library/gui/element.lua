@@ -196,7 +196,11 @@ function Element:Update(state, last)
 
       if not state.mouse.doubleClicked then
 
-        self["on"..button.btn.."MouseUp"](self, state, last)
+        if Scythe.developerMode then
+          self:showDevMenu(state)
+        else
+          self["on"..button.btn.."MouseUp"](self, state, last)
+        end
       end
 
       state.elmUpdated = true
@@ -297,7 +301,7 @@ function Element:debug(...)
 
   if #arg == 0 then
     arg = {}
-    for k in Table.kpairs(self, "full") do
+    for k in Table.kpairs(self) do
       arg[#arg+1] = k
     end
   end
@@ -386,6 +390,18 @@ function Element:addDefaultProps (props)
   local new = Table.deepCopy(props or {})
 
   return Table.addMissingKeys(new, self.defaultProps)
+end
+
+
+function Element:showDevMenu(state)
+  -- gfx.showmenu("first item, followed by separator||!second item, checked|>third item which spawns a submenu|#first item in submenu, grayed out|<second and last item in submenu|fourth item in top menu")
+  gfx.x = state.mouse.x
+  gfx.y = state.mouse.y
+  local ret = gfx.showmenu("List properties in console")
+
+  if ret == 1 then
+    Msg(self:debug())
+  end
 end
 
 return Element
