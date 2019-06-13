@@ -274,7 +274,7 @@ end
 function Slider:onDoubleclick(state)
 
     -- Ctrl+click - Only reset the closest slider to the mouse
-  if state.mouse.cap & 4 == 4 then
+  if state.kb.ctrl then
 
     local mouseValue = (state.mouse.x - self.x) / self.w
     local smallestDiff, closestIndex

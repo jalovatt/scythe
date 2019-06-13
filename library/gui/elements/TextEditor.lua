@@ -189,7 +189,7 @@ function TextEditor:onMouseDown(state)
     self.blink = 0
 
     -- Shift+click to select text
-    if state.mouse.cap & 8 == 8 and self.caret then
+    if state.kb.shift and self.caret then
 
       self.selectionStart = {x = self.caret.x, y = self.caret.y}
       self.selectionEnd = {x = self.caret.x, y = self.caret.y}
@@ -282,7 +282,7 @@ end
 function TextEditor:onWheel(state)
 
 	-- Shift -- Horizontal scroll
-	if state.mouse.cap & 8 == 8 then
+	if state.kb.shift then
 
 		local len = self:getMaxLineLength()
 
@@ -1086,7 +1086,7 @@ TextEditor.keys = {
     -- Disabled until Reaper supports this properly
 		--self:insertChar(9)
 
-    if state.mouse.cap & 8 == 8 then
+    if state.kb.shift then
       self:backTab()
     else
       self:insertString("  ", true)

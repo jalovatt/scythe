@@ -176,7 +176,7 @@ function Textbox:onMouseDown(state)
   self.blink = 0
 
   -- Shift+click to select text
-  if state.mouse.cap & 8 == 8 and self.caret then
+  if state.kb.shift and self.caret then
 
     self.selectionStart, self.selectionEnd = self.caret, self.caret
 
@@ -215,7 +215,7 @@ function Textbox:onType(state)
   -- Navigation keys, Return, clipboard stuff, etc
   if self.processKey[char] then
 
-    local shift = state.mouse.cap & 8 == 8
+    local shift = state.kb.shift
 
     if shift and not self.selectionStart then
       self.selectionStart = self.caret

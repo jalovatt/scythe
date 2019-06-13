@@ -159,11 +159,11 @@ function Listbox:onMouseUp(state)
 		if self.multi then
 
 			-- Ctrl
-			if state.mouse.cap & 4 == 4 then
+			if state.kb.ctrl then
 				self.retval[item] = not self.retval[item]
 
 			-- Shift
-			elseif state.mouse.cap & 8 == 8 then
+			elseif state.kb.shift then
 				self:selectRange(item)
 			else
 				self.retval = {[item] = true}

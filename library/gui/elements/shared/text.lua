@@ -4,7 +4,7 @@ local TextUtils = {}
 
 function TextUtils.doCtrlChar(self, state, func, ...)
 
-  if state.mouse.cap & 4 == 4 then
+  if state.kb.ctrl then
     func(self, ... and table.unpack({...}))
 
     -- Flag to bypass the "clear selection" logic in :onType()
