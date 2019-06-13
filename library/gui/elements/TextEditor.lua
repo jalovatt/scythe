@@ -235,16 +235,12 @@ end
 
 
 function TextEditor:onType(state)
-
   local char = state.kb.char
-  local mod = state.mouse.cap
 
 	-- Non-typeable / navigation chars
 	if self.keys[char] then
 
-		local shift = mod & 8 == 8
-
-		if shift and not self.selectionStart then
+		if state.kb.shift and not self.selectionStart then
 			self.selectionStart = {x = self.caret.x, y = self.caret.y}
 		end
 
@@ -252,7 +248,7 @@ function TextEditor:onType(state)
 		-- the next section
     local bypass = self.keys[char](self, state)
 
-		if shift and char ~= Const.chars.BACKSPACE and char ~= Const.chars.TAB then
+		if state.kb.shift and char ~= Const.chars.BACKSPACE and char ~= Const.chars.TAB then
 
 			self.selectionEnd = {x = self.caret.x, y = self.caret.y}
 

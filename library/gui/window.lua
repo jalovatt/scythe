@@ -233,8 +233,8 @@ function Window:handleWindowEvents()
   end
 
   -- Dev mode toggle
-  if  state.kb.char == 282         and state.mouse.cap & 4 ~= 0
-  and state.mouse.cap & 8 ~= 0  and state.mouse.cap & 16 ~= 0 then
+  if  state.kb.char == 282         and state.kb.ctrl
+  and state.kb.shift and state.kb.alt then
     Scythe.developerMode = not Scythe.developerMode
     self.elmUpdated = true
     self.needsRedraw = true
