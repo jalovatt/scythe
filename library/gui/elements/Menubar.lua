@@ -239,9 +239,11 @@ function Menubar:onMouseUp(state)
   local menuStr, separators = self:prepMenu()
   local opt = gfx.showmenu(menuStr)
 
-	if #separators > 0 then opt = self:stripSeparators(opt, separators) end
+  if #separators > 0 then
+    opt = self:stripSeparators(opt, separators)
+  end
 
-  if opt > 0 then
+  if opt ~= 0 then
     local option = self.menus[self.mouseMenu].options[opt]
     if option.func then
       local params = option.params or {}
@@ -348,14 +350,9 @@ function Menubar:prepMenu()
 			table.insert(separators, i)
 		end
 
-		table.insert( menus, "|" )
-
 	end
 
-	local menuStr = table.concat( menus )
-
-	return string.sub(menuStr, 1, string.len(menuStr) - 1), separators
-
+	return table.concat(menus, "|"), separators
 end
 
 
