@@ -26,6 +26,7 @@ local window = GUI.createWindow({
   name = "Test Runner",
   w = 356,
   h = 96,
+  anchor = "mouse",
 })
 
 

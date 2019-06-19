@@ -92,6 +92,17 @@ local function fail(str, a, b)
 end
 
 
+local function shallowEquals(a, b)
+  for k, v in pairs(a) do
+    if b[k] ~= v then return false end
+  end
+
+  for k, v in pairs(b) do
+    if (not a[k] and v ~= nil) then return false end
+  end
+
+  return true
+end
 
 
 -- Returns true if a and b are equal to the given number of decimal places
@@ -165,6 +176,20 @@ local function matcher(exp)
         return pass()
       else
         return fail("to almost equal (to "..places.." places)", exp, compare)
+      end
+    end,
+    toShallowEqual = function(compare)
+      if (shallowEquals(exp, compare)) then
+        return pass()
+      else
+        return fail("to shallow-equal", exp, compare)
+      end
+    end,
+    toNotShallowEqual = function(compare)
+      if (shallowEquals(exp, compare)) then
+        return fail("to not shallow-equal", exp, compare)
+      else
+        return pass()
       end
     end,
     toDeepEqual = function(compare)
