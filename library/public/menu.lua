@@ -5,13 +5,15 @@ local Menu = {}
 
 Menu.parse = {}
 
+local psvPattern = "[^|]*"
+
 -- Accepts a |-separated string. Returns the given string along
 -- with a table of any separators it found.
 function Menu.parseString(str)
   local separators = T{}
 
   local i = 1
-  for item in str:gmatch("[^|]*") do
+  for item in str:gmatch(psvPattern) do
 	-- for i = 1, #menuArr do
 		if item == ""
 		or item:sub(1, 1) == ">" then
@@ -50,7 +52,7 @@ end
 
 -- Adjust the returned value to account for any separators,
 -- since gfx.showmenu doesn't count them
-function Menu.getTrueValue(val, separators)
+function Menu.getTrueIndex(parsed, val, separators)
   for i = 1, #separators do
     if val >= separators[i] then
       val = val + 1
@@ -59,7 +61,18 @@ function Menu.getTrueValue(val, separators)
     end
   end
 
-  return val
+  local i = 1
+  local optionOut
+  for option in parsed:gmatch(psvPattern) do
+    if i == val then
+      optionOut = option
+      break
+    end
+
+    i = i + 1
+  end
+
+  return val, optionOut
 end
 
 -- Wraps gfx.showmenu with some additional processing to account for separators
@@ -68,7 +81,7 @@ end
 -- For nested tables, will use a given captionKey and valKey to read item
 -- captions and the output value, i.e:
 --[[
-    local arrIn = {
+    local options = {
       {caption = "a", value = 11},
       {caption = ">b"},
       {caption = "c", value = 13},
@@ -78,26 +91,37 @@ end
       {caption = "f", value = 16},
     }
 
-    local value, index = Menu.showMenu(arrIn, "caption", "value")
+    local value, index = Menu.showMenu(options, "caption", "value")
+]]--
+-- For strings, returns the index and value of the chosen option:
+--[[
+    local str = "1|2||3|4|5||6.12435213613"
+    local idx, val = Menu.showMenu(str)
+
+    User clicks 1 --> 1, 1
+    User clicks 3 --> 4, 3
+    User clicks 6.12... --> 8, 6.12435213613
 ]]--
 
 function Menu.showMenu(menuIn, captionKey, valKey)
   local parsed, separators
   if type(menuIn) == "string" then
     parsed, separators = Menu.parseString(menuIn)
-    local rawVal = gfx.showmenu(parsed)
+    local rawIdx = gfx.showmenu(parsed)
+    local trueIdx = Menu.getTrueIndex(parsed, rawIdx, separators)
 
-    return Menu.getTrueValue(rawVal, separators)
+    local options = parsed:split("|")
+    return trueIdx, options[trueIdx]
   else
     parsed, separators = Menu.parseTable(menuIn, captionKey)
 
-    local rawVal = gfx.showmenu(parsed)
-    local trueVal = Menu.getTrueValue(rawVal, separators)
+    local rawIdx = gfx.showmenu(parsed)
+    local trueIdx = Menu.getTrueIndex(parsed, rawIdx, separators)
 
     if valKey then
-      return menuIn[trueVal][valKey], trueVal
+      return trueIdx, menuIn[trueIdx][valKey]
     else
-      return menuIn[trueVal], trueVal
+      return trueIdx, menuIn[trueIdx]
     end
   end
 end
