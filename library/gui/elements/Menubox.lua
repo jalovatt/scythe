@@ -116,12 +116,7 @@ function Menubox:onMouseUp(state)
   end
 
   gfx.x, gfx.y = state.mouse.x, state.mouse.y
-  local menuStr, separators = self:prepMenu()
-  local currentOption = gfx.showmenu(menuStr)
-
-  if #separators > 0 then
-    currentOption = self:stripSeparators(currentOption, separators)
-  end
+  local currentOption = Menu.showMenu(self.options)
 
   if currentOption ~= 0 then self.retval = currentOption end
 

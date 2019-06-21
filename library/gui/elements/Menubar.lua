@@ -4,7 +4,7 @@ local Buffer = require("gui.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
--- local Table = require("public.table")
+local Menu = require("public.menu")
 local Config = require("gui.config")
 
 local Menubar = require("gui.element"):new()
@@ -236,19 +236,11 @@ function Menubar:onMouseUp(state)
   if not self.mouseMenu then return end
 
   gfx.x, gfx.y = self.x + self:measureTitles(self.mouseMenu - 1, true), self.y + self.h
-  local menuStr, separators = self:prepMenu()
-  local opt = gfx.showmenu(menuStr)
 
-  if #separators > 0 then
-    opt = self:stripSeparators(opt, separators)
-  end
+  local _, opt = Menu.showMenu(self.menus[self.mouseMenu].options, "caption")
 
-  if opt ~= 0 then
-    local option = self.menus[self.mouseMenu].options[opt]
-    if option.func then
-      local params = option.params or {}
-      option.func(table.unpack(params))
-    end
+  if opt and opt.func then
+    opt.func(table.unpack(opt.params or {}))
   end
 
   self.mouseDown = false
