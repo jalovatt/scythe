@@ -222,9 +222,9 @@ function Window:handleWindowEvents()
   local state, last = self.state, self.lastState
 
   -- Window closed
-  if (state.kb.char == 27 and not (  state.mouse.cap & 4 == 4
-                              or 	state.mouse.cap & 8 == 8
-                              or 	state.mouse.cap & 16 == 16))
+  if (state.kb.char == 27 and not (  state.kb.ctrl
+                              or 	state.kb.shift
+                              or 	state.kb.alt))
     or state.kb.char == -1
     or Scythe.quit == true then
 
@@ -233,8 +233,8 @@ function Window:handleWindowEvents()
   end
 
   -- Dev mode toggle
-  if  state.kb.char == 282         and state.mouse.cap & 4 ~= 0
-  and state.mouse.cap & 8 ~= 0  and state.mouse.cap & 16 ~= 0 then
+  if  state.kb.char == 282         and state.kb.ctrl
+  and state.kb.shift and state.kb.alt then
     Scythe.developerMode = not Scythe.developerMode
     self.elmUpdated = true
     self.needsRedraw = true
@@ -285,6 +285,10 @@ function Window:updateInputState()
 
   state.kb = {
     char = gfx.getchar(),
+    shift = (gfx.mouse_cap & 8 == 8),
+    ctrl = (gfx.mouse_cap & 4 == 4),
+    alt = (gfx.mouse_cap & 16 == 16),
+    meta = (gfx.mouse_cap & 32 == 32),
   }
 
   state.currentW = gfx.w

@@ -229,7 +229,7 @@ function Slider:onDrag(state, last)
   local cur = self.currentHandle or 1
 
   -- Ctrl?
-  local ctrl = state.mouse.cap&4==4
+  local ctrl = state.kb.ctrl
 
   -- A multiplier for how fast the slider should move. Higher values = slower
   --						Ctrl							Normal
@@ -256,7 +256,7 @@ function Slider:onWheel(state)
 
   local cur = self:getNearestHandle(mouseValue)
 
-  local ctrl = state.mouse.cap&4==4
+  local ctrl = state.kb.ctrl
 
   -- How many steps per wheel-step
   local fine = 1
@@ -274,7 +274,7 @@ end
 function Slider:onDoubleclick(state)
 
     -- Ctrl+click - Only reset the closest slider to the mouse
-  if state.mouse.cap & 4 == 4 then
+  if state.kb.ctrl then
 
     local mouseValue = (state.mouse.x - self.x) / self.w
     local smallestDiff, closestIndex

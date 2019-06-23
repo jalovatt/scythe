@@ -8,6 +8,7 @@ setmetatable(string, {__index = String})
 
 -- Splits a string into table elements at each occurrence of the given pattern
 -- (the pattern is not included in the table strings)
+-- Sequential occurrences of the pattern will be split as empty table elements
 -- If no pattern is given, splits at every character
 String.split = function(s, pattern)
   local out = T{}
@@ -16,7 +17,7 @@ String.split = function(s, pattern)
   if not pattern or pattern == "" or pattern == "." then
     matchPattern = "."
   else
-    matchPattern = ("[^" .. pattern .. "]+")
+    matchPattern = ("[^" .. pattern .. "]*")
   end
 
   for segment in s:gmatch(matchPattern) do

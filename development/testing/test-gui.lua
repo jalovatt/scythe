@@ -13,7 +13,7 @@ loadfile(libPath .. "scythe.lua")({dev = true})
 local GUI = require("gui.core")
 local Table, T = require("public.table"):unpack()
 local Test = require("testing.lib.core")
-
+local Menu = require("public.menu")
 local testFile = Scythe.scriptPath
 
 
@@ -26,6 +26,7 @@ local window = GUI.createWindow({
   name = "Test Runner",
   w = 356,
   h = 96,
+  anchor = "mouse",
 })
 
 
@@ -69,23 +70,23 @@ local function showFilesMenu()
   gfx.x = window.state.mouse.x
   gfx.y = window.state.mouse.y
 
-  return gfx.showmenu("Browse...||" .. recentFiles:concat("|"))
+  local menuArr = Table.join({"Browse", ""}, recentFiles)
+
+  return Menu.showMenu(menuArr)
 end
 
 local function selectFile()
-  local menu = showFilesMenu()
+  local idx, file = showFilesMenu()
+  if not idx then return end
 
-  if menu == 1 then
-    local _, userFile = reaper.GetUserFileNameForRead(testFile, "Choose a test file", ".lua")
-    if userFile then
-      updateRecentFiles(userFile)
-      if userFile ~= testFile then updateTestFile(userFile) end
-      return
+  if idx == 1 then
+    _, file = reaper.GetUserFileNameForRead(testFile, "Choose a test file", ".lua")
+    if file then
+      updateRecentFiles(file)
     end
-  else
-    local file = recentFiles[menu - 1]
-    if file and file ~= testFile then updateTestFile(file) end
   end
+
+  if file and file ~= testFile then updateTestFile(file) end
 end
 
 local testEnv = Table.shallowCopy(Test)

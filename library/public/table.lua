@@ -205,7 +205,7 @@ end
 -- Returns true if all of table a's keys and values match all of table b's.
 Table.deepEquals = function (a, b)
   if type(a) ~= "table" or type(b) ~= "table" then return false end
-  if (a.__noRecursion and a == b) then return true end
+  if a == b then return true end
 
   local seenKeys = {}
   for k1, v1 in pairs(a) do
@@ -408,6 +408,56 @@ end
 Table.chainableSort = function(t, func)
   table.sort(t, func)
   return t
+end
+
+-- Accepts multiple indexed tables, joining them sequentially into a new table
+Table.join = function(...)
+  local out = T{}
+  for _, t in ipairs({...}) do
+    for _, entry in ipairs(t) do
+      out[#out+1] = entry
+    end
+  end
+
+  return out
+end
+
+-- Accepts multiple indexed tables, joining them alternately into a new table
+--[[
+  Table.zip({1, 2, 3}, {"a", "b", "c"}, {true, true, true}
+
+  --> {1, "a", true, 2, "b", true, 3, "c", true}
+
+  If the tables are of uneven length, any remaining elements will be added at the end
+]]--
+Table.zip = function(...)
+  local tIn = {...}
+
+  local tOut = T{}
+
+  local nonEmpty = {}
+  for k in pairs(tIn) do
+    nonEmpty[#nonEmpty+1] = k
+  end
+
+  local index = 1
+  while (#nonEmpty > 0) do
+    local lookingAt = 1
+    while (lookingAt <= #nonEmpty) do
+      local val = tIn[nonEmpty[lookingAt]][index]
+
+      if val ~= nil then
+        tOut[#tOut+1] = val
+        lookingAt = lookingAt + 1
+      else
+        table.remove(nonEmpty, lookingAt)
+      end
+    end
+
+    index = index + 1
+  end
+
+  return tOut
 end
 
 return T{Table, T}

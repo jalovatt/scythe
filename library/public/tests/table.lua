@@ -709,3 +709,75 @@ describe("Table.chainableSort", function()
     expect(tOut[6]).toEqual(1)
   end)
 end)
+
+describe("Table.join", function()
+  test("should return a non-equal copy of one table", function()
+    local tIn = {1, 2, 3}
+    local tOut = Table.join(tIn)
+
+    expect(tOut).toNotEqual(tIn)
+    expect(tOut).toShallowEqual(tIn)
+  end)
+
+  test("should join two tables sequentially", function()
+    local tA = {1, 2, 3}
+    local tB = {4, 5, 6}
+
+    expect(Table.join(tA, tB)).toShallowEqual({1, 2, 3, 4, 5, 6})
+  end)
+
+  test("should join five tables sequentially", function()
+    local tA = {1, 2, 3}
+    local tB = {4, 5, 6}
+    local tC = {7, 8, 9}
+    local tD = {10, 11, 12}
+    local tE = {13, 14, 15}
+
+    local tOut = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+    expect(Table.join(tA, tB, tC, tD, tE)).toShallowEqual(tOut)
+  end)
+end)
+
+describe("Table.zip", function()
+  test("should return a non-equal copy of one table", function()
+    local tIn = {1, 2, 3}
+    local tOut = Table.zip(tIn)
+
+    expect(tOut).toNotEqual(tIn)
+    expect(tOut).toShallowEqual(tIn)
+  end)
+
+  test("should join two tables alternately", function()
+    local tA = {1, 2, 3}
+    local tB = {4, 5, 6}
+
+    expect(Table.zip(tA, tB)).toShallowEqual({1, 4, 2, 5, 3, 6})
+  end)
+
+  test("should join three tables alternately", function()
+    local tA = {1, 2, 3}
+    local tB = {4, 5, 6}
+    local tC = {7, 8, 9}
+
+    local tOut = {1, 4, 7, 2, 5, 8, 3, 6, 9}
+    expect(Table.zip(tA, tB, tC)).toShallowEqual(tOut)
+  end)
+
+  test("should zip two tables of unequal length with the excess appended", function()
+    local tA = {1, 2, 3, "a", "b", "c"}
+    local tB = {4, 5, 6}
+
+    expect(Table.zip(tA, tB)).toShallowEqual({1, 4, 2, 5, 3, 6, "a", "b", "c"})
+  end)
+
+  test("should zip four tables of unequal length with the excess appended", function()
+    local tA = {1, 2, 3}
+    local tB = {4, 5, 6, 7}
+    local tC = {8, 9, 10, 11, 12}
+    local tD = {13, 14, 15, 16, 17, 18, 19, 20}
+
+    local expected = {1, 4, 8, 13, 2, 5, 9, 14, 3, 6, 10, 15, 7, 11, 16, 12, 17, 18, 19, 20}
+
+    expect(Table.zip(tA, tB, tC, tD)).toShallowEqual(expected)
+  end)
+end)

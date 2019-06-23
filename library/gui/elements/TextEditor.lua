@@ -189,7 +189,7 @@ function TextEditor:onMouseDown(state)
     self.blink = 0
 
     -- Shift+click to select text
-    if state.mouse.cap & 8 == 8 and self.caret then
+    if state.kb.shift and self.caret then
 
       self.selectionStart = {x = self.caret.x, y = self.caret.y}
       self.selectionEnd = {x = self.caret.x, y = self.caret.y}
@@ -235,16 +235,12 @@ end
 
 
 function TextEditor:onType(state)
-
   local char = state.kb.char
-  local mod = state.mouse.cap
 
 	-- Non-typeable / navigation chars
 	if self.keys[char] then
 
-		local shift = mod & 8 == 8
-
-		if shift and not self.selectionStart then
+		if state.kb.shift and not self.selectionStart then
 			self.selectionStart = {x = self.caret.x, y = self.caret.y}
 		end
 
@@ -252,7 +248,7 @@ function TextEditor:onType(state)
 		-- the next section
     local bypass = self.keys[char](self, state)
 
-		if shift and char ~= Const.chars.BACKSPACE and char ~= Const.chars.TAB then
+		if state.kb.shift and char ~= Const.chars.BACKSPACE and char ~= Const.chars.TAB then
 
 			self.selectionEnd = {x = self.caret.x, y = self.caret.y}
 
@@ -282,7 +278,7 @@ end
 function TextEditor:onWheel(state)
 
 	-- Shift -- Horizontal scroll
-	if state.mouse.cap & 8 == 8 then
+	if state.kb.shift then
 
 		local len = self:getMaxLineLength()
 
@@ -1086,7 +1082,7 @@ TextEditor.keys = {
     -- Disabled until Reaper supports this properly
 		--self:insertChar(9)
 
-    if state.mouse.cap & 8 == 8 then
+    if state.kb.shift then
       self:backTab()
     else
       self:insertString("  ", true)

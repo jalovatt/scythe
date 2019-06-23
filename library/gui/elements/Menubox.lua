@@ -7,8 +7,9 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
+local Menu = require("public.menu")
 local Config = require("gui.config")
-local Table, T = require("public.table"):unpack()
+local _, T = require("public.table"):unpack()
 
 local Menubox = require("gui.element"):new()
 Menubox.__index = Menubox
@@ -114,16 +115,9 @@ function Menubox:onMouseUp(state)
     return
   end
 
-  -- The menu doesn't count separators in the returned number,
-  -- so we'll do it here
-  local menuStr, separators = self:prepMenu()
-
   gfx.x, gfx.y = state.mouse.x, state.mouse.y
-  local currentOption = gfx.showmenu(menuStr)
+  local currentOption = Menu.showMenu(self.options)
 
-  if #separators > 0 then
-    currentOption = self:stripSeparators(currentOption, separators)
-  end
   if currentOption ~= 0 then self.retval = currentOption end
 
   self.focus = false
@@ -277,14 +271,9 @@ function Menubox:prepMenu()
       separators:insert(i)
     end
 
-    options:insert("|")
-
   end
 
-  local menuStr = options:concat()
-
-  return string.sub(menuStr, 1, string.len(menuStr) - 1), separators
-
+  return options:concat("|"), separators
 end
 
 

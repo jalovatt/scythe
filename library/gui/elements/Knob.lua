@@ -162,7 +162,7 @@ end
 function Knob:onDrag(state, last)
 
   -- Ctrl?
-	local ctrl = state.mouse.cap&4==4
+	local ctrl = state.kb.ctrl
 
 	-- Multiplier for how fast the knob turns. Higher = slower
 	--					Ctrl	Normal
@@ -188,7 +188,7 @@ end
 
 function Knob:onWheel(state)
 
-	local ctrl = state.mouse.cap&4==4
+	local ctrl = state.kb.ctrl
 
 	-- How many steps per wheel-step
 	local fine = 1
