@@ -205,7 +205,7 @@ end
 -- Returns true if all of table a's keys and values match all of table b's.
 Table.deepEquals = function (a, b)
   if type(a) ~= "table" or type(b) ~= "table" then return false end
-  if (a.__noRecursion and a == b) then return true end
+  if a == b then return true end
 
   local seenKeys = {}
   for k1, v1 in pairs(a) do
