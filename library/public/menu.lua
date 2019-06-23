@@ -26,6 +26,20 @@ function Menu.parseString(str)
 	return str, separators
 end
 
+--[[
+  Parses a table into a string for gfx.showmenu
+
+  Accepts an *indexed* table and optional caption key. If given, the caption
+  key will be used for each table entry to get the displayed text in the menu:
+
+  local options = {
+      {theCaption = "a", value = 11},
+      ...
+
+  local parsed, separators = Menu.parseTable(options, "theCaption")
+
+  If captionkey is not specified, will use the table entry itself.
+]]--
 function Menu.parseTable(menuArr, captionKey)
   local separators = T{}
 	local menus = T{}
@@ -91,12 +105,12 @@ end
       {caption = "f", value = 16},
     }
 
-    local value, index = Menu.showMenu(options, "caption", "value")
+    local index, value = Menu.showMenu(options, "caption", "value")
 ]]--
 -- For strings, returns the index and value of the chosen option:
 --[[
     local str = "1|2||3|4|5||6.12435213613"
-    local idx, val = Menu.showMenu(str)
+    local index, value = Menu.showMenu(str)
 
     User clicks 1 --> 1, 1
     User clicks 3 --> 4, 3

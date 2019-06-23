@@ -120,6 +120,7 @@ end)
 
 describe("Menu.showMenu", function()
   local menuVal, idx, val
+  local old = gfx.showmenu
   gfx.showmenu = function() return menuVal end
 
   test("handles a string with separators", function()
@@ -220,4 +221,6 @@ describe("Menu.showMenu", function()
     expect(idx).toEqual(6)
     expect(val).toEqual(16)
   end)
+
+  gfx.showmenu = old
 end)
