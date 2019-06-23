@@ -1,5 +1,15 @@
 # Scythe 3.x changelog
 
+## June 22, 2019
+
+- Adds Table functions:
+  - `join`: Accepts any number of indexed tables, returning a new table with their values joined sequentially
+  - `zip`: Accepts any number of indexed tables, returning a new table with their values joined alternately
+
+## June 21, 2019
+
+- Adds a public Menu module, which wraps gfx.showmenu to provide more useful output and work with menus in a table form. Replaces all uses of gfx.showmenu with the wrapped version.
+
 ## June 12, 2019
 
 - **Breaking:** _GUI.Init_ has been removed, since it wasn't doing anything anymore now that we have the window class. Starting a script just requires:
