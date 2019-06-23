@@ -1,6 +1,12 @@
 -- NoIndex: true
 
 local Buffer = require("gui.buffer")
+local Table, T = require("public.table"):unpack()
+
+local validExtensions = {
+  png = true,
+  jpg = true,
+}
 
 local Image = {}
 
@@ -32,25 +38,37 @@ Image.unload = function(imagePath)
 
 end
 
-Image.loadFolder = function(folderPath)
-  -- Run through all images in a folder (include subfolders?)
-  -- For each:
-    -- - Load into a buffer
-    -- - Store the buffer in loadedImages
-    -- - Store the buffer in a local table keyed by the file path (relative to the
-    --   source folder?):
-    --[[
-        local folderTable = {
-          path = "C:/path/to/this/folder"
-          ["image1.png"] = 4,
-          ["image2.png"] = 5,
-          ["images/image3.png"] = 6,
-        }
-    ]]--
-  -- Return the table
+Image.hasValidImageExtension = function(file)
+  local ext = file:match("%.(.-)$")
+  return validExtensions[ext]
 end
 
-Image.unloadFolder = function(folderTable) end
+Image.loadFolder = function(folderPath)
+  local fileIndex = 0
+  local folderImages = {path = folderPath, images = T{}}
+  local file
+  while true do
+    file = reaper.EnumerateFiles(folderPath, fileIndex)
+    if (not file or file == "") then break end
+
+    if Image.hasValidImageExtension(file) then
+      local buffer = Image.load(folderPath.."/"..file)
+      if buffer then
+        folderImages.images[file] = buffer
+      end
+    end
+
+    fileIndex = fileIndex + 1
+  end
+
+  return folderImages
+end
+
+Image.unloadFolder = function(folderTable)
+  for k in pairs(folderTable.images) do
+    Image.unload(folderTable.path.."/"..k)
+  end
+end
 
 
 --[[
