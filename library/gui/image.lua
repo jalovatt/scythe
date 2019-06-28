@@ -10,7 +10,7 @@ local validExtensions = {
 
 local Image = {}
 
-local loadedImages = {}
+local loadedImages = T{}
 Image.load = function(imagePath)
   if loadedImages[imagePath] then return loadedImages[imagePath] end
 
@@ -70,6 +70,32 @@ Image.unloadFolder = function(folderTable)
   end
 end
 
+
+Image.Sprite = {}
+Image.Sprite.__index = Image.Sprite
+
+function Image.Sprite:new(props)
+  local sprite = Table.deepCopy(props)
+  sprite.image = {}
+  return setmetatable(sprite, self)
+end
+
+-- Accepts a path to load or an existing buffer number
+function Image.Sprite:setImage(image)
+  if type(image) == "string" then
+    self.image = image
+  else
+    self.image = loadedImages:find(function(_, k) return (k == image) end)
+  end
+
+  self.imageWidth, self.imageHeight = gfx.getimgdim(loadedImages[self.image])
+end
+
+function Image.Sprite:draw(x, y, frameX, frameY)
+  local buffer = loadedImages[self.image]
+  --gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
+  gfx.blit(buffer, 1, 0, (frameX or 0) * self.frameWidth, (frameY or 0) * self.frameHeight, self.frameWidth, self.frameHeight, x, y, self.frameWidth, self.frameHeight)
+end
 
 --[[
     Image.Sprite class
