@@ -263,7 +263,7 @@ window:addLayers(
           caption = "",
           multi = true,
           list = titles,
-          onDoubleclick = function(self) addText() end
+          afterDoubleClick = function(self) addText() end
         },
         {
           name = "btn_go",

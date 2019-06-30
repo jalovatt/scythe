@@ -210,7 +210,7 @@ layers[3]:addElements( GUI.createElements(
     w = 64,
     h = 20,
     caption = "Click me!",
-    func = fade_lbl
+    func = fade_lbl,
   },
   {
     name = "my_txt",
@@ -251,7 +251,7 @@ fadeLayer = fadeElm.layer
 local my_knob = GUI.findElementByName("my_knob")
 function my_knob:redraw()
 
-    self.prototype.redraw(self)
+    getmetatable(self).redraw(self)
     self.caption = self.retval .. "dB"
 
 end

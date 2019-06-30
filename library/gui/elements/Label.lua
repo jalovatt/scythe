@@ -32,7 +32,7 @@ Label.defaultProps = {
 function Label:new(props)
 	local label = self:addDefaultProps(props)
 
-  return self:assignChild(label)
+  return setmetatable(label, self)
 end
 
 

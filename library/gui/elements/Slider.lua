@@ -69,7 +69,7 @@ function Slider:new(props)
   end
   slider.min, slider.max = min, max
 
-  self:assignChild(slider)
+  setmetatable(slider, self)
 
   slider.defaults = slider.defaults
 
@@ -271,7 +271,7 @@ function Slider:onWheel(state)
 end
 
 
-function Slider:onDoubleclick(state)
+function Slider:onDoubleClick(state)
 
     -- Ctrl+click - Only reset the closest slider to the mouse
   if state.kb.ctrl then

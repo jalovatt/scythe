@@ -60,7 +60,7 @@ Textbox.defaultProps = {
 function Textbox:new(props)
 	local txt = self:addDefaultProps(props)
 
-	return self:assignChild(txt)
+	return setmetatable(txt, self)
 end
 
 
@@ -191,7 +191,7 @@ function Textbox:onMouseDown(state)
 end
 
 
-function Textbox:onDoubleclick(state)
+function Textbox:onDoubleClick(state)
 
 	self:selectWord(state)
 

@@ -35,7 +35,7 @@ function Button:new(props)
 
   local button = self:addDefaultProps(props)
 
-  return self:assignChild(button)
+  return setmetatable(button, self)
 end
 
 
@@ -112,7 +112,7 @@ function Button:onMouseUp(state)
 end
 
 
-function Button:onDoubleclick()
+function Button:onDoubleClick()
 
 	self.state = 0
 

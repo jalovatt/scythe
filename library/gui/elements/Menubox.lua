@@ -43,7 +43,7 @@ Menubox.defaultProps = {
 function Menubox:new(props)
   local menu = self:addDefaultProps(props)
 
-  return self:assignChild(menu)
+  return setmetatable(menu, self)
 end
 
 

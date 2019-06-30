@@ -53,7 +53,7 @@ function Knob:new(props)
   knob.currentStep = knob.default
 	knob.currentVal = knob.currentStep / knob.steps
 
-  self:assignChild(knob)
+  setmetatable(knob, self)
 
   knob.retval = knob:formatRetval(
     ((knob.max - knob.min) / knob.steps) * knob.currentStep + knob.min
@@ -178,11 +178,9 @@ function Knob:onDrag(state, last)
 end
 
 
-function Knob:onDoubleclick()
-
+function Knob:onDoubleClick()
   self:setCurrentStep(self.default)
 	self:redraw()
-
 end
 
 

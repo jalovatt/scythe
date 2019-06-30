@@ -37,7 +37,7 @@ function Menubar:new(props)
 
 	local mnu = self:addDefaultProps(props)
 
-  return self:assignChild(mnu)
+  return setmetatable(mnu, self)
 
 end
 

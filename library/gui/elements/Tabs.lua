@@ -51,7 +51,7 @@ function Tabs:new(props)
   tab.w = Tabs.getOverallWidth(tab)
   tab.h = tab.tabH
 
-	return self:assignChild(tab)
+	return setmetatable(tab, self)
 end
 
 

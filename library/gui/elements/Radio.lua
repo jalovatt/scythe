@@ -14,7 +14,7 @@ function Radio:new(props)
 
   radio.retval, radio.state = 1, 1
 
-  return self:assignChild(radio)
+  return setmetatable(radio, self)
 end
 
 
