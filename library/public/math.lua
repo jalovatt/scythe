@@ -30,10 +30,11 @@ end
 
 
 
--- Makes sure n is between min and max
--- The returned value is also the median of the three given
-Math.clamp = function (n, a, b)
-  return math.min(math.max(n, a), b)
+-- Clamps a number to a given range. The returned value is also the median of
+-- the three values. Argument order doesn't matter.
+Math.clamp = function (a, b, c)
+  if b > c then b, c = c, b end
+  return math.min(math.max(a, b), c)
 end
 
 
