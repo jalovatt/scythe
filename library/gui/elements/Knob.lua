@@ -51,7 +51,6 @@ function Knob:new(props)
   knob.stepAngle = KNOB_RANGE_RADIANS / knob.steps
 
   knob.currentStep = knob.default
-	knob.currentVal = knob.currentStep / knob.steps
 
   setmetatable(knob, self)
 
@@ -168,11 +167,11 @@ function Knob:onDrag(state, last)
 	--					Ctrl	Normal
 	local adj = ctrl and 1200 or 150
 
-    self:setCurrentVal(
-      Math.clamp(self.currentVal + ((last.mouse.y - state.mouse.y) / adj),
-      0,
-      1
-    ))
+    local currentPct = self:percentFromStep(self.currentStep)
+    local pctChange = (last.mouse.y - state.mouse.y) / adj
+    local pct = Math.clamp(currentPct + pctChange, 0, 1)
+
+    self:setCurrentStep(self:stepFromPercent(pct))
 
 	self:redraw()
 end
@@ -194,7 +193,11 @@ function Knob:onWheel(state)
 
 	local adj = ctrl and fine or coarse
 
-  self:setCurrentVal( Math.clamp( self.currentVal + (state.mouse.wheelInc * adj / self.steps), 0, 1))
+  local currentPct = self:percentFromStep(self.currentStep)
+  local pctChange = state.mouse.wheelInc * adj / self.steps
+  local newPct = Math.clamp(currentPct + pctChange, 0, 1)
+
+  self:setCurrentStep(self:stepFromPercent(newPct))
 
 	self:redraw()
 
@@ -263,17 +266,8 @@ end
 
 function Knob:setCurrentStep(step)
   self.currentStep = step
-  self.currentVal = self.currentStep / self.steps
   self:setRetval()
 end
-
-
-function Knob:setCurrentVal(val)
-  self.currentVal = val
-  self.currentStep = Math.round(val * self.steps)
-  self:setRetval()
-end
-
 
 function Knob:setRetval()
   self.retval = self:formatRetval(self.inc * self.currentStep + self.min)
@@ -284,6 +278,24 @@ function Knob:formatRetval(val)
   local decimal = tonumber(string.match(val, "%.(.*)") or 0)
   local places = decimal ~= 0 and string.len( decimal) or 0
   return string.format("%." .. places .. "f", val)
+end
+
+function Knob:valueFromStep(step)
+  local pct = step / self.steps
+  return self.min + pct * (self.max - self.min)
+end
+
+function Knob:stepFromValue(val)
+  local pct = (val - self.min) / (self.max - self.min)
+  return Math.round(pct * self.steps)
+end
+
+function Knob:stepFromPercent(pct)
+  return Math.round(pct * self.steps)
+end
+
+function Knob:percentFromStep(step)
+  return step / self.steps
 end
 
 return Knob
