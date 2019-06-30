@@ -52,7 +52,7 @@ Listbox.defaultProps =  {
 function Listbox:new(props)
 	local list = self:addDefaultProps(props)
 
-  return self:assignChild(list)
+  return setmetatable(list, self)
 end
 
 

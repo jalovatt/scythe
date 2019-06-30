@@ -15,7 +15,7 @@ function Checklist:new(props)
 
     checklist.selectedOptions = checklist.selectedOptions or {}
 
-    return self:assignChild(checklist)
+    return setmetatable(checklist, self)
 end
 
 

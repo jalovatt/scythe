@@ -35,7 +35,7 @@ function Frame:new(props)
 
 	local frame = self:addDefaultProps(props)
 
-  return self:assignChild(frame)
+  return setmetatable(frame, self)
 end
 
 

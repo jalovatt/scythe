@@ -7,7 +7,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
--- local Table = require("public.table")
+local Table = require("public.table")
 local Config = require("gui.config")
 
 local Slider = require("gui.element"):new()
@@ -69,7 +69,7 @@ function Slider:new(props)
   end
   slider.min, slider.max = min, max
 
-  self:assignChild(slider)
+  setmetatable(slider, self)
 
   slider.defaults = slider.defaults
 
@@ -204,7 +204,6 @@ end
 
 
 function Slider:onMouseDown(state)
-
   -- Snap the nearest slider to the nearest value
   local mouseValue = self.horizontal
     and (state.mouse.x - self.x) / self.w
@@ -212,10 +211,10 @@ function Slider:onMouseDown(state)
 
   self.currentHandle = self:getNearestHandle(mouseValue)
 
-  self:setCurrentVal(self.currentHandle, Math.clamp(mouseValue, 0, 1) )
+  local pct = Math.clamp(mouseValue, 0, 1)
+  self:setCurrentStep(self.currentHandle, self:stepFromPercent(pct))
 
   self:redraw()
-
 end
 
 
@@ -237,7 +236,11 @@ function Slider:onDrag(state, last)
   local adjustedScale = (self.horizontal and self.w or self.h) / 150
   adj = adj * adjustedScale
 
-  self:setCurrentVal(cur, Math.clamp( self.handles[cur].currentVal + ((n - ln) / adj) , 0, 1 ) )
+  local currentPct = self:percentFromStep(self.handles[cur].currentStep)
+  local pctChange = (n - ln) / adj
+  local newPct = Math.clamp(currentPct + pctChange, 0, 1)
+
+  self:setCurrentStep(cur, self:stepFromPercent(newPct))
 
   self:redraw()
 
@@ -263,15 +266,17 @@ function Slider:onWheel(state)
   local coarse = math.max( Math.round(self.steps / 30), 1)
 
   local adj = ctrl and fine or coarse
+  local currentPct = self:percentFromStep(self.handles[cur].currentStep)
+  local pctChange = inc * adj / self.steps
+  local newPct = Math.clamp(currentPct + pctChange, 0, 1)
 
-    self:setCurrentVal(cur, Math.clamp( self.handles[cur].currentVal + (inc * adj / self.steps) , 0, 1) )
+  self:setCurrentStep(cur, self:stepFromPercent(newPct))
 
   self:redraw()
-
 end
 
 
-function Slider:onDoubleclick(state)
+function Slider:onDoubleClick(state)
 
     -- Ctrl+click - Only reset the closest slider to the mouse
   if state.kb.ctrl then
@@ -280,7 +285,7 @@ function Slider:onDoubleclick(state)
     local smallestDiff, closestIndex
     for i = 1, #self.handles do
 
-      local diff = math.abs( self.handles[i].currentVal - mouseValue )
+      local diff = math.abs( self:percentFromStep(self.handles[i].currentStep) - mouseValue )
       if not smallestDiff or diff < smallestDiff then
         smallestDiff = diff
         closestIndex = i
@@ -469,7 +474,7 @@ function Slider:getNearestHandle(val)
 
   for i = 1, #self.handles do
 
-    local diff = math.abs( self.handles[i].currentVal - val )
+    local diff = math.abs( self:percentFromStep(self.handles[i].currentStep) - val )
 
     if not smallestDiff or (diff < smallestDiff) then
       smallestDiff = diff
@@ -485,22 +490,9 @@ end
 
 
 function Slider:setCurrentStep(sldr, step)
-
   self.handles[sldr].currentStep = step
-  self.handles[sldr].currentVal = self.handles[sldr].currentStep / self.steps
   self:setRetval(sldr)
-
 end
-
-
-function Slider:setCurrentVal(sldr, val)
-
-  self.handles[sldr].currentVal = val
-  self.handles[sldr].currentStep = Math.round(val * self.steps)
-  self:setRetval(sldr)
-
-end
-
 
 function Slider:setRetval(sldr)
 
@@ -521,28 +513,43 @@ function Slider:formatRetval(val)
 end
 
 function Slider:initHandles()
-
   self.steps = math.abs(self.max - self.min) / self.inc
 
   -- Make sure the handles are all valid
   for i = 1, #self.defaults do
-    self.defaults[i] = math.floor( Math.clamp(0, tonumber(self.defaults[i]), self.steps) )
+    self.defaults[i] = math.floor( Math.clamp(self.min, tonumber(self.defaults[i]), self.max) )
   end
 
   self.handles = {}
   local step
   for i = 1, #self.defaults do
+    step = self:stepFromValue(self.defaults[i])
 
-    step = self.defaults[i]
-
-    self.handles[i] = {}
-    self.handles[i].default = (self.horizontal and step or (self.steps - step))
-    self.handles[i].currentStep = step
-    self.handles[i].currentVal = step / self.steps
-    self.handles[i].retval = self:formatRetval( ((self.max - self.min) / self.steps)
-                                                * step + self.min)
+    self.handles[i] = {
+      default = step,
+      currentStep = step,
+      retval = self:formatRetval( self:valueFromStep(step) ),
+    }
   end
 
+end
+
+function Slider:valueFromStep(step)
+  local pct = step / self.steps
+  return self.min + pct * (self.max - self.min)
+end
+
+function Slider:stepFromValue(val)
+  local pct = (val - self.min) / (self.max - self.min)
+  return Math.round(pct * self.steps)
+end
+
+function Slider:stepFromPercent(pct)
+  return Math.round(pct * self.steps)
+end
+
+function Slider:percentFromStep(step)
+  return step / self.steps
 end
 
 return Slider

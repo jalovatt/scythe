@@ -44,7 +44,7 @@ Option.defaultProps = {
 function Option:new(props)
 
 	local option = self:addDefaultProps(props, self.defaultProps)
-  return self:assignChild(option)
+  return setmetatable(option, self)
 
 end
 

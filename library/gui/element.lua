@@ -59,7 +59,7 @@ function Element:onMouseOver() end
 function Element:onMouseDown() end
 
 function Element:onMouseUp() end
-function Element:onDoubleclick() end
+function Element:onDoubleClick() end
 
 -- Will continue being called even if you drag outside the element
 function Element:onDrag() end
@@ -67,13 +67,13 @@ function Element:onDrag() end
 -- Right-click
 function Element:onRightMouseDown() end
 function Element:onRightMouseUp() end
-function Element:onRightDoubleclick() end
+function Element:onRightDoubleClick() end
 function Element:onRightDrag() end
 
 -- Middle-click
 function Element:onMiddleMouseDown() end
 function Element:onMiddleMouseUp() end
-function Element:onMiddleDoubleclick() end
+function Element:onMiddleDoubleClick() end
 function Element:onMiddleDrag() end
 
 function Element:onWheel() end
@@ -88,6 +88,34 @@ function Element:onLostFocus() end
 -- Called when the script window has been resized
 function Element:onResize() end
 
+function Element:handleEvent(eventName, state, last)
+  local before = "before"..eventName
+  if self[before] then
+    self[before](self, state, last)
+  end
+
+  self["on"..eventName](self, state, last)
+
+  local after = "after"..eventName
+  if self[after] then
+    self[after](self, state, last)
+  end
+end
+
+local buttons = {
+  {
+    btn = "",
+    down = "left",
+  },
+  {
+    btn = "Right",
+    down = "right",
+  },
+  {
+    btn = "Middle",
+    down = "middle",
+  },
+}
 
 --	See if the any of the given element's methods need to be called
 function Element:Update(state, last)
@@ -109,21 +137,6 @@ function Element:Update(state, last)
 
   local x, y = state.mouse.x, state.mouse.y
   local inside = self:isInside(x, y)
-
-  local buttons = {
-    {
-      btn = "",
-      down = "left",
-    },
-    {
-      btn = "Right",
-      down = "right",
-    },
-    {
-      btn = "Middle",
-      down = "middle",
-    },
-  }
 
   for _, button in ipairs(buttons) do
     if state.elmUpdated then break end
@@ -152,13 +165,13 @@ function Element:Update(state, last)
 
             state.mouse.downTime = nil
             state.mouse.doubleClicked = true
-            self["on"..button.btn.."Doubleclick"](self, state, last)
+            self:handleEvent(button.btn.."DoubleClick", state, last)
 
           elseif not state.mouse.doubleClicked then
 
             state.mouse.downTime = reaper.time_precise()
             self.focus = true
-            self["on"..button.btn.."MouseDown"](self, state, last)
+            self:handleEvent(button.btn.."MouseDown", state, last)
 
           end
 
@@ -179,7 +192,7 @@ function Element:Update(state, last)
         and self.focus ~= false then
 
           state.elmUpdated = true
-          self["on"..button.btn.."Drag"](self, state, last)
+          self:handleEvent(button.btn.."Drag", state, last)
 
         end
         state.mouse.downElm = last.mouse.downElm
@@ -199,7 +212,7 @@ function Element:Update(state, last)
         if Scythe.developerMode then
           self:showDevMenu(state)
         else
-          self["on"..button.btn.."MouseUp"](self, state, last)
+          self:handleEvent(button.btn.."MouseUp", state, last)
         end
       end
 
@@ -215,11 +228,10 @@ function Element:Update(state, last)
 
       -- Initial mouseover an element
       if last.mouseOverElm ~= self then
-        self:onMouseEnter(state, last)
+        self:handleEvent("MouseEnter", state, last)
         state.mouse.mouseOverTime = reaper.time_precise()
-
       else
-        self:onMouseOver(state, last)
+        self:handleEvent("MouseOver", state, last)
         -- Mouse was moved; reset the timer
         if state.mouse.dx ~= 0 or state.mouse.dy ~= 0 then
 
@@ -238,7 +250,7 @@ function Element:Update(state, last)
 
   else
     if last.mouseOverElm == self then
-      self:onMouseLeave()
+      self:handleEvent("MouseLeave", state, last)
     end
   end
 
@@ -348,15 +360,6 @@ end
 function Element:moveToLayer(dest)
   if self.layer then self.layer:removeElements(self) end
   if dest then dest:addElements(self) end
-end
-
--- .prototype isn't strictly necessary, but it offers easy access to an
--- element's parent class for scripters without needing to know about metatables
-function Element:assignChild(instance)
-  setmetatable(instance, self)
-  instance.prototype = self
-
-  return instance
 end
 
 -- Most elements will accept a .output property, specifying how to display

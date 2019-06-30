@@ -66,7 +66,7 @@ TextEditor.defaultProps = {
 function TextEditor:new(props)
   local txt = self:addDefaultProps(props)
 
-	return self:assignChild(txt)
+	return setmetatable(txt, self)
 end
 
 
@@ -207,7 +207,7 @@ function TextEditor:onMouseDown(state)
 end
 
 
-function TextEditor:onDoubleclick()
+function TextEditor:onDoubleClick()
 
 	self:selectWord()
 

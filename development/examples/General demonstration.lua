@@ -210,7 +210,7 @@ layers[3]:addElements( GUI.createElements(
     w = 64,
     h = 20,
     caption = "Click me!",
-    func = fade_lbl
+    func = fade_lbl,
   },
   {
     name = "my_txt",
@@ -251,7 +251,7 @@ fadeLayer = fadeElm.layer
 local my_knob = GUI.findElementByName("my_knob")
 function my_knob:redraw()
 
-    self.prototype.redraw(self)
+    getmetatable(self).redraw(self)
     self.caption = self.retval .. "dB"
 
 end
@@ -287,7 +287,7 @@ layers[4]:addElements( GUI.createElements(
     caption = "Pan",
     min = -100,
     max = 100,
-    defaults = 100,
+    defaults = 0,
     -- Using a function to change the value label depending on the value
     output = function(val)
       val = tonumber(val)
@@ -306,7 +306,8 @@ layers[4]:addElements( GUI.createElements(
     caption = "Slider",
     min = 0,
     max = 10,
-    defaults = 20, 0.25,
+    defaults = 5,
+    inc = 0.25,
     horizontal = false,
     output = "Value: %val%",
   },

@@ -31,7 +31,7 @@ ColorPicker.defaultProps = {
 function ColorPicker:new(props)
 	local picker = self:addDefaultProps(props)
 
-  return self:assignChild(picker)
+  return setmetatable(picker, self)
 end
 
 function ColorPicker:init()
