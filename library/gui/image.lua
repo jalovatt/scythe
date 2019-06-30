@@ -70,53 +70,9 @@ Image.unloadFolder = function(folderTable)
   end
 end
 
-
-Image.Sprite = {}
-Image.Sprite.__index = Image.Sprite
-
-function Image.Sprite:new(props)
-  local sprite = Table.deepCopy(props)
-  sprite.image = {}
-  return setmetatable(sprite, self)
+Image.getPathFromBuffer = function(buffer)
+  return loadedImages:find(function(v, k) return (v == buffer) and k end)
 end
 
--- Accepts a path to load or an existing buffer number
-function Image.Sprite:setImage(image)
-  if type(image) == "string" then
-    self.image = image
-  else
-    self.image = loadedImages:find(function(_, k) return (k == image) end)
-  end
-
-  self.imageWidth, self.imageHeight = gfx.getimgdim(loadedImages[self.image])
-end
-
-function Image.Sprite:draw(x, y, frameX, frameY)
-  local buffer = loadedImages[self.image]
-  --gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
-  gfx.blit(buffer, 1, 0, (frameX or 0) * self.frameWidth, (frameY or 0) * self.frameHeight, self.frameWidth, self.frameHeight, x, y, self.frameWidth, self.frameHeight)
-end
-
---[[
-    Image.Sprite class
-
-    Should accept:
-      - image (buffer number or a path to load)
-      - frame width/height
-
-    - Should all sprites be stored in a table somewhere a la GUI.elms, maybe
-      Image.sprites?
-
-    Methods:
-      - Draw:
-        - frameX - Frame number, horizontally
-        - frameY - Frame number, vertically
-        - destX/Y
-        - destW/H - if wanting to resize
-        - rotation?
-        - rotation origin?
-      - Delete (free the buffer, remove sprite from the sprite registry if there is one
-
-]]--
 
 return Image
