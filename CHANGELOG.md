@@ -1,19 +1,23 @@
 # Scythe 3.x changelog
 
+## June 30, 2019
+
+- Slider and Knob use real values for their _default_ props rather than steps.
+
 ## June 29, 2019
 
-- Adds before + after event hooks for all input events:
+- Added before + after event hooks for all input events:
   `myElement:beforeMouseUp = function() Msg("before mouse up") end`
 
 ## June 22, 2019
 
-- Adds Table functions:
+- Added Table functions:
   - `join`: Accepts any number of indexed tables, returning a new table with their values joined sequentially
   - `zip`: Accepts any number of indexed tables, returning a new table with their values joined alternately
 
 ## June 21, 2019
 
-- Adds a public Menu module, which wraps gfx.showmenu to provide more useful output and work with menus in a table form. Replaces all uses of gfx.showmenu with the wrapped version.
+- Added a public Menu module, which wraps gfx.showmenu to provide more useful output and work with menus in a table form. Replaces all uses of gfx.showmenu with the wrapped version.
 
 ## June 12, 2019
 
