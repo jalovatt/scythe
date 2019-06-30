@@ -1,5 +1,10 @@
 # Scythe 3.x changelog
 
+## June 29, 2019
+
+- Adds before + after event hooks for all input events:
+  `myElement:beforeMouseUp = function() Msg("before mouse up") end`
+
 ## June 22, 2019
 
 - Adds Table functions:
