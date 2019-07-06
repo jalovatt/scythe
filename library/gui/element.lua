@@ -32,7 +32,7 @@ function Element:onUpdate() end
 -- element had requested (e.g. graphics buffers)
 function Element:delete()
 
-  self.onDelete(self)
+  self:handleEvent("Delete", self)
   if self.layer then self.layer:remove(self) end
 
 end
@@ -122,12 +122,14 @@ function Element:Update(state, last)
 
   local skip = self:onUpdate(state, last)
 
-  if state.resized then self:onResize(state, last) end
+  if state.resized then
+    self:handleEvent("Resize", state, last)
+  end
 
   if state.elmUpdated then
     if self.focus then
       self.focus = false
-      self:onLostFocus(state, last)
+      self:handleEvent("LostFocus", state, last)
     end
 
     return
@@ -151,7 +153,7 @@ function Element:Update(state, last)
 
           if self.focus then
             self.focus = false
-            self:onLostFocus(state, last)
+            self:handleEvent("LostFocus", state, last)
           end
 
           return
@@ -260,14 +262,14 @@ function Element:Update(state, last)
 
     state.mouse.wheelInc = (state.mouse.wheel - last.mouse.wheel) / 120
 
-    self:onWheel(state, last)
+    self:handleEvent("Wheel", state, last)
     state.elmUpdated = true
 
   end
 
   -- If the element is in focus and the user typed something
   if self.focus and state.kb.char ~= 0 then
-    self:onType(state, last)
+    self:handleEvent("Type", state, last)
     state.elmUpdated = true
   end
 
