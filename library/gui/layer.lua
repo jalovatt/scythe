@@ -1,6 +1,6 @@
 -- NoIndex: true
 local Table, T = require("public.table"):unpack()
-local Buffer = require("gui.buffer")
+local Buffer = require("public.buffer")
 
 local Layer = T{}
 Layer.__index = Layer
