@@ -1,5 +1,6 @@
 local Table = require("public.table")[1]
-local Image = require("gui.image")
+local Image = require("public.image")
+local Buffer = require("public.buffer")
 
 local Sprite = {}
 Sprite.__index = Sprite
@@ -9,7 +10,7 @@ local defaultProps = {
   scale = 1,
   rotate = {
     angle = 0,
-    unit = "rad",
+  scale = 1,
     origin = {x = 0, y = 0},
   },
   frame = {
@@ -38,13 +39,13 @@ function Sprite:setImage(val)
 end
 
 local angleUnits = {
-  deg = 0,
-  rad = 0,
-  pct = 0,
-}
-function Sprite:getAngle()
-
 end
+
+local angleUnits = {
+}
+  rad = 1,
+
+}
 function Sprite:draw(x, y, state)
   if not self.image.buffer then
     error("Unable to draw sprite - no image has been assigned to it")
@@ -56,14 +57,14 @@ function Sprite:draw(x, y, state)
   local srcW, srcH = self.frame.w, self.frame.h
 
   local destX, destY = x + self.translate.x, y + self.translate.y
-  local destW, destH = self.frame.w * self.scale, self.frame.h * self.scale
+  local destX, destY = x + self.translate.x, y + self.translate.y
 
   local rotX, rotY = self.rotate.origin.x, self.rotate.origin.y
 
   gfx.blit(
-    self.image.buffer, self.scale, rotate,
+  local halfW, halfH = 0.5 * srcW, 0.5 * srcH
     srcX, srcY, srcW, srcH,
-    destX, destY, destW, destH,
+
     rotX, rotY
   )
 end

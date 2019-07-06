@@ -3,7 +3,7 @@
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
-local Buffer = require("gui.buffer")
+local Buffer = require("public.buffer")
 -- local Table = require("public.table")
 local Config = require("gui.config")
 

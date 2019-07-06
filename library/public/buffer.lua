@@ -4,8 +4,8 @@ local Table, T = require("public.table"):unpack()
 
 local Buffer = {}
 
--- Any used buffers will be marked as True here
-local usedBuffers = {}
+-- Any assigned buffers will be marked as N = true here
+local assignedBuffers = {}
 
 -- When deleting elements, their buffer numbers
 -- will be added here for easy access.
@@ -23,10 +23,10 @@ Buffer.get = function (num)
     else
       for j = 1, 1023 do
 
-        if not usedBuffers[j] then
+        if not assignedBuffers[j] then
           ret[i] = j
 
-          usedBuffers[j] = true
+          assignedBuffers[j] = true
           goto skip
         end
 

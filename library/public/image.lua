@@ -1,6 +1,6 @@
 -- NoIndex: true
 
-local Buffer = require("gui.buffer")
+local Buffer = require("public.buffer")
 local Table, T = require("public.table"):unpack()
 
 local validExtensions = {
