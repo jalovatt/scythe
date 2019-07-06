@@ -2,6 +2,8 @@ local Table = require("public.table")[1]
 local Image = require("public.image")
 local Buffer = require("public.buffer")
 
+local sharedBuffer = Buffer.get()
+
 local Sprite = {}
 Sprite.__index = Sprite
 
@@ -10,7 +12,7 @@ local defaultProps = {
   scale = 1,
   rotate = {
     angle = 0,
-  scale = 1,
+    unit = "pct",
     origin = {x = 0, y = 0},
   },
   frame = {
@@ -39,13 +41,11 @@ function Sprite:setImage(val)
 end
 
 local angleUnits = {
-end
-
-local angleUnits = {
-}
+  deg = 1,
   rad = 1,
-
+  pct = 2 * math.pi,
 }
+
 function Sprite:draw(x, y, state)
   if not self.image.buffer then
     error("Unable to draw sprite - no image has been assigned to it")
@@ -57,14 +57,32 @@ function Sprite:draw(x, y, state)
   local srcW, srcH = self.frame.w, self.frame.h
 
   local destX, destY = x + self.translate.x, y + self.translate.y
-  local destX, destY = x + self.translate.x, y + self.translate.y
 
   local rotX, rotY = self.rotate.origin.x, self.rotate.origin.y
+  rotX, rotY = -srcW / 2, -srcH / 2
 
-  gfx.blit(
   local halfW, halfH = 0.5 * srcW, 0.5 * srcH
-    srcX, srcY, srcW, srcH,
+  local doubleW, doubleH = 2 * srcW, 2 * srcH
 
+  local dest = gfx.dest
+  gfx.dest = sharedBuffer
+  gfx.setimgdim(sharedBuffer, 0, 0)
+  gfx.setimgdim(sharedBuffer, doubleW, doubleH)
+  gfx.blit(
+    self.image.buffer, 1, 0,
+    srcX, srcY, srcW, srcH,
+    halfW, halfH, srcW, srcH,
+    0, 0
+  )
+  gfx.dest = dest
+
+  -- Just for debugging
+  gfx.set(1, 0, 1, 1)
+  gfx.rect(destX, destY, srcW * self.scale, srcH * self.scale, false)
+  gfx.blit(
+    sharedBuffer, 1, rotate + 6.2831854,
+    0, 0, doubleW, doubleH,
+    destX + ((rotX - halfW) * self.scale), destY + ((rotY - halfH) * self.scale), doubleW * self.scale, doubleH * self.scale,
     rotX, rotY
   )
 end
