@@ -13,6 +13,7 @@ local defaultProps = {
   rotate = {
     angle = 0,
     unit = "pct",
+    -- Relative to the image's center (i.e. -w/2 = the top-left corner)
     origin = {x = 0, y = 0},
   },
   frame = {
@@ -59,7 +60,6 @@ function Sprite:draw(x, y, state)
   local destX, destY = x + self.translate.x, y + self.translate.y
 
   local rotX, rotY = self.rotate.origin.x, self.rotate.origin.y
-  rotX, rotY = -srcW / 2, -srcH / 2
 
   local halfW, halfH = 0.5 * srcW, 0.5 * srcH
   local doubleW, doubleH = 2 * srcW, 2 * srcH
