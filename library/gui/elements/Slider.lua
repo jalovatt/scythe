@@ -225,8 +225,6 @@ function Slider:onDrag(state, last)
     or  {state.mouse.y, last.mouse.y}
   )
 
-  local cur = self.currentHandle or 1
-
   -- Ctrl?
   local ctrl = state.kb.ctrl
 
@@ -236,14 +234,13 @@ function Slider:onDrag(state, last)
   local adjustedScale = (self.horizontal and self.w or self.h) / 150
   adj = adj * adjustedScale
 
-  local currentPct = self:percentFromStep(self.handles[cur].currentStep)
+  local cur = self.currentHandle or 1
   local pctChange = (n - ln) / adj
-  local newPct = Math.clamp(currentPct + pctChange, 0, 1)
 
-  self:setCurrentStep(cur, self:stepFromPercent(newPct))
+  local newPct = Math.clamp(self.handles[cur].currentPct + pctChange, 0, 1)
+  self:setCurrentPct(cur, newPct)
 
   self:redraw()
-
 end
 
 
@@ -488,9 +485,15 @@ function Slider:getNearestHandle(val)
 
 end
 
+function Slider:setCurrentPct(sldr, pct)
+  self.handles[sldr].currentPct = pct
+  self.handles[sldr].currentStep = self:stepFromPercent(pct)
+  self:setRetval(sldr)
+end
 
 function Slider:setCurrentStep(sldr, step)
   self.handles[sldr].currentStep = step
+  self.handles[sldr].currentPct = self:percentFromStep(step)
   self:setRetval(sldr)
 end
 
