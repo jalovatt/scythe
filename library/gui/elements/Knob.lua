@@ -280,11 +280,9 @@ function Knob:setRetval()
   self.retval = self:formatRetval(self.inc * self.currentStep + self.min)
 end
 
-
+-- Really just strips trailing zeroes from 1.0, etc.
 function Knob:formatRetval(val)
-  local decimal = tonumber(string.match(val, "%.(.*)") or 0)
-  local places = decimal ~= 0 and string.len( decimal) or 0
-  return string.format("%." .. places .. "f", val)
+  return (math.floor(val) == val) and math.floor(val) or val
 end
 
 function Knob:valueFromStep(step)
