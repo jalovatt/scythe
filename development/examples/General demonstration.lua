@@ -300,7 +300,7 @@ layers[4]:addElements( GUI.createElements(
   {
     name = "my_sldr",
     type = "Slider",
-    x = 128,
+    x = 80,
     y = 256,
     w = 128,
     caption = "Slider",
@@ -310,6 +310,19 @@ layers[4]:addElements( GUI.createElements(
     inc = 0.25,
     horizontal = false,
     output = "Value: %val%",
+  },
+  {
+    name = "my_dec",
+    type = "Slider",
+    x = 192,
+    y = 256,
+    w = 128,
+    caption = "Decimals",
+    min = -1,
+    max = 1,
+    defaults = 0,
+    inc = 0.01,
+    horizontal = false,
   },
   {
     name = "my_rng2",
