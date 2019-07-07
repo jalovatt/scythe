@@ -53,6 +53,7 @@ function Knob:new(props)
   knob.currentStep = knob.default
 
   setmetatable(knob, self)
+  knob.currentPct = knob:percentFromStep(knob.currentStep)
 
   knob.retval = knob:formatRetval(
     ((knob.max - knob.min) / knob.steps) * knob.currentStep + knob.min
@@ -167,11 +168,10 @@ function Knob:onDrag(state, last)
 	--					Ctrl	Normal
 	local adj = ctrl and 1200 or 150
 
-    local currentPct = self:percentFromStep(self.currentStep)
-    local pctChange = (last.mouse.y - state.mouse.y) / adj
-    local pct = Math.clamp(currentPct + pctChange, 0, 1)
+  local pctChange = (last.mouse.y - state.mouse.y) / adj
+  local newPct = Math.clamp(self.currentPct + pctChange, 0, 1)
 
-    self:setCurrentStep(self:stepFromPercent(pct))
+  self:setCurrentPct(newPct)
 
 	self:redraw()
 end
@@ -266,6 +266,13 @@ end
 
 function Knob:setCurrentStep(step)
   self.currentStep = step
+  self.currentPct = self:percentFromStep(step)
+  self:setRetval()
+end
+
+function Knob:setCurrentPct(pct)
+  self.currentPct = pct
+  self.currentStep = self:stepFromPercent(pct)
   self:setRetval()
 end
 
