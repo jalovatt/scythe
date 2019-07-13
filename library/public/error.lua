@@ -4,10 +4,12 @@ local Error = {}
 
 -- A basic crash handler, just to add some helpful detail
 -- to the Reaper error message.
-Error.crash = function (errObject, skipMsg)
+Error.handleError = function (errObject)
+  -- Dump any queued messages, since they're probably relevant
+  printQMsg()
 
   -- Global hook for any user functions to perform when an error is thrown
-  if Error.onCrash then Error.onCrash(errObject) end
+  if Error.onError then Error.onError(errObject) end
 
   local byLine = "([^\r\n]*)\r?\n?"
   local trimPath = "[\\/]([^\\/]-:%d+:.+)$"
@@ -25,9 +27,7 @@ Error.crash = function (errObject, skipMsg)
 
   local name = ({reaper.get_action_context()})[2]:match("([^/\\_]+)$")
 
-  local ret = skipMsg
-    and 6
-    or reaper.ShowMessageBox(
+  local ret = reaper.ShowMessageBox(
       name.." has crashed!\n\n"..
       "Would you like to have a crash report printed "..
       "to the Reaper console?",
@@ -70,6 +70,5 @@ if Scythe.scriptRestricted then
   io = setmetatable({}, { __index = Error.errorRestricted }) -- luacheck: ignore 121
 
 end
-
 
 return Error

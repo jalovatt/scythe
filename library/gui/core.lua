@@ -5,7 +5,7 @@ if not Scythe then
   return
 end
 
-local Error = require("gui.error")
+local Error = require("public.error")
 
 local GUI = {}
 local T = require("public.table")[2]
@@ -36,7 +36,7 @@ GUI.Init = function ()
     --                                       col[3] / 255, col[4] / 255
     -- end
 
-  end, Error.crash)
+  end, Error.handleError)
 end
 
 
@@ -65,7 +65,7 @@ GUI.Main = function ()
 
     reaper.defer(GUI.Main)
 
-  end, Error.crash)
+  end, Error.handleError)
 end
 
 
