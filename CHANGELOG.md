@@ -1,5 +1,13 @@
 # Scythe 3.x changelog
 
+## July 13, 2019
+
+- Added functions for queueing messages so that Reaper isn't choked by constantly updating the console:
+  - `qMsg(...)`: Stores all arguments in an internal table
+  - `printQMsg`: Concatenates and prints the table contents
+
+  In the event of a script error, any remaining messages in the queue are printed out.
+
 ## June 30, 2019
 
 - Slider and Knob use real values for their _default_ props rather than steps.

@@ -21,6 +21,7 @@ end
 
 Message.printQueue = function()
   reaper.ShowConsoleMsg(table.concat(queuedMessages, "\n").."\n")
+  queuedMessages = {}
 end
 
 return Message
