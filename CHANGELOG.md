@@ -8,6 +8,8 @@
 
   In the event of a script error, any remaining messages in the queue are printed out.
 
+- Added `requireWithMocks(requirePath, mocks)` for test suites that need to override `reaper`/`gfx`/etc. functions.
+
 ## June 30, 2019
 
 - Slider and Knob use real values for their _default_ props rather than steps.

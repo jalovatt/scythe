@@ -11,6 +11,7 @@ globals = {
   "test",
   "xdescribe",
   "xtest",
+  "requireWithMocks",
   "_",
 }
 max_line_length = false

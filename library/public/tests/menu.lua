@@ -1,4 +1,8 @@
-local Menu = require("public.menu")
+local menuVal
+
+local Menu = requireWithMocks("public.menu", {
+  gfx = { showmenu = function() return menuVal end }
+})
 
 describe("Menu.parseString", function()
   test("parses a basic set of options", function()
@@ -119,9 +123,7 @@ describe("Menu.getTrueIndex", function()
 end)
 
 describe("Menu.showMenu", function()
-  local menuVal, idx, val
-  local old = gfx.showmenu
-  gfx.showmenu = function() return menuVal end
+  local idx, val
 
   test("handles a string with separators", function()
     local str = "1|2||3|4|5||6.12435213613"
@@ -221,6 +223,4 @@ describe("Menu.showMenu", function()
     expect(idx).toEqual(6)
     expect(val).toEqual(16)
   end)
-
-  gfx.showmenu = old
 end)

@@ -80,6 +80,7 @@ end)
   Matchers available at the time of this writing:
   - `toEqual`: Checks that `a == b`. In the case of tables this is a comparison by reference, so only the same actual table will match, not just the same set of values.
   - `toNotEqual`: Checks that `a ~= b`.
+  - `toShallowEqual`: Checks that `a` and `b` are equal at the top level. Any values that are tables or functions will be compared by reference.
   - `toAlmostEqual`: Checks that `a` and `b` are equal down to a given number of decimal places, defaulting to 3. That is, `(a - b) <= 0.001`. This matcher accepts a second value if you need to specify a different number of places.
   - `toDeepEqual`: Checks that two tables have the same keys and values, recursively checking any subtables it finds.
   - `toNotDeepEqual`: Checks that two tables do not have the same keys and values.
