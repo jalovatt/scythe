@@ -4,6 +4,8 @@ globals = {
   "Scythe",
   "Error",
   "Msg",
+  "qMsg",
+  "printQMsg",
   "describe",
   "expect",
   "test",
