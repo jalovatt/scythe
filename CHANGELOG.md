@@ -1,5 +1,9 @@
 # Scythe 3.x changelog
 
+## July 21, 2019
+
+- Moved `Element:update()` up to the Window class, eliminating a whole bunch of redundant processing. Shouldn't break anything.
+
 ## July 13, 2019
 
 - Added functions for queueing messages so that Reaper isn't choked by constantly updating the console:
