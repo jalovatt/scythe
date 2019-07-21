@@ -1,7 +1,6 @@
 -- NoIndex: true
 
 local Table, T = require("public.table"):unpack()
-local Config = require("gui.config")
 
 local Element = T{}
 Element.__index = Element
@@ -48,6 +47,14 @@ function Element:onDelete() end
 -- their output, so it's important to use this when accessing them to ensure
 -- that right behavior.
 function Element:val() end
+
+
+
+
+------------------------------------
+-------- User Events ---------------
+------------------------------------
+
 
 function Element:onMouseEnter() end
 function Element:onMouseLeave() end
@@ -102,177 +109,12 @@ function Element:handleEvent(eventName, state, last)
   end
 end
 
-local buttons = {
-  {
-    btn = "",
-    down = "left",
-  },
-  {
-    btn = "Right",
-    down = "right",
-  },
-  {
-    btn = "Middle",
-    down = "middle",
-  },
-}
-
---	See if the any of the given element's methods need to be called
-function Element:Update(state, last)
-
-  local skip = self:onUpdate(state, last)
+function Element:update(state, last)
+  self:onUpdate(state, last)
 
   if state.resized then
     self:handleEvent("Resize", state, last)
   end
-
-  if state.elmUpdated then
-    if self.focus then
-      self.focus = false
-      self:handleEvent("LostFocus", state, last)
-    end
-
-    return
-  end
-
-  if skip then return end
-
-  local x, y = state.mouse.x, state.mouse.y
-  local inside = self:isInside(x, y)
-
-  for _, button in ipairs(buttons) do
-    if state.elmUpdated then break end
-
-    if state.mouse[button.down] then
-
-      -- If it wasn't down already...
-      if not last.mouse[button.down] then
-
-        -- Was a different element clicked?
-        if not inside then
-
-          if self.focus then
-            self.focus = false
-            self:handleEvent("LostFocus", state, last)
-          end
-
-          return
-        else
-          state.mouse.downElm = self
-
-          -- Double clicked?
-          if state.mouse.downTime
-          and reaper.time_precise() - state.mouse.downTime < Config.doubleclickTime
-          then
-
-            state.mouse.downTime = nil
-            state.mouse.doubleClicked = true
-            self:handleEvent(button.btn.."DoubleClick", state, last)
-
-          elseif not state.mouse.doubleClicked then
-
-            state.mouse.downTime = reaper.time_precise()
-            self.focus = true
-            self:handleEvent(button.btn.."MouseDown", state, last)
-
-          end
-
-          state.elmUpdated = true
-
-          state.mouse.ox, state.mouse.oy = x, y
-
-          -- Where in the element the mouse was clicked. For dragging stuff
-          -- and keeping it in the place relative to the cursor.
-          state.mouse.relativeX, state.mouse.relativeY = x - self.x, y - self.y
-
-        end
-
-      -- 		Dragging? Did the mouse start out in this element?
-      elseif last.mouse.downElm == self then
-
-        if (state.mouse.dx ~= 0 or state.mouse.dy ~= 0)
-        and self.focus ~= false then
-
-          state.elmUpdated = true
-          self:handleEvent(button.btn.."Drag", state, last)
-
-        end
-        state.mouse.downElm = last.mouse.downElm
-      end
-
-    -- If it was originally clicked in this element and has been released
-    -- Important: Clicking in an element, moving the cursor, and releasing the
-    -- mouse outside of the element will still trigger an :onMouseUp, since
-    -- elements like the Button need to know that the mouse has been released.
-    -- Elements should check if state.mouse is inside them
-    elseif last.mouse[button.down] and last.mouse.downElm == self then
-
-      state.mouse.downElm = nil
-
-      if not state.mouse.doubleClicked then
-
-        if Scythe.developerMode then
-          self:showDevMenu(state)
-        else
-          self:handleEvent(button.btn.."MouseUp", state, last)
-        end
-      end
-
-      state.elmUpdated = true
-
-    end
-  end
-
-  -- If the mouse is hovering over the element
-  if inside then
-    state.mouseOverElm = self
-    if not state.mouse.down and not state.mouse.right then
-
-      -- Initial mouseover an element
-      if last.mouseOverElm ~= self then
-        self:handleEvent("MouseEnter", state, last)
-        state.mouse.mouseOverTime = reaper.time_precise()
-      else
-        self:handleEvent("MouseOver", state, last)
-        -- Mouse was moved; reset the timer
-        if state.mouse.dx ~= 0 or state.mouse.dy ~= 0 then
-
-          state.mouse.mouseOverTime = reaper.time_precise()
-
-        -- Display a tooltip
-        elseif self.tooltip
-          and (reaper.time_precise() - state.mouse.mouseOverTime)
-                >= Config.tooltipTime then
-
-          state.setTooltip(self.tooltip)
-
-        end
-      end
-    end
-
-  else
-    if last.mouseOverElm == self then
-      self:handleEvent("MouseLeave", state, last)
-    end
-  end
-
-
-  -- If the mousewheel's state has changed
-  if inside and state.mouse.wheel ~= last.mouse.wheel then
-
-    state.mouse.wheelInc = (state.mouse.wheel - last.mouse.wheel) / 120
-
-    self:handleEvent("Wheel", state, last)
-    state.elmUpdated = true
-
-  end
-
-  -- If the element is in focus and the user typed something
-  if self.focus and state.kb.char ~= 0 then
-    self:handleEvent("Type", state, last)
-    state.elmUpdated = true
-  end
-
 end
 
 -- Are these coordinates inside the element?

@@ -73,7 +73,7 @@ end
 function Layer:update(state, last)
   if self.elementCount > 0 and not (self.hidden or self.frozen) then
     for _, elm in pairs(self.elements) do
-      elm:Update(state, last)
+      elm:update(state, last)
     end
   end
 end
@@ -104,6 +104,14 @@ end
 
 function Layer:findElementByName(name)
   if self.elements[name] then return self.elements[name] end
+end
+
+function Layer:findElementContaining(x, y)
+  if self.elementCount > 0 and not (self.hidden or self.frozen) then
+    for _, elm in pairs(self.elements) do
+      if elm:containsPoint(x, y) then return elm end
+    end
+  end
 end
 
 return Layer
