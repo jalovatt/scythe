@@ -103,7 +103,7 @@ end
 function Button:onMouseUp(state)
 	self.state = 0
 
-	if self:isInside(state.mouse.x, state.mouse.y) then
+	if self:containsPoint(state.mouse.x, state.mouse.y) then
 
 		self.func(table.unpack(self.params))
 
@@ -120,7 +120,7 @@ end
 
 
 function Button:onRightMouseUp(state)
-	if self:isInside(state.mouse.x, state.mouse.y) and self.rightFunc then
+	if self:containsPoint(state.mouse.x, state.mouse.y) and self.rightFunc then
 
 		self.rightFunc(table.unpack(self.rightParams))
 

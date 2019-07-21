@@ -215,10 +215,11 @@ end
 ------------------------------------
 
 
+-- TODO: Use onMouseLeave for this
 -- Make sure to disable the highlight if the mouse leaves
 function Menubar:onUpdate(state)
 
-  if self.mouseMenu and not self:isInside(state.mouse.x, state.mouse.y) then
+  if self.mouseMenu and not self:containsPoint(state.mouse.x, state.mouse.y) then
     self.mouseMenu = nil
     self.mouseMenuX = nil
     self:redraw()

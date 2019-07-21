@@ -665,11 +665,8 @@ Textbox.processKey = {
   end,
 
   [Const.chars.RETURN] = function(self)
-
     self.focus = false
-    self:lostFocus()
     self:redraw()
-
   end,
 
   [Const.chars.HOME] = function(self)

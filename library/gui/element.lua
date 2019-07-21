@@ -277,7 +277,7 @@ end
 
 -- Are these coordinates inside the element?
 -- If no coords are given, will use the mouse cursor
-function Element:isInside (x, y)
+function Element:containsPoint (x, y)
 
   return	(	x >= (self.x or 0) and x < ((self.x or 0) + (self.w or 0)) and
             y >= (self.y or 0) and y < ((self.y or 0) + (self.h or 0))	)
