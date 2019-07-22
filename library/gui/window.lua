@@ -1,5 +1,7 @@
 -- NoIndex: true
 
+-- Available event hooks: onResize, onMouseMove
+
 local Table, T = require("public.table"):unpack()
 local Color = require("public.color")
 local Font = require("public.font")
@@ -147,7 +149,7 @@ function Window:redraw()
             layer:redraw()
           end
 
-          gfx.blit(layer.buffer, 1, 0, 0, 0, w, h, 0, 0, w, h, 0, 0)
+          gfx.blit(layer.buffer, 1, 0, 0, 0, w, h, 0, 0, w, h, layer.x, layer.y)
         end
     end
 
@@ -208,6 +210,8 @@ function Window:update()
 
   self:handleWindowEvents()
 
+  self:updateInputEvents()
+
   if self.layerCount > 0 and self.isOpen and self.isRunning then
     self:updateLayers()
   end
@@ -245,14 +249,16 @@ function Window:handleWindowEvents()
   -- Window resized
   if last.currentW
   and (state.currentW ~= last.currentW or state.currentH ~= last.currentH) then
-    if self.onResize then self.onResize() end
+    if self.onResize then
+      self:onResize()
+    end
     state.resized = true
   end
 
   -- Mouse moved
   if (state.x ~= last.x or state.y ~= last.y)
   and self.onMouseMove then
-    self.onMouseMove()
+    self:onMouseMove()
   end
 
 end
@@ -273,7 +279,7 @@ function Window:updateInputState()
     dy          = gfx.mouse_y - last.mouse.y,
 
     -- Values that need to persist from one loop to the next
-    downTime        = last.mouse.downTime,
+    lastTimeUp        = last.mouse.lastTimeUp,
     downElm         = last.mouse.downElm,
     doubleClicked   = last.doubleClicked,
     ox              = last.mouse.ox,
@@ -294,11 +300,143 @@ function Window:updateInputState()
   state.currentW = gfx.w
   state.currentH = gfx.h
 
+  state.focusedElm = last.focusedElm
+
   state.setTooltip = function(str) self:setTooltip(state.mouse.x, state.mouse.y, str) end
 
   self.state = state
   self.lastState = last
 
+end
+
+function Window:findElementContaining(x, y)
+  for i = 1, self.layerCount do
+    local elm = self.sortedLayers[i]:findElementContaining(x, y)
+    if elm then return elm end
+  end
+end
+
+local buttons = {
+  {
+    btn = "",
+    down = "left",
+  },
+  {
+    btn = "Right",
+    down = "right",
+  },
+  {
+    btn = "Middle",
+    down = "middle",
+  },
+}
+
+function Window:updateInputEvents()
+  local state = self.state
+  local last = self.lastState
+
+  local elementUpdated
+  local elementToLoseFocus
+
+  local mouseOverElm = self:findElementContaining(state.mouse.x, state.mouse.y)
+  state.mouse.overElm = mouseOverElm
+
+  if mouseOverElm then
+    if last.mouse.overElm ~= mouseOverElm then
+      Msg("mouseEnter")
+      mouseOverElm:handleEvent("MouseEnter", state, last)
+    else
+      Msg("mouseOver")
+      mouseOverElm:handleEvent("MouseOver", state, last)
+    end
+
+    if state.mouse.wheel ~= last.mouse.wheel then
+      state.mouse.wheelInc = (state.mouse.wheel - last.mouse.wheel) / 120
+      mouseOverElm:handleEvent("Wheel", state, last)
+
+      elementUpdated = true
+    end
+  end
+
+  if last.mouse.overElm and last.mouse.overElm ~= mouseOverElm then
+    Msg("mouseLeave")
+    last.mouse.overElm:handleEvent("MouseLeave", state, last)
+  end
+
+  for _, button in ipairs(buttons) do
+    if elementUpdated then break end
+
+    if state.mouse[button.down] then
+
+      if not last.mouse[button.down] then
+        if mouseOverElm then
+          mouseOverElm:handleEvent(button.btn.."MouseDown", state, last)
+
+          state.mouse.ox = state.mouse.x
+          state.mouse.oy = state.mouse.y
+
+          state.mouse.elementRelativeX = state.mouse.x - mouseOverElm.x
+          state.mouse.elementRelativeX = state.mouse.y - mouseOverElm.y
+
+          state.focusedElm = mouseOverElm
+          mouseOverElm.focus = true
+
+          elementUpdated = true
+        end
+
+        state.mouse.downElm = mouseOverElm
+
+        if last.focusedElm and mouseOverElm ~= last.focusedElm then
+          elementToLoseFocus = last.focusedElm
+        end
+
+      elseif state.mouse.downElm then
+        if (state.mouse.dx ~= 0 or state.mouse.dy ~= 0) then
+          state.mouse.downElm:handleEvent(button.btn.."Drag", state, last)
+
+          elementUpdated = true
+        end
+      end
+
+    else
+      if state.mouse.downElm and last.mouse[button.down] then
+        if state.mouse.lastTimeUp
+        and reaper.time_precise() - state.mouse.lastTimeUp < Config.doubleclickTime
+        then
+          state.mouse.downElm:handleEvent(button.btn.."DoubleClick", state, last)
+
+          state.mouse.lastTimeUp = nil
+          state.mouse.doubleClicked = true
+
+          elementUpdated = true
+
+        elseif not state.mouse.doubleClicked then
+          state.mouse.downElm:handleEvent(button.btn.."MouseUp", state, last)
+          state.mouse.downElm = nil
+
+          state.mouse.lastTimeUp = reaper.time_precise()
+
+          elementUpdated = true
+        end
+      end
+    end
+  end
+
+  if state.focusedElm then
+    if not state.focusedElm.focus then
+      elementToLoseFocus = state.focusedElm
+    elseif state.kb.char ~= 0 then
+      state.focusedElm:handleEvent("Type", state, last)
+    end
+  end
+
+  if elementToLoseFocus then
+    elementToLoseFocus:handleEvent("LostFocus", state, last)
+    elementToLoseFocus.focus = false
+    elementToLoseFocus:redraw()
+
+    state.focusedElm = nil
+  end
 end
 
 function Window:updateLayers()

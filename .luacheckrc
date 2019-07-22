@@ -4,11 +4,14 @@ globals = {
   "Scythe",
   "Error",
   "Msg",
+  "qMsg",
+  "printQMsg",
   "describe",
   "expect",
   "test",
   "xdescribe",
   "xtest",
+  "requireWithMocks",
   "_",
 }
 max_line_length = false

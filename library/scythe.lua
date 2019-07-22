@@ -29,7 +29,9 @@ end
 addPaths()
 
 local Message = require("public.message")
-
+Msg = Msg or Message.Msg
+qMsg = qMsg or Message.queueMsg
+printQMsg = printQMsg or Message.printQueue
 
 if not os then Scythe.scriptRestricted = true end
 
@@ -56,10 +58,6 @@ Scythe.version = (function()
 
 end)()
 
--- Also might need to know this
 Scythe.hasSWS = reaper.APIExists("CF_GetClipboardBig")
-
--- if not Error then Error = require("gui.error") end
-if not Msg then Msg = Message.Msg end
 
 -- return Scythe

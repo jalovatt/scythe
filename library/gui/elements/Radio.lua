@@ -67,7 +67,7 @@ function Radio:onMouseUp(state)
 
 	-- Set the new option, or revert to the original if the cursor
   -- isn't inside the list anymore
-	if self:isInside(state.mouse.x, state.mouse.y) then
+	if self:containsPoint(state.mouse.x, state.mouse.y) then
 		self.retval = self.state
 	else
 		self.state = self.retval

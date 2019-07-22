@@ -1,5 +1,19 @@
 # Scythe 3.x changelog
 
+## July 21, 2019
+
+- Moved `Element:update()` up to the Window class, eliminating a whole bunch of redundant processing. Shouldn't break anything.
+
+## July 13, 2019
+
+- Added functions for queueing messages so that Reaper isn't choked by constantly updating the console:
+  - `qMsg(...)`: Stores all arguments in an internal table
+  - `printQMsg`: Concatenates and prints the table contents
+
+  In the event of a script error, any remaining messages in the queue are printed out.
+
+- Added `requireWithMocks(requirePath, mocks)` for test suites that need to override `reaper`/`gfx`/etc. functions.
+
 ## June 30, 2019
 
 - Slider and Knob use real values for their _default_ props rather than steps.

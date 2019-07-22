@@ -223,4 +223,27 @@ function Test.expect(val)
   return matcher(val)
 end
 
+--[[
+  For test suites that need to override existing global functions, i.e.:
+
+    mocks = {
+      reaper = {
+        ShowConsoleMsg = function() stuff end
+      },
+    }
+
+  Uses metatables to provide access to the rest of the i.e. reaper functions.
+  ** Only sets metatables for the first level of tables **
+]]--
+function Test.requireWithMocks(requirePath, mocks)
+  local path = Scythe.libPath .. requirePath:gsub("%.", "/") .. ".lua"
+
+  local env = setmetatable({}, {__index = _G})
+  for k, v in pairs(mocks) do
+    env[k] = setmetatable(v, {__index = _G[k]})
+  end
+
+  return loadfile(path, "bt", env)()
+end
+
 return Test
