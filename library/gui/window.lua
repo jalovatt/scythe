@@ -342,9 +342,11 @@ function Window:updateInputEvents()
   state.mouse.overElm = mouseOverElm
 
   if mouseOverElm then
-    if last.mouseOverElm ~= mouseOverElm then
+    if last.mouse.overElm ~= mouseOverElm then
+      Msg("mouseEnter")
       mouseOverElm:handleEvent("MouseEnter", state, last)
     else
+      Msg("mouseOver")
       mouseOverElm:handleEvent("MouseOver", state, last)
     end
 
@@ -356,8 +358,9 @@ function Window:updateInputEvents()
     end
   end
 
-  if last.mouseOverElm and last.mouseOverElm ~= mouseOverElm then
-    mouseOverElm:handleEvent("MouseLeave", state, last)
+  if last.mouse.overElm and last.mouse.overElm ~= mouseOverElm then
+    Msg("mouseLeave")
+    last.mouse.overElm:handleEvent("MouseLeave", state, last)
   end
 
   for _, button in ipairs(buttons) do
