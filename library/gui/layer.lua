@@ -6,8 +6,14 @@ local Layer = T{}
 Layer.__index = Layer
 Layer.__noRecursion = true
 
+Layer.defaultProps = {
+  x = 0,
+  y = 0,
+}
+
 function Layer:new(props)
   local layer = Table.deepCopy(props or {})
+  Table.addMissingKeys(layer, self.defaultProps)
 
   layer.elementCount = 0
   layer.elements = T{}
