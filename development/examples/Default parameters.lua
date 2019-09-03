@@ -67,8 +67,6 @@ layer:addElements( GUI.createElements(
 ))
 
 window:addLayers(layer)
-
-GUI.Init()
 window:open()
 
 GUI.Main()

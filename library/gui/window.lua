@@ -343,10 +343,8 @@ function Window:updateInputEvents()
 
   if mouseOverElm then
     if last.mouse.overElm ~= mouseOverElm then
-      Msg("mouseEnter")
       mouseOverElm:handleEvent("MouseEnter", state, last)
     else
-      Msg("mouseOver")
       mouseOverElm:handleEvent("MouseOver", state, last)
     end
 
@@ -359,7 +357,6 @@ function Window:updateInputEvents()
   end
 
   if last.mouse.overElm and last.mouse.overElm ~= mouseOverElm then
-    Msg("mouseLeave")
     last.mouse.overElm:handleEvent("MouseLeave", state, last)
   end
 

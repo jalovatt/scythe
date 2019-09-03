@@ -417,7 +417,6 @@ local function Main()
 end
 
 -- Open the script window and initialize a few things
-GUI.Init()
 window:open()
 
 -- Tell the GUI library to run Main on each update loop
