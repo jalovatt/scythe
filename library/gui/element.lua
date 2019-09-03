@@ -110,7 +110,7 @@ function Element:handleEvent(eventName, state, last)
 end
 
 function Element:update(state, last)
-  self:onUpdate(state, last)
+  self:handleEvent("Update", state, last)
 
   if state.resized then
     self:handleEvent("Resize", state, last)
