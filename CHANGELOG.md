@@ -1,5 +1,9 @@
 # Scythe 3.x changelog
 
+## September 3, 2019
+
+- Added a UI test script for user events and hooks
+
 ## July 21, 2019
 
 - Moved `Element:update()` up to the Window class, eliminating a whole bunch of redundant processing. Shouldn't break anything.
