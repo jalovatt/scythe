@@ -4,8 +4,6 @@
   Test script to make sure user events and hooks are being fired correctly
 ]]--
 
--- The core library must be loaded prior to anything else
-
 local libPath = reaper.GetExtState("Scythe", "libPath_v3")
 if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Set Scythe v3 library path.lua' in your Action List.", "Whoops!", 0)
@@ -19,8 +17,8 @@ local Font = require("public.font")
 
 local events = {
   "MouseEnter",
-  "MouseLeave",
   "MouseOver",
+  "MouseLeave",
   "MouseDown",
   "MouseUp",
   "DoubleClick",
@@ -43,13 +41,13 @@ local eventGrid = Table.reduce(events, function(grid, event)
 end, {})
 
 local function fillCell(event, idx)
-  eventGrid[event][idx] = 1
+  eventGrid[event][idx] = 0.999
 end
 
 local function updateCell(event, idx)
-  if eventGrid[event][idx] == 0 then return end
+  if eventGrid[event][idx] <= 0 then return end
 
-  eventGrid[event][idx] = eventGrid[event][idx] - 0.03
+  eventGrid[event][idx] = eventGrid[event][idx] * eventGrid[event][idx]
   return true
 end
 
@@ -65,13 +63,37 @@ local function updateCells()
   return ret
 end
 
+
+
+
+------------------------------------
+-------- Window settings -----------
+------------------------------------
+
+
+local window = GUI.createWindow({
+  w = 384,
+  h = 384,
+  name = "User Event Hooks",
+})
+
+
+
+
+------------------------------------
+-------- GUI Elements --------------
+------------------------------------
+
+
+local layer = GUI.createLayer({name = "Layer1", z = 1})
+
 local frm_grid = GUI.createElement({
   name = "frm_grid",
   type =	"Frame",
   x = 64,
-  y = 200,
-  w = 400,
-  h = 600,
+  y = 48,
+  w = 256,
+  h = 304,
 })
 
 function frm_grid:afterUpdate()
@@ -80,26 +102,29 @@ end
 
 function frm_grid:draw()
   local labelWidth = 150
-  local labelHeight = 32
+  local labelHeight = 24
 
+  local pad = 4
   Color.set("elmBg")
-  gfx.rect(self.x, self.y, self.w, self.h, true)
+  gfx.rect(self.x - pad, self.y - pad, self.w + 2*pad, self.h + 2*pad, true)
+  Color.set("elmFrame")
+  gfx.rect(self.x - pad, self.y - pad, self.w + 2*pad, self.h + 2*pad, false)
 
   Font.set(4)
 
   local cellSize = {
     w = (self.w - labelWidth) / 2,
-    h = (self.h - labelHeight) / (2 * #events)
+    h = (self.h - labelHeight) / #events
   }
 
   Color.set("txt")
 
   gfx.x = self.x + labelWidth
   gfx.y = self.y
-  gfx.drawstr("before")
+  gfx.drawstr("Before")
 
   gfx.x = self.x + labelWidth + cellSize.w
-  gfx.drawstr("after")
+  gfx.drawstr("After")
 
   local cell
 
@@ -114,10 +139,10 @@ function frm_grid:draw()
     if cell[1] > 0 then
       gfx.a = cell[1]
       gfx.rect(
-        self.x + labelWidth,
-        self.y + (i - 1) * cellSize.h + labelHeight,
-        cellSize.w,
-        cellSize.h,
+        self.x + labelWidth + pad,
+        self.y + (i - 1) * cellSize.h + labelHeight + pad,
+        cellSize.w - 2 * pad,
+        cellSize.h - 2 * pad,
         true
       )
     end
@@ -125,10 +150,10 @@ function frm_grid:draw()
     if cell[2] > 0 then
       gfx.a = cell[2]
       gfx.rect(
-        self.x + labelWidth + cellSize.w,
-        self.y + (i - 1) * cellSize.h + labelHeight,
-        cellSize.w,
-        cellSize.h,
+        self.x + labelWidth + cellSize.w + pad,
+        self.y + (i - 1) * cellSize.h + labelHeight + pad,
+        cellSize.w - 2 * pad,
+        cellSize.h - 2 * pad,
         true
       )
     end
@@ -140,13 +165,12 @@ end
 local txt_box = GUI.createElement({
   name = "txt_box",
   type = "Textbox",
-  x = 64,
+  x = 128,
   y = 8,
   w = 128,
   h = 20,
-  caption = "Do stuff:",
+  caption = "Interact with me:",
 })
-
 
 for _, event in pairs(events) do
   txt_box["before"..event] = function(self)
@@ -159,23 +183,13 @@ for _, event in pairs(events) do
   end
 end
 
-------------------------------------
--------- Window settings -----------
-------------------------------------
 
-
-local window = GUI.createWindow({
-  w = 700,
-  h = 700,
-})
 
 
 ------------------------------------
--------- GUI Elements --------------
+------------------------------------
 ------------------------------------
 
-
-local layer = GUI.createLayer({name = "Layer1", z = 1})
 
 layer:addElements(frm_grid, txt_box)
 
