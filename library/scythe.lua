@@ -35,8 +35,27 @@ printQMsg = printQMsg or Message.printQueue
 
 if not os then Scythe.scriptRestricted = true end
 
-Scythe.scriptPath, Scythe.scriptName = ({reaper.get_action_context()})[2]
-  :match("(.-)([^/\\]+).lua$")
+local context
+Scythe.getContext = function()
+  if context then return context end
+
+  local c = ({reaper.get_action_context()})
+
+  local contextTable = {
+    isNewValue = c[1],
+    filename = c[2],
+    sectionId = c[3],
+    commandId = c[4],
+    midiMode = c[5],
+    midiResolution = c[6],
+    midiValue = c[7]
+  }
+
+  contextTable.scriptPath, contextTable.scriptName = c[2]:match("(.-)([^/\\]+).lua$")
+  context = contextTable
+
+  return context
+end
 
 Scythe.version = (function()
 

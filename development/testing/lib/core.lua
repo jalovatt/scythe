@@ -69,15 +69,15 @@ function Test.test(msg, cb)
   end
 
 end
+Test.it = Test.test
 
 function Test.xtest(msg)
   log.testSkipped()
   Msg(validateMsg(msg) .. " (skipped)", 1)
 end
+Test.xit = Test.xtest
 
 local function pass()
-
-
   return true
 end
 

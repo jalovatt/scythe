@@ -17,9 +17,14 @@ local GUI = require("gui.core")
 
 - `Scythe` contains path information and some flags that scripts may want to check:
   - `Scythe.libPath`: The absolute path to the library.
-  - `Scythe.scriptPath`
-  - `Scythe.scriptName`: The absolute path and filename (minus `.lua`) of the script being run.
   - `Scythe.version`: The library version, obtained from the ReaPack package info if available.
+  - `Scythe.getContext()`: Returns a table wrapping the values from `reaper.get_action_context` as well as a couple of others.
+    ```
+    isNewValue, filename, sectionId, commandId, midiMode, midiResolution, midiValue, scriptPath, scriptName
+    ```
+
+    **Note:** `get_action_context` clears the MIDI values after returning, so any scripts that need access to those should either get them before calling
+    this or simply call this once and rely on it. The initial values are stored internally, so they won't be lost for subsequent calls.
   - `Scythe.hasSWS`: _boolean_, whether the SWS extension is installed. Currently checks for SWS versions >= 2.9.7, since the GUI's text elements use its clipboard functionality.
   - `Scythe.scriptRestricted`: _boolean_, whether the script has been run in Reaper's restricted mode. Restricted scripts are unable to access the file system - the `io` and `os` libraries aren't even loaded. The library's error handler _will_ let the user know if a script crashes because of this.
 - `Msg` is a wrapper for `reaper.ShowConsoleMsg`. It accepts multiple arguments, separating them with commas, and includes a line break at the end.

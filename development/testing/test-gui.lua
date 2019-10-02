@@ -14,7 +14,7 @@ local GUI = require("gui.core")
 local Table, T = require("public.table"):unpack()
 local Test = require("testing.lib.core")
 local Menu = require("public.menu")
-local testFile = Scythe.scriptPath
+local testFile = Scythe.getContext().scriptPath
 
 
 ------------------------------------
@@ -175,8 +175,6 @@ layer:addElements( GUI.createElements(
 ))
 
 window:addLayers(layer)
-
-GUI.Init()
 window:open()
 
 loadRecentFiles()

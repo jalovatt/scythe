@@ -9,8 +9,10 @@ globals = {
   "describe",
   "expect",
   "test",
+  "it",
   "xdescribe",
   "xtest",
+  "xit",
   "requireWithMocks",
   "_",
 }
