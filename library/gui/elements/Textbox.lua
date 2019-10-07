@@ -6,7 +6,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
--- local Table = require("public.table")
+local Table = require("public.table")
 
 local Config = require("gui.config")
 
@@ -155,10 +155,8 @@ function Textbox:onUpdate()
 end
 
 -- Make sure the box highlight goes away
-function Textbox:lostFocus()
-
+function Textbox:onLostFocus()
     self:redraw()
-
 end
 
 
@@ -169,6 +167,8 @@ end
 
 
 function Textbox:onMouseDown(state)
+
+  Msg(Table.stringify(state))
 
   self.caret = self:calcCaretPosition(state.mouse.x)
 

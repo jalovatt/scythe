@@ -32,7 +32,6 @@ Button.defaultProps = {
 }
 
 function Button:new(props)
-
   local button = self:addDefaultProps(props)
 
   return setmetatable(button, self)
@@ -103,7 +102,7 @@ end
 function Button:onMouseUp(state)
 	self.state = 0
 
-	if self:containsPoint(state.mouse.x, state.mouse.y) then
+	if self:containsPoint(state.mouse.x, state.mouse.y) and not state.preventDefault then
 
 		self.func(table.unpack(self.params))
 

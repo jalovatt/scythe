@@ -108,21 +108,16 @@ end
 
 
 function Menubox:onMouseUp(state)
+  self.focus = false
+  self:redraw()
 
   -- Bypass option for GUI Builder
-  if not self.focus then
-    self:redraw()
-    return
-  end
+  if not self.focus or state.preventDefault then return end
 
   gfx.x, gfx.y = state.mouse.x, state.mouse.y
   local currentOption = Menu.showMenu(self.options)
 
   if currentOption ~= 0 then self.retval = currentOption end
-
-  self.focus = false
-  self:redraw()
-
 end
 
 

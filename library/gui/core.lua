@@ -123,6 +123,8 @@ GUI.createWindows = function (...)
   return table.unpack(windows)
 end
 
+
+-- Important: This will only find elements that are actually in a window somewhere
 GUI.findElementByName = function (name, ...)
   for _, window in pairs(... and {...} or GUI.Windows) do
     local elm = window:findElementByName(name)

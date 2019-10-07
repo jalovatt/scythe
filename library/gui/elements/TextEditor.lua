@@ -161,9 +161,7 @@ end
 
 
 function TextEditor:lostfocus()
-
 	self:redraw()
-
 end
 
 
