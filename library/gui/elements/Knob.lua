@@ -160,6 +160,7 @@ end
 
 
 function Knob:onDrag(state, last)
+  if state.preventDefault then return end
 
   -- Ctrl?
 	local ctrl = state.kb.ctrl
@@ -177,13 +178,16 @@ function Knob:onDrag(state, last)
 end
 
 
-function Knob:onDoubleClick()
+function Knob:onDoubleClick(state)
+  if state.preventDefault then return end
+
   self:setCurrentStep(self.default)
 	self:redraw()
 end
 
 
 function Knob:onWheel(state)
+  if state.preventDefault then return end
 
 	local ctrl = state.kb.ctrl
 
