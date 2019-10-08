@@ -58,6 +58,7 @@ end
 
 
 function Checklist:onMouseUp(state)
+  if state.preventDefault then return end
 
   local mouseOption = self:getMouseOption(state)
 

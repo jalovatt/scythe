@@ -353,9 +353,10 @@ layers[5]:addElements( GUI.createElements(
     y = 96,
     w = 160,
     h = 160,
-    caption = "Checklist:",
+    caption = "prevents MouseUp",
     options = {"Alice","Bob","Charlie","Denise","Edward","Francine"},
-    dir = "v"
+    dir = "v",
+    beforeMouseUp = preventDefault,
   },
   {
     name = "my_opt",
@@ -368,19 +369,9 @@ layers[5]:addElements( GUI.createElements(
     options = {"Apples","Bananas","_","Donuts","Eggplant"},
     dir = "v",
     swap = true,
-    tooltip = "Well hey there!"
-  },
-  {
-    name = "my_chk2",
-    type = "Checklist",
-    x = 32,
-    y = 280,
-    w = 384,
-    h = 64,
-    caption = "Whoa, another Checklist",
-    options = {"A","B","C","_","E","F","G","_","I","J","K"},
-    horizontal = true,
-    swap = true
+    tooltip = "Well hey there!",
+    beforeMouseUp = preventDefault,
+    beforeMouseDown = preventDefault,
   },
   {
     name = "my_opt2",
@@ -389,9 +380,11 @@ layers[5]:addElements( GUI.createElements(
     y = 364,
     w = 384,
     h = 64,
-    caption = "Horizontal options",
+    caption = "prevents Drag and Wheel",
     options = {"A","A#","B","C","C#","D","D#","E","F","F#","G","G#"},
     horizontal = true,
+    beforeDrag = preventDefault,
+    beforeWheel = preventDefault,
   }
 ))
 

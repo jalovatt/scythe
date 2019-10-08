@@ -49,6 +49,7 @@ end
 
 
 function Radio:onMouseDown(state)
+  if state.preventDefault then return end
 
 	self.state = self:getMouseOption(state) or self.state
 
@@ -58,9 +59,11 @@ end
 
 
 function Radio:onMouseUp(state)
+  self.focus = false
+	self:redraw()
 
   -- Bypass option for GUI Builder
-  if not self.focus then
+  if state.preventDefault or not self.focus then
     self:redraw()
     return
   end
@@ -73,13 +76,11 @@ function Radio:onMouseUp(state)
 		self.state = self.retval
 	end
 
-  self.focus = false
-	self:redraw()
-
 end
 
 
 function Radio:onDrag(state)
+  if state.preventDefault then return end
 
 	self:onMouseDown(state)
 	self:redraw()
@@ -88,6 +89,7 @@ end
 
 
 function Radio:onWheel(state)
+  if state.preventDefault then return end
 
   self.state = self:getNextOption(    ( (state.mouse.wheelInc > 0) ~= self.horizontal )
                                       and -1
