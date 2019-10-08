@@ -239,6 +239,7 @@ layers[3]:addElements( GUI.createElements(
     w = 24,
     h = 24,
     caption = "Click me too! ->",
+    beforeMouseUp = function(self, state) state.preventDefault = true end
   }
 ))
 

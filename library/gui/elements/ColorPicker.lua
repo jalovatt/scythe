@@ -26,6 +26,8 @@ ColorPicker.defaultProps = {
   captionColor = "txt",
   pad = 4,
   shadow = true,
+
+  state = 0,
 }
 
 function ColorPicker:new(props)
@@ -58,9 +60,9 @@ function ColorPicker:val(new)
 end
 
 function ColorPicker:draw()
-  local x, y, w, h = self.x, self.y, self.w, self.h
+  local x, y, w, h = self.x + 2 * self.state, self.y + 2 * self.state, self.w, self.h
 
-  if self.shadow then
+  if self.state == 0 and self.shadow then
     for i = 1, Config.shadowSize do
       gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
     end
@@ -72,9 +74,23 @@ function ColorPicker:draw()
   self:drawColor()
 end
 
-function ColorPicker:onMouseUp()
+function ColorPicker:onMouseUp(state)
+  self.state = 0
+  self:redraw()
+
+  if state.preventDefault then return end
+
   self:selectColor()
-	self:redraw()
+end
+
+function ColorPicker:onMouseDown()
+  self.state = 1
+  self:redraw()
+end
+
+function ColorPicker:onDoubleClick()
+  self.state = 0
+  self:redraw()
 end
 
 function ColorPicker:selectColor()
@@ -143,7 +159,7 @@ end
 -- Draw the chosen color inside the frame
 function ColorPicker:drawColor()
 
-  local x, y, w, h = self.x + 1, self.y + 1, self.w - 2, self.h - 2
+  local x, y, w, h = self.x + 1 + 2 * self.state, self.y + 1 + 2 * self.state, self.w - 2, self.h - 2
 
   Color.set(self.color)
   gfx.rect(x, y, w, h, true)
