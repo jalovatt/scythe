@@ -41,10 +41,10 @@ local function preventDefault(self, state) state.preventDefault = true end
 
 
 local window = GUI.createWindow({
-  name = "General Demonstration",
+  name = "PreventDefault testing",
   x = 0,
   y = 0,
-  w = 432,
+  w = 500,
   h = 500,
   anchor = "mouse",
   corner = "C",
@@ -153,20 +153,43 @@ layers[3]:addElements( GUI.createElements(
     beforeMouseUp = preventDefault,
   },
   {
-    name = "my_txt",
+    name = "my_txt1",
     type = "Textbox",
-    x = 96,
+    x = 160,
     y = 224,
-    w = 96,
+    w = 80,
     h = 20,
-    caption = "Text:",
-    beforeMouseUp = preventDefault,
+    caption = "prevents MouseDown:",
+    beforeMouseDown = preventDefault,
+  },
+  {
+    name = "my_txt2",
+    type = "Textbox",
+    x = 160,
+    y = 248,
+    w = 80,
+    h = 20,
+    caption = "prevents Drag, DoubleClick:",
+    beforeDrag = preventDefault,
+    beforeDoubleClick = preventDefault,
+    retval = "Hi there!"
+  },
+  {
+    name = "my_txt3",
+    type = "Textbox",
+    x = 160,
+    y = 272,
+    w = 80,
+    h = 20,
+    caption = "prevents Typing:",
+    beforeType = preventDefault,
+    retval = "Hi there!"
   },
   {
     name = "my_other_knob",
     type = "Knob",
     x = 64,
-    y = 288,
+    y = 352,
     w = 48,
     caption = "prevents DoubleClick, Drag",
     vals = false,
@@ -177,11 +200,11 @@ layers[3]:addElements( GUI.createElements(
     name = "my_picker",
     type = "ColorPicker",
     x = 320,
-    y = 300,
+    y = 312,
     w = 24,
     h = 24,
     caption = "prevents MouseUp",
-    beforeMouseUp = function(self, state) state.preventDefault = true end
+    beforeMouseUp = preventDefault
   }
 ))
 
@@ -248,11 +271,11 @@ layers[5]:addElements( GUI.createElements(
   {
     name = "my_opt",
     type = "Radio",
-    x = 200,
+    x = 216,
     y = 96,
     w = 160,
     h = 160,
-    caption = "prevents MouseUp, MouseDown",
+    caption = "prevents MouseUp + Down",
     options = {"Apples","Bananas","_","Donuts","Eggplant"},
     dir = "v",
     swap = true,

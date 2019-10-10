@@ -167,8 +167,7 @@ end
 
 
 function Textbox:onMouseDown(state)
-
-  Msg(Table.stringify(state))
+  if state.preventDefault then return end
 
   self.caret = self:calcCaretPosition(state.mouse.x)
 
@@ -192,6 +191,7 @@ end
 
 
 function Textbox:onDoubleClick(state)
+  if state.preventDefault then return end
 
 	self:selectWord(state)
 
@@ -199,6 +199,7 @@ end
 
 
 function Textbox:onDrag(state)
+  if state.preventDefault then return end
 
 	self.selectionStart = self:calcCaretPosition(state.mouse.ox, state.mouse.oy)
   self.selectionEnd = self:calcCaretPosition(state.mouse.x, state.mouse.y)
@@ -209,6 +210,7 @@ end
 
 
 function Textbox:onType(state)
+  if state.preventDefault then return end
 
 	local char = state.kb.char
 
@@ -255,6 +257,7 @@ end
 
 
 function Textbox:onWheel(state)
+  if state.preventDefault then return end
 
   local len = string.len(self.retval)
 

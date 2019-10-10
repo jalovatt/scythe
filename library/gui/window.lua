@@ -336,6 +336,7 @@ function Window:updateInputEvents()
   local last = self.lastState
 
   local elementUpdated
+  local elementToFocus
   local elementToLoseFocus
 
   local mouseOverElm = self:findElementContaining(state.mouse.x, state.mouse.y)
@@ -375,8 +376,9 @@ function Window:updateInputEvents()
           state.mouse.elementRelativeX = state.mouse.x - mouseOverElm.x
           state.mouse.elementRelativeX = state.mouse.y - mouseOverElm.y
 
-          state.focusedElm = mouseOverElm
-          mouseOverElm.focus = true
+          if not state.preventDefault then
+            elementToFocus = mouseOverElm
+          end
 
           elementUpdated = true
         end
@@ -419,21 +421,29 @@ function Window:updateInputEvents()
     end
   end
 
-  if state.focusedElm then
-    if not state.focusedElm.focus then
-      elementToLoseFocus = state.focusedElm
-    elseif state.kb.char ~= 0 then
-      state.focusedElm:handleEvent("Type", state, last)
-    end
-  end
+  if elementToFocus then elementToLoseFocus = last.focusedElm end
 
   if elementToLoseFocus then
-    elementToLoseFocus:handleEvent("LostFocus", state, last)
     elementToLoseFocus.focus = false
+    elementToLoseFocus:handleEvent("LostFocus", state, last)
     elementToLoseFocus:redraw()
 
     state.focusedElm = nil
   end
+
+  if elementToFocus then
+    elementToFocus.focus = true
+    elementToFocus:handleEvent("GotFocus", state, last)
+    elementToFocus:redraw()
+
+    state.focusedElm = elementToFocus
+  end
+
+  if state.focusedElm and state.kb.char ~= 0 then
+    state.focusedElm:handleEvent("Type", state, last)
+  end
+
+
 end
 
 function Window:updateLayers()

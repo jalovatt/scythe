@@ -88,8 +88,9 @@ function Element:onType() end
 
 
 -- Elements like a Textbox that need to keep track of their focus
--- state will use this to e.g. update the text somewhere else
+-- state may use these to e.g. update the text somewhere else
 -- when the user clicks out of the box.
+function Element:onGotFocus() end
 function Element:onLostFocus() end
 
 -- Called when the script window has been resized
