@@ -10,6 +10,10 @@
 
   Note that preventing some events may cause unexpected behavior, for instance if a MouseUp event makes use of data stored by the preceding MouseDown.
 
+- Added the ability to validate a Textbox's input. To use it, set `myTextbox.validator = function(text) ...do something... end`. The validator will be called with the current text whenever the textbox loses focus. If the validator returns `false` or `nil`, the textbox will reset to the text it had when it last gained focus.
+
+  Setting `myTextbox.validateOnType = true` will call the validator whenever a new character is entered or a value is pasted.
+
 ## October 1, 2019
 
 - Replaced an automatic call to `reaper.get_action_context()` with a dedicated function that wraps and memoizes the returned values. This was necessary to avoid messing up user scripts that require access to the initial MIDI context.

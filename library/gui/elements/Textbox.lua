@@ -6,7 +6,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 
 local Config = require("gui.config")
 
@@ -55,6 +55,9 @@ Textbox.defaultProps = {
   focus = false,
   blink = 0,
   shadow = true,
+
+  validator = nil,
+  validateOnType = false,
 }
 
 function Textbox:new(props)
@@ -239,11 +242,9 @@ function Textbox:onType(state)
 
   -- Typeable chars
   elseif Math.clamp(32, char, 254) == char then
-
     if self.selectionStart then self:deleteSelection() end
 
     self:insertChar(char)
-
   end
   self:setWindowToCaret()
 
@@ -252,7 +253,6 @@ function Textbox:onType(state)
 
   -- Reset the caret so the visual change isn't laggy
   self.blink = 0
-
 end
 
 
@@ -271,13 +271,13 @@ function Textbox:onWheel(state)
 
 end
 
-
+local previousValue
 function Textbox:onGotFocus()
-  self.__previousValue = self.retval
+  previousValue = self.retval
 end
 
 function Textbox:onLostFocus()
-  self:validate()
+  if not self:validate() then self.retval = previousValue end
 end
 
 
@@ -579,6 +579,8 @@ function Textbox:insertString(str, moveCaret)
 
   if moveCaret then self.caret = self.caret + string.len(sanitized) end
 
+  if self.validateOnType and not self:validate() then self:undo() end
+
 end
 
 
@@ -591,6 +593,8 @@ function Textbox:insertChar(char)
 
   self.retval = a..string.char(char)..b
   self.caret = self.caret + 1
+
+  if self.validateOnType and not self:validate() then self:undo() end
 
 end
 
@@ -738,9 +742,7 @@ Textbox.processKey = {
 
 
 function Textbox:validate()
-  if self.validator and not self.validator(self.retval) then
-    self.retval = self.__previousValue
-  end
+  return not self.validator or self.validator(self.retval)
 end
 
 Textbox.undo = TextUtils.undo
