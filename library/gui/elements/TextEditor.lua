@@ -173,6 +173,7 @@ end
 
 
 function TextEditor:onMouseDown(state)
+  if state.preventDefault then return end
 
 	local scroll = self:isOverScrollbar(state.mouse.x, state.mouse.y)
 	if scroll then
@@ -205,14 +206,16 @@ function TextEditor:onMouseDown(state)
 end
 
 
-function TextEditor:onDoubleClick()
+function TextEditor:onDoubleClick(state)
+  if state.preventDefault then return end
 
 	self:selectWord()
 
 end
 
 
-function TextEditor:onDrag(state, last)
+function TextEditor:onDrag(state)
+  if state.preventDefault then return end
 
 	local scroll = self:isOverScrollbar(state.mouse.ox, state.mouse.oy)
 	if scroll then
@@ -223,7 +226,7 @@ function TextEditor:onDrag(state, last)
 	else
 
 		self.selectionStart = self:getCaret(state.mouse.ox, state.mouse.oy)
-		self.selectionEnd = self:getCaret(state.mouse.x, last.mouse.y)
+		self.selectionEnd = self:getCaret(state.mouse.x, state.mouse.y)
 
 	end
 
@@ -233,6 +236,8 @@ end
 
 
 function TextEditor:onType(state)
+  if state.preventDefault then return end
+
   local char = state.kb.char
 
 	-- Non-typeable / navigation chars
@@ -274,6 +279,7 @@ end
 
 
 function TextEditor:onWheel(state)
+  if state.preventDefault then return end
 
 	-- Shift -- Horizontal scroll
 	if state.kb.shift then
