@@ -7,7 +7,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Slider = require("gui.element"):new()
@@ -204,6 +204,8 @@ end
 
 
 function Slider:onMouseDown(state)
+  if state.preventDefault then return end
+
   -- Snap the nearest slider to the nearest value
   local mouseValue = self.horizontal
     and (state.mouse.x - self.x) / self.w
@@ -219,6 +221,7 @@ end
 
 
 function Slider:onDrag(state, last)
+  if state.preventDefault then return end
 
   local n, ln = table.unpack(self.horizontal
     and {state.mouse.x, last.mouse.x}
@@ -245,6 +248,7 @@ end
 
 
 function Slider:onWheel(state)
+  if state.preventDefault then return end
 
   local mouseValue = self.horizontal
     and (state.mouse.x - self.x) / self.w
@@ -274,6 +278,7 @@ end
 
 
 function Slider:onDoubleClick(state)
+  if state.preventDefault then return end
 
     -- Ctrl+click - Only reset the closest slider to the mouse
   if state.kb.ctrl then

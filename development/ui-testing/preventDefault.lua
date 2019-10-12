@@ -228,10 +228,12 @@ layers[4]:addElements( GUI.createElements(
     x = 32,
     y = 128,
     w = 256,
-    caption = "Sliders",
+    caption = "Prevents Wheel, DoubleClick",
     min = 0,
     max = 30,
-    defaults = {5, 10, 15, 20, 25}
+    defaults = {5, 10, 15, 20, 25},
+    beforeWheel = preventDefault,
+    beforeDoubleClick = preventDefault,
   },
   {
     name = "my_pan",
@@ -239,7 +241,7 @@ layers[4]:addElements( GUI.createElements(
     x = 32,
     y = 192,
     w = 256,
-    caption = "Pan",
+    caption = "prevents MouseDown, Drag",
     min = -100,
     max = 100,
     defaults = 0,
@@ -250,7 +252,9 @@ layers[4]:addElements( GUI.createElements(
       return (val == 0)
         and "0"
         or  (math.abs(val) .. (val < 0 and "L" or "R"))
-    end
+    end,
+    beforeMouseDown = preventDefault,
+    beforeDrag = preventDefault,
   }
 ))
 
