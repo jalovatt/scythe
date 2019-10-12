@@ -12,7 +12,7 @@
 
 ## October 1, 2019
 
-- Replaced an automatic call to `reaper.get_action_context()` with a dedicated function that wraps and memoizes the returned values. This was necessary to avoid messing user scripts that require access to the initial MIDI context.
+- Replaced an automatic call to `reaper.get_action_context()` with a dedicated function that wraps and memoizes the returned values. This was necessary to avoid messing up user scripts that require access to the initial MIDI context.
 
 ## September 3, 2019
 

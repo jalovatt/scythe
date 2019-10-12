@@ -37,6 +37,8 @@ function Layer:addElements(...)
     self.elements[elm.name] = elm
     elm.layer = self
     self.elementCount = self.elementCount + 1
+
+    if self.window and self.window.isOpen then elm:init() end
   end
 
   self.needsRedraw = true

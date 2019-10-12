@@ -87,14 +87,15 @@ function Window:reopen(params)
   -- params: x, y, w, h, dock
   local currentDock,currentX,currentY,currentW,currentH = gfx.dock(-1,0,0,0,0)
 
+  self:clearTooltip()
   gfx.quit()
   gfx.init(
     self.name,
-    params.w or currentW,
-    params.h or currentH,
-    params.dock or currentDock,
-    params.x or currentX,
-    params.y or currentY
+    (params and params.w) or currentW,
+    (params and params.h) or currentH,
+    (params and params.dock) or currentDock,
+    (params and params.x) or currentX,
+    (params and params.y) or currentY
   )
 
   self.currentW = gfx.w
@@ -179,6 +180,8 @@ function Window:addLayers(...)
     self.layers[layer.name] = layer
     layer.window = self
     self.layerCount = self.layerCount + 1
+
+    if self.isOpen then layer:init() end
   end
 
   self.needsRedraw = true
