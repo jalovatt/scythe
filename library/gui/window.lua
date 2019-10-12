@@ -401,6 +401,7 @@ function Window:updateInputEvents()
         state.mouse.downElm = mouseOverElm
 
         if last.focusedElm and mouseOverElm ~= last.focusedElm then
+          -- TODO: Ensure that only one element can lose focus at a time
           elementToLoseFocus = last.focusedElm
         end
 
@@ -436,7 +437,14 @@ function Window:updateInputEvents()
     end
   end
 
+  if state.focusedElm and state.kb.char ~= 0 then
+    state.focusedElm:handleEvent("Type", state, last)
+  end
+
+  -- TODO: Ensure that only one element can lose focus at a time, since this
+  -- would potentially override them
   if elementToFocus then elementToLoseFocus = last.focusedElm end
+  if state.shouldLoseFocus then elementToLoseFocus = state.shouldLoseFocus end
 
   if elementToLoseFocus then
     elementToLoseFocus.focus = false
@@ -453,12 +461,6 @@ function Window:updateInputEvents()
 
     state.focusedElm = elementToFocus
   end
-
-  if state.focusedElm and state.kb.char ~= 0 then
-    state.focusedElm:handleEvent("Type", state, last)
-  end
-
-
 end
 
 function Window:updateLayers()

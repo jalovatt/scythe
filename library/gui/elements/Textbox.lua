@@ -6,7 +6,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
--- local Table = require("public.table")
+local Table = require("public.table")
 
 local Config = require("gui.config")
 
@@ -269,6 +269,15 @@ function Textbox:onWheel(state)
 
   self:redraw()
 
+end
+
+
+function Textbox:onGotFocus()
+  self.__previousValue = self.retval
+end
+
+function Textbox:onLostFocus()
+  self:validate()
 end
 
 
@@ -667,8 +676,8 @@ Textbox.processKey = {
 
   end,
 
-  [Const.chars.RETURN] = function(self)
-    self.focus = false
+  [Const.chars.RETURN] = function(self, state)
+    state.shouldLoseFocus = self
     self:redraw()
   end,
 
@@ -727,6 +736,12 @@ Textbox.processKey = {
 -------- Misc. helpers -------------
 ------------------------------------
 
+
+function Textbox:validate()
+  if self.validator and not self.validator(self.retval) then
+    self.retval = self.__previousValue
+  end
+end
 
 Textbox.undo = TextUtils.undo
 Textbox.redo = TextUtils.redo
