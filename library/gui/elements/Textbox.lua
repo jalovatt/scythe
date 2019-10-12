@@ -6,7 +6,7 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 
 local Config = require("gui.config")
 

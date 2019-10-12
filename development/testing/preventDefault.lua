@@ -18,6 +18,7 @@ end
 
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
+-- local Table = require("public.table")[1]
 
 
 
@@ -45,7 +46,7 @@ local window = GUI.createWindow({
   x = 0,
   y = 0,
   w = 500,
-  h = 500,
+  h = 640,
   anchor = "mouse",
   corner = "C",
 })
@@ -55,7 +56,8 @@ local layers = table.pack( GUI.createLayers(
   {name = "Layer2", z = 2},
   {name = "Layer3", z = 3},
   {name = "Layer4", z = 4},
-  {name = "Layer5", z = 5}
+  {name = "Layer5", z = 5},
+  {name = "Layer6", z = 6}
 ))
 
 window:addLayers(table.unpack(layers))
@@ -88,7 +90,11 @@ layers[1]:addElements( GUI.createElements(
       {
         label = "Options",
         layers = {layers[5]}
-      }
+      },
+      {
+        label = "Tabs",
+        layers = {layers[6]}
+      },
     },
     pad = 16
   },
@@ -298,6 +304,60 @@ layers[5]:addElements( GUI.createElements(
   }
 ))
 
+layers[6]:addElements( GUI.createElements(
+  {
+    name = "tabs1",
+    type = "Tabs",
+    x = 64,
+    y = 250,
+    w = 64,
+    h = 20,
+    tabs = {
+      {
+        label = "Prevents",
+        layers = {}
+      },
+      {
+        label = "Mouse",
+        layers = {}
+      },
+      {
+        label = "Wheel",
+        layers = {}
+      }
+    },
+    pad = 16,
+    beforeWheel = preventDefault,
+    fullWidth = false,
+  },
+  {
+    name = "tabs2",
+    type = "Tabs",
+    x = 64,
+    y = 278,
+    w = 64,
+    h = 20,
+    tabs = {
+      {
+        label = "Prevents",
+        layers = {}
+      },
+      {
+        label = "MouseDown",
+        layers = {}
+      },
+      {
+        label = "and Drag",
+        layers = {}
+      }
+    },
+    pad = 16,
+    tabW = 96,
+    beforeMouseDown = preventDefault,
+    beforeDrag = preventDefault,
+    fullWidth = false,
+  }
+))
 
 
 

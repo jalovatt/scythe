@@ -56,7 +56,6 @@ end
 
 
 function Tabs:init()
-
   self.buffer = self.buffer or Buffer.get()
   self:updateSets()
 
@@ -162,6 +161,7 @@ end
 
 
 function Tabs:onMouseDown(state)
+  if state.preventDefault then return end
 
   local xOffset = (state.mouse.x - (self.x + self.firstTabOffset))
   local width = (#self.tabs * (self.tabW + self.pad - self.tabH))
@@ -178,6 +178,8 @@ end
 
 
 function Tabs:onMouseUp(state)
+  if state.preventDefault then return end
+
 	-- Set the new option, or revert to the original if the cursor isn't inside the list anymore
 	if self:containsPoint(state.mouse.x, state.mouse.y) then
 
@@ -194,6 +196,7 @@ end
 
 
 function Tabs:onDrag(state, last)
+  if state.preventDefault then return end
 
 	self:onMouseDown(state, last)
 	self:redraw()
@@ -202,6 +205,7 @@ end
 
 
 function Tabs:onWheel(state)
+  if state.preventDefault then return end
 
 	self.state = Math.round(self.state + state.mouse.wheelInc)
 
