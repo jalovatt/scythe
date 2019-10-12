@@ -345,8 +345,16 @@ function Window:updateInputEvents()
   if mouseOverElm then
     if last.mouse.overElm ~= mouseOverElm then
       mouseOverElm:handleEvent("MouseEnter", state, last)
+      -- TODO: Find a different way to handle this
+      -- This event doesn't preclude others, so we need to reset this to avoid
+      -- accidentally preventing them
+      state.preventDefault = false
     else
       mouseOverElm:handleEvent("MouseOver", state, last)
+      -- TODO: Find a different way to handle this
+      -- This event doesn't preclude others, so we need to reset this to avoid
+      -- accidentally preventing them
+      state.preventDefault = false
     end
 
     if state.mouse.wheel ~= last.mouse.wheel then
@@ -359,6 +367,10 @@ function Window:updateInputEvents()
 
   if last.mouse.overElm and last.mouse.overElm ~= mouseOverElm then
     last.mouse.overElm:handleEvent("MouseLeave", state, last)
+    -- TODO: Find a different way to handle this
+    -- This event doesn't preclude others, so we need to reset this to avoid
+    -- accidentally preventing them
+    state.preventDefault = false
   end
 
   for _, button in ipairs(buttons) do

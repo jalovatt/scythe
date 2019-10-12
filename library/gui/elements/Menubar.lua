@@ -191,8 +191,7 @@ function Menubar:drawHover()
 
     Color.set(self.hoverColor)
     gfx.mode = 1
-    --                                            Hover  Click
-    gfx.a = (self.mouseDown and self.mouseMenu) and 0.3 or 0.5
+    gfx.a = (self.mouseDown and self.mouseMenu) and 0.5 or 0.3
 
     gfx.rect(
       self.x + self.mouseMenuX,
@@ -215,24 +214,17 @@ end
 ------------------------------------
 
 
--- TODO: Use onMouseLeave for this
 -- Make sure to disable the highlight if the mouse leaves
-function Menubar:onUpdate(state)
-
-  if self.mouseMenu and not self:containsPoint(state.mouse.x, state.mouse.y) then
+function Menubar:onMouseLeave(state)
     self.mouseMenu = nil
     self.mouseMenuX = nil
     self:redraw()
-
-    -- Skip the rest of the update loop for this elm
-    return true
-  end
-
 end
 
 
 
 function Menubar:onMouseUp(state)
+  if state.preventDefault then return end
 
   if not self.mouseMenu then return end
 
@@ -250,7 +242,8 @@ function Menubar:onMouseUp(state)
 end
 
 
-function Menubar:onMouseDown()
+function Menubar:onMouseDown(state)
+  if state.preventDefault then return end
 
   self.mouseDown = true
   self:redraw()
@@ -259,22 +252,18 @@ end
 
 
 function Menubar:onMouseOver(state)
-
-  local opt = self.mouseMenu
-
   local x = state.mouse.x - self.x
 
-  if  self.mouseMenuX and x > self:measureTitles(nil, true) then
+  if self.mouseMenuX and x > self:measureTitles(nil, true) then
 
     self.mouseMenu = nil
     self.mouseMenuX = nil
     self:redraw()
 
     return
-
   end
 
-
+  local opt = self.mouseMenu
   -- Iterate through the titles by their cumulative width until we
   -- find which one the mouse is in.
   for i = 1, #self.menus do
@@ -284,7 +273,7 @@ function Menubar:onMouseOver(state)
       self.mouseMenu = i
       self.mouseMenuX = self:measureTitles(i - 1, true)
 
-      if self.mouseMenu ~= opt then self:redraw() end
+      if self.mouseMenu ~= opt and not state.preventDefault then self:redraw() end
 
       return
     end

@@ -17,56 +17,10 @@ end
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 
-local _, T = require("public.table"):unpack()
 require("public.string")
 
 local function preventDefault(self, state) state.preventDefault = true end
 
-------------------------------------
--------- Menu functions ------------
-------------------------------------
-
-
-local mnu_file = {
-  new = function() GUI.Val("txted_text", "file: new") end,
-  open = function() GUI.Val("txted_text", "file: open") end,
-  recent_blah = function() GUI.Val("txted_text", "file:\trecent files: blah.txt") end,
-  recent_stuff = function() GUI.Val("txted_text", "file:\trecent files: stuff.txt") end,
-  recent_readme = function() GUI.Val("txted_text", "file:\trecent files: readme.md") end,
-  save = function() GUI.Val("txted_text", "file: save") end,
-  save_as = function() GUI.Val("txted_text", "file: save as") end,
-  print = function() GUI.Val("txted_text", "file: print") end,
-  print_preview = function() GUI.Val("txted_text", "file: print preview") end,
-  exit = function() GUI.quit = true end
-}
-
-local mnu_edit = {
-  cut = function() GUI.Val("txted_text", "edit: cut") end,
-  copy = function() GUI.Val("txted_text", "edit: copy") end,
-  copy_path = function() GUI.Val("txted_text", "edit:\tcopy current path") end,
-  copy_file = function() GUI.Val("txted_text", "edit:\tcopy current filename") end,
-  copy_dir = function() GUI.Val("txted_text", "edit:\tcopy current directory path") end,
-  paste = function() GUI.Val("txted_text", "edit: paste") end,
-  delete = function() GUI.Val("txted_text", "edit: delete") end,
-  select_all = function() GUI.Val("txted_text", "edit: select all") end
-}
-
-local mnu_view = {
-  always_on_top = function() GUI.Val("txted_text", "view: always on top") end,
-  toggle_full_screen = function() GUI.Val("txted_text", "view: toggle full-screen") end,
-  hide_menu = function() GUI.Val("txted_text", "view: hide menu") end
-}
-
-local mnu_help = {
-  help = function() GUI.Val("txted_text", "help: help") end,
-  open_website = function() GUI.Val("txted_text", "help: open website") end,
-  check_for_updates = function() GUI.Val("txted_text", "help: check for updates") end,
-  about = function() GUI.Val("txted_text", "help: about") end
-}
-
-local mnu_params_func = function(label, param)
-  GUI.Val("txted_text", "Parameter " .. label .. " was: " .. param)
-end
 
 
 
@@ -75,59 +29,26 @@ end
 ------------------------------------
 
 
--- This table is passed to the Menubar
--- Must be structured like this (.title, .options, etc)
-local menus = {
+local noop = function() end
 
-  {title = "File", options = {
-    {caption = "New",                       func = mnu_file.new},
-    {caption = ""},
-    {caption = "Open",                      func = mnu_file.open},
-    {caption = ">Recent Files"},
-      {caption = "blah.txt",                func = mnu_file.recent_blah},
-      {caption = "stuff.txt",               func = mnu_file.recent_stuff},
-      {caption = "<readme.md",              func = mnu_file.recent_readme},
-    {caption = "Save",                      func = mnu_file.save},
-    {caption = "Save As",                   func = mnu_file.save_as},
-    {caption = ""},
-    {caption = "#Print",                    func = mnu_file.print},
-    {caption = "#Print Preview",            func = mnu_file.print_preview},
-    {caption = ""},
-    {caption = "Exit",                      func = mnu_file.exit}
+local menus1 = {
+  {title = "prevents", options = {
+    {caption = "This should not come up",   func = noop},
   }},
-
-  {title = "Edit", options = {
-    {caption = "Cut",                       func = mnu_edit.cut},
-    {caption = "Copy",                      func = mnu_edit.copy},
-    {caption = ">Copy to Clipboard"},
-      {caption = "Current full file path",  func = mnu_edit.copy_path},
-      {caption = "Current filename",        func = mnu_edit.copy_file},
-      {caption = "<Current directory path", func = mnu_edit.copy_dir},
-    {caption = "Paste",                     func = mnu_edit.paste},
-    {caption = "Delete",                    func = mnu_edit.delete},
-    {caption = ""},
-    {caption = "Select All",                func = mnu_edit.select_all}
+  {title = "MouseUp and", options = {
+    {caption = "This should not come up",   func = noop},
   }},
-
-  {title = "View", options = {
-    {caption = "!Always On Top",            func = mnu_view.always_on_top},
-    {caption = "Toggle Full-Screen",        func = mnu_view.toggle_full_screen},
-    {caption = "Hide Menu",                 func = mnu_view.hide_menu}
+  {title = "MouseOver", options = {
+    {caption = "This should not come up",   func = noop},
   }},
+}
 
-  {title = "Help", options = {
-    {caption = "Help",                      func = mnu_help.help},
-    {caption = "#Open Website",             func = mnu_help.open_website},
-    {caption = ""},
-    {caption = "#Check For Updates",        func = mnu_help.check_for_updates},
-    {caption = "About",                     func = mnu_help.about},
+local menus2 = {
+  {title = "prevents", options = {
+    {caption = "Hi there!",   func = noop},
   }},
-
-  {title = "Parameters", options = {
-    {caption = "Parameter A",               func = mnu_params_func,    params = {"A", "hello!"}},
-    {caption = "Parameter B",               func = mnu_params_func,    params = {"B", "bonjour!"}},
-    {caption = "Parameter C",               func = mnu_params_func,    params = {"C", "g'day!"}},
-    {caption = "Parameter D",               func = mnu_params_func,    params = {"D", "guten tag!"}},
+  {title = "MouseDown", options = {
+    {caption = "Hi there!",   func = noop},
   }},
 }
 
@@ -154,8 +75,8 @@ local window = GUI.createWindow({
   name = "PreventDefault testing",
   x = 0,
   y = 0,
-  w = 800,
-  h = 384,
+  w = 512,
+  h = 320,
   anchor = "mouse",
   corner = "C",
 })
@@ -166,19 +87,32 @@ window:addLayers(
     :addElements(
       GUI.createElements(
         {
-          name = "mnu_menu",
+          name = "mnu1",
           type = "Menubar",
           x = 0,
           y = 0,
-          w = window.currentW,
-          menus = menus,
+          w = 288,
+          fullWidth = false,
+          menus = menus1,
+          beforeMouseUp = preventDefault,
+          beforeMouseOver = preventDefault,
+        },
+        {
+          name = "mnu2",
+          type = "Menubar",
+          x = 300,
+          y = 0,
+          w = 280,
+          fullWidth = false,
+          menus = menus2,
+          beforeMouseDown = preventDefault,
         },
         {
           name = "lst1",
           type = "Listbox",
           x = 16,
           y = 40,
-          w = 300,
+          w = 192,
           h = 80,
           caption = "",
           multi = true,
@@ -192,7 +126,7 @@ window:addLayers(
           type = "Listbox",
           x = 16,
           y = 128,
-          w = 300,
+          w = 192,
           h = 80,
           caption = "",
           multi = true,
@@ -203,17 +137,17 @@ window:addLayers(
         {
           name = "txted1",
           type = "TextEditor",
-          x = 364,
+          x = 216,
           y = 40,
           w = 256,
           h = 80,
-          retval = "This TextEditor prevents all MouseDown events!",
+          retval = "This TextEditor prevents MouseDown events!",
           beforeMouseDown = preventDefault,
         },
         {
           name = "txted2",
           type = "TextEditor",
-          x = 364,
+          x = 216,
           y = 128,
           w = 256,
           h = 80,
@@ -224,7 +158,7 @@ window:addLayers(
         {
           name = "txted3",
           type = "TextEditor",
-          x = 364,
+          x = 216,
           y = 216,
           w = 256,
           h = 80,
