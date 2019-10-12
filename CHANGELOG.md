@@ -1,5 +1,15 @@
 # Scythe 3.x changelog
 
+## October 12, 2019
+
+- Added a way to bypass elements' input events. To use it, add a `before` event handler that sets `preventDefault = true` on its input state, i.e:
+
+  ```lua
+  function my_btn:beforeMouseUp(state) state.preventDefault = true end
+  ```
+
+  Note that preventing some events may cause unexpected behavior, for instance if a MouseUp event makes use of data stored by the preceding MouseDown.
+
 ## October 1, 2019
 
 - Replaced an automatic call to `reaper.get_action_context()` with a dedicated function that wraps and memoizes the returned values. This was necessary to avoid messing user scripts that require access to the initial MIDI context.
