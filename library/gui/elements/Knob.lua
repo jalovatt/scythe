@@ -7,7 +7,7 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
-local Table = require("public.table")
+-- local Table = require("public.table")
 local Config = require("gui.config")
 local Const = require("public.const")
 
@@ -42,26 +42,27 @@ local KNOB_RANGE_RADIANS = 3 / 2
 local KNOB_ANGLE_OFFSET_RADIANS = -5 / 4
 
 function Knob:new(props)
-
 	local knob = self:addDefaultProps(props)
 
-  knob.h = knob.w
-  knob.steps = knob.steps or (math.abs(knob.max - knob.min) / knob.inc)
-
-  knob.stepAngle = KNOB_RANGE_RADIANS / knob.steps
-
-  knob.currentStep = knob.default
-
   setmetatable(knob, self)
-  knob.currentPct = knob:percentFromStep(knob.currentStep)
-
-  knob.retval = knob:formatRetval(
-    ((knob.max - knob.min) / knob.steps) * knob.currentStep + knob.min
-  )
+  knob:recalculateInternals()
 
   return knob
 end
 
+function Knob:recalculateInternals()
+  self.h = self.w
+  self.steps = self.steps or (math.abs(self.max - self.min) / self.inc)
+
+  self.stepAngle = KNOB_RANGE_RADIANS / self.steps
+
+  self.currentStep = self.default
+    self.currentPct = self:percentFromStep(self.currentStep)
+
+  self.retval = self:formatRetval(
+    ((self.max - self.min) / self.steps) * self.currentStep + self.min
+  )
+end
 
 function Knob:init()
 

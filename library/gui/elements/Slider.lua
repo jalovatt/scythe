@@ -50,13 +50,20 @@ Slider.defaultProps = {
 function Slider:new(props)
   local slider = self:addDefaultProps(props)
 
-  slider.w, slider.h = table.unpack(slider.horizontal
-    and {slider.w, 8}
-    or  {8, slider.w}
+  setmetatable(slider, self)
+  slider:recalculateInternals()
+
+  return slider
+end
+
+function Slider:recalculateInternals()
+  self.w, self.h = table.unpack(self.horizontal
+    and {self.w, 8}
+    or  {8, self.w}
   )
 
-  local min = slider.min
-  local max = slider.max
+  local min = self.min
+  local max = self.max
 
   if min > max then
     min, max = max, min
@@ -64,23 +71,18 @@ function Slider:new(props)
     max = max + 1
   end
 
-  if not slider.horizontal then
+  if not self.horizontal then
     min, max = max, min
   end
-  slider.min, slider.max = min, max
+  self.min, self.max = min, max
 
-  setmetatable(slider, self)
-
-  slider.defaults = slider.defaults
+  self.defaults = self.defaults
 
   -- If the user only asked for one handle
-  if type(slider.defaults) == "number" then slider.defaults = {slider.defaults} end
+  if type(self.defaults) == "number" then self.defaults = {self.defaults} end
 
-  slider:initHandles(slider.defaults)
-
-  return slider
+  self:initHandles(self.defaults)
 end
-
 
 function Slider:init()
 

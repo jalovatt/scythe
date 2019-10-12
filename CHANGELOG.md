@@ -14,6 +14,8 @@
 
   Setting `myTextbox.validateOnType = true` will call the validator whenever a new character is entered or a value is pasted.
 
+- Pulled any logic that was in `:new` methods out to `:recalculateInternals`, which should make a GUI builder easier to implement in v3.
+
 ## October 1, 2019
 
 - Replaced an automatic call to `reaper.get_action_context()` with a dedicated function that wraps and memoizes the returned values. This was necessary to avoid messing up user scripts that require access to the initial MIDI context.

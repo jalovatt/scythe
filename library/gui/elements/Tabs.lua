@@ -38,22 +38,25 @@ Tabs.defaultProps = {
   state = 1,
 
   fullWidth = true,
+
+  tabs = {},
 }
 
 function Tabs:new(props)
-
   local tab = self:addDefaultProps(props)
 
-  tab.tabs = tab.tabs or {}
+  setmetatable(tab, self)
+  tab:recalculateInternals()
 
-	-- Figure out the total size of the tab frame now that we know the
-  -- number of buttons, so we can do the math for clicking on it
-  tab.w = Tabs.getOverallWidth(tab)
-  tab.h = tab.tabH
-
-	return setmetatable(tab, self)
+	return tab
 end
 
+function Tabs:recalculateInternals()
+	-- Figure out the total size of the tab frame now that we know the
+  -- number of buttons, so we can do the math for clicking on it
+  self.w = self:getOverallWidth()
+  self.h = self.tabH
+end
 
 function Tabs:init()
   self.buffer = self.buffer or Buffer.get()
