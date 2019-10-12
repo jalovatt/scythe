@@ -151,10 +151,11 @@ end
 
 
 function Listbox:onMouseUp(state)
+  if state.preventDefault then return end
 
 	if not self:isOverScrollBar(state.mouse.x) then
 
-		local item = self:getListItem(state.mouse.y)
+    local item = self:getListItem(state.mouse.y)
 
 		if self.multi then
 
@@ -180,7 +181,8 @@ function Listbox:onMouseUp(state)
 end
 
 
-function Listbox:onMouseDown(state, scroll)
+function Listbox:onMouseDown(state, last, scroll)
+  if state.preventDefault then return end
 
 	-- If over the scrollbar, or we came from :onDrag with an origin point
 	-- that was over the scrollbar...
@@ -203,10 +205,11 @@ end
 
 
 function Listbox:onDrag(state, last)
+  if state.preventDefault then return end
 
-	if self:isOverScrollBar(last.mouse.x) then
+  if self:isOverScrollBar(last.mouse.x) then
 
-		self:onMouseDown(state, true)
+		self:onMouseDown(state, nil, true)
 
 	else
 
@@ -219,6 +222,7 @@ end
 
 
 function Listbox:onWheel(state)
+  if state.preventDefault then return end
 
 	local dir = state.mouse.wheelInc > 0 and -1 or 1
 
