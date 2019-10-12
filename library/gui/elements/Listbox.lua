@@ -181,7 +181,7 @@ function Listbox:onMouseUp(state)
 end
 
 
-function Listbox:onMouseDown(state, last, scroll)
+function Listbox:onMouseDown(state, _, scroll)
   if state.preventDefault then return end
 
 	-- If over the scrollbar, or we came from :onDrag with an origin point
