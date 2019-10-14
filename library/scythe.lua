@@ -28,6 +28,7 @@ local function addPaths()
 end
 addPaths()
 
+require("public.string")
 local Message = require("public.message")
 Msg = Msg or Message.Msg
 qMsg = qMsg or Message.queueMsg
@@ -35,12 +36,13 @@ printQMsg = printQMsg or Message.printQueue
 
 if not os then Scythe.scriptRestricted = true end
 
+local Theme = require("gui.theme")
 
-local Config = require("gui.config")
 local Color = require("public.color")
-Color.addColorsFromRgba(Config.colors)
+Color.addColorsFromRgba(Theme.colors)
 
-
+local Font = require("public.font")
+Font.addFonts(Theme.fonts)
 
 local context
 Scythe.getContext = function()

@@ -16,16 +16,20 @@ local function updateConfig(k, v)
 end
 
 local window = GUI.createWindow({
-  name = "Scythe - Configure",
+  name = "Scythe Configuration",
   w = 400,
   h = 400,
 })
 
-local layer = GUI.createLayer({name = "Layer1", z = 1})
+local layers = {
+  GUI.createLayer({name = "Static", z = 1}),
+  GUI.createLayer({name = "General", z = 2}),
+  GUI.createLayer({name = "Appearance", z = 3}),
+}
 
 local yOffset = 0
 for k, v in Table.kpairs(Config) do
-  layer:addElements( GUI.createElement({
+  layers[1]:addElements( GUI.createElement({
     name = "txt_"..k,
     type = "Textbox",
     caption = k,
@@ -40,7 +44,7 @@ for k, v in Table.kpairs(Config) do
   yOffset = yOffset + 1
 end
 
-window:addLayers(layer)
+window:addLayers(table.unpack(layers))
 window:open()
 
 GUI.Main()

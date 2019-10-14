@@ -1,5 +1,4 @@
 -- NoIndex: true
-
 local Config = {}
 
 Config.doubleclickTime = 0.30
@@ -30,27 +29,14 @@ Config.dev = {
 
 }
 
-Config.colors = {
-  background = {64, 64, 64, 255},           -- windowBg
-  backgroundDark = {56, 56, 56, 255},       -- tabBg
-  backgroundDarkest = {48, 48, 48, 255},    -- elmBg
-  elementBody = {96, 96, 96, 255},          -- elmFrame
-  highlight = {64, 192, 64, 255},           -- elmFill
-  elementOutline = {32, 32, 32, 255},       -- elmOutline
-  text = {192, 192, 192, 255},              -- txt
-  shadow = {0, 0, 0, 48},
-  faded = {0, 0, 0, 64},
-}
-
 
 
 local ext = reaper.GetExtState("Scythe v3", "userConfig")
 
-require("public.string")
 local function parseQueryString(str)
   return str:split("&"):reduce(function(acc, param)
     local k, v = param:match("([^=]+)=([^=]+)")
-    acc[k] = v
+    if k and v then acc[k] = v end
 
     return acc
   end, {})

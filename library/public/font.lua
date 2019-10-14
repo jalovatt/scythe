@@ -2,52 +2,14 @@
 
 local Font = {}
 
+Font.fonts = {}
 
-local osFonts = {
-
-  Windows = {
-    sans = "Calibri",
-    mono = "Lucida Console"
-  },
-
-  OSX = {
-    sans = "Helvetica Neue",
-    mono = "Andale Mono"
-  },
-
-  Linux = {
-    sans = "Liberation Sans",
-    mono = "Liberation Mono"
-  }
-
-}
-
-local getOsFonts = function()
-
-  local os = reaper.GetOS()
-  if os:match("Win") then
-    return osFonts.Windows
-  elseif os:match("OSX") then
-    return osFonts.OSX
-  else
-    return osFonts.Linux
+-- Accepts a table of font presets
+Font.addFonts = function(fonts)
+  for k, v in pairs(fonts) do
+    Font.fonts[k] = v
   end
-
 end
-
-local fonts = getOsFonts()
-Font.fonts = {
-
-              -- Font,    size, bold/italics/underline
-              --                ^ One string: "b", "iu", etc.
-              {fonts.sans, 32},	-- 1. Title
-              {fonts.sans, 20},	-- 2. Header
-              {fonts.sans, 16},	-- 3. Label
-              {fonts.sans, 16},	-- 4. Value
-  monospace = {fonts.mono, 14},
-  version = 	{fonts.sans, 12, "i"},
-
-}
 
 
 --[[	Apply a font preset
@@ -58,7 +20,6 @@ Font.fonts = {
 
 ]]--
 Font.set = function (fontIn)
-
   local font, size, str = table.unpack( type(fontIn) == "table"
                                           and fontIn
                                           or  Font.fonts[fontIn])
