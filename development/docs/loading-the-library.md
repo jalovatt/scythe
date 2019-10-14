@@ -3,7 +3,7 @@
 Nothing too complicated here, and it's largely the same as in v2 of the GUI:
 
 ```lua
-local libPath = reaper.GetExtState("Scythe", "libPath_v3")
+local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Scythe_Set v3 library path.lua' in your Action List.", "Whoops!", 0)
     return

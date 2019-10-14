@@ -5,7 +5,7 @@ local scytheOptions = args and args[1] or {}
 
 Scythe = {}
 
-Scythe.libPath = reaper.GetExtState("Scythe", "libPath_v3")
+Scythe.libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not Scythe.libPath or Scythe.libPath == "" then
     reaper.MB("Couldn't find the Scythe library. Please run 'Set Scythe library path' in your Action List.", "Whoops!", 0) -- luacheck: ignore 631
     return
@@ -34,6 +34,13 @@ qMsg = qMsg or Message.queueMsg
 printQMsg = printQMsg or Message.printQueue
 
 if not os then Scythe.scriptRestricted = true end
+
+
+local Config = require("gui.config")
+local Color = require("public.color")
+Color.addColorsFromRgba(Config.colors)
+
+
 
 local context
 Scythe.getContext = function()

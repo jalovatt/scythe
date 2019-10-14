@@ -6,5 +6,5 @@
 local info = debug.getinfo(1,'S')
 local scriptPath = info.source:match[[^@?(.*[\\/])[^\\/]-$]]
 
-reaper.SetExtState("Scythe", "libPath_v3", scriptPath, true)
+reaper.SetExtState("Scythe v3", "libPath", scriptPath, true)
 reaper.MB("Scythe's library path is now set to:\n" .. scriptPath, "Scythe", 0)

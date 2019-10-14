@@ -10,7 +10,7 @@
 
 -- The core library must be loaded prior to anything else
 
-local libPath = reaper.GetExtState("Scythe", "libPath_v3")
+local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Scythe_Set v3 library path.lua' in your Action List.", "Whoops!", 0)
     return

@@ -81,5 +81,15 @@ Font.set = function (fontIn)
 
 end
 
+-- Sees if a font named 'font' exists on this system
+-- Returns true/false
+Font.exists = function (font)
+	if type(font) ~= "string" then return false end
+
+	gfx.setfont(1, font, 10)
+
+	local _, ret_font = gfx.getfont()
+	return font == ret_font
+end
 
 return Font

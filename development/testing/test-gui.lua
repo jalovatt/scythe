@@ -4,7 +4,7 @@
 	Scythe testing tool
 ]]--
 
-local libPath = reaper.GetExtState("Scythe", "libPath_v3")
+local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
     reaper.MB("Couldn't load the Scythe library. Please run 'Script: Scythe_Set v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
@@ -39,7 +39,7 @@ local window = GUI.createWindow({
 local recentFiles = T{}
 
 local function loadRecentFiles()
-  local fileStr = reaper.GetExtState("Scythe Test Runner", "recentFiles")
+  local fileStr = reaper.GetExtState("Scythe v3", "testRunner/recentFiles")
   if not fileStr or fileStr == "" then return end
 
   for file in fileStr:gmatch("[^|]+") do

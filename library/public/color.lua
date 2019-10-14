@@ -189,6 +189,13 @@ Color.gradient = function (colorA, colorB, pos)
 
 end
 
+Color.addColorsFromRgba = function (colors)
+  for k, v in pairs(colors) do
+    Color.colors[k] = Color.fromRgba(table.unpack(v))
+  end
+end
+
+
 Color.colors = {
 
   test1 = "test2",
