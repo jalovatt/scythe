@@ -18,15 +18,15 @@ Frame.defaultProps = {
   y = 0,
   w = 256,
   h = 256,
-  color = "elmFrame",
+  color = "elementBody",
   round = 0,
   text = "",
   lastText = "",
   textIndent = 0,
   textPad = 0,
-  bg = "windowBg",
+  bg = "background",
   font = 4,
-  textColor = "txt",
+  textColor = "text",
   pad = 4,
 
 }
@@ -117,7 +117,7 @@ function Frame:drawFrame()
   end
 
   -- Shadow
-  local r, g, b, a = table.unpack(Color.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors.shadow)
 	gfx.set(r, g, b, 1)
 	GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
 	gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )

@@ -24,8 +24,8 @@ Label.defaultProps = {
   caption = "Label",
   shadow =  false,
   font =    2,
-  color =   "txt",
-  bg =      "windowBg",
+  color =   "text",
+  bg =      "background",
 }
 
 

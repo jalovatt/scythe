@@ -31,12 +31,12 @@ TextEditor.defaultProps = {
 	caption = "",
 	pad = 4,
 
-	bg = "elmBg",
-  captionBg = "windowBg",
-	color = "txt",
+	bg = "backgroundDarkest",
+  captionBg = "background",
+	color = "text",
 
 	-- Scrollbar fill
-	fillColor = "elmFill",
+	fillColor = "highlight",
 
 	captionFont = 3,
 
@@ -86,10 +86,10 @@ function TextEditor:init()
 	Color.set(self.bg)
 	gfx.rect(0, 0, 2*w, h, 1)
 
-	Color.set("elmFrame")
+	Color.set("elementBody")
 	gfx.rect(0, 0, w, h, 0)
 
-	Color.set("elmFill")
+	Color.set("highlight")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
@@ -362,7 +362,7 @@ function TextEditor:drawCaret()
 
 	if caretRelative.x and caretRelative.y then
 
-		Color.set("txt")
+		Color.set("text")
 
 		gfx.rect(
       self.x + self.pad + (caretRelative.x * self.charW),
@@ -382,7 +382,7 @@ function TextEditor:drawSelection()
   local x, y, w
   local h = self.charH
 
-	Color.set("elmFill")
+	Color.set("highlight")
 	gfx.a = 0.5
 	gfx.mode = 1
 
@@ -433,7 +433,7 @@ function TextEditor:drawScrollbars()
 	if not (vert or horz) then goto tracks end
 
   -- Draw a gradient to fade out the last ~16px of text
-	Color.set("elmBg")
+	Color.set("backgroundDarkest")
 	for i = 0, fadeWidth do
 
 		gfx.a = i/fadeWidth
@@ -467,10 +467,10 @@ function TextEditor:drawScrollbars()
   ::tracks::
 
 	-- Draw slider track
-	Color.set("tabBg")
+	Color.set("backgroundDark")
 	GFX.roundRect(vx, vy, vw, vh, 4, 1, 1)
 	GFX.roundRect(hx, hy, hw, hh, 4, 1, 1)
-	Color.set("elmOutline")
+	Color.set("elementOutline")
 	GFX.roundRect(vx, vy, vw, vh, 4, 1, 0)
 	GFX.roundRect(hx, hy, hw, hh, 4, 1, 0)
 

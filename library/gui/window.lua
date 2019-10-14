@@ -41,7 +41,7 @@ function Window:open()
   -- TODO: Restore previous size and position
 
   -- Create the window
-  local bg = Table.map(Color.colors.windowBg,
+  local bg = Table.map(Color.colors.background,
     function(val) return val * 255 end
   )
   gfx.clear = reaper.ColorToNative(table.unpack(bg))
@@ -138,7 +138,7 @@ function Window:redraw()
     gfx.setimgdim(0, -1, -1)
     gfx.setimgdim(0, w, h)
 
-    Color.set("windowBg")
+    Color.set("background")
     gfx.rect(0, 0, w, h, 1)
 
     -- Drawing from back to front
@@ -563,7 +563,7 @@ function Window:drawVersion()
   local str = "Scythe "..Scythe.version
 
   Font.set("version")
-  Color.set("txt")
+  Color.set("text")
 
   local strWidth, strHeight = gfx.measurestr(str)
 

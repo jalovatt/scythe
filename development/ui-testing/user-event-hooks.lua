@@ -105,9 +105,9 @@ function frm_grid:draw()
   local labelHeight = 24
 
   local pad = 4
-  Color.set("elmBg")
+  Color.set("backgroundDarkest")
   gfx.rect(self.x - pad, self.y - pad, self.w + 2*pad, self.h + 2*pad, true)
-  Color.set("elmFrame")
+  Color.set("elementBody")
   gfx.rect(self.x - pad, self.y - pad, self.w + 2*pad, self.h + 2*pad, false)
 
   Font.set(4)
@@ -117,7 +117,7 @@ function frm_grid:draw()
     h = (self.h - labelHeight) / #events
   }
 
-  Color.set("txt")
+  Color.set("text")
 
   gfx.x = self.x + labelWidth
   gfx.y = self.y
@@ -133,9 +133,9 @@ function frm_grid:draw()
 
     gfx.x = self.x
     gfx.y = self.y + labelHeight + (i - 1) * cellSize.h
-    Color.set("txt")
+    Color.set("text")
     gfx.drawstr(event)
-    Color.set("elmFill")
+    Color.set("highlight")
     if cell[1] > 0 then
       gfx.a = cell[1]
       gfx.rect(

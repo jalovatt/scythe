@@ -20,14 +20,14 @@ Knob.defaultProps = {
   y = 0,
   w = 64,
   caption = "Knob",
-  bg = "windowBg",
+  bg = "background",
   captionX = 0,
   captionY = 0,
   captionFont = 3,
   textFont = 4,
-  textColor = "txt",
-  headColor = "elmFill",
-  bodyColor = "elmFrame",
+  textColor = "text",
+  headColor = "highlight",
+  bodyColor = "elementBody",
 
   min = 0,
   max = 10,
@@ -90,18 +90,18 @@ function Knob:init()
 	-- Head
 	Color.set(self.headColor)
 	GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
-	Color.set("elmOutline")
+	Color.set("elementOutline")
 	GFX.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
 
 	-- Body
 	Color.set(self.bodyColor)
 	gfx.circle(o, o, r, 1)
-	Color.set("elmOutline")
+	Color.set("elementOutline")
 	gfx.circle(o, o, r, 0)
 
 	--gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
 	gfx.blit(self.buffer, 1, 0, 0, 0, w, w, w + 1, 0)
-	gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, Color.colors["shadow"][4])
+	gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, Color.colors.shadow[4])
 
 end
 

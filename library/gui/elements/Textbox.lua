@@ -30,8 +30,8 @@ Textbox.defaultProps = {
 
   pad = 4,
 
-  bg = "windowBg",
-  color = "txt",
+  bg = "background",
+  color = "text",
 
   captionFont = 3,
   textFont = "monospace",
@@ -77,15 +77,15 @@ function Textbox:init()
 	gfx.setimgdim(self.buffer, -1, -1)
 	gfx.setimgdim(self.buffer, 2*w, h)
 
-	Color.set("elmBg")
+	Color.set("backgroundDarkest")
 	gfx.rect(0, 0, 2*w, h, 1)
 
   -- Inactive frame
-	Color.set("elmFrame")
+	Color.set("elementBody")
 	gfx.rect(0, 0, w, h, 0)
 
   -- Active frame
-	Color.set("elmFill")
+	Color.set("highlight")
 	gfx.rect(w, 0, w, h, 0)
 	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
@@ -345,7 +345,7 @@ function Textbox:drawCaret()
 
   if caretRelative then
 
-      Color.set("txt")
+      Color.set("text")
 
       local caretH = self.charH - 2
 
@@ -361,7 +361,7 @@ end
 
 function Textbox:drawSelection()
 
-  Color.set("elmFill")
+  Color.set("highlight")
   gfx.a = 0.5
   gfx.mode = 1
 
@@ -405,7 +405,7 @@ function Textbox:drawGradient()
 
   local fadeW = 8
 
-  Color.set("elmBg")
+  Color.set("backgroundDarkest")
 
   local leftX = self.x + 2 + fadeW
   local rightX = self.x + self.w - 3 - fadeW

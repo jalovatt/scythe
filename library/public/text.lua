@@ -226,7 +226,7 @@ end
     gfx.drawstr(self.text)
 
     Also accepts an optional background color:
-    Text.drawBackground(self.text, "elmBg")
+    Text.drawBackground(self.text, "backgroundDarkest")
 
 ]]--
 Text.drawBackground = function (str, col, align)
@@ -234,7 +234,7 @@ Text.drawBackground = function (str, col, align)
   local x, y = gfx.x, gfx.y
   local r, g, b, a = gfx.r, gfx.g, gfx.b, gfx.a
 
-  col = col or "windowBg"
+  col = col or "background"
 
   Color.set(col)
 

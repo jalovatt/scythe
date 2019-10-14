@@ -17,13 +17,13 @@ ColorPicker.defaultProps = {
   y = 0,
   w = 256,
   h = 256,
-  frameColor = "elmFrame",
-  color = "elmFill",
+  frameColor = "elementBody",
+  color = "highlight",
   round = 0,
   caption = "",
-  bg = "windowBg",
+  bg = "background",
   captionFont = 3,
-  captionColor = "txt",
+  captionColor = "text",
   pad = 4,
   shadow = true,
 
@@ -126,7 +126,7 @@ function ColorPicker:drawFrame()
   end
 
   -- Shadow
-  local r, g, b, a = table.unpack(Color.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors.shadow)
 	gfx.set(r, g, b, 1)
 	GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
 	gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )

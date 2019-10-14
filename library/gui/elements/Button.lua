@@ -23,8 +23,8 @@ Button.defaultProps = {
 
   caption = "Button",
   font = 3,
-  textColor = "txt",
-  fillColor = "elmFrame",
+  textColor = "text",
+  fillColor = "elementBody",
 
   func = function () end,
   params = {},
@@ -47,10 +47,10 @@ function Button:init()
 
 	Color.set(self.fillColor)
 	GFX.roundRect(1, 1, self.w, self.h, 4, 1, 1)
-	Color.set("elmOutline")
+	Color.set("elementOutline")
 	GFX.roundRect(1, 1, self.w, self.h, 4, 1, 0)
 
-	local r, g, b, a = table.unpack(Color.colors["shadow"])
+	local r, g, b, a = table.unpack(Color.colors.shadow)
 	gfx.set(r, g, b, 1)
 	GFX.roundRect(self.w + 2, 1, self.w, self.h, 4, 1, 1)
 	gfx.muladdrect(self.w + 2, 1, self.w + 2, self.h + 2, 1, 1, 1, a, 0, 0, 0, 0 )

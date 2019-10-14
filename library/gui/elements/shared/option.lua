@@ -20,13 +20,13 @@ Option.defaultProps = {
 
   caption = "Option: ",
 
-  bg = "windowBg",
+  bg = "background",
 
   horizontal = false,
   pad = 4,
 
-  textColor = "txt",
-  fillColor = "elmFill",
+  textColor = "text",
+  fillColor = "highlight",
 
   captionFont = 2,
   textFont = 3,
@@ -89,7 +89,7 @@ end
 function Option:draw()
 
 	if self.frame then
-		Color.set("elmFrame")
+		Color.set("elementBody")
 		gfx.rect(self.x, self.y, self.w, self.h, 0)
 	end
 

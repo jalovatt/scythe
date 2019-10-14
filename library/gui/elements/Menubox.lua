@@ -23,13 +23,13 @@ Menubox.defaultProps = {
   h = 24,
 
   caption = "Menubox:",
-  bg = "windowBg",
+  bg = "background",
 
   captionFont = 3,
   textFont = 4,
 
-  captionColor = "txt",
-  textColor = "txt",
+  captionColor = "text",
+  textColor = "text",
 
   pad = 4,
 
@@ -146,20 +146,20 @@ end
 function Menubox:drawFrame()
 
   local w, h = self.w, self.h
-  local r, g, b, a = table.unpack(Color.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors.shadow)
   gfx.set(r, g, b, 1)
   gfx.rect(w + 3, 1, w, h, 1)
   gfx.muladdrect(w + 3, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
-  Color.set("elmBg")
+  Color.set("backgroundDarkest")
   gfx.rect(1, 1, w, h)
   gfx.rect(1, w + 3, w, h)
 
-  Color.set("elmFrame")
+  Color.set("elementBody")
   gfx.rect(1, 1, w, h, 0)
   if not self.noArrow then gfx.rect(1 + w - h, 1, h, h, 1) end
 
-  Color.set("elmFill")
+  Color.set("highlight")
   gfx.rect(1, h + 3, w, h, 0)
   gfx.rect(2, h + 4, w - 2, h - 2, 0)
 
@@ -171,7 +171,7 @@ function Menubox:drawArrow()
   local w, h = self.w, self.h
   gfx.rect(1 + w - h, h + 3, h, h, 1)
 
-  Color.set("elmBg")
+  Color.set("backgroundDarkest")
 
   -- Triangle size
   local r = 5

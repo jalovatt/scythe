@@ -23,14 +23,14 @@ Slider.defaultProps = {
   horizontal = true,
 
   caption = "Slider",
-  bg = "windowBg",
+  bg = "background",
 
   captionFont = 3,
   textFont = 4,
 
-  textColor = "txt",
-  handleColor = "elmFrame",
-  fillColor = "elmFill",
+  textColor = "text",
+  handleColor = "elementBody",
+  fillColor = "highlight",
 
   min = 0,
   max = 10,
@@ -98,9 +98,9 @@ function Slider:init()
   gfx.setimgdim(self.buffers[1], -1, -1)
   gfx.setimgdim(self.buffers[1], w + 4, h + 4)
 
-  Color.set("elmBg")
+  Color.set("backgroundDarkest")
   GFX.roundRect(2, 2, w, h, 4, 1, 1)
-  Color.set("elmOutline")
+  Color.set("elementOutline")
   GFX.roundRect(2, 2, w, h, 4, 1, 0)
 
 
@@ -113,10 +113,10 @@ function Slider:init()
 
   Color.set(self.handleColor)
   GFX.roundRect(1, 1, hw, hh, 2, 1, 1)
-  Color.set("elmOutline")
+  Color.set("elementOutline")
   GFX.roundRect(1, 1, hw, hh, 2, 1, 0)
 
-  local r, g, b, a = table.unpack(Color.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors.shadow)
   gfx.set(r, g, b, 1)
   GFX.roundRect(hw + 2, 1, hw, hh, 2, 1, 1)
   gfx.muladdrect(hw + 2, 1, hw + 2, hh + 2, 1, 1, 1, a, 0, 0, 0, 0 )

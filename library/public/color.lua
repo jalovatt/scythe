@@ -5,7 +5,7 @@ local Color = {}
 
 --[[	Apply a color preset
 
-    col			Color preset string -> "elmFill"
+    col			Color preset string -> "highlight"
                 or
                 Color table -> {1, 0.5, 0.5[, 1]}
                                 R  G    B  [  A]
@@ -197,23 +197,6 @@ end
 
 
 Color.colors = {
-
-  test1 = "test2",
-  test2 = "test3",
-  test3 = "red",
-
-  -- Element colors
-  windowBg = Color.fromRgba(64, 64, 64, 255),			-- Window BG
-  tabBg = Color.fromRgba(56, 56, 56, 255),			-- Tabs BG
-  elmBg = Color.fromRgba(48, 48, 48, 255),			-- Element BG
-  elmFrame = Color.fromRgba(96, 96, 96, 255),		-- Element Frame
-  elmFill = Color.fromRgba(64, 192, 64, 255),		-- Element Fill
-  elmOutline = Color.fromRgba(32, 32, 32, 255),	-- Element Outline
-  txt = Color.fromRgba(192, 192, 192, 255),			-- Text
-
-  shadow = Color.fromRgba(0, 0, 0, 48),				-- Element Shadows
-  faded = Color.fromRgba(0, 0, 0, 64),
-
   -- Standard 16 colors
   black = Color.fromRgba(0, 0, 0, 255),
   white = Color.fromRgba(255, 255, 255, 255),
@@ -233,7 +216,6 @@ Color.colors = {
   navy = Color.fromRgba(0, 0, 128, 255),
 
   none = Color.fromRgba(0, 0, 0, 0),
-
 }
 
 return Color

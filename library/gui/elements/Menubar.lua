@@ -17,9 +17,9 @@ Menubar.defaultProps = {
   y = 0,
 
   font = 2,
-  textColor = "txt",
-  backgroundColor = "elmFrame",
-  hoverColor = "elmFill",
+  textColor = "text",
+  backgroundColor = "elementBody",
+  hoverColor = "highlight",
 
   w = 256,
   h = 24,
@@ -77,7 +77,7 @@ function Menubar:init()
   gfx.rect(0, 0, self.w, self.h, true)
 
   Color.set("shadow")
-  local r, g, b, a = table.unpack(Color.colors["shadow"])
+  local r, g, b, a = table.unpack(Color.colors.shadow)
   gfx.set(r, g, b, 1)
   gfx.rect(0, self.h + 1, self.w, self.h, true)
   gfx.muladdrect(0, self.h + 1, self.w, self.h, 1, 1, 1, a, 0, 0, 0, 0 )

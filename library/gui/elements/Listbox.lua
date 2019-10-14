@@ -28,12 +28,12 @@ Listbox.defaultProps =  {
   caption = "",
   pad = 4,
 
-  bg = "elmBg",
-  captionBg = "windowBg",
-  color = "txt",
+  bg = "backgroundDarkest",
+  captionBg = "background",
+  color = "text",
 
   -- Scrollbar fill
-  fillColor = "elmFill",
+  fillColor = "highlight",
 
   captionFont = 3,
 
@@ -72,7 +72,7 @@ function Listbox:init()
 	Color.set(self.bg)
 	gfx.rect(0, 0, w, h, 1)
 
-	Color.set("elmFrame")
+	Color.set("elementBody")
 	gfx.rect(0, 0, w, h, 0)
 
 end
@@ -295,7 +295,7 @@ function Listbox:drawSelection()
   local w = self.w - 2 * self.pad
   local itemY
 
-	Color.set("elmFill")
+	Color.set("highlight")
 	gfx.a = 0.5
 	gfx.mode = 1
 
@@ -323,7 +323,7 @@ function Listbox:drawScrollbar()
 
 
 	-- Draw a gradient to fade out the last ~16px of text
-  Color.set("elmBg")
+  Color.set("backgroundDarkest")
 
   local gradientOffset = sx - 15
   local gradientTop = y + 2
@@ -337,9 +337,9 @@ function Listbox:drawScrollbar()
 	gfx.rect(sx, y + 2, sw + 2, h - 4, true)
 
 	-- Draw slider track
-	Color.set("tabBg")
+	Color.set("backgroundDark")
 	GFX.roundRect(sx, sy, sw, sh, 4, 1, 1)
-	Color.set("elmOutline")
+	Color.set("elementOutline")
 	GFX.roundRect(sx, sy, sw, sh, 4, 1, 0)
 
 	-- Draw slider fill

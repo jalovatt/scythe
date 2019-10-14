@@ -24,7 +24,7 @@ function Checklist:initOptions()
 	local size = self.optionSize
 
 	-- Option frame
-	Color.set("elmFrame")
+	Color.set("elementBody")
 	gfx.rect(1, 1, size, size, 0)
   gfx.rect(size + 3, 1, size, size, 0)
 

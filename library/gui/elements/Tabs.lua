@@ -21,10 +21,10 @@ Tabs.defaultProps = {
   captionFont = 3,
   textFont = 4,
 
-  bg = "elmBg",
-  textColor = "txt",
-  tabColorActive = "windowBg",
-  tabColorInactive = "tabBg",
+  bg = "backgroundDarkest",
+  textColor = "text",
+  tabColorActive = "background",
+  tabColorInactive = "backgroundDark",
 
   -- Placeholder for if I ever figure out downward tabs
   dir = "u",

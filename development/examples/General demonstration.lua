@@ -228,7 +228,7 @@ layers[3]:addElements( GUI.createElements(
     y = 288,
     w = 192,
     h = 128,
-    bg = "elmBg",
+    bg = "backgroundDarkest",
     text = "this is a really long string of text with no carriage returns so hopefully "..
             "it will be wrapped correctly to fit inside this frame"
   },
