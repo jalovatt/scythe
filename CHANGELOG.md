@@ -1,5 +1,13 @@
 # Scythe 3.x changelog
 
+## October 26, 2019
+
+- Added wrappers for working with system-native colors:
+  - `Color.toNative(color)` will accept a string preset (`"background"`) or a table of RGB values (`{0.5, 0.75, 1}`).
+  - `Color.fromNative(nativeColor)` will accept a system-native color, such as those returned by `reaper.GR_SelectColor()`, and return a table of RGB values (`{0.5, 0.75, 1}`).
+- Renamed color presets for clarity.
+- Moved the GUI font and color presets into `gui/theme.lua`.
+
 ## October 12, 2019
 
 - Added a way to bypass elements' input events. To use it, add a `before` event handler that sets `preventDefault = true` on its input state, i.e:
