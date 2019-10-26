@@ -46,7 +46,20 @@ end
 local userConfig = parseQueryString(ext)
 
 for k, v in pairs(userConfig) do
-  if Config[k] ~= nil then Config[k] = v end
+  if Config[k] ~= nil then
+    local parsed
+    if tonumber(v) then
+      parsed = tonumber(v)
+    elseif v == "true" then
+      parsed = true
+    elseif v == "false" then
+      parsed = false
+    else
+      parsed = v
+    end
+
+    Config[k] = parsed
+  end
 end
 
 return Config
