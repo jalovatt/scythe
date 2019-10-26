@@ -1,5 +1,6 @@
 -- NoIndex: true
 local Math = require("public.math")
+local Table = require("public.table")
 
 local Color = {}
 
@@ -195,6 +196,17 @@ Color.addColorsFromRgba = function (colors)
   end
 end
 
+-- TODO: Tests
+Color.toNative = function (color)
+  local rgb = Table.map(color, function(v) return v * 255 end)
+  return reaper.ColorToNative(rgb:unpack())
+end
+
+-- TODO: Tests
+Color.fromNative = function(color)
+  local r, g, b = reaper.ColorFromNative(color)
+  return {r / 255, g / 255, b / 255}
+end
 
 Color.colors = {
   -- Standard 16 colors
