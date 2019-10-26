@@ -77,8 +77,10 @@ function Menubox:draw()
 
 
     -- Blit the shadow + frame
-  for i = 1, Config.shadowSize do
-    gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
+  if Config.drawShadows then
+    for i = 1, Config.shadowSize do
+      gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
+    end
   end
 
   gfx.blit(self.buffer, 1, 0, 0, (self.focus and (h + 2) or 0) , w + 2, h + 2, x - 1, y - 1)

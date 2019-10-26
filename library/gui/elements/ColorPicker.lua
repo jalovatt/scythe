@@ -62,7 +62,7 @@ end
 function ColorPicker:draw()
   local x, y, w, h = self.x + 2 * self.state, self.y + 2 * self.state, self.w, self.h
 
-  if self.state == 0 and self.shadow then
+  if self.state == 0 and self.shadow and Config.drawShadows then
     for i = 1, Config.shadowSize do
       gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
     end
@@ -94,11 +94,11 @@ function ColorPicker:onDoubleClick()
 end
 
 function ColorPicker:selectColor()
-  local retval, colorOut = reaper.GR_SelectColor()
+  local current = Color.toNative(self.color)
+  local retval, colorOut = reaper.GR_SelectColor(nil, current)
 
   if retval ~= 0 then
-    local r, g, b = reaper.ColorFromNative(colorOut)
-    self.color = {r / 255, g / 255, b / 255}
+    self.color = Color.fromNative(colorOut)
     self:redraw()
   end
 end

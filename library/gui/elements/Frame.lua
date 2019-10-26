@@ -65,7 +65,7 @@ function Frame:draw()
 
   local x, y, w, h = self.x, self.y, self.w, self.h
 
-  if self.shadow then
+  if self.shadow and Config.drawShadows then
 
     for i = 1, Config.shadowSize do
 

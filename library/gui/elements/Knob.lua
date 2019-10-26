@@ -129,14 +129,16 @@ function Knob:draw()
 	local blitWidth = 3 * r + 2
 	local blitX = 1.5 * r
 
-	-- Shadow
-	for i = 1, Config.shadowSize do
+  -- Shadow
+  if Config.drawShadows then
+    for i = 1, Config.shadowSize do
 
-		gfx.blit(   self.buffer, 1, currentAngle * Const.PI,
-                blitWidth + 1, 0, blitWidth, blitWidth,
-                o.x - blitX + i - 1, o.y - blitX + i - 1)
+      gfx.blit(   self.buffer, 1, currentAngle * Const.PI,
+                  blitWidth + 1, 0, blitWidth, blitWidth,
+                  o.x - blitX + i - 1, o.y - blitX + i - 1)
 
-	end
+    end
+  end
 
 	-- Body
 	gfx.blit(   self.buffer, 1, currentAngle * Const.PI,

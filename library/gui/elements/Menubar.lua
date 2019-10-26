@@ -105,7 +105,7 @@ function Menubar:draw()
   local w, h = self.w, self.h
 
   -- Blit the menu background + shadow
-  if self.shadow then
+  if self.shadow and Config.drawShadows then
 
     for i = 1, Config.shadowSize do
 

@@ -67,10 +67,10 @@ end
 function Button:draw()
 
 	local x, y, w, h = self.x, self.y, self.w, self.h
-	local state = self.state
+  local state = self.state
 
 	-- Draw the shadow if not pressed
-	if state == 0 then
+  if state == 0 and Config.drawShadows then
 		for i = 1, Config.shadowSize do
 			gfx.blit(self.buffer, 1, 0, w + 2, 0, w + 2, h + 2, x + i - 1, y + i - 1)
 		end

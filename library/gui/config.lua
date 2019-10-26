@@ -16,6 +16,7 @@ Config.caretBlinkRate = 16
 
 -- Global shadow size, in pixels
 Config.shadowSize = 1
+Config.drawShadows = true
 
 -- Delay time when hovering over an element before displaying a tooltip
 Config.tooltipTime = 0.7

@@ -133,7 +133,7 @@ function Tabs:draw()
 
   -- Keep the active tab's top separate from the window background
 	Color.set(self.bg)
-  gfx.line(x + (state - 1) * xOffset, y, x + state * xOffset, y, 1)
+  gfx.line(x + (state - 1) * xOffset, y, x + state * xOffset + 2, y, 1)
 
 end
 
@@ -239,19 +239,21 @@ function Tabs:drawTab(x, y, w, h, dir, font, textColor, background, lbl)
   local adjustedW = w - h
   local adjustedRight = adjustedX + adjustedW
 
-	Color.set("shadow")
+  if Config.drawShadows then
+    Color.set("shadow")
 
-  -- tab shadow
-  for i = 1, dist do
+    -- tab shadow
+    for i = 1, dist do
 
-    gfx.rect(adjustedX + i, y, adjustedW, h, true)
+      gfx.rect(adjustedX + i, y, adjustedW, h, true)
 
-    self:drawTabLeft(adjustedX, i, y1, y2, h)
-    self:drawTabRight(adjustedRight, i, y1, y2, h)
+      self:drawTabLeft(adjustedX, i, y1, y2, h)
+      self:drawTabRight(adjustedRight, i, y1, y2, h)
 
+    end
+
+    self:drawAliasingFix(adjustedX, adjustedRight, dist, y1, y2, h)
   end
-
-  self:drawAliasingFix(adjustedX, adjustedRight, dist, y1, y2, h)
 
   Color.set(background)
 

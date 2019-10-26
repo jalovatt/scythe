@@ -440,10 +440,12 @@ end
 
 function Slider:drawSliderHandle(hx, hy, hw, hh)
 
-  for j = 1, Config.shadowSize do
+  if Config.drawShadows then
+    for j = 1, Config.shadowSize do
 
-    gfx.blit(self.buffers[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
+      gfx.blit(self.buffers[2], 1, 0, hw + 2, 0, hw + 2, hh + 2, hx + j, hy + j)
 
+    end
   end
 
   gfx.blit(self.buffers[2], 1, 0, 0, 0, hw + 2, hh + 2, hx, hy)
