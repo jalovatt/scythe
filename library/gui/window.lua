@@ -40,11 +40,7 @@ end
 function Window:open()
   -- TODO: Restore previous size and position
 
-  -- Create the window
-  local bg = Table.map(Color.colors.background,
-    function(val) return val * 255 end
-  )
-  gfx.clear = reaper.ColorToNative(table.unpack(bg))
+  gfx.clear = Color.toNative("background")
 
   if self.anchor and self.corner then
     self.x, self.y = self:getAnchoredPosition( self.x, self.y, self.w, self.h,
