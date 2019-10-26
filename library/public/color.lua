@@ -166,7 +166,7 @@ Color.gradient = function (colorA, colorB, pos)
     table.unpack(
       type(colorA) == "table"
         and colorA
-        or  Color.colors(colorA)
+        or  Color.colors[colorA]
     )
   )
 
@@ -174,7 +174,7 @@ Color.gradient = function (colorA, colorB, pos)
     table.unpack(
       type(colorB) == "table"
         and colorB
-        or  Color.colors(colorB)
+        or  Color.colors[colorB]
     )
   )
 
@@ -198,7 +198,8 @@ end
 
 -- TODO: Tests
 Color.toNative = function (color)
-  local rgb = Table.map(color, function(v) return v * 255 end)
+  local colorTable = type(color) == "table" and color or Color.colors[color]
+  local rgb = Table.map(colorTable, function(v) return v * 255 end)
   return reaper.ColorToNative(rgb:unpack())
 end
 
