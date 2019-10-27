@@ -1,5 +1,9 @@
 # Scythe 3.x changelog
 
+## October 27, 2019
+
+- Reimplemented developer menu, allowing an element's parameters to be printed to the console. To access it, switch to developer mode (`Ctrl + Alt + Shift + Z`), then `Ctrl + Right-click` any element.
+
 ## October 26, 2019
 
 - Added wrappers for working with system-native colors:
@@ -76,7 +80,6 @@
 
 - Moved `error.lua` to the public folder so non-GUI scripts can make use of it
 - Replaced all instances of `gfx.mouse_cap & number == number` with state flags: `if (state.kb.shift) then`
-- In dev mode (press `Ctrl+Shift+Alt+Z`), right-clicking an element allows its current properties to be listed in the console
 
 ## June 09, 2019
 
