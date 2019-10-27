@@ -423,6 +423,12 @@ function Window:updateInputEvents()
 
         elseif not state.mouse.doubleClicked then
           state.mouse.downElm:handleEvent(button.btn.."MouseUp", state, last)
+
+          -- TODO: Find a better way to handle this
+          if Scythe.developerMode and button.down == "right" and state.kb.ctrl then
+            state.mouse.downElm:showDevMenu(state)
+          end
+
           state.mouse.downElm = nil
 
           state.mouse.lastTimeUp = reaper.time_precise()
