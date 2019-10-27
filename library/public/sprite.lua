@@ -1,6 +1,7 @@
 local Table = require("public.table")[1]
 local Image = require("public.image")
 local Buffer = require("public.buffer")
+local Color = require("public.color")
 
 local sharedBuffer = Buffer.get()
 
@@ -13,19 +14,25 @@ local defaultProps = {
   rotate = {
     angle = 0,
     unit = "pct",
+    -- Rotation origin is disabled until I can implement it properly
     -- Relative to the image's center (i.e. -w/2 = the top-left corner)
-    origin = {x = 0, y = 0},
+    -- origin = {x = 0, y = 0},
   },
   frame = {
     w = 0,
     h = 0,
   },
-  image = {}
+  image = {},
+  drawBounds = false,
 }
 
 function Sprite:new(props)
   local sprite = Table.deepCopy(props)
   Table.addMissingKeys(sprite, defaultProps)
+  if props.image then
+    sprite.image = {}
+    Sprite.setImage(sprite, props.image)
+  end
   return setmetatable(sprite, self)
 end
 
@@ -59,7 +66,7 @@ function Sprite:draw(x, y, state)
 
   local destX, destY = x + self.translate.x, y + self.translate.y
 
-  local rotX, rotY = self.rotate.origin.x, self.rotate.origin.y
+  local rotX, rotY = 0, 0 -- Rotation origin; forcing to 0 until it can be properly implemented
 
   local halfW, halfH = 0.5 * srcW, 0.5 * srcH
   local doubleW, doubleH = 2 * srcW, 2 * srcH
@@ -76,9 +83,12 @@ function Sprite:draw(x, y, state)
   )
   gfx.dest = dest
 
-  -- Just for debugging
-  gfx.set(1, 0, 1, 1)
-  gfx.rect(destX, destY, srcW * self.scale, srcH * self.scale, false)
+  -- For debugging purposes
+  if self.drawBounds then
+    Color.set("magenta")
+    gfx.rect(destX, destY, srcW * self.scale, srcH * self.scale, false)
+  end
+
   gfx.blit(
     sharedBuffer, 1, rotate + 6.2831854,
     0, 0, doubleW, doubleH,
