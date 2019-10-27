@@ -66,7 +66,7 @@ end
 
 
 window = GUI.createWindow({
-  name = "Example - Typical script options",
+  name = "Typical Script Options",
   x = 0,
   y = 0,
   w = 400,

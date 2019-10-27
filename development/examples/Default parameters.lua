@@ -28,6 +28,7 @@ local GUI = require("gui.core")
 
 
 local window = GUI.createWindow({
+  name = "Default Parameters",
   w = 400,
   h = 200,
 })

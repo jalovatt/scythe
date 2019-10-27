@@ -231,7 +231,7 @@ end
 
 
 local window = GUI.createWindow({
-  name = "Example - Menubar, Listbox, and TextEditor",
+  name = "Menubar, Listbox, and TextEditor",
   x = 0,
   y = 0,
   w = 800,

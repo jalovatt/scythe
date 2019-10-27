@@ -73,7 +73,7 @@ function Sprite:draw(x, y, state)
 
   local dest = gfx.dest
   gfx.dest = sharedBuffer
-  gfx.setimgdim(sharedBuffer, 0, 0)
+  gfx.setimgdim(sharedBuffer, -1, -1)
   gfx.setimgdim(sharedBuffer, doubleW, doubleH)
   gfx.blit(
     self.image.buffer, 1, 0,
@@ -90,10 +90,20 @@ function Sprite:draw(x, y, state)
   end
 
   gfx.blit(
-    sharedBuffer, 1, rotate + 6.2831854,
-    0, 0, doubleW, doubleH,
-    destX + ((rotX - halfW) * self.scale), destY + ((rotY - halfH) * self.scale), doubleW * self.scale, doubleH * self.scale,
-    rotX, rotY
+    sharedBuffer,                               -- source
+    1,                                          -- scale
+    -- TODO: 2*pi is necessary to avoid issues when crossing 0, I think? Find a better solution.
+    rotate + 6.2831854,                         -- rotation
+    0,                                          -- srcx
+    0,                                          -- srcy
+    doubleW,                                    -- srcw
+    doubleH,                                    -- srch
+    destX + ((rotX - halfW) * self.scale),      -- destx
+    destY + ((rotY - halfH) * self.scale),      -- desty
+    doubleW * self.scale,                       -- destw
+    doubleH * self.scale,                       -- desth
+    rotX,                                       -- rotxoffs
+    rotY                                        -- rotyoffs
   )
 end
 
