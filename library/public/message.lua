@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Message = {}
 
 -- Print arguments to the Reaper console.

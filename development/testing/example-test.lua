@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local testVars = {
   x = 1,
   y = 2,

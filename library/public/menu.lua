@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 require("public.string")
 local _, T = require("public.table"):unpack()
 

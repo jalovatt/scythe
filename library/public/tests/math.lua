@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Math = require("public.math")
 
 describe("Math.round", function()

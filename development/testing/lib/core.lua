@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local function Msg(msg, indents)
   local str = string.rep("\t", indents or 0) .. msg
   if (reaper) then

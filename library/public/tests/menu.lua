@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local menuVal
 
 local Menu = requireWithMocks("public.menu", {

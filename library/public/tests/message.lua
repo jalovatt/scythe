@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local msgStore = {}
 
 local Message = requireWithMocks("public.message", {

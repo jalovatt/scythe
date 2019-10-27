@@ -1,3 +1,5 @@
+-- NoIndex: true
+
 local Table = require("public.table")[1]
 local Image = require("public.image")
 local Buffer = require("public.buffer")
