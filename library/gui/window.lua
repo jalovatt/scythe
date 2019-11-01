@@ -99,7 +99,7 @@ function Window:reopen(params)
 end
 
 function Window:sortLayers()
-  self.sortedLayers = self.layers:sortHashesByKey("z")
+  self.sortedLayers = self.layers:sortByKey("z")
 end
 
 function Window:close()

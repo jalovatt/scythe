@@ -614,7 +614,7 @@ describe("Table.fullLength", function()
 
 end)
 
-describe("Table.sortHashesByKey", function()
+describe("Table.sortByKey", function()
   test("", function()
     local tIn = {
       {z = 4},
@@ -626,7 +626,7 @@ describe("Table.sortHashesByKey", function()
       {z = 7},
     }
 
-    local tOut = Table.sortHashesByKey(tIn, "z")
+    local tOut = Table.sortByKey(tIn, "z")
 
     expect(tOut[1].z).toEqual(1)
     expect(tOut[2].z).toEqual(2)
