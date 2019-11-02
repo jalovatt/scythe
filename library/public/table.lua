@@ -3,35 +3,34 @@
 local Table = {}
 setmetatable(Table, {__index = table})
 
----
--- @desc        Sets a table's metatable to allow it to access both the Table
---              module and Lua's native table functions via : syntax. i.e.:
---              local myTable = T{}
---              myTable:sort():map():stringify()
+--- Sets a table's metatable to allow it to access both the Table module and
+-- Lua's native table functions via : syntax.
+-- ```
+-- local myTable = T{}
+-- myTable:sort():map():stringify()
+-- ```
 -- @param t     table
 -- @return      table   The original table reference
 local T = function(t) return setmetatable(t, {__index = Table}) end
 
----
--- @desc        Iterates over a given table, passing each entry to the callback.
---              Important: The order of entries is not guaranteed.
--- @param t     table       A table
+--- Iterates over a given table, passing each entry to the callback.
+--
+-- Entries are **not** guaranteed to be called in any specific order.
+-- @param t     table
 -- @param cb    function    Will be called for each entry in the table and passed
---                          the arguments [value, key, t]. Any return value will
---                          be ignored.
+-- the arguments [value, key, t]. Any return value will be ignored.
 Table.forEach = function(t, cb)
   for k, v in pairs(t) do
     cb(v, k, t)
   end
 end
 
----
--- @desc        Identical to Table.forEach, but guaranteed to run in numerical
---              order on only the array portion of the given table.
--- @param t     table       A table
+--- Identical to Table.forEach, but guaranteed to run in numerical order on only
+-- the array portion of the given table.
+-- @param t     table
 -- @param cb    function    Will be called for each entry in the array portion of
---                          the table and passed the arguments [value, index, t].
---                          Any returned value will be ignored.
+-- the table and passed the arguments [value, index, t]. Any returned value will
+-- be ignored.
 Table.orderedForEach = function(t, cb)
   local l = #t
 
@@ -40,13 +39,13 @@ Table.orderedForEach = function(t, cb)
   end
 end
 
----
--- @desc        Iterates over the given table, calling cb(value, key, t) for each
---              element and collecting the returned values into a new table with
---              the original keys.
+--- Iterates over the given table, calling cb(value, key, t) for each element and
+-- collecting the returned values into a new table with the original keys.
+--
+-- Entries are **not** guaranteed to be called in any specific order.
 -- @param t     table       A table
 -- @param cb    function    Will be called for each entry in the table and passed
---                          the arguments [value, key, t]. Should return a value.
+-- the arguments [value, key, t]. Should return a value.
 -- @return      table
 Table.map = function(t, cb)
   local mapped = T{}
@@ -58,14 +57,11 @@ Table.map = function(t, cb)
   return mapped
 end
 
----
--- @desc        Iterates over the given table, calling cb(value, key, t) for each
---              element and collecting the returned values into a new table with
---              the original keys. Only operates on the array portion of the table,
---              but is guaranteed to run in order.
--- @param t     table       A table
+--- Identical to Table.map, but guaranteed to run in numerical order on only
+-- the array portion of the given table.
+-- @param t     table
 -- @param cb    function    Will be called for each entry in the table and passed
---              the arguments [value, key, t]. Should return a value.
+-- the arguments [value, key, t]. Should return a value.
 -- @return      table
 Table.orderedMap = function(t, cb)
   local mapped = T{}
@@ -78,13 +74,13 @@ Table.orderedMap = function(t, cb)
   return mapped
 end
 
----
--- @desc        Creates a new table containing only those elements of the given
---              table for which cb(value, key, t) returns true. Not guaranteed to
---              return elements in their original order.
+--- Creates a new table containing only those elements of the given table for
+-- which cb(value, key, t) returns true.
+--
+-- **Not** guaranteed to access elements in any specific order.
 -- @param t     table       A table
 -- @param cb    function    Will be called for each entry in the table and passed
---              the arguments [value, key, t]. Should return a boolean.
+-- the arguments [value, key, t]. Should return a boolean.
 -- @return      table
 Table.filter = function(t, cb)
   local filtered, l = T{}, 1
@@ -99,13 +95,11 @@ Table.filter = function(t, cb)
   return filtered
 end
 
----
--- @desc        Creates a new table containing only those elements of the given
---              table for which cb(value, key, t) returns true. Only operates on
---              the array portion of the table, but is guaranteed to run in order.
--- @param t     table       A table
+--- Identical to Table.filter, but operates on only the array portion of the
+-- table and is guaranteed to run in order.
+-- @param t     table
 -- @param cb    function    Will be called for each entry in the table and passed
---              the arguments [value, key, t]. Should return a boolean.
+-- the arguments [value, key, t]. Should return a boolean.
 -- @return      table
 Table.orderedFilter = function(t, cb)
   local filtered, fl = T{}, 1
@@ -121,14 +115,15 @@ Table.orderedFilter = function(t, cb)
   return filtered
 end
 
----
--- @desc        Iterates over a given table with the given accumulator (or 0, if
---              not provided) and callback, using the returned value as the
---              accumulator for the next iteration. Not guaranteed to run in order.
--- @param t     table       A table
+--- Iterates over a given table with the given accumulator (or 0, if not provided)
+-- and callback, using the returned value as the accumulator for the next
+-- iteration.
+--
+-- **Not** guaranteed to run in order.
+-- @param t     table
 -- @param cb    function    Will be called for each entry in the table and passed
---              the arguments [accumulator, value, key, t]. Must return an accumulator.
--- @param acc   any         An accumulator, defaulting to 0 if not specified.
+-- the arguments [accumulator, value, key, t]. Must return an accumulator.
+-- @option acc   any         An accumulator, defaulting to 0 if not specified.
 -- @return      any         Returns the final accumulator
 Table.reduce = function(t, cb, acc)
   if acc == nil then acc = 0 end
@@ -140,15 +135,12 @@ Table.reduce = function(t, cb, acc)
   return acc
 end
 
----
--- @desc        Iterates over a given table with the given accumulator (or 0, if
---              not provided) and callback, using the returned value as the
---              accumulator for the next iteration. Guaranteed to run in order on
---              only the array portion of the table.
--- @param t     table       A table
+--- Identical to Table.reduce, but operates on only the array portion of the table
+-- and is guaranteed to access elements in order.
+-- @param t     table
 -- @param cb    function    Will be called for each entry in the table and passed
---              the arguments [accumulator, value, key, t]. Must return an accumulator.
--- @param acc   any         An accumulator, defaulting to 0 if not specified.
+-- the arguments [accumulator, value, key, t]. Must return an accumulator.
+-- @option acc   any        An accumulator, defaulting to 0 if not specified.
 -- @return      any         Returns the final accumulator
 Table.orderedReduce = function(t, cb, acc)
   if acc == nil then acc = 0 end
@@ -161,11 +153,10 @@ Table.orderedReduce = function(t, cb, acc)
   return acc
 end
 
----
--- @desc        Performs a shallow copy of the given table - that is, only the
---              "top" level of elements is considered. Any tables or functions are
---              copied by reference to the new table. Taken from: http://lua-users.org/wiki/CopyTable
--- @param t     table       A table
+--- Creates a shallow copy of the given table - that is, only the "top" level
+-- of elements is considered. Any tables or functions are copied by reference
+-- to the new table. Taken from: http://lua-users.org/wiki/CopyTable
+-- @param t     table
 -- @return      table
 Table.shallowCopy = function(t)
   local copy
@@ -181,13 +172,15 @@ Table.shallowCopy = function(t)
 end
 
 
----
--- @desc        Performs a deep copy of the given table - any tables are recursively
---              deep-copied to the new table. To keep items from being deep-copied
---              and/or prevent circular references from causing a stack overflow,
---              tables with .__noRecursion will be copied by reference. Adapted
---              from: http://lua-users.org/wiki/CopyTable
--- @param t     table       A table
+--- Performs a deep copy of the given table - any tables are recursively
+-- deep-copied to the new table.
+--
+-- To explicitly prevent child tables from being deep-copied, set `.__noRecursion
+-- = true`. This particularly important when working with circular references, as
+-- deep-copying will lead to a stack overflow.
+--
+-- Adapted from: http://lua-users.org/wiki/CopyTable
+-- @param t     table
 -- @return      table
 Table.deepCopy = function(t, copies)
   copies = copies or {}
@@ -218,14 +211,15 @@ Table.deepCopy = function(t, copies)
   return copy
 end
 
----
--- @desc        Returns a string of the table's contents, indented to show nested
---              tables. If t contains classes, or a lot of nested tables, etc, be
---              wary of using larger values for maxDepth; this function will happily
---              freeze Reaper for ten minutes. Do **not** use this with recursive
---              tables.
--- @param t     table     A table
--- @param maxDepth  integer  Maximum depth of nested tables to process. Defaults to 2.
+--- Creates a string of the table's contents, indented to show nested tables.
+--
+-- If `t` contains classes, or a lot of nested tables, etc, be wary of using
+-- larger values for maxDepth; this function will happily block its thread for
+-- minutes at a time as the number of children grows.
+--
+-- Do **not** use this with recursive tables.
+-- @param t     table
+-- @option maxDepth  integer  Maximum depth of nested tables to process. Defaults to 2.
 -- @return      string
 Table.stringify = function (t, maxDepth, currentDepth)
   local ret = {}
@@ -249,10 +243,8 @@ Table.stringify = function (t, maxDepth, currentDepth)
   return table.concat(ret, "\n")
 end
 
----
--- @desc        Performs a shallow comparison of two tables. Only "top-level"
---              elements are considered; functions and tables are compared by
---              reference.
+--- Performs a shallow comparison of two tables. Only "top-level" elements are
+-- considered; functions and tables are compared by reference.
 -- @param a     table
 -- @param b     table
 -- @return      boolean
@@ -271,10 +263,8 @@ Table.shallowEquals = function (a, b)
   return true
 end
 
----
--- @desc        Recursively compares the contents of two tables, since Lua doesn't
---              offer it returns true if all of table a's keys and values match
---              all of table b's.
+--- Recursively compares the contents of two tables. Will be `true` only if all
+-- of `a`'s keys and values match all of table `b`s.
 -- @param a     table
 -- @param b     table
 -- @return      boolean
@@ -310,14 +300,14 @@ local fullSortTypes = {
   table = {boolean = false, number = false, string = false, ["function"] = false},
 }
 
----
--- @desc        Sorts values of different types (bool < num < string < reference),
---              for use with table.sort or anything else that takes a sorter.
---              Use as a callback for table.sort:
---                local t = {"a", 1, {}, 5}
---                table.sort(t, Table.fullSort)
---                --> t == {1, 5, "a", {}}
---              Adapted from: http://lua-users.org/wiki/SortedIteration
+--- Sorts values of different types (bool < num < string < reference), e.g. for
+-- use with `table.sort`.
+-- ```lua
+-- local t = {"a", 1, {}, 5}
+-- table.sort(t, Table.fullSort)
+-- --> t == {1, 5, "a", {}}
+-- ```
+-- Adapted from: http://lua-users.org/wiki/SortedIteration
 -- @param a     boolean|num|string|reference
 -- @param b     boolean|num|string|reference
 -- @return      boolean
@@ -345,10 +335,12 @@ Table.fullSort = function (a, b)
 
 end
 
----
--- @desc        Sorts all table values in alphanumeric order. Adapted from
---              Programming In Lua, chapter 19.3. Usage: for k, v in kpairs(t) do
--- @param t     table   A table
+--- Iterates through all table values in alphanumeric order.
+-- ```lua
+-- for k, v in kpairs(t) do
+-- ```
+-- Adapted from Programming In Lua, chapter 19.3.
+-- @param t     table
 -- @return      iterator
 Table.kpairs = function (t)
   local a = {}
@@ -371,11 +363,14 @@ Table.kpairs = function (t)
   return iter
 end
 
----
--- @desc        Swaps the keys and values in a given table, i.e.
---              {a = 1, b = 2, c = 3} --> {1 = "a", 2 = "b", 3 = "c"}
---              This will behave unpredictably if given a table where the same
---              value exists in multiple keys (booleans, for instance)
+--- Swaps the keys and values in a given table.
+-- ```lua
+-- local t = {a = 1, b = 2, c = 3, 4 = "d"}
+-- local inverted = Table.invert(t)
+-- --> {1 = "a", 2 = "b", 3 = "c", d = 4}
+-- ```
+-- This will behave unpredictably if given a table where the same value exists
+-- for multiple keys (e.g. booleans).
 -- @param t     table
 -- @return      table
 Table.invert = function(t)
@@ -388,12 +383,11 @@ Table.invert = function(t)
   return inv
 end
 
----
--- @desc        Searches a table (using ipairs by default), returning the first
---              value and index for which cb(value, key, t) is truthy.
+--- Searches a table, returning the first value and index for which `cb(value,
+-- key, t)` is truthy. If no match is found, will return `false`.
 -- @param t     table
 -- @param cb    function
--- @option iter iterator
+-- @option iter iterator  Defaults to `ipairs`
 -- @return      value, key | boolean
 Table.find = function(t, cb, iter)
   iter = iter or ipairs
@@ -408,11 +402,10 @@ Table.find = function(t, cb, iter)
   return false
 end
 
----
--- @desc        Searches a table and returns 'true' if cb(value, key, t) is
---              truthy for any element
+--- Searches a table and returns `true` if `cb(value, key, t)` is truthy for any
+-- element.
 -- @param t     table
--- @param cb    function    A function. Should return a boolean.
+-- @param cb    function    Should return a boolean.
 -- @return      boolean
 Table.any = function(t, cb)
   for k, v in pairs(t) do
@@ -422,11 +415,10 @@ Table.any = function(t, cb)
   return false
 end
 
----
--- @desc        Searches a table and returns 'true' if cb(value, key, t) is
---              truthy for all elements
+--- Searches a table and returns `true` if `cb(value, key, t)` is truthy for all
+-- elements.
 -- @param t     table
--- @param cb    function    A function. Should return a boolean.
+-- @param cb    function    Should return a boolean.
 -- @return      boolean
 Table.all = function(t, cb)
   for k, v in pairs(t) do
@@ -436,11 +428,10 @@ Table.all = function(t, cb)
   return true
 end
 
----
--- @desc        Searches a table and returns 'true' if cb(value, key, t) is
---              falsy for all elements
+--- Searches a table and returns `true` if `cb(value, key, t)` is falsy for all
+-- elements.
 -- @param t     table
--- @param cb    function    A function. Should return a boolean.
+-- @param cb    function    Should return a boolean.
 -- @return      boolean
 Table.none = function(t, cb)
   for k, v in pairs(t) do
@@ -450,9 +441,8 @@ Table.none = function(t, cb)
   return true
 end
 
----
--- @desc        Returns the number of elements in a table, counting both indexed
---              and keyed elements
+--- Returns the number of elements in a table, counting both indexed and keyed
+-- elements.
 -- @param t     table
 -- @return      integer
 Table.fullLength = function(t)
@@ -464,11 +454,12 @@ Table.fullLength = function(t)
   return len
 end
 
----
--- @desc        Sorts a set of nested tables using a given key, returning the
---              sorted values as a dense table. i.e.:
---              Table.sortByKey({ a = { val = 3 }, b = { val = 1 }, c = { val = 2 } }, "a")
---              --> { { val = 1 }, { val = 2 }, { val = 3 } }
+--- Sorts a set of nested tables using a given key, returning the sorted values
+-- as a dense table.
+-- ```lua
+-- local t = { a = { val = 3 }, b = { val = 1 }, c = { val = 2 } }
+-- local sorted = Table.sortByKey(t, "val")
+-- --> { { val = 1 }, { val = 2 }, { val = 3 } }
 -- @param t     table   A table of tables
 -- @param key   any     A key present in all of the tables
 -- @return      table
@@ -484,13 +475,13 @@ Table.sortByKey = function(t, key)
   return sorted
 end
 
----
--- @desc        Using 'source' as a base, adds any key/value pairs to t for which
---              it doesn't already have an entry (that is, t[k] == nil)
---              **Mutates the original table**
+--- Using `source` as a base, adds any key/value pairs to `t` for which `t[k] ==
+-- nil`.
+--
+-- **Mutates the original table**
 -- @param t     table
 -- @param source  table
--- @return      table     The original table reference
+-- @return      table     Returns `t`
 Table.addMissingKeys = function(t, source)
   for k, v in pairs(source) do
     if t[k] == nil then
@@ -505,19 +496,22 @@ Table.addMissingKeys = function(t, source)
   return t
 end
 
----
--- @desc        Wraps table.sort so it can be used in a method chain
---              **Mutates the original table**
+--- Wraps `table.sort` so it can be used in a method chain.
+--
+-- **Mutates the original table**
 -- @param t     table
--- @param func  function  A sorting function
--- @return      table     The original table reference
-Table.chainableSort = function(t, func)
+-- @option func  function  A sorting function
+-- @return      table     Returns `t`
+Table.sort = function(t, func)
   table.sort(t, func)
   return t
 end
 
----
--- @desc        Merges any number of tables sequentially into a new table
+--- Merges any number of indexed tables sequentially into a new table.
+-- ```lua
+-- local t = { {1, 2, 3}, {"a", "b", "c"}, {true, true, true} }
+-- local joined = Table.join(t)
+-- --> {1, 2, 3, "a", "b", "c", true, true, true}
 -- @param       table
 -- @return      table
 Table.join = function(...)
@@ -531,13 +525,14 @@ Table.join = function(...)
   return out
 end
 
----
--- @desc        Merges any number of indexed tables alternately into a new table.
---              i.e.:
---              Table.zip({1, 2, 3}, {"a", "b", "c"}, {true, true, true}
---              --> {1, "a", true, 2, "b", true, 3, "c", true}
---              If the tables are of uneven length, any remaining elements will
---              be added at the end
+--- Merges any number of indexed tables alternately into a new table.
+-- ```lua
+-- local t = { {1, 2, 3}, {"a", "b", "c"}, {true, true, true} }
+-- local zipped = Table.zip(t)
+-- --> {1, "a", true, 2, "b", true, 3, "c", true}
+-- ```
+-- If the tables are of uneven length, any remaining elements will
+-- be added at the end.
 -- @param       table
 -- @return      table
 Table.zip = function(...)

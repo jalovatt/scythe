@@ -677,17 +677,17 @@ describe("Table.addMissingKeys", function()
 
 end)
 
-describe("Table.chainableSort", function()
+describe("Table.sort", function()
   test("returns the original table", function()
     local tIn = {6, 3, 1, 5, 2, 4}
-    local tOut = Table.chainableSort(tIn)
+    local tOut = Table.sort(tIn)
 
     expect(tIn).toEqual(tOut)
   end)
 
   test("sorts the table", function()
     local tIn = {6, 3, 1, 5, 2, 4}
-    local tOut = Table.chainableSort(tIn)
+    local tOut = Table.sort(tIn)
 
     expect(tOut[1]).toEqual(1)
     expect(tOut[2]).toEqual(2)
@@ -699,7 +699,7 @@ describe("Table.chainableSort", function()
 
   test("sorts the table using a given function", function()
     local tIn = {6, 3, 1, 5, 2, 4}
-    local tOut = Table.chainableSort(tIn, function(a, b)
+    local tOut = Table.sort(tIn, function(a, b)
       return b < a
     end)
 
