@@ -17,7 +17,6 @@ Scythe.wrapErrors(function()
 
 
   rawDocs:forEach(function(self)
-    self:process()
-    Msg(Table.stringify(self.parsedContent))
+    Msg(Table.stringify(rawDocs, 3))
   end)
 end)

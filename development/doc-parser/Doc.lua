@@ -7,19 +7,19 @@ local function nameFromSignature(sig)
   return stripped or key
 end
 
+local function paramParser(params)
+  return params:reduce(function(acc, paramStr)
+    local param = {}
+    param.name, param.type, param.description = paramStr:match("([^ ]+) +([^ ]+) *(.*)")
+    acc:insert(param)
+    return acc
+  end, T{})
+end
+
 local parseTag = {
-  description = function(desc)
-    return desc:join("\n")
-  end,
-  param = function(params)
-    return params:reduce(function(acc, paramStr)
-      local param = {}
-      param.name, param.type, param.description = paramStr:match("([^ ]+) +([^ ]+) *(.*)")
-      acc:insert(param)
-      return acc
-    end, T{})
-  end,
-  option = function(option) end,
+  description = function(desc) return desc:join("\n") end,
+  param = paramParser,
+  option = paramParser,
   ["return"] = function(returns)
     return returns:reduce(function(acc, returnStr)
       local ret = {}
@@ -28,7 +28,6 @@ local parseTag = {
       return acc
     end, T{})
   end,
-  signature = function(signature) end,
 }
 
 local Segment = {}
@@ -36,14 +35,14 @@ Segment.__index = Segment
 function Segment:new(line)
   local segment = {
     name = nil,
-    rawContent = T{
+    rawTags = T{
       description = T{},
       param = T{},
       option = T{},
       ["return"] = T{},
-      signature = nil,
+      signature = nil
     },
-    parsedContent = T{},
+    tags = T{},
     currentTag = {
       type = "description",
       content = T{line},
@@ -53,11 +52,8 @@ function Segment:new(line)
 end
 
 function Segment:closeTag()
-  self.rawContent[self.currentTag.type]:insert(self.currentTag.content:concat(" "))
-  self.currentTag = {
-    type = tag,
-    content = T{},
-  }
+  self.rawTags[self.currentTag.type]:insert(self.currentTag.content:concat(" "))
+  self.currentTag = nil
 end
 
 function Segment:push(line)
@@ -74,16 +70,43 @@ function Segment:push(line)
   end
 end
 
-function Segment:finalize(line)
-  self:closeTag()
-  self.rawContent.signature = line
-  self.name = nameFromSignature(line)
+--[[
+Given:
+-- @param t     table    This is a table.
+-- @param cb    function    This is a callback function.
+-- @option iter iterator  Defaults to `ipairs`
+-- @return      value|boolean     Returns `t`
+-- @return      key
+Table.find = function(t, cb, iter)
+Expected:
+Table.find(t, cb[, iter])
+]]--
+function Segment:generateSignature()
+  local args = self.args:reduce(function (acc, arg)
+    local argType = self.tags.param:find(function(v) return v.name == arg end)
+      and 1
+      or 2
 
-  self:process()
+    acc[argType]:insert(arg)
+    return acc
+  end, {T{}, T{}})
+
+  local optionSig = ((#args[1] > 0) and "[, " or "[") .. args[2]:concat(", ") .. "]"
+  self.signature = self.name .. "(" .. args[1]:concat(", ") .. optionSig .. ")"
+
+  Msg(self.signature)
 end
 
-function Segment:process()
-  self.rawContent:forEach(function(v, k) self.parsedContent[k] = parseTag[k](v) end)
+function Segment:finalize(rawSignature)
+  self:closeTag()
+  self.args = rawSignature:match("%((.+)%)"):split("[^ ,]+")
+  self.name = nameFromSignature(rawSignature)
+  self:parseTags()
+  self.signature = self:generateSignature()
+end
+
+function Segment:parseTags()
+  self.rawTags:forEach(function(v, k) self.tags[k] = parseTag[k](v) end)
 end
 
 local Doc = {}
