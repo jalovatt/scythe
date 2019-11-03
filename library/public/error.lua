@@ -25,6 +25,9 @@ Error.handleError = function (errObject)
     stack[#stack + 1] = str
   end
 
+  -- It's not really helpful to list this function in the stack trace
+  table.remove(stack, 1)
+
   local name = ({reaper.get_action_context()})[2]:match("([^/\\_]+)$")
 
   local ret = reaper.ShowMessageBox(

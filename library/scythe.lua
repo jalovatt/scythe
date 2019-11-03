@@ -45,6 +45,9 @@ Color.addColorsFromRgba(Theme.colors)
 local Font = require("public.font")
 Font.addFonts(Theme.fonts)
 
+local Error = require("public.error")
+Scythe.wrapErrors = function(fn) xpcall(fn, Error.handleError) end
+
 local context
 Scythe.getContext = function()
   if context then return context end
@@ -88,5 +91,3 @@ Scythe.version = (function()
 end)()
 
 Scythe.hasSWS = reaper.APIExists("CF_GetClipboardBig")
-
--- return Scythe
