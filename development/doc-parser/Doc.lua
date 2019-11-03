@@ -1,3 +1,5 @@
+local path = ({...})[1]
+
 local Table, T = require("public.table"):unpack()
 
 local function nameFromSignature(sig)
@@ -7,26 +9,20 @@ local function nameFromSignature(sig)
   return stripped or key
 end
 
-local function paramParser(params)
-  return params:reduce(function(acc, paramStr)
-    local param = {}
-    param.name, param.type, param.description = paramStr:match("([^ ]+) +([^ ]+) *(.*)")
-    acc:insert(param)
-    return acc
-  end, T{})
+local function paramParser(paramStr)
+  local param = {}
+  param.name, param.type, param.description = paramStr:match("([^ ]+) +([^ ]+) *(.*)")
+  return param
 end
 
 local parseTag = {
-  description = function(desc) return desc:join("\n") end,
+  description = function(desc) return desc end,
   param = paramParser,
   option = paramParser,
-  ["return"] = function(returns)
-    return returns:reduce(function(acc, returnStr)
-      local ret = {}
-      ret.type, ret.description = returnStr:match("([^ ]+) *(.*)")
-      acc:insert(ret)
-      return acc
-    end, T{})
+  ["return"] = function(returnStr)
+    local ret = {}
+    ret.type, ret.description = returnStr:match("([^ ]+) *(.*)")
+    return ret
   end,
 }
 
@@ -40,9 +36,14 @@ function Segment:new(line)
       param = T{},
       option = T{},
       ["return"] = T{},
-      signature = nil
     },
-    tags = T{},
+    signature = nil,
+    tags = T{
+      description = T{},
+      param = T{},
+      option = T{},
+      ["return"] = T{},
+    },
     currentTag = {
       type = "description",
       content = T{line},
@@ -52,7 +53,16 @@ function Segment:new(line)
 end
 
 function Segment:closeTag()
-  self.rawTags[self.currentTag.type]:insert(self.currentTag.content:concat(" "))
+  local tagType = self.currentTag.type
+  local tag = self.currentTag.content:concat(tagType == "description" and "\n" or " ")
+
+  self.rawTags[self.currentTag.type]:insert(tag)
+
+  -- function Segment:parseTags()
+  --   self.rawTags:forEach(function(v, k) self.tags[k] = parseTag[k](v) end)
+  -- end
+  local parsed = parseTag[tagType](tag)
+  self.tags[tagType]:insert(parsed)
   self.currentTag = nil
 end
 
@@ -66,7 +76,7 @@ function Segment:push(line)
       content = T{rest}
     }
   else
-    self.currentTag.content:insert(line)
+    self.currentTag.content:insert((line ~= "" and line or "\n"))
   end
 end
 
@@ -91,22 +101,19 @@ function Segment:generateSignature()
     return acc
   end, {T{}, T{}})
 
-  local optionSig = ((#args[1] > 0) and "[, " or "[") .. args[2]:concat(", ") .. "]"
-  self.signature = self.name .. "(" .. args[1]:concat(", ") .. optionSig .. ")"
+  local optionSig = ""
+  if #args[2] > 0 then
+    optionSig = ((#args[1] > 0) and "[, " or "[") .. args[2]:concat(", ") .. "]"
+  end
 
-  Msg(self.signature)
+  return self.name .. "(" .. args[1]:concat(", ") .. optionSig .. ")"
 end
 
 function Segment:finalize(rawSignature)
   self:closeTag()
-  self.args = rawSignature:match("%((.+)%)"):split("[^ ,]+")
+  self.args = rawSignature:match("%((.-)%)"):split("[^ ,]+")
   self.name = nameFromSignature(rawSignature)
-  self:parseTags()
   self.signature = self:generateSignature()
-end
-
-function Segment:parseTags()
-  self.rawTags:forEach(function(v, k) self.tags[k] = parseTag[k](v) end)
 end
 
 local Doc = {}

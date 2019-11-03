@@ -39,8 +39,8 @@ Table.orderedForEach = function(t, cb)
   end
 end
 
---- Iterates over the given table, calling cb(value, key, t) for each element and
--- collecting the returned values into a new table with the original keys.
+--- Iterates over the given table, calling `cb(value, key, t)` for each element
+-- and collecting the returned values into a new table with the original keys.
 --
 -- Entries are **not** guaranteed to be called in any specific order.
 -- @param t     table       A table
@@ -155,7 +155,9 @@ end
 
 --- Creates a shallow copy of the given table - that is, only the "top" level
 -- of elements is considered. Any tables or functions are copied by reference
--- to the new table. Taken from: http://lua-users.org/wiki/CopyTable
+-- to the new table.
+--
+-- Adapted from: http://lua-users.org/wiki/CopyTable
 -- @param t     table
 -- @return      table
 Table.shallowCopy = function(t)
@@ -460,6 +462,7 @@ end
 -- local t = { a = { val = 3 }, b = { val = 1 }, c = { val = 2 } }
 -- local sorted = Table.sortByKey(t, "val")
 -- --> { { val = 1 }, { val = 2 }, { val = 3 } }
+-- ```
 -- @param t     table   A table of tables
 -- @param key   any     A key present in all of the tables
 -- @return      table
@@ -512,7 +515,8 @@ end
 -- local t = { {1, 2, 3}, {"a", "b", "c"}, {true, true, true} }
 -- local joined = Table.join(t)
 -- --> {1, 2, 3, "a", "b", "c", true, true, true}
--- @param       table
+-- ```
+-- @param ...   table
 -- @return      table
 Table.join = function(...)
   local out = T{}
@@ -533,7 +537,7 @@ end
 -- ```
 -- If the tables are of uneven length, any remaining elements will
 -- be added at the end.
--- @param       table
+-- @param  ...  table
 -- @return      table
 Table.zip = function(...)
   local tIn = {...}

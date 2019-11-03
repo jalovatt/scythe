@@ -6,17 +6,19 @@ end
 
 loadfile(libPath .. "scythe.lua")({ dev = true })
 local Doc = require("doc-parser.Doc")
+local Md = require("doc-parser.Md")
 local Table, T = require("public.table"):unpack()
 
 Scythe.wrapErrors(function()
   local libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
-  local rawDocs = Doc.segmentsFromFile(libRoot .. "working/code-documentation/test-doc.lua")
-  -- rawDocs:forEach(function(doc)
-  --   Msg(Table.stringify(doc.rawContent, 4), "\n-----------------------")
-  -- end)
+  local file = libRoot .. "working/code-documentation/test-doc.lua"
+  local segments = Doc.segmentsFromFile(libPath .. "public/table.lua")
 
+  local mdSegments = segments:orderedReduce(function(acc, segment)
+    acc:insert(Md.parseSegment(segment.signature, segment.tags))
 
-  rawDocs:forEach(function(self)
-    Msg(Table.stringify(rawDocs, 3))
-  end)
+    return acc
+  end, T{})
+
+  Msg(mdSegments:concat("\n"))
 end)
