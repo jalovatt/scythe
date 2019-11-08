@@ -525,18 +525,18 @@ describe("Table.invert", function()
 end)
 
 describe("Table.find", function()
-  test("returns true if there is a match", function()
+  test("returns the value if there is a match", function()
     local t = {1, 2, 3, "hello", "world"}
 
-    expect(Table.find(t, function(val) return val == "hello" end)).toEqual(true)
-    expect(Table.find(t, function(val) return val % 2 == 0 end)).toEqual(true)
+    expect(Table.find(t, function(val) return val == "hello" end)).toEqual("hello")
+    expect(Table.find(t, function(val) return val % 2 == 0 end)).toEqual(2)
   end)
 
   test("returns false if there is no match", function()
     local t = {1, 2, 3, "hello", "world"}
 
-    expect(Table.find(t, function(val) return val == "goodbye" end)).toEqual(false)
-    expect(Table.find(t, function(val) return tonumber(val) and (val % 4 == 0) end)).toEqual(false)
+    expect(Table.find(t, function(val) return val == "goodbye" end)).toEqual(nil)
+    expect(Table.find(t, function(val) return tonumber(val) and (val % 4 == 0) end)).toEqual(nil)
   end)
 
   test("returns the index of the match", function()

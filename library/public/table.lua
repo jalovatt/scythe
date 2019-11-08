@@ -1,4 +1,5 @@
 -- NoIndex: true
+-- @module
 
 local Table = {}
 setmetatable(Table, {__index = table})
@@ -386,11 +387,11 @@ Table.invert = function(t)
 end
 
 --- Searches a table, returning the first value and index for which `cb(value,
--- key, t)` is truthy. If no match is found, will return `false`.
+-- key, t)` is truthy. If no match is found, will return `nil`.
 -- @param t     table
 -- @param cb    function
 -- @option iter iterator  Defaults to `ipairs`
--- @return      value, key | boolean
+-- @return      value, key | nil
 Table.find = function(t, cb, iter)
   iter = iter or ipairs
 
@@ -398,10 +399,10 @@ Table.find = function(t, cb, iter)
   for k, v in iter(t) do
     result = cb(v, k, t)
 
-    if result then return result, k end
+    if result then return v, k end
   end
 
-  return false
+  return nil
 end
 
 --- Searches a table and returns `true` if `cb(value, key, t)` is truthy for any
