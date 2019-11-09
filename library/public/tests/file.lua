@@ -32,6 +32,7 @@ local testFiles = {
       "four",
       "six",
       "eight",
+      "ten",
     },
     folders = {},
   },
@@ -64,19 +65,67 @@ describe("File.foldersInPath", function()
   end)
 end)
 
-describe("File.traversePath", function()
-  test("", function()
-    local returnedContents = File.traversePath("/test")
+describe("File.recursivePathContents", function()
+  describe("without a filter", function()
+    local returnedContents = File.recursivePathContents("/test")
 
-    local things = Table.find(returnedContents, function(t) return t.name == "things" end)
-    expect(things).toNotEqual(nil)
-    expect(things.children).toNotEqual(nil)
+    local things, stuff, two, six
+    test("should find a root-level folder with children", function()
+      things = Table.find(returnedContents, function(t) return t.name == "things" end)
+      expect(things).toNotEqual(nil)
+      expect(things.children).toNotEqual(nil)
+    end)
 
-    local two = Table.find(things.children, function(t) return t.name == "two" end)
-    expect(two).toNotEqual(nil)
+    test("should find a root-level folder without children", function()
+      stuff = Table.find(returnedContents, function(t) return t.name == "stuff" end)
+      expect(stuff).toNotEqual(nil)
+      expect(stuff.children).toEqual(nil)
+    end)
 
-    local six = Table.find(two.children, function(t) return t.name == "six" end)
-    expect(six).toNotEqual(nil)
-    expect(six.path).toEqual("/test/things/two/six")
+    test("should find a child folder", function()
+      two = Table.find(things.children, function(t) return t.name == "two" end)
+      expect(two).toNotEqual(nil)
+    end)
+
+    test("should find a file in the child folder", function()
+      six = Table.find(two.children, function(t) return t.name == "six" end)
+      expect(six).toNotEqual(nil)
+      expect(six.path).toEqual("/test/things/two/six")
+    end)
+  end)
+
+  describe("with a filter", function()
+    local returnedContents = File.recursivePathContents(
+      "/test",
+      function(name) return name:match("^t") end
+    )
+
+    local things, stuff, two, six, ten
+
+    test("should find filter matches at the root level", function()
+      things = Table.find(returnedContents, function(t) return t.name == "things" end)
+      expect(things).toNotEqual(nil)
+      expect(things.children).toNotEqual(nil)
+    end)
+
+    test("should not return child items that don't match", function()
+      stuff = Table.find(returnedContents, function(t) return t.name == "stuff" end)
+      expect(stuff).toEqual(nil)
+    end)
+
+    test("should return child items that match", function()
+      two = Table.find(things.children, function(t) return t.name == "two" end)
+      expect(two).toNotEqual(nil)
+    end)
+
+    test("should not return grandchildren that don't match", function()
+      six = Table.find(two.children, function(t) return t.name == "six" end)
+      expect(six).toEqual(nil)
+    end)
+
+    test("should return grandchildren that match", function()
+      ten = Table.find(two.children, function(t) return t.name == "ten" end)
+      expect(ten).toNotEqual(nil)
+    end)
   end)
 end)

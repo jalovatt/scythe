@@ -1,50 +1,66 @@
+local T = require("public.table")[2]
 local File = {}
 
-File.filesInPath = function(path)
+-- filter: function(name, path, isFolder)
+
+File.filesInPath = function(path, filter)
   local addSeparator = path:match("[\\/]$") and "" or "/"
-  local files = {}
-  -- reaper.EnumerateFiles( path, fileindex )
+  local files = T{}
   local idx = 0
-  local name
+
   while true do
-    name = reaper.EnumerateFiles(path, idx)
+    local name = reaper.EnumerateFiles(path, idx)
     if not name then break end
 
-    files[#files+1] = { name = name, path = path..addSeparator..name }
+    if not filter or filter(name, path) then
+      files[#files+1] = { name = name, path = path..addSeparator..name }
+    end
+
     idx = idx + 1
   end
 
   return files
 end
 
-File.foldersInPath = function(path)
+File.foldersInPath = function(path, filter)
   local addSeparator = path:match("[\\/]$") and "" or "/"
-  local folders = {}
+  local folders = T{}
   local idx = 0
-  local name
+
   while true do
-    name = reaper.EnumerateSubdirectories(path, idx)
+    local name = reaper.EnumerateSubdirectories(path, idx)
     if not name then break end
 
-    folders[#folders+1] = { name = name, path = path..addSeparator..name }
+    if not filter or filter(name, path, true) then
+      folders[#folders+1] = { name = name, path = path..addSeparator..name }
+    end
+
     idx = idx + 1
   end
 
   return folders
 end
 
-File.traversePath = function(path)
-  local contents = {}
-  for _, file in pairs(File.filesInPath(path)) do
-    contents[#contents+1] = file
+File.recursivePathContents = function(path, filter)
+  local contents = T{}
+
+  local files = File.filesInPath(path, filter)
+  if files then
+    for _, file in pairs(files) do
+      contents[#contents+1] = file
+    end
   end
 
-  for _, folder in pairs(File.foldersInPath(path)) do
-    folder.children = File.traversePath(folder.path)
-    contents[#contents+1] = folder
+  local folders = File.foldersInPath(path, filter)
+  if folders then
+    for _, folder in pairs(folders) do
+      local children = File.recursivePathContents(folder.path, filter)
+      if children and #children > 0 then folder.children = children end
+      contents[#contents+1] = folder
+    end
   end
 
-  return contents
+  return (#contents > 0) and contents
 end
 
 return File
