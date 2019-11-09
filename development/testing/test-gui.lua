@@ -57,7 +57,7 @@ local function updateRecentFiles(file)
 
   if #recentFiles > 10 then recentFiles[11] = nil end
 
-  reaper.SetExtState("Scythe Test Runner", "recentFiles", recentFiles:concat("|"), true)
+  reaper.SetExtState("Scythe v3", "testRunner/recentFiles", recentFiles:concat("|"), true)
 end
 
 local function updateTestFile(file)
