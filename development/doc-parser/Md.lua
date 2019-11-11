@@ -1,4 +1,4 @@
-local Table, T = require("public.table"):unpack()
+local T = require("public.table")[2]
 
 local Md = {}
 
@@ -36,14 +36,26 @@ function Md.parseTags(tags)
   end, T{})
 end
 
-function Md.parseSegment(signature, tags)
-  Msg(signature)
+local function segmentWrapper(name, signature)
+  local open = T{
+    "<section class=\"segment\">\n",
+    "###  <a name=\"" .. name .. "\">" .. signature .. "</a>",
+    "",
+  }
+
+  local close = "\n</section>"
+
+  return open:concat("\n"), close
+end
+
+function Md.parseSegment(name, signature, tags)
   local parsedTags = Md.parseTags(tags)
 
+  local open, close = segmentWrapper(name, signature)
+
   local out = T{
-    "### "..signature,
-    "",
-    parsedTags.description,
+    open,
+    parsedTags.description
   }
 
   if parsedTags.param then
@@ -60,6 +72,8 @@ function Md.parseSegment(signature, tags)
     out:insert("")
     out:insert(parsedTags["return"])
   end
+
+  out:insert(close)
 
   return out:concat("\n")
 end
