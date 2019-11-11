@@ -1,5 +1,3 @@
-local path = ({...})[1]
-
 local Table, T = require("public.table"):unpack()
 
 local function nameFromSignature(sig)
@@ -117,13 +115,27 @@ function Segment:finalize(rawSignature)
 end
 
 local Doc = {}
-function Doc.segmentsFromFile(filename)
+function Doc.fromFile(path)
   local segments = T{}
-  local file = io.open(filename)
+  local file, err = io.open(path)
+  if not file then
+    Msg("Error opening " .. path .. ": " .. err)
+    return nil
+  end
+
   local currentSegment
+  local n = 0
+  local isModule = false
 
   for line in file:lines() do
-    if line:match("^%-%-%-") then
+    n = n + 1
+    if not isModule then
+      if line:match("@module") then
+        isModule = true
+      elseif n == 50 then
+        break
+      end
+    elseif line:match("^%-%-%-") then
       currentSegment = Segment:new(line:match("^%-%-%- (.+)"))
     elseif currentSegment then
       if not line:match("^%-%-") then
@@ -137,7 +149,7 @@ function Doc.segmentsFromFile(filename)
     end
   end
 
-  return segments
+  return #segments > 0 and segments or nil
 end
 
 return Doc
