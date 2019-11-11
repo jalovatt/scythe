@@ -41,3 +41,4 @@ luac.out
 
 # Things that aren't intended/ready for committing
 working/
+temp/
