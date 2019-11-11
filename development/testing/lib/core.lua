@@ -1,4 +1,5 @@
 -- NoIndex: true
+local Table = require("public.table")[1]
 
 local function Msg(msg, indents)
   local str = string.rep("\t", indents or 0) .. msg
@@ -156,6 +157,14 @@ local function almostDeepEquals(a, b, places)
   return true
 end
 
+local function includes(t, a)
+  for _, b in pairs(t) do
+    if a == b then return true end
+  end
+
+  return false
+end
+
 local function matcher(exp)
   local matchers = {
     toEqual = function(compare)
@@ -184,7 +193,11 @@ local function matcher(exp)
       if (shallowEquals(exp, compare)) then
         return pass()
       else
-        return fail("to shallow-equal", exp, compare)
+        return fail(
+          "to shallow-equal",
+          "table:\n\n" .. Table.stringify(exp, 1) .. "\n\n",
+          "table:\n\n" .. Table.stringify(compare, 1) .. "\n\n"
+        )
       end
     end,
     toNotShallowEqual = function(compare)
@@ -216,6 +229,17 @@ local function matcher(exp)
         return fail("to almost deep-equal (to "..places.." places)", exp, compare)
       end
     end,
+    toInclude = function(compare)
+      if (includes(exp, compare)) then
+        return pass()
+      else
+        return fail(
+          "to include:",
+          "table: \n\n" ..Table.stringify(exp, 1) .. "\n\n",
+          compare
+        )
+      end
+    end
   }
 
   return matchers
