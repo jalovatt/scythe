@@ -130,7 +130,7 @@ function IButton:onMouseUp(state)
 
 	if self:containsPoint(state.mouse.x, state.mouse.y) then
 
-		self.func(table.unpack(self.params))
+		self:func(table.unpack(self.params))
 
 	end
 	self:redraw()
@@ -158,7 +158,9 @@ buttons = buttons:map(function(imagePath, idx)
     h = h,
     x = ((idx - 1) % 6) * w,
     y = math.floor((idx - 1) / 6) * h,
-    image = imagePath
+    image = imagePath,
+    func = function(self, a, b, c) Msg(self.name, a, b, c) end,
+    params = {"a", "b", "c"}
   })
 end)
 

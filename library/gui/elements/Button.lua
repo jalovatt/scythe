@@ -104,7 +104,7 @@ function Button:onMouseUp(state)
 
 	if self:containsPoint(state.mouse.x, state.mouse.y) and not state.preventDefault then
 
-		self.func(table.unpack(self.params))
+		self:func(table.unpack(self.params))
 
 	end
 	self:redraw()
@@ -121,7 +121,7 @@ end
 function Button:onRightMouseUp(state)
 	if self:containsPoint(state.mouse.x, state.mouse.y) and self.rightFunc then
 
-		self.rightFunc(table.unpack(self.rightParams))
+		self:rightFunc(table.unpack(self.rightParams))
 
 	end
 end
@@ -132,9 +132,9 @@ end
 function Button:exec(r)
 
 	if r then
-		self.rightFunc(table.unpack(self.rightParams))
+		self:rightFunc(table.unpack(self.rightParams))
 	else
-		self.func(table.unpack(self.params))
+		self:func(table.unpack(self.params))
 	end
 
 end

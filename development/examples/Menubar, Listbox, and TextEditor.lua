@@ -61,7 +61,7 @@ local mnu_help = {
   about = function() GUI.Val("txted_text", "help: about") end
 }
 
-local mnu_params_func = function(label, param)
+local mnu_params_func = function(self, label, param)
   GUI.Val("txted_text", "Parameter " .. label .. " was: " .. param)
 end
 

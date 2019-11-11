@@ -1,5 +1,14 @@
 # Scythe 3.x changelog
 
+## November 11, 2019
+
+- Added `self` to Button and Menubar's `func` arguments. Usage:
+
+  ```lua
+  func = function(self, a, b, c) Msg(self.name, a, b, c) end,
+  params = {"a", "b", "c"}
+  ```
+
 ## October 27, 2019
 
 - Reimplemented developer menu, allowing an element's parameters to be printed to the console. To access it, switch to developer mode (`Ctrl + Alt + Shift + Z`), then `Ctrl + Right-click` any element.

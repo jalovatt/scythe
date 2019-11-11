@@ -233,7 +233,7 @@ function Menubar:onMouseUp(state)
   local _, opt = Menu.showMenu(self.menus[self.mouseMenu].options, "caption")
 
   if opt and opt.func then
-    opt.func(table.unpack(opt.params or {}))
+    opt.func(self, table.unpack(opt.params or {}))
   end
 
   self.mouseDown = false
