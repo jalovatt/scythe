@@ -59,7 +59,9 @@ File.getFilesRecursive = function(path, filter, acc)
   end
 
   for _, folder in File.folders(path) do
-    File.getFilesRecursive(path..addSeparator..folder, filter, acc)
+    if not filter or filter(folder, path, true) then
+      File.getFilesRecursive(path..addSeparator..folder, filter, acc)
+    end
   end
 
   return acc
