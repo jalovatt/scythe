@@ -1,66 +1,68 @@
 local T = require("public.table")[2]
 local File = {}
 
--- filter: function(name, path, isFolder)
+File.files = function(path, idx)
+  if not path then return end
+  if not idx then return File.files, path, -1 end
 
-File.filesInPath = function(path, filter)
+  idx = idx + 1
+  local file = reaper.EnumerateFiles(path, idx)
+
+  if file then return idx, file end
+end
+
+File.folders = function(path, idx)
+  if not path then return end
+  if not idx then return File.folders, path, -1 end
+
+  idx = idx + 1
+  local folder = reaper.EnumerateSubdirectories(path, idx)
+
+  if folder then return idx, folder end
+end
+
+File.getFiles = function(path, filter)
   local addSeparator = path:match("[\\/]$") and "" or "/"
   local files = T{}
-  local idx = 0
 
-  while true do
-    local name = reaper.EnumerateFiles(path, idx)
-    if not name then break end
-
-    if not filter or filter(name, path) then
-      files[#files+1] = { name = name, path = path..addSeparator..name }
+  for _, file in File.files(path) do
+    if not filter or filter(file) then
+      files[#files+1] = { name = file, path = path..addSeparator..file }
     end
-
-    idx = idx + 1
   end
 
   return files
 end
 
-File.foldersInPath = function(path, filter)
+File.getFolders = function(path, filter)
   local addSeparator = path:match("[\\/]$") and "" or "/"
   local folders = T{}
-  local idx = 0
 
-  while true do
-    local name = reaper.EnumerateSubdirectories(path, idx)
-    if not name then break end
-
-    if not filter or filter(name, path, true) then
-      folders[#folders+1] = { name = name, path = path..addSeparator..name }
+  for _, folder in File.folders(path) do
+    if not filter or filter(folder) then
+      folders[#folders+1] = { name = folder, path = path..addSeparator..folder }
     end
-
-    idx = idx + 1
   end
 
   return folders
 end
 
-File.recursivePathContents = function(path, filter)
-  local contents = T{}
+File.getFilesRecursive = function(path, filter, acc)
+  if not acc then acc = T{} end
 
-  local files = File.filesInPath(path, filter)
-  if files then
-    for _, file in pairs(files) do
-      contents[#contents+1] = file
+  local addSeparator = path:match("[\\/]$") and "" or "/"
+
+  for _, file in File.files(path) do
+    if not filter or filter(file, path) then
+      acc[#acc+1] = { name = file, path = path..addSeparator..file }
     end
   end
 
-  local folders = File.foldersInPath(path, filter)
-  if folders then
-    for _, folder in pairs(folders) do
-      local children = File.recursivePathContents(folder.path, filter)
-      if children and #children > 0 then folder.children = children end
-      contents[#contents+1] = folder
-    end
+  for _, folder in File.folders(path) do
+    File.getFilesRecursive(path..addSeparator..folder, filter, acc)
   end
 
-  return (#contents > 0) and contents
+  return acc
 end
 
 return File

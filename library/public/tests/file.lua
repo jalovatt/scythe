@@ -3,10 +3,10 @@ local testFiles = {
   ["/test"] = {
     files = {
       "it.exe",
-      "was.bat",
+      "was.exe",
       "the.txt",
-      "best.cpp",
-      "of.bmp",
+      "best.txt",
+      "of.dll",
       "times.dll",
     },
     folders = {
@@ -17,9 +17,9 @@ local testFiles = {
   },
   ["/test/things"] = {
     files = {
-      "apples",
-      "bananas",
-      "cherries",
+      "apples.dll",
+      "bananas.cpp",
+      "cherries.txt",
     },
     folders = {
       "one",
@@ -29,16 +29,43 @@ local testFiles = {
   },
   ["/test/things/two"] = {
     files = {
-      "four",
-      "six",
-      "eight",
-      "ten",
+      "four.lua",
+      "six.lua",
+      "eight.md",
+      "ten.txt",
     },
     folders = {},
   },
 }
 
-local Table = require("public.table")[1]
+local expected = {
+  all = {
+    "/test/it.exe",
+    "/test/was.exe",
+    "/test/the.txt",
+    "/test/best.txt",
+    "/test/of.dll",
+    "/test/times.dll",
+    "/test/things/apples.dll",
+    "/test/things/bananas.cpp",
+    "/test/things/cherries.txt",
+    "/test/things/two/four.lua",
+    "/test/things/two/six.lua",
+    "/test/things/two/eight.md",
+    "/test/things/two/ten.txt",
+  },
+  startsWithT = {
+    "/test/the.txt",
+    "/test/times.dll",
+    "/test/things/two/ten.md",
+  },
+  txt = {
+    "/test/the.txt",
+    "/test/best.txt",
+    "/test/things/cherries.txt",
+    "/test/things/two/ten.txt",
+  }
+}
 
 local File = requireWithMocks("public.file", {
   reaper = {
@@ -47,85 +74,93 @@ local File = requireWithMocks("public.file", {
   },
 })
 
-describe("File.filesInPath", function()
+describe("File.files", function()
   test("", function()
-    local returnedFiles = File.filesInPath("/test")
+    local count = 0
+    for _, file in File.files("/test") do
+      count = count + 1
+      expect(testFiles["/test"].files).toInclude(file)
+    end
 
-    expect(returnedFiles[1]).toShallowEqual({ name = "it.exe", path = "/test/it.exe" })
-    expect(returnedFiles[4]).toShallowEqual({ name = "best.cpp", path = "/test/best.cpp" })
+    expect(count).toEqual(#testFiles["/test"].files)
   end)
 end)
 
-describe("File.foldersInPath", function()
+describe("File.folders", function()
   test("", function()
-    local returnedFolders = File.foldersInPath("/test")
+    local count = 0
+    for _, folder in File.folders("/test") do
+      count = count + 1
+      expect(testFiles["/test"].folders).toInclude(folder)
+    end
 
-    expect(returnedFolders[1]).toShallowEqual({ name = "things", path = "/test/things" })
-    expect(returnedFolders[3]).toShallowEqual({ name = "other-stuff", path = "/test/other-stuff" })
+    expect(count).toEqual(#testFiles["/test"].folders)
   end)
 end)
 
-describe("File.recursivePathContents", function()
-  describe("without a filter", function()
-    local returnedContents = File.recursivePathContents("/test")
+describe("File.getFiles", function()
+  test("without a filter", function()
+    local files = File.getFiles("/test/things")
 
-    local things, stuff, two, six
-    test("should find a root-level folder with children", function()
-      things = Table.find(returnedContents, function(t) return t.name == "things" end)
-      expect(things).toNotEqual(nil)
-      expect(things.children).toNotEqual(nil)
-    end)
+    for _, file in pairs(files) do
+      expect(testFiles["/test/things"].files).toInclude(file.name)
+    end
 
-    test("should find a root-level folder without children", function()
-      stuff = Table.find(returnedContents, function(t) return t.name == "stuff" end)
-      expect(stuff).toNotEqual(nil)
-      expect(stuff.children).toEqual(nil)
-    end)
-
-    test("should find a child folder", function()
-      two = Table.find(things.children, function(t) return t.name == "two" end)
-      expect(two).toNotEqual(nil)
-    end)
-
-    test("should find a file in the child folder", function()
-      six = Table.find(two.children, function(t) return t.name == "six" end)
-      expect(six).toNotEqual(nil)
-      expect(six.path).toEqual("/test/things/two/six")
-    end)
+    expect(#files).toEqual(#testFiles["/test/things"].files)
   end)
 
-  describe("with a filter", function()
-    local returnedContents = File.recursivePathContents(
-      "/test",
-      function(name) return name:match("^t") end
+  test("with a filter", function()
+    local files = File.getFiles(
+      "/test/things",
+      function(name) return name:match("banana") end
     )
 
-    local things, stuff, two, six, ten
+    expect(#files).toEqual(1)
+    expect(files[1].name).toEqual("bananas.cpp")
+  end)
+end)
 
-    test("should find filter matches at the root level", function()
-      things = Table.find(returnedContents, function(t) return t.name == "things" end)
-      expect(things).toNotEqual(nil)
-      expect(things.children).toNotEqual(nil)
-    end)
+describe("File.getFolders", function()
+  test("without a filter", function()
+    local folders = File.getFolders("/test/things")
 
-    test("should not return child items that don't match", function()
-      stuff = Table.find(returnedContents, function(t) return t.name == "stuff" end)
-      expect(stuff).toEqual(nil)
-    end)
+    for _, folder in pairs(folders) do
+      expect(testFiles["/test/things"].folders).toInclude(folder.name)
+    end
 
-    test("should return child items that match", function()
-      two = Table.find(things.children, function(t) return t.name == "two" end)
-      expect(two).toNotEqual(nil)
-    end)
+    expect(#folders).toEqual(#testFiles["/test/things"].folders)
+  end)
 
-    test("should not return grandchildren that don't match", function()
-      six = Table.find(two.children, function(t) return t.name == "six" end)
-      expect(six).toEqual(nil)
-    end)
+  test("with a filter", function()
+    local folders = File.getFolders(
+      "/test/things",
+      function(name) return name:match("three") end
+    )
 
-    test("should return grandchildren that match", function()
-      ten = Table.find(two.children, function(t) return t.name == "ten" end)
-      expect(ten).toNotEqual(nil)
-    end)
+    expect(#folders).toEqual(1)
+    expect(folders[1].name).toEqual("three")
+  end)
+end)
+
+describe("File.getFilesRecursive", function()
+  test("without a filter", function()
+    local files = File.getFilesRecursive("/test")
+
+    for _, file in pairs(files) do
+      expect(expected.all).toInclude(file.path)
+    end
+
+    expect(#files).toEqual(#expected.all)
+  end)
+
+  test("with a filter", function()
+
+    local files = File.getFilesRecursive("/test", function(file) return file:match("%.txt") end)
+
+    for _, file in pairs(files) do
+      expect(expected.txt).toInclude(file.path)
+    end
+
+    expect(#files).toEqual(#expected.txt)
   end)
 end)
