@@ -1,4 +1,5 @@
 -- NoIndex: true
+-- @module
 
 local Table, T = require("public.table"):unpack()
 
@@ -11,6 +12,11 @@ local assignedBuffers = {}
 -- will be added here for easy access.
 local releasedBuffers = T{}
 
+--- Assigns a given number of buffer numbers; these numbers will not be assigned
+-- again until they are explicitly released.
+-- @option num number Defaults to 1
+-- @return number|table   Returns a buffer number if only one is requested, or a
+-- table of buffers otherwise
 Buffer.get = function (num)
   local ret = {}
 
@@ -43,8 +49,9 @@ Buffer.get = function (num)
 
 end
 
--- Elements should pass their buffer (or buffer table) to this
--- when being deleted
+--- Releases one or more buffer numbers, allowing them to be reassigned. Elements
+-- using buffers should make sure to release them when being deleted.
+-- @param num number|table A buffer number, or a table of buffer numbers
 Buffer.release = function (num)
 
   if type(num) == "number" then

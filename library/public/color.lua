@@ -1,16 +1,17 @@
 -- NoIndex: true
+-- @module
+
 local Math = require("public.math")
 local Table = require("public.table")
 
 local Color = {}
 
---[[	Apply a color preset
-
-    col			Color preset string -> "highlight"
-                or
-                Color table -> {1, 0.5, 0.5[, 1]}
-                                R  G    B  [  A]
-]]--
+--- Applies a color preset for Reaper's gfx functions
+-- @param col string|array Can be an existing preset (`"elementBody"`, `"red"`)
+-- or an array of RGBA values (0-1): `{r, g, b, a}`. If an array doesn't include
+-- a value for alpha, it will default to 1.
+-- @return array The RGBA values used (`{r, g, b, a}`); this may be
+-- useful when applying string presets.
 Color.set = function (col)
   local r, g, b, a
 
@@ -20,8 +21,8 @@ Color.set = function (col)
     a = a or 1
   else
 
-    -- Recurse through the presets; allows presets to be set as other presets
-    -- Should probably have a limit to avoid infinite loops if red = "blue" = "red"...
+    -- Recurse through the presets; allows presets to refer to other presets
+    -- Should arguably have a limit to avoid infinite loops if red = "blue" = "red"...
     local val = Color.colors[col]
     while type(val) == "string" do
       val = Color.colors[val]
@@ -38,25 +39,34 @@ Color.set = function (col)
   return {gfx.r, gfx.g, gfx.b, gfx.a}
 end
 
-
-
-
--- Converts a color from 0-255 RGBA to 0-1
--- Returns a table of {R, G, B, A}
+--- Converts a color from 0-255 RGBA.
+-- @param r number Red, 0-255
+-- @param g number Green, 0-255
+-- @param b number Blue, 0-255
+-- @param a number Alpha, 0-255
+-- @return array Color components, with values from 0-1. (`{r, g, b, a}`)
 Color.fromRgba = function(r, g, b, a)
   if type(r) == "table" then r, g, b, a = table.unpack(r) end
 
   return {r / 255, g / 255, b / 255, (a and (a / 255) or 1)}
 end
 
--- Converts a color from 0-1 RGBA to 0-255
+--- Converts a color to 0-255 RGBA.
+-- @param r number Red, 0-1
+-- @param g number Green, 0-1
+-- @param b number Blue, 0-1
+-- @param a number Alpha, 0-1
+-- @return array Color components, with values from 0-255. (`{127, 51, 127, 255}`)
 Color.toRgba = function(r, g, b, a)
   if type(r) == "table" then r, g, b, a = table.unpack(r) end
 
   return {r * 255, g * 255, b * 255, (a and (a * 255) or 1)}
 end
 
--- Convert a hex string RRGGBBAA to 0-1 RGBA
+--- Converts a color from 0-255 RGBA in hexadecimal form
+-- @param hexStr string A color string of the form `FF34CA81`. The string may be
+-- prefixed with `#` or `0x`, as both are very common when using hex colors.
+-- @return array Color components, with values from 0-1. (`{r, g, b, a}`)
 Color.fromHex = function (hexStr)
 
   -- Trim any "0x" or "#" prefixes
@@ -73,14 +83,24 @@ Color.fromHex = function (hexStr)
   return {red / 255, green / 255, blue / 255, alpha / 255}
 end
 
--- Converts a color from 0-1 RGBA to hex
+--- Converts a color to 0-255 RGBA in hexadecimal form.
+-- @param r number Red, 0-1
+-- @param g number Green, 0-1
+-- @param b number Blue, 0-1
+-- @param a number Alpha, 0-1
+-- @return string A color string of the form `FF34CA81`
 Color.toHex = function(r, g, b, a)
   return string.format("%02X%02X%02X", Math.round(r * 255), Math.round(g * 255), Math.round(b * 255))
       .. (a and string.format("%02X", Math.round(a * 255)) or "")
 end
 
--- Convert rgb[a] to hsv[a]; useful for gradients
--- Arguments are given as 0-1, returns are h = 0-360, s,v,a = 0-1
+--- Converts a color to HSV (Hue, Saturation, Value).
+-- @param r number Red, 0-1
+-- @param g number Green, 0-1
+-- @param b number Blue, 0-1
+-- @param a number Alpha, 0-1
+-- @return array `{hue, saturation, value, alpha}`. `hue` is a number from 0 to
+-- 360, while the remaining values are from 0 to 1.
 Color.toHsv = function (r, g, b, a)
 
   local max = math.max(r, g, b)
@@ -113,15 +133,20 @@ Color.toHsv = function (r, g, b, a)
 end
 
 
--- ...and back the other way
-Color.fromHsv = function (hAngle, s, v, a)
+--- Converts a color from HSV (Hue, Saturation, Value).
+-- @param h number Hue angle, 0-360
+-- @param s number Saturation, 0-1
+-- @param v number Value, 0-1
+-- @param a number Alpha, 0-1
+-- @return array Color components, with values from 0-1. (`{r, g, b, a}`)
+Color.fromHsv = function (h, s, v, a)
 
-  -- % will be wrong for hAngle < 0
-  local h = (hAngle % 360) / 360
+  -- A straight % will be wrong for h < 0
+  local hue = (h % 360) / 360
 
   local chroma = v * s
 
-  local hp = h * 6
+  local hp = hue * 6
   local x = chroma * (1 - math.abs(hp % 2 - 1))
 
   local r, g, b
@@ -148,48 +173,46 @@ Color.fromHsv = function (hAngle, s, v, a)
 end
 
 
---[[
-    Returns the color for a given position on an HSV gradient
-    between two color presets
+--- Returns the color for a given position on an HSV gradient between two colors.
+-- @param a	string|array A preset strng, or color components with values from 0-1.
+-- (`{r, g, b, a}`)
+-- @param b string|array A preset strng, or color components with values from 0-1.
+-- (`{r, g, b, a}`)
+-- @param pos number Position along the gradient from 0-1, where 0 == `a` and 1 == `b`.
+-- @return array Color components, with values from 0-1. (`{r, g, b, a}`)
+Color.gradient = function (a, b, pos)
 
-    colorA		Tables of {R, G, B[, A]}, values from 0-1,
-    colorB    or color preset strings
-
-    pos			Position along the gradient, 0 = colorA, 1 = colorB
-
-    returns		r, g, b, a
-
-]]--
-Color.gradient = function (colorA, colorB, pos)
-
-  colorA = Color.toHsv(
+  a = Color.toHsv(
     table.unpack(
-      type(colorA) == "table"
-        and colorA
-        or  Color.colors[colorA]
+      type(a) == "table"
+        and a
+        or  Color.colors[a]
     )
   )
 
-  colorB = Color.toHsv(
+  b = Color.toHsv(
     table.unpack(
-      type(colorB) == "table"
-        and colorB
-        or  Color.colors[colorB]
+      type(b) == "table"
+        and b
+        or  Color.colors[b]
     )
   )
 
-  local h = math.abs(colorA[1] + (pos * (colorB[1] - colorA[1])))
-  local s = math.abs(colorA[2] + (pos * (colorB[2] - colorA[2])))
-  local v = math.abs(colorA[3] + (pos * (colorB[3] - colorA[3])))
+  local h = math.abs(a[1] + (pos * (b[1] - a[1])))
+  local s = math.abs(a[2] + (pos * (b[2] - a[2])))
+  local v = math.abs(a[3] + (pos * (b[3] - a[3])))
 
-  local a = (#colorA == 4)
-      and  (math.abs(colorA[4] + (pos * (colorB[4] - colorA[4]))))
+  local a = (#a == 4)
+      and  (math.abs(a[4] + (pos * (b[4] - a[4]))))
       or  1
 
   return Color.fromHsv(h, s, v, a)
 
 end
 
+--- Adds colors to the available presets, or overrides existing ones.
+-- @param colors hash A table of presets. Expects component values from 0-255,
+-- in the form `{ presetName: {r, g, b, a} }`.
 Color.addColorsFromRgba = function (colors)
   for k, v in pairs(colors) do
     Color.colors[k] = Color.fromRgba(table.unpack(v))
@@ -197,6 +220,9 @@ Color.addColorsFromRgba = function (colors)
 end
 
 -- TODO: Tests
+--- Converts a color to OS-native, for use with API functions such as `reaper.SetTrackColor`.
+-- @param array Color components, with values from 0-1. (`{r, g, b, a}`)
+-- @return number An OS-native color
 Color.toNative = function (color)
   local colorTable = type(color) == "table" and color or Color.colors[color]
   local rgb = Table.map(colorTable, function(v) return v * 255 end)
@@ -204,6 +230,9 @@ Color.toNative = function (color)
 end
 
 -- TODO: Tests
+--- Converts a color from OS-native, for use with API functions such as ` reaper.GetTrackColor`.
+-- @param number An OS-native color
+-- @return array Color components, with values from 0-1. (`{r, g, b, a}`)
 Color.fromNative = function(color)
   local r, g, b = reaper.ColorFromNative(color)
   return {r / 255, g / 255, b / 255}
