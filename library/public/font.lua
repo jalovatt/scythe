@@ -1,24 +1,21 @@
 -- NoIndex: true
+-- @module
 
 local Font = {}
 
 Font.fonts = {}
 
--- Accepts a table of font presets
+--- Adds fonts to the available presets, or overrides existing ones.
+-- @param fonts hash A table of preset arrays, of the form `{ presetName: { fontName, size, "biu" } }`.
 Font.addFonts = function(fonts)
   for k, v in pairs(fonts) do
     Font.fonts[k] = v
   end
 end
 
-
---[[	Apply a font preset
-
-    fnt			Font preset number
-                or
-            {"Arial", 10, "i"}
-
-]]--
+---	Applies a font preset.
+-- @param fontIn string|array An existing preset (`"monospace"`, `1`) or an
+-- array of font parameters: `{ fontName, size, "biu" }`.
 Font.set = function (fontIn)
   local font, size, str = table.unpack( type(fontIn) == "table"
                                           and fontIn
@@ -42,15 +39,16 @@ Font.set = function (fontIn)
 
 end
 
--- Sees if a font named 'font' exists on this system
--- Returns true/false
-Font.exists = function (font)
-	if type(font) ~= "string" then return false end
+--- Checks if a given font exists on the current system
+-- @param fontName string The name of a font.
+-- @return boolean
+Font.exists = function (fontName)
+	if type(fontName) ~= "string" then return false end
 
-	gfx.setfont(1, font, 10)
+	gfx.setfont(1, fontName, 10)
+  local _, ret_font = gfx.getfont()
 
-	local _, ret_font = gfx.getfont()
-	return font == ret_font
+	return fontName == ret_font
 end
 
 return Font

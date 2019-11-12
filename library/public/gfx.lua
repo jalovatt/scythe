@@ -1,8 +1,17 @@
 -- NoIndex: true
+-- @module
 
 local GFX = {}
 
--- Improved roundrect() function with fill, adapted from mwe's EEL example.
+--- A wrapper for Reaper's roundrect() function with fill, adapted from mwe's EEL
+-- example.
+-- @param x number
+-- @param y number
+-- @param w number
+-- @param h number
+-- @param r number Corner radius
+-- @option antialias boolean Defaults to `true`
+-- @option fill boolean Defaults to `false`
 GFX.roundRect = function (x, y, w, h, r, antialias, fill)
 
   local aa = antialias or 1
@@ -44,8 +53,9 @@ GFX.roundRect = function (x, y, w, h, r, antialias, fill)
 
 end
 
-
--- Improved triangle() function with optional non-fill
+--- A wrapper for Reaper's triangle() function with the option to not fill the shape.
+-- @param fill boolean
+-- @param ... number A series of X and Y values defining the vertices of the shape.
 GFX.triangle = function (fill, ...)
 
   -- Pass any calls for a filled triangle on to the original function

@@ -1,6 +1,11 @@
+-- @module
+
 local T = require("public.table")[2]
 local File = {}
 
+--- An iterator that loops over the files in a specified path.
+-- @param path string A folder
+-- @return iterator
 File.files = function(path, idx)
   if not path then return end
   if not idx then return File.files, path, -1 end
@@ -11,6 +16,9 @@ File.files = function(path, idx)
   if file then return idx, file end
 end
 
+--- An iterator that loops over the folders in a specified path.
+-- @param path string A folder
+-- @return iterator
 File.folders = function(path, idx)
   if not path then return end
   if not idx then return File.folders, path, -1 end
@@ -21,6 +29,11 @@ File.folders = function(path, idx)
   if folder then return idx, folder end
 end
 
+--- Collects the files in a specified path, with optional filtering.
+-- @param path string A folder
+-- @option filter function Used to filter the included files. If `filter(file)`
+-- is falsy, a file will not be included.
+-- @return array Files, of the form `{ name = "file.name", path = "fullpath/file.name" }`
 File.getFiles = function(path, filter)
   local addSeparator = path:match("[\\/]$") and "" or "/"
   local files = T{}
@@ -34,6 +47,11 @@ File.getFiles = function(path, filter)
   return files
 end
 
+--- Collects the folders in a specified path, with optional filtering.
+-- @param path string A folder
+-- @option filter function Used to filter the included folder. If `filter(fullpath)`
+-- is falsy, a folder will not be included.
+-- @return array Folders, of the form `{ name = "folder", path = "fullpath/folder" }`
 File.getFolders = function(path, filter)
   local addSeparator = path:match("[\\/]$") and "" or "/"
   local folders = T{}
@@ -47,6 +65,13 @@ File.getFolders = function(path, filter)
   return folders
 end
 
+-- Collects all of the files in a specified path, recursing through any subfolders,
+-- with optional filtering.
+-- @param path string A folder
+-- @option filter function Used to filter the included files. If `filter(name, fullpath)`
+-- is falsy, a file will not be included. When subfolders are present, they will
+-- be skipped if `filter(name, fullpath, isFolder = true)` is falsy.
+-- @return array Files, of the form `{ name = "file.name", path = "fullpath/file.name" }`
 File.getFilesRecursive = function(path, filter, acc)
   if not acc then acc = T{} end
 

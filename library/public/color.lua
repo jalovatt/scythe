@@ -7,9 +7,9 @@ local Table = require("public.table")
 local Color = {}
 
 --- Applies a color preset for Reaper's gfx functions
--- @param col string|array Can be an existing preset (`"elementBody"`, `"red"`)
--- or an array of RGBA values (0-1): `{r, g, b, a}`. If an array doesn't include
--- a value for alpha, it will default to 1.
+-- @param col string|array An existing preset (`"elementBody"`, `"red"`) or an
+-- array of RGBA values (0-1): `{r, g, b, a}`. If an array doesn't include a value
+-- for alpha, it will default to 1.
 -- @return array The RGBA values used (`{r, g, b, a}`); this may be
 -- useful when applying string presets.
 Color.set = function (col)
@@ -211,8 +211,8 @@ Color.gradient = function (a, b, pos)
 end
 
 --- Adds colors to the available presets, or overrides existing ones.
--- @param colors hash A table of presets. Expects component values from 0-255,
--- in the form `{ presetName: {r, g, b, a} }`.
+-- @param colors hash A table of preset arrays, in the form `{ presetName: {r, g, b, a} }`.
+-- Expects component values from 0-255.
 Color.addColorsFromRgba = function (colors)
   for k, v in pairs(colors) do
     Color.colors[k] = Color.fromRgba(table.unpack(v))
