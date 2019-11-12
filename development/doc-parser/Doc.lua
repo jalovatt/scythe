@@ -10,18 +10,25 @@ end
 local function paramParser(paramStr)
   local param = {}
   param.name, param.type, param.description = paramStr:match("([^ ]+) +([^ ]+) *(.*)")
+  param.name = param.name:gsub("|", "&#124;")
+  param.type = param.type:gsub("|", "&#124;")
+  param.description = param.description:gsub("|", "&#124;")
   return param
+end
+
+local function returnParser(returnStr)
+  local ret = {}
+  ret.type, ret.description = returnStr:match("([^ ]+) *(.*)")
+  ret.type = ret.type:gsub("|", "&#124;")
+  ret.description = ret.description:gsub("|", "&#124;")
+  return ret
 end
 
 local parseTag = {
   description = function(desc) return desc end,
   param = paramParser,
   option = paramParser,
-  ["return"] = function(returnStr)
-    local ret = {}
-    ret.type, ret.description = returnStr:match("([^ ]+) *(.*)")
-    return ret
-  end,
+  ["return"] = returnParser
 }
 
 local Segment = {}

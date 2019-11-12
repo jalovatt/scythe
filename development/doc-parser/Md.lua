@@ -9,7 +9,8 @@ tagTemplates.description = {
 }
 tagTemplates.param = {
   header = "| **Required** | []() | []() |\n| --- | --- | --- |",
-  item = function (param) return "| " .. param.name .. " | " .. param.type .. (param.description and (" | " .. param.description .. " |") or " |   |") end,
+  item = function (param)
+    return "| " .. param.name .. " | " .. param.type .. (param.description and (" | " .. param.description .. " |") or " |   |") end,
 }
 tagTemplates.option = {
   header = "| **Optional** | []() | []() |\n| --- | --- | --- |",
@@ -28,7 +29,8 @@ function Md.parseTags(tags)
     local mdTag = T{ template.header }
 
     tagArr:orderedForEach(function(tag)
-      mdTag:insert(template.item(tag))
+      local parsed = template.item(tag)
+      mdTag:insert(parsed)
     end)
 
     acc[tagType] = mdTag:concat("\n")
