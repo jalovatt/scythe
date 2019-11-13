@@ -7,12 +7,22 @@ local function nameFromSignature(sig)
   return stripped or key
 end
 
+local escapes = T{
+  ["|"] = "&#124;",
+  ["\n"] = "<br>",
+}
+
+local function escapeForTable(str)
+  return escapes:reduce(function(acc, new, old)
+    return acc:gsub(old, new)
+  end, str)
+end
+
 local function paramParser(paramStr)
   local param = {}
   param.name, param.type, param.description = paramStr:match("([^ ]+) +([^ ]+) *(.*)")
-  param.name = param.name:gsub("|", "&#124;")
-  param.type = param.type:gsub("|", "&#124;")
-  param.description = param.description:gsub("|", "&#124;")
+  param.type = escapeForTable(param.type)
+  param.description = escapeForTable(param.description)
   return param
 end
 

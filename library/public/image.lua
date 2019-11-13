@@ -1,6 +1,7 @@
 -- NoIndex: true
 
 local Buffer = require("public.buffer")
+local File = require("public.file")
 local Table, T = require("public.table"):unpack()
 
 local validExtensions = {
@@ -11,14 +12,18 @@ local validExtensions = {
 local Image = {}
 
 local loadedImages = T{}
-Image.load = function(imagePath)
-  if loadedImages[imagePath] then return loadedImages[imagePath] end
+
+--- Attempts to load the specified image, reusing previously-loaded images.
+-- @param path string The path to an image
+-- @return number|boolean A buffer number, or `false` if it couldn't load the image.
+Image.load = function(path)
+  if loadedImages[path] then return loadedImages[path] end
 
   local buffer = Buffer.get()
-  local ret = gfx.loadimg(buffer, imagePath)
+  local ret = gfx.loadimg(buffer, path)
 
   if ret > -1 then
-    loadedImages[imagePath] = buffer
+    loadedImages[path] = buffer
     return buffer
   else
     Buffer.release(buffer)
@@ -28,48 +33,56 @@ Image.load = function(imagePath)
 end
 
 
--- TODO: Should free the buffer associated with a given image
-Image.unload = function(imagePath)
-  local buffer = loadedImages[imagePath]
+--- Unloads an image, clearing and releasing its buffer
+-- @param path string The path that was used to load the image
+Image.unload = function(path)
+  local buffer = loadedImages[path]
   if buffer then
     Buffer.release(buffer)
-    loadedImages[imagePath] = nil
+    gfx.setimgdim(buffer, -1, -1)
+    loadedImages[path] = nil
   end
 
 end
 
-Image.hasValidImageExtension = function(file)
-  local ext = file:match("%.(.-)$")
+--- Checks if an image file can be loaded by Reaper
+-- @param path string The path to an image
+-- @return boolean
+Image.hasValidImageExtension = function(path)
+  local ext = path:match("%.(.-)$")
   return validExtensions[ext]
 end
 
-Image.loadFolder = function(folderPath)
-  local fileIndex = 0
-  local folderImages = {path = folderPath, images = T{}}
-  local file
-  while true do
-    file = reaper.EnumerateFiles(folderPath, fileIndex)
-    if (not file or file == "") then break end
+--- Loads all of the valid images in a folder
+-- @param path string The path to a set of images
+-- @return hash An object of the form `{ path = path, images = {["/path/image.png"] = 4} }`
+Image.loadFolder = function(path)
+  local folderTable = {path = path, images = T{}}
 
+  for _, file in File.files(path) do
     if Image.hasValidImageExtension(file) then
-      local buffer = Image.load(folderPath.."/"..file)
+      local buffer = Image.load(path.."/"..file)
       if buffer then
-        folderImages.images[file] = buffer
+        folderTable.images[file] = buffer
       end
     end
-
-    fileIndex = fileIndex + 1
   end
 
-  return folderImages
+  return folderTable
 end
 
+--- Unloads all of the images in a given folder
+-- @param folderTable hash An object of the form `{ path = path, images = {["/path/image.png"] = 4} }`,
+-- as returned by `Image.loadFolder`.
 Image.unloadFolder = function(folderTable)
   for k in pairs(folderTable.images) do
     Image.unload(folderTable.path.."/"..k)
   end
 end
 
+--- Attemps to find the path associated with a given buffer
+-- @param buffer number A graphics buffer
+-- @return string|boolean Returns the image path if found, otherwise returns `nil`.
 Image.getPathFromBuffer = function(buffer)
   return loadedImages:find(function(v, k) return (v == buffer) and k end)
 end
