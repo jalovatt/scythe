@@ -10,16 +10,14 @@ describe("Menu.parseString", function()
   test("parses a basic set of options", function()
     local str = "1|2|3|4|5|6.12435213613"
 
-    local strOut, sepsOut = Menu.parseString(str)
-    expect(strOut).toEqual(str)
+    local sepsOut = Menu.parseString(str)
     expect(#sepsOut).toEqual(0)
   end)
 
   test("parses a set of options with separators", function()
     local str = "1|2||3|4|5||6.12435213613"
 
-    local strOut, sepsOut = Menu.parseString(str)
-    expect(strOut).toEqual(str)
+    local sepsOut = Menu.parseString(str)
     expect(#sepsOut).toEqual(2)
     expect(sepsOut[1]).toEqual(3)
     expect(sepsOut[2]).toEqual(7)
@@ -28,8 +26,7 @@ describe("Menu.parseString", function()
   test("parses a set of options with nesting", function()
     local str = "1|2|>3|3.1|3.2|<3.3|4|>5|5.1|5.2|5.3|5.4|5.5|5.6|<5.7|6.12435213613"
 
-    local strOut, sepsOut = Menu.parseString(str)
-    expect(strOut).toEqual(str)
+    local sepsOut = Menu.parseString(str)
     expect(#sepsOut).toEqual(2)
     expect(sepsOut[1]).toEqual(3)
     expect(sepsOut[2]).toEqual(8)
@@ -38,8 +35,7 @@ describe("Menu.parseString", function()
   test("parses a set of options with nesting and separators", function()
     local str = "1||2|>3|3.1|3.2|<3.3||4||>5|5.1|5.2|5.3|5.4|5.5|5.6|<5.7|6.12435213613"
 
-    local strOut, sepsOut = Menu.parseString(str)
-    expect(strOut).toEqual(str)
+    local sepsOut = Menu.parseString(str)
     expect(#sepsOut).toEqual(5)
     expect(sepsOut).toShallowEqual({2,4,8,10,11})
   end)
