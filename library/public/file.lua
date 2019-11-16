@@ -65,7 +65,7 @@ File.getFolders = function(path, filter)
   return folders
 end
 
--- Collects all of the files in a specified path, recursing through any subfolders,
+--- Collects all of the files in a specified path, recursing through any subfolders,
 -- with optional filtering.
 -- @param path string A folder
 -- @option filter function Used to filter the included files. If `filter(name, fullpath)`
@@ -90,6 +90,17 @@ File.getFilesRecursive = function(path, filter, acc)
   end
 
   return acc
+end
+
+-- TODO: Tests
+--- Checks if a given path exists, creating any missing folders if necessary
+-- @param path string A folder path
+-- @return boolean Returns `true` if successful, otherwise `nil`
+File.ensurePathExists = function(path)
+  local sanitized = path:match("(.+)[\\/]?$")
+
+  if reaper.file_exists(sanitized) then return true end
+  if reaper.RecursiveCreateDirectory(sanitized, 0) then return true end
 end
 
 return File

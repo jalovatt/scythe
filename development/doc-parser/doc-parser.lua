@@ -14,11 +14,8 @@ local File = require("public.file")
 local libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
 
 Scythe.wrapErrors(function()
-  local pathOut = libRoot .. "temp/raw-docs"
-  if not (reaper.file_exists(pathOut) or reaper.RecursiveCreateDirectory(pathOut, 0) == 1) then
-    Msg("Unable to create " .. pathOut)
-    return
-  end
+  local pathOut = libRoot .. "docs/modules/"
+  File.ensurePathExists(pathOut)
 
   File.getFilesRecursive(libRoot, function(name, _, isFolder)
     if isFolder and name:match("^%.git") then return false end
@@ -28,13 +25,14 @@ Scythe.wrapErrors(function()
       local doc = Doc.fromFile(file.path)
       if not doc then return end
 
-      local strippedPath = file.path:match(libRoot .. "(.+)%.lua"):gsub("/", ".")
+      local subPath = file.path:match(libRoot .. "(.+)%.lua"):match("[\\/](.+)")
+      local filename = subPath:gsub("/", ".")
 
       local md = doc:orderedMap(function(segment)
         return Md.parseSegment(segment.name, segment.signature, segment.tags)
       end):concat("\n")
 
-      local writePath = libRoot.."temp/raw-docs/"..strippedPath..".md"
+      local writePath = pathOut.."/"..filename..".md"
       local fileOut, err = io.open(writePath, "w+")
       if not fileOut then
         Msg("Error opening " .. writePath .. ": " .. err)

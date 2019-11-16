@@ -1,10 +1,10 @@
-# Scythe 3.0 testing
+# Testing
 
-In the interest of preventing as many bugs as possible, and also making future changes easier to do safely, I've added a basic testing library. I'm hoping to expand on it as well as the included testing GUI.
+In the interest of preventing as many bugs as possible, and also making future changes easier to do safely, Scythe includes a basic testing library.
 
 ## Goals
 
-I'd like to see 3.0 go out the door with a test file for every module in the `public` folder, since they're specifically intended for use by external scripts. GUI functionality will be a bit trickier, but will hopefully have at least a basic set of sets in addition to more thorough demo scripts to test each class' functionality.
+I'd like to see v3 go out the door with a test file for every module in the `public` folder, since they're specifically intended for use by external scripts. GUI functionality will be a bit trickier, but will hopefully have at least a basic set of tests in addition to more thorough demo scripts for checking each class' functionality.
 
 ## Running tests
 

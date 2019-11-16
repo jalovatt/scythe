@@ -1,0 +1,28 @@
+<section class="segment">
+
+###  <a name="Buffer.get">Buffer.get([num])</a>
+
+Assigns a given number of buffer numbers; these numbers will not be assigned
+again until they are explicitly released.
+
+| **Optional** | []() | []() |
+| --- | --- | --- |
+| num | number | Defaults to 1 |
+
+| **Returns** | []() |
+| --- | --- |
+| number&#124;table | Returns a buffer number if only one is requested, or a table of buffers otherwise |
+
+</section>
+<section class="segment">
+
+###  <a name="Buffer.release">Buffer.release(num)</a>
+
+Releases one or more buffer numbers, allowing them to be reassigned. Elements
+using buffers should make sure to release them when being deleted.
+
+| **Required** | []() | []() |
+| --- | --- | --- |
+| num | number&#124;table | A buffer number, or a table of buffer numbers |
+
+</section>

@@ -1,0 +1,16 @@
+<section class="segment">
+
+###  <a name="Error.handleError">Error.handleError([errObject])</a>
+
+Handles script errors, adding details such as a stack trace and Reaper/library
+versions to the Lua error message. Any code called from within the Scythe GUI
+loop is automatically wrapped with this, so the typical use-case would be
+functions that are run prior to initializing the GUI, or after it closes.
+
+
+Usage:
+```lua
+xpcall(myFunction, Error.handleError)
+```
+
+</section>
