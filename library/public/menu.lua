@@ -30,7 +30,6 @@ function Menu.parseString(str)
 end
 
 --- Parses a table of menu items into a string for use with `gfx.showmenu()`
---
 -- ```lua
 -- local options = {
 --   {theCaption = "a", value = 11},
@@ -39,7 +38,6 @@ end
 --
 -- local parsed, separators = Menu.parseTable(options, "theCaption")
 -- ```
---
 -- @param menuArr array A list of menu items, with separators and folders specified
 -- in the same way as expected by `gfx.showmenu()`
 -- @option captionKey string For use with menu items that are objects themselves.
@@ -109,7 +107,6 @@ end
 -- in the returned value. (`gfx.showmenu()` doesn't do this on its own)
 --
 -- Usage:
---
 -- ```lua
 -- local options = {
 --   {caption = "a", value = 11},
@@ -123,7 +120,6 @@ end
 --
 -- local index, value = Menu.showMenu(options, "caption", "value")
 -- ```
---
 -- For strings:
 --
 -- ```lua

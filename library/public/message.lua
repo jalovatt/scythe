@@ -1,8 +1,11 @@
 -- NoIndex: true
+-- @module
 
 local Message = {}
 
--- Print arguments to the Reaper console.
+--- Prints arguments to the Reaper console. Each argument is sanitized with
+-- `tostring`, and the string is ended by a line break.
+-- @param ... any
 Message.Msg = function (...)
   local out = {}
   for _, v in ipairs({...}) do
@@ -13,6 +16,10 @@ end
 
 local queuedMessages = {}
 
+--- Queues arguments for printing as a bulk message. This can be useful for scripts
+-- with a lot of console output, as Reaper's performance can be impacted by printing
+-- to the console too often. Arguments are sanitized with `tostring`.
+-- @param ... any
 Message.queueMsg = function (...)
   local out = {}
   for _, v in ipairs({...}) do
@@ -21,6 +28,7 @@ Message.queueMsg = function (...)
   queuedMessages[#queuedMessages+1] = table.concat(out, ", ")
 end
 
+--- Prints all stored messages and clears the queue
 Message.printQueue = function()
   reaper.ShowConsoleMsg(table.concat(queuedMessages, "\n").."\n")
   queuedMessages = {}
