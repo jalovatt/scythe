@@ -391,7 +391,8 @@ end
 -- @param t     table
 -- @param cb    function
 -- @option iter iterator  Defaults to `ipairs`
--- @return      value, key | nil
+-- @return      value|nil
+-- @return      key
 Table.find = function(t, cb, iter)
   iter = iter or ipairs
 

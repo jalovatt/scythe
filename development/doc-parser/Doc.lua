@@ -149,7 +149,8 @@ function Doc.fromFile(path)
     if not isModule then
       if line:match("@module") then
         isModule = true
-      elseif n == 50 then
+      -- Don't waste time reading the entire file if we don't have to
+      elseif n == 10 then
         break
       end
     elseif line:match("^%-%-%-") then
