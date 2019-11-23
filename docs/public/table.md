@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="T">T(t)</a>
+### T(t) :id=t
 
 Sets a table's metatable to allow it to access both the Table module and
 Lua's native table functions via : syntax.
@@ -20,7 +20,7 @@ myTable:sort():map():stringify()
 </section>
 <section class="segment">
 
-###  <a name="Table.forEach">Table.forEach(t, cb)</a>
+### Table.forEach(t, cb) :id=table-foreach
 
 Iterates over a given table, passing each entry to the callback.
 
@@ -35,7 +35,7 @@ Entries are **not** guaranteed to be called in any specific order.
 </section>
 <section class="segment">
 
-###  <a name="Table.orderedForEach">Table.orderedForEach(t, cb)</a>
+### Table.orderedForEach(t, cb) :id=table-orderedforeach
 
 Identical to Table.forEach, but guaranteed to run in numerical order on only
 the array portion of the given table.
@@ -48,7 +48,7 @@ the array portion of the given table.
 </section>
 <section class="segment">
 
-###  <a name="Table.map">Table.map(t, cb)</a>
+### Table.map(t, cb) :id=table-map
 
 Iterates over the given table, calling `cb(value, key, t)` for each element
 and collecting the returned values into a new table with the original keys.
@@ -68,7 +68,7 @@ Entries are **not** guaranteed to be called in any specific order.
 </section>
 <section class="segment">
 
-###  <a name="Table.orderedMap">Table.orderedMap(t, cb)</a>
+### Table.orderedMap(t, cb) :id=table-orderedmap
 
 Identical to Table.map, but guaranteed to run in numerical order on only
 the array portion of the given table.
@@ -85,7 +85,7 @@ the array portion of the given table.
 </section>
 <section class="segment">
 
-###  <a name="Table.filter">Table.filter(t, cb)</a>
+### Table.filter(t, cb) :id=table-filter
 
 Creates a new table containing only those elements of the given table for
 which cb(value, key, t) returns true.
@@ -105,7 +105,7 @@ which cb(value, key, t) returns true.
 </section>
 <section class="segment">
 
-###  <a name="Table.orderedFilter">Table.orderedFilter(t, cb)</a>
+### Table.orderedFilter(t, cb) :id=table-orderedfilter
 
 Identical to Table.filter, but operates on only the array portion of the
 table and is guaranteed to run in order.
@@ -122,7 +122,7 @@ table and is guaranteed to run in order.
 </section>
 <section class="segment">
 
-###  <a name="Table.reduce">Table.reduce(t, cb[, acc])</a>
+### Table.reduce(t, cb[, acc]) :id=table-reduce
 
 Iterates over a given table with the given accumulator (or 0, if not provided)
 and callback, using the returned value as the accumulator for the next
@@ -147,7 +147,7 @@ iteration.
 </section>
 <section class="segment">
 
-###  <a name="Table.orderedReduce">Table.orderedReduce(t, cb[, acc])</a>
+### Table.orderedReduce(t, cb[, acc]) :id=table-orderedreduce
 
 Identical to Table.reduce, but operates on only the array portion of the table
 and is guaranteed to access elements in order.
@@ -168,7 +168,7 @@ and is guaranteed to access elements in order.
 </section>
 <section class="segment">
 
-###  <a name="Table.shallowCopy">Table.shallowCopy(t)</a>
+### Table.shallowCopy(t) :id=table-shallowcopy
 
 Creates a shallow copy of the given table - that is, only the "top" level
 of elements is considered. Any tables or functions are copied by reference
@@ -188,7 +188,7 @@ Adapted from: http://lua-users.org/wiki/CopyTable
 </section>
 <section class="segment">
 
-###  <a name="Table.deepCopy">Table.deepCopy(t[, copies])</a>
+### Table.deepCopy(t[, copies]) :id=table-deepcopy
 
 Performs a deep copy of the given table - any tables are recursively
 deep-copied to the new table.
@@ -212,7 +212,7 @@ Adapted from: http://lua-users.org/wiki/CopyTable
 </section>
 <section class="segment">
 
-###  <a name="Table.stringify">Table.stringify(t[, maxDepth, currentDepth])</a>
+### Table.stringify(t[, maxDepth, currentDepth]) :id=table-stringify
 
 Creates a string of the table's contents, indented to show nested tables.
 
@@ -239,7 +239,7 @@ Do **not** use this with recursive tables.
 </section>
 <section class="segment">
 
-###  <a name="Table.shallowEquals">Table.shallowEquals(a, b)</a>
+### Table.shallowEquals(a, b) :id=table-shallowequals
 
 Performs a shallow comparison of two tables. Only "top-level" elements are
 considered; functions and tables are compared by reference.
@@ -256,7 +256,7 @@ considered; functions and tables are compared by reference.
 </section>
 <section class="segment">
 
-###  <a name="Table.deepEquals">Table.deepEquals(a, b)</a>
+### Table.deepEquals(a, b) :id=table-deepequals
 
 Recursively compares the contents of two tables. Will be `true` only if all
 of `a`'s keys and values match all of table `b`s.
@@ -273,7 +273,7 @@ of `a`'s keys and values match all of table `b`s.
 </section>
 <section class="segment">
 
-###  <a name="Table.fullSort">Table.fullSort(a, b)</a>
+### Table.fullSort(a, b) :id=table-fullsort
 
 Sorts values of different types (bool < num < string < reference), e.g. for
 use with `table.sort`.
@@ -296,7 +296,7 @@ Adapted from: http://lua-users.org/wiki/SortedIteration
 </section>
 <section class="segment">
 
-###  <a name="Table.kpairs">Table.kpairs(t)</a>
+### Table.kpairs(t) :id=table-kpairs
 
 Iterates through all table values in alphanumeric order.
 ```lua
@@ -315,7 +315,7 @@ Adapted from Programming In Lua, chapter 19.3.
 </section>
 <section class="segment">
 
-###  <a name="Table.invert">Table.invert(t)</a>
+### Table.invert(t) :id=table-invert
 
 Swaps the keys and values in a given table.
 ```lua
@@ -337,7 +337,7 @@ for multiple keys (e.g. booleans).
 </section>
 <section class="segment">
 
-###  <a name="Table.find">Table.find(t, cb[, iter])</a>
+### Table.find(t, cb[, iter]) :id=table-find
 
 Searches a table, returning the first value and index for which `cb(value,
 key, t)` is truthy. If no match is found, will return `nil`.
@@ -353,12 +353,13 @@ key, t)` is truthy. If no match is found, will return `nil`.
 
 | **Returns** | []() |
 | --- | --- |
-| value, | key &#124; nil |
+| value&#124;nil |  |
+| key |  |
 
 </section>
 <section class="segment">
 
-###  <a name="Table.any">Table.any(t, cb)</a>
+### Table.any(t, cb) :id=table-any
 
 Searches a table and returns `true` if `cb(value, key, t)` is truthy for any
 element.
@@ -375,7 +376,7 @@ element.
 </section>
 <section class="segment">
 
-###  <a name="Table.all">Table.all(t, cb)</a>
+### Table.all(t, cb) :id=table-all
 
 Searches a table and returns `true` if `cb(value, key, t)` is truthy for all
 elements.
@@ -392,7 +393,7 @@ elements.
 </section>
 <section class="segment">
 
-###  <a name="Table.none">Table.none(t, cb)</a>
+### Table.none(t, cb) :id=table-none
 
 Searches a table and returns `true` if `cb(value, key, t)` is falsy for all
 elements.
@@ -409,7 +410,7 @@ elements.
 </section>
 <section class="segment">
 
-###  <a name="Table.fullLength">Table.fullLength(t)</a>
+### Table.fullLength(t) :id=table-fulllength
 
 Returns the number of elements in a table, counting both indexed and keyed
 elements.
@@ -425,7 +426,7 @@ elements.
 </section>
 <section class="segment">
 
-###  <a name="Table.sortByKey">Table.sortByKey(t, key)</a>
+### Table.sortByKey(t, key) :id=table-sortbykey
 
 Sorts a set of nested tables using a given key, returning the sorted values
 as a dense table.
@@ -447,7 +448,7 @@ local sorted = Table.sortByKey(t, "val")
 </section>
 <section class="segment">
 
-###  <a name="Table.addMissingKeys">Table.addMissingKeys(t, source)</a>
+### Table.addMissingKeys(t, source) :id=table-addmissingkeys
 
 Using `source` as a base, adds any key/value pairs to `t` for which `t[k] ==
 nil`.
@@ -467,7 +468,7 @@ nil`.
 </section>
 <section class="segment">
 
-###  <a name="Table.sort">Table.sort(t[, func])</a>
+### Table.sort(t[, func]) :id=table-sort
 
 Wraps `table.sort` so it can be used in a method chain.
 
@@ -489,7 +490,7 @@ Wraps `table.sort` so it can be used in a method chain.
 </section>
 <section class="segment">
 
-###  <a name="Table.join">Table.join(...)</a>
+### Table.join(...) :id=table-join
 
 Merges any number of indexed tables sequentially into a new table.
 ```lua
@@ -509,7 +510,7 @@ local joined = Table.join(t)
 </section>
 <section class="segment">
 
-###  <a name="Table.zip">Table.zip(...)</a>
+### Table.zip(...) :id=table-zip
 
 Merges any number of indexed tables alternately into a new table.
 ```lua

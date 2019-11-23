@@ -1,6 +1,6 @@
 # Scythe 3.0 Documentation
 
-### _Under Construction_
+#### _Under Construction_
 
 I'm still in the process of documenting everything, sorting out a script to generate docs from the library rather than writing them separately, standardizing things, etc.
 

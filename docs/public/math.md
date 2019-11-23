@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Math.round">Math.round(n[, places])</a>
+### Math.round(n[, places]) :id=math-round
 
 Rounds a number to a given number of places
 
@@ -19,7 +19,7 @@ Rounds a number to a given number of places
 </section>
 <section class="segment">
 
-###  <a name="Math.nearestMultiple">Math.nearestMultiple(n, snap)</a>
+### Math.nearestMultiple(n, snap) :id=math-nearestmultiple
 
 Rounds a number to the nearest multiple of a given value
 
@@ -35,7 +35,7 @@ Rounds a number to the nearest multiple of a given value
 </section>
 <section class="segment">
 
-###  <a name="Math.clamp">Math.clamp(a, b, c)</a>
+### Math.clamp(a, b, c) :id=math-clamp
 
 Clamps a number to a given range. The returned value is also the median of
 the three values. The order of values given doesn't matter.
@@ -53,7 +53,7 @@ the three values. The order of values given doesn't matter.
 </section>
 <section class="segment">
 
-###  <a name="Math.ordinal">Math.ordinal(n)</a>
+### Math.ordinal(n) :id=math-ordinal
 
 Converts a number to an ordinal string (i.e. `30` to `30th`)
 
@@ -68,7 +68,7 @@ Converts a number to an ordinal string (i.e. `30` to `30th`)
 </section>
 <section class="segment">
 
-###  <a name="Math.polarToCart">Math.polarToCart(angle, radius[, ox, oy])</a>
+### Math.polarToCart(angle, radius[, ox, oy]) :id=math-polartocart
 
 Converts an angle and radius to Cartesian coordinates
 
@@ -90,7 +90,7 @@ Converts an angle and radius to Cartesian coordinates
 </section>
 <section class="segment">
 
-###  <a name="Math.cartToPolar">Math.cartToPolar(x, y[, ox, oy])</a>
+### Math.cartToPolar(x, y[, ox, oy]) :id=math-carttopolar
 
 Converts Cartesian coordinates to an angle and radius.
 

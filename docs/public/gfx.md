@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="GFX.roundRect">GFX.roundRect(x, y, w, h, r[, antialias, fill])</a>
+### GFX.roundRect(x, y, w, h, r[, antialias, fill]) :id=gfx-roundrect
 
 A wrapper for Reaper's roundrect() function with fill, adapted from mwe's EEL
 example.
@@ -21,7 +21,7 @@ example.
 </section>
 <section class="segment">
 
-###  <a name="GFX.triangle">GFX.triangle(fill, ...)</a>
+### GFX.triangle(fill, ...) :id=gfx-triangle
 
 A wrapper for Reaper's triangle() function with the option to not fill the shape.
 

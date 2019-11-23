@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="String.split">String.split(s[, separator])</a>
+### String.split(s[, separator]) :id=string-split
 
 Splits a string at each occurrence of a given separator
 
@@ -19,7 +19,7 @@ Splits a string at each occurrence of a given separator
 </section>
 <section class="segment">
 
-###  <a name="String.splitLines">String.splitLines(s)</a>
+### String.splitLines(s) :id=string-splitlines
 
 Splits a string at each new line
 

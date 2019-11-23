@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Menu.parseString">Menu.parseString(str)</a>
+### Menu.parseString(str) :id=menu-parsestring
 
 Finds the positions of any separators (empty items or folders) in a menu string
 
@@ -15,7 +15,7 @@ Finds the positions of any separators (empty items or folders) in a menu string
 </section>
 <section class="segment">
 
-###  <a name="Menu.parseTable">Menu.parseTable(menuArr[, captionKey])</a>
+### Menu.parseTable(menuArr[, captionKey]) :id=menu-parsetable
 
 Parses a table of menu items into a string for use with `gfx.showmenu()`
 ```lua
@@ -44,7 +44,7 @@ local parsed, separators = Menu.parseTable(options, "theCaption")
 </section>
 <section class="segment">
 
-###  <a name="Menu.getTrueIndex">Menu.getTrueIndex(menuStr, val, separators)</a>
+### Menu.getTrueIndex(menuStr, val, separators) :id=menu-gettrueindex
 
 Finds the item that was selected in a menu; `gfx.showmenu()` doesn't account
 for folders and separators in the value it returns.
@@ -63,7 +63,7 @@ for folders and separators in the value it returns.
 </section>
 <section class="segment">
 
-###  <a name="Menu.showMenu">Menu.showMenu(menu[, captionKey, valKey])</a>
+### Menu.showMenu(menu[, captionKey, valKey]) :id=menu-showmenu
 
 A wrapper to improve the user-friendliness of `gfx.showmenu()`, allowing
 tables as an alternative to strings and accounting for any separators or folders

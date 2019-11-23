@@ -38,10 +38,15 @@ function Md.parseTags(tags)
   end, T{})
 end
 
+-- This syntax is used by Docsify
+local function customHeadingId(name)
+  return " :id=" .. name:lower():gsub("%.", "-")
+end
+
 local function segmentWrapper(name, signature)
   local open = T{
     "<section class=\"segment\">\n",
-    "###  <a name=\"" .. name .. "\">" .. signature .. "</a>",
+    "### " .. signature .. customHeadingId(name),
     "",
   }
 

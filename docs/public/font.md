@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Font.addFonts">Font.addFonts(fonts)</a>
+### Font.addFonts(fonts) :id=font-addfonts
 
 Adds fonts to the available presets, or overrides existing ones.
 
@@ -11,7 +11,7 @@ Adds fonts to the available presets, or overrides existing ones.
 </section>
 <section class="segment">
 
-###  <a name="Font.set">Font.set(fontIn)</a>
+### Font.set(fontIn) :id=font-set
 
 
 
@@ -22,7 +22,7 @@ Adds fonts to the available presets, or overrides existing ones.
 </section>
 <section class="segment">
 
-###  <a name="Font.exists">Font.exists(fontName)</a>
+### Font.exists(fontName) :id=font-exists
 
 Checks if a given font exists on the current system
 

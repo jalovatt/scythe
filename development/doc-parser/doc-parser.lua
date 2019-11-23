@@ -14,25 +14,29 @@ local File = require("public.file")
 local libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
 
 Scythe.wrapErrors(function()
-  local pathOut = libRoot .. "docs/modules/"
-  File.ensurePathExists(pathOut)
+  local basePath = libRoot .. "docs/"
+  File.ensurePathExists(basePath)
 
   File.getFilesRecursive(libRoot, function(name, _, isFolder)
     if isFolder and name:match("^%.git") then return false end
     return isFolder or name:match("%.lua$")
   end)
     :forEach(function(file)
-      local doc = Doc.fromFile(file.path)
-      if not doc then return end
+      local docSegments = Doc.fromFile(file.path)
+      if not docSegments then return end
 
-      local subPath = file.path:match(libRoot .. "(.+)%.lua"):match("[\\/](.+)")
-      local filename = subPath:gsub("/", ".")
-
-      local md = doc:orderedMap(function(segment)
+      local md = docSegments:orderedMap(function(segment)
         return Md.parseSegment(segment.name, segment.signature, segment.tags)
       end):concat("\n")
+      if not md or md == "" then return end
 
-      local writePath = pathOut.."/"..filename..".md"
+      local subPath, filename = file.path
+        :match(libRoot .. "(.+)%.lua")
+        :match("^[^\\/]+[\\/]([^\\/]+)[\\/]([^\\/]+)$")
+
+      local writePath = basePath..subPath.."/"..filename..".md"
+      File.ensurePathExists(writePath)
+
       local fileOut, err = io.open(writePath, "w+")
       if not fileOut then
         Msg("Error opening " .. writePath .. ": " .. err)

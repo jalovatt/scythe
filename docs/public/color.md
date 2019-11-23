@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Color.set">Color.set(col)</a>
+### Color.set(col) :id=color-set
 
 Applies a color preset for Reaper's gfx functions
 
@@ -15,7 +15,7 @@ Applies a color preset for Reaper's gfx functions
 </section>
 <section class="segment">
 
-###  <a name="Color.fromRgba">Color.fromRgba(r, g, b, a)</a>
+### Color.fromRgba(r, g, b, a) :id=color-fromrgba
 
 Converts a color from 0-255 RGBA.
 
@@ -33,7 +33,7 @@ Converts a color from 0-255 RGBA.
 </section>
 <section class="segment">
 
-###  <a name="Color.toRgba">Color.toRgba(r, g, b, a)</a>
+### Color.toRgba(r, g, b, a) :id=color-torgba
 
 Converts a color to 0-255 RGBA.
 
@@ -51,7 +51,7 @@ Converts a color to 0-255 RGBA.
 </section>
 <section class="segment">
 
-###  <a name="Color.fromHex">Color.fromHex(hexStr)</a>
+### Color.fromHex(hexStr) :id=color-fromhex
 
 Converts a color from 0-255 RGBA in hexadecimal form
 
@@ -66,7 +66,7 @@ Converts a color from 0-255 RGBA in hexadecimal form
 </section>
 <section class="segment">
 
-###  <a name="Color.toHex">Color.toHex(r, g, b, a)</a>
+### Color.toHex(r, g, b, a) :id=color-tohex
 
 Converts a color to 0-255 RGBA in hexadecimal form.
 
@@ -84,7 +84,7 @@ Converts a color to 0-255 RGBA in hexadecimal form.
 </section>
 <section class="segment">
 
-###  <a name="Color.toHsv">Color.toHsv(r, g, b, a)</a>
+### Color.toHsv(r, g, b, a) :id=color-tohsv
 
 Converts a color to HSV (Hue, Saturation, Value).
 
@@ -102,7 +102,7 @@ Converts a color to HSV (Hue, Saturation, Value).
 </section>
 <section class="segment">
 
-###  <a name="Color.fromHsv">Color.fromHsv(h, s, v, a)</a>
+### Color.fromHsv(h, s, v, a) :id=color-fromhsv
 
 Converts a color from HSV (Hue, Saturation, Value).
 
@@ -120,7 +120,7 @@ Converts a color from HSV (Hue, Saturation, Value).
 </section>
 <section class="segment">
 
-###  <a name="Color.gradient">Color.gradient(b, pos[, a])</a>
+### Color.gradient(b, pos[, a]) :id=color-gradient
 
 Returns the color for a given position on an HSV gradient between two colors.
 
@@ -137,7 +137,7 @@ Returns the color for a given position on an HSV gradient between two colors.
 </section>
 <section class="segment">
 
-###  <a name="Color.addColorsFromRgba">Color.addColorsFromRgba(colors)</a>
+### Color.addColorsFromRgba(colors) :id=color-addcolorsfromrgba
 
 Adds colors to the available presets, or overrides existing ones.
 
@@ -148,7 +148,7 @@ Adds colors to the available presets, or overrides existing ones.
 </section>
 <section class="segment">
 
-###  <a name="Color.toNative">Color.toNative([color])</a>
+### Color.toNative([color]) :id=color-tonative
 
 Converts a color to OS-native, for use with API functions such as `reaper.SetTrackColor`.
 
@@ -163,7 +163,7 @@ Converts a color to OS-native, for use with API functions such as `reaper.SetTra
 </section>
 <section class="segment">
 
-###  <a name="Color.fromNative">Color.fromNative([color])</a>
+### Color.fromNative([color]) :id=color-fromnative
 
 Converts a color from OS-native, for use with API functions such as ` reaper.GetTrackColor`.
 

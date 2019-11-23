@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Buffer.get">Buffer.get([num])</a>
+### Buffer.get([num]) :id=buffer-get
 
 Assigns a given number of buffer numbers; these numbers will not be assigned
 again until they are explicitly released.
@@ -16,7 +16,7 @@ again until they are explicitly released.
 </section>
 <section class="segment">
 
-###  <a name="Buffer.release">Buffer.release(num)</a>
+### Buffer.release(num) :id=buffer-release
 
 Releases one or more buffer numbers, allowing them to be reassigned. Elements
 using buffers should make sure to release them when being deleted.

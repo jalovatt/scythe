@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Text.initTextWidth">Text.initTextWidth()</a>
+### Text.initTextWidth() :id=text-inittextwidth
 
 Iterates through all of the font presets, storing the widths of every printable
 ASCII character in a table. Widths are directly accessable via:
@@ -20,7 +20,7 @@ Notes:
 </section>
 <section class="segment">
 
-###  <a name="Text.getTextWidth">Text.getTextWidth(str, font)</a>
+### Text.getTextWidth(str, font) :id=text-gettextwidth
 
 Returns the total width of a given string and font. Most of the time it's
 simpler to use `gfx.measurestr()`, but scripts with a lot of text may find it
@@ -38,7 +38,7 @@ more performant to use this instead.
 </section>
 <section class="segment">
 
-###  <a name="Text.fitTextWidth">Text.fitTextWidth(str, font, w)</a>
+### Text.fitTextWidth(str, font, w) :id=text-fittextwidth
 
 Measures a string to see how much of it will it in the given width
 
@@ -56,7 +56,7 @@ Measures a string to see how much of it will it in the given width
 </section>
 <section class="segment">
 
-###  <a name="Text.wrapText">Text.wrapText(str, font, w[, indent, pad])</a>
+### Text.wrapText(str, font, w[, indent, pad]) :id=text-wraptext
 
 Wraps a string with new lines until it can fit within a given width
 
@@ -82,7 +82,7 @@ https://en.wikipedia.org/wiki/Line_wrap_and_wrapText#Algorithm
 </section>
 <section class="segment">
 
-###  <a name="Text.drawWithShadow">Text.drawWithShadow(str, textColor, shadowColor)</a>
+### Text.drawWithShadow(str, textColor, shadowColor) :id=text-drawwithshadow
 
 Draws a string with the specified text and shadow colors. The shadow
 will be drawn at 45' to the bottom-right.
@@ -96,7 +96,7 @@ will be drawn at 45' to the bottom-right.
 </section>
 <section class="segment">
 
-###  <a name="Text.drawWithOutline">Text.drawWithOutline(str, textColor, outlineColor)</a>
+### Text.drawWithOutline(str, textColor, outlineColor) :id=text-drawwithoutline
 
 Draws a string with the specified text and outline colors.
 
@@ -109,7 +109,7 @@ Draws a string with the specified text and outline colors.
 </section>
 <section class="segment">
 
-###  <a name="Text.drawBackground">Text.drawBackground(str, color, align)</a>
+### Text.drawBackground(str, color, align) :id=text-drawbackground
 
 necessary for blitting some elements; antialiased text with a transparent
 background looks terrible. This function draws a rectangle 2px larger than

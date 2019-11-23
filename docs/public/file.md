@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="File.files">File.files(path[, idx])</a>
+### File.files(path[, idx]) :id=file-files
 
 An iterator that loops over the files in a specified path.
 
@@ -15,7 +15,7 @@ An iterator that loops over the files in a specified path.
 </section>
 <section class="segment">
 
-###  <a name="File.folders">File.folders(path[, idx])</a>
+### File.folders(path[, idx]) :id=file-folders
 
 An iterator that loops over the folders in a specified path.
 
@@ -30,7 +30,7 @@ An iterator that loops over the folders in a specified path.
 </section>
 <section class="segment">
 
-###  <a name="File.getFiles">File.getFiles(path[, filter])</a>
+### File.getFiles(path[, filter]) :id=file-getfiles
 
 Collects the files in a specified path, with optional filtering.
 
@@ -49,7 +49,7 @@ Collects the files in a specified path, with optional filtering.
 </section>
 <section class="segment">
 
-###  <a name="File.getFolders">File.getFolders(path[, filter])</a>
+### File.getFolders(path[, filter]) :id=file-getfolders
 
 Collects the folders in a specified path, with optional filtering.
 
@@ -68,7 +68,7 @@ Collects the folders in a specified path, with optional filtering.
 </section>
 <section class="segment">
 
-###  <a name="File.getFilesRecursive">File.getFilesRecursive(path[, filter, acc])</a>
+### File.getFilesRecursive(path[, filter, acc]) :id=file-getfilesrecursive
 
 Collects all of the files in a specified path, recursing through any subfolders,
 with optional filtering.
@@ -88,7 +88,7 @@ with optional filtering.
 </section>
 <section class="segment">
 
-###  <a name="File.ensurePathExists">File.ensurePathExists(path)</a>
+### File.ensurePathExists(path) :id=file-ensurepathexists
 
 Checks if a given path exists, creating any missing folders if necessary
 

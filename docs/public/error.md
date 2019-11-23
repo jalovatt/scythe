@@ -1,6 +1,6 @@
 <section class="segment">
 
-###  <a name="Error.handleError">Error.handleError([errObject])</a>
+### Error.handleError([errObject]) :id=error-handleerror
 
 Handles script errors, adding details such as a stack trace and Reaper/library
 versions to the Lua error message. Any code called from within the Scythe GUI
