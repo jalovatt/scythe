@@ -37,7 +37,7 @@ end
 
 function Checklist:val(newval)
 
-	if newval then
+	if newval ~= nil then
 		if type(newval) == "table" then
 			for k, v in pairs(newval) do
 				self.selectedOptions[tonumber(k)] = v
