@@ -1,4 +1,4 @@
-local T = require("public.table")[2]
+local Table, T = require("public.table"):unpack()
 
 local Md = {}
 
@@ -83,6 +83,21 @@ function Md.parseSegment(name, signature, tags)
   out:insert(close)
 
   return out:concat("\n")
+end
+
+function Md.parseHeader(header)
+  Msg(header.description)
+  local out = T{
+    "# " .. header.name,
+    "```lua",
+    header.tags.require
+      and header.tags.require:concat("\n")
+      or ("local " .. header.name .. " = require(" .. header.requirePath .. ")"),
+    "```",
+    header.tags.description and header.tags.description:concat("\n") or "",
+  }
+
+  return out
 end
 
 return Md

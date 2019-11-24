@@ -1,5 +1,6 @@
 -- NoIndex: true
 --- @module
+-- @require local Color = require("public.color")
 
 local Math = require("public.math")
 local Table = require("public.table")

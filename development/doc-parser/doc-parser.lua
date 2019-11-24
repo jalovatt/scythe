@@ -8,7 +8,6 @@ loadfile(libPath .. "scythe.lua")({ dev = true })
 local Doc = require("doc-parser.Doc")
 local Md = require("doc-parser.Md")
 local Table, T = require("public.table"):unpack()
-local String = require("public.string")
 local File = require("public.file")
 
 local sidebarTemplate = require("doc-parser.templates.sidebar")
@@ -77,13 +76,15 @@ Scythe.wrapErrors(function()
     local writeFolder = docsPath..subPath
     local writePath = writeFolder.."/"..filename
 
-    local md = docSegments
+    local mdHeader = Md.parseHeader(moduleHeader):concat("\n")
+
+    local mdSegments = docSegments
       and docSegments:orderedMap(function(segment)
         return Md.parseSegment(segment.name, segment.signature, segment.tags)
       end):concat("\n")
       or ""
 
-    writeFile(writeFolder, filename, md)
+    writeFile(writeFolder, filename, mdHeader .. "\n" .. mdSegments)
 
     Msg("wrote: " .. writePath)
 

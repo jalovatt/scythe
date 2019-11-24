@@ -1,3 +1,8 @@
+# public.error
+```lua
+local public.error = require(public.error)
+```
+
 <section class="segment">
 
 ### Error.handleError([errObject]) :id=error-handleerror

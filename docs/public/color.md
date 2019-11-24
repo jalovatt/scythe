@@ -1,3 +1,8 @@
+# public.color
+```lua
+local Color = require("public.color")
+```
+
 <section class="segment">
 
 ### Color.set(col) :id=color-set

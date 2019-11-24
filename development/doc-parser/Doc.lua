@@ -38,6 +38,7 @@ local function textParser(text) return text end
 
 local parseTag = {
   module = textParser,
+  ["require"] = textParser,
   description = textParser,
   param = paramParser,
   option = paramParser,
