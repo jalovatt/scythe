@@ -11,14 +11,15 @@ if not Scythe.libPath or Scythe.libPath == "" then
     return
 end
 
+Scythe.libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
+
 local function addPaths()
   local paths = {
     Scythe.libPath:match("(.*[/\\])")
   }
 
   if scytheOptions.dev then
-    local libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
-    paths[#paths + 1] = libRoot .. "development/"
+    paths[#paths + 1] = Scythe.libRoot .. "development/"
   end
 
   for i, path in pairs(paths) do

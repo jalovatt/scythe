@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+--- @module
 
 local Math = require("public.math")
 local Table = require("public.table")
@@ -202,11 +202,11 @@ Color.gradient = function (a, b, pos)
   local s = math.abs(a[2] + (pos * (b[2] - a[2])))
   local v = math.abs(a[3] + (pos * (b[3] - a[3])))
 
-  local a = (#a == 4)
+  local alpha = (#a == 4)
       and  (math.abs(a[4] + (pos * (b[4] - a[4]))))
       or  1
 
-  return Color.fromHsv(h, s, v, a)
+  return Color.fromHsv(h, s, v, alpha)
 
 end
 

@@ -8,44 +8,92 @@ loadfile(libPath .. "scythe.lua")({ dev = true })
 local Doc = require("doc-parser.Doc")
 local Md = require("doc-parser.Md")
 local Table, T = require("public.table"):unpack()
-
+local String = require("public.string")
 local File = require("public.file")
+
+local sidebarTemplate = require("doc-parser.templates.sidebar")
 
 local libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
 
+local function removeMatchingEntries(params, sidebarEntries)
+  local out = T{}
+  for i, entry in ipairs(sidebarEntries) do
+    if entry and entry.path:match(params.path) then
+      out[#out+1] = (" "):rep(params.indent) .. "- [" .. entry.name .. "](" .. entry.path .. ")"
+      sidebarEntries[i] = false
+    end
+  end
+
+  return out
+end
+
+local function generateSidebar(sidebarEntries)
+  local out = T{}
+
+  for _, v in ipairs(sidebarTemplate) do
+    if type(v) == "table" then
+      local entries = removeMatchingEntries(v, sidebarEntries)
+      if #entries > 0 then
+        entries:forEach(function(entry) out[#out+1] = entry end)
+      end
+    else
+      out[#out+1] = v
+    end
+  end
+
+  return out:concat("\n")
+end
+
+local function writeFile(folder, filename, text)
+  File.ensurePathExists(folder)
+
+  local path = folder.."/"..filename
+  local fileOut, err = io.open(path, "w+")
+  if not fileOut then
+    error("Error opening " .. path .. ": " .. err)
+    return
+  end
+
+  fileOut:write(text)
+  fileOut:close()
+end
+
 Scythe.wrapErrors(function()
-  local basePath = libRoot .. "docs/"
-  File.ensurePathExists(basePath)
+  local docsPath = libRoot .. "docs/"
+  File.ensurePathExists(docsPath)
+
+  local sidebarEntries = T{}
 
   File.getFilesRecursive(libRoot, function(name, _, isFolder)
     if isFolder and name:match("^%.git") then return false end
     return isFolder or name:match("%.lua$")
-  end)
-    :forEach(function(file)
-      local docSegments = Doc.fromFile(file.path)
-      if not docSegments then return end
+  end):forEach(function(file)
+    local moduleHeader, docSegments = Doc.fromFile(file.path)
+    if not moduleHeader then return end
 
-      local md = docSegments:orderedMap(function(segment)
+    local subPath, filename = moduleHeader.subPath:match("(.*)[\\/]([^\\/]+)")
+    filename = filename .. ".md"
+
+    local writeFolder = docsPath..subPath
+    local writePath = writeFolder.."/"..filename
+
+    local md = docSegments
+      and docSegments:orderedMap(function(segment)
         return Md.parseSegment(segment.name, segment.signature, segment.tags)
       end):concat("\n")
-      if not md or md == "" then return end
+      or ""
 
-      local subPath, filename = file.path
-        :match(libRoot .. "(.+)%.lua")
-        :match("^[^\\/]+[\\/]([^\\/]+)[\\/]([^\\/]+)$")
+    writeFile(writeFolder, filename, md)
 
-      local writePath = basePath..subPath.."/"..filename..".md"
-      File.ensurePathExists(writePath)
+    Msg("wrote: " .. writePath)
 
-      local fileOut, err = io.open(writePath, "w+")
-      if not fileOut then
-        Msg("Error opening " .. writePath .. ": " .. err)
-        return
-      end
+    sidebarEntries[#sidebarEntries+1] = { name = moduleHeader.name, path = moduleHeader.subPath .. ".md" }
+  end)
 
-      fileOut:write(md)
-      fileOut:close()
+  Msg("\nfinished with docs\n")
 
-      Msg("wrote: " .. writePath)
-    end)
+  local sidebar = generateSidebar(sidebarEntries)
+
+  writeFile(docsPath, "_sidebar.md", sidebar)
+  Msg("wrote: " .. docsPath .. "_sidebar.md")
 end)

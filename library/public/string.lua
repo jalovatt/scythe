@@ -33,14 +33,14 @@ String.split = function(s, separator)
   return out
 end
 
-local linesPattern = "([^\r\n]*)\r?\n?"
+String.linesPattern = "([^\r\n]*)\r?\n?"
 
 --- Splits a string at each new line
 -- @param s string
 -- @return array A list of split strings
 String.splitLines = function(s)
   local out = T{}
-  for line in s:gmatch(linesPattern) do
+  for line in s:gmatch(String.linesPattern) do
     out[#out + 1] = line
   end
 

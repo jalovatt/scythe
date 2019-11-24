@@ -1,4 +1,6 @@
 -- NoIndex: true
+--- @module Button
+-- This is the button module
 
 local Buffer = require("public.buffer")
 
@@ -31,6 +33,7 @@ Button.defaultProps = {
   state = 0,
 }
 
+--- This is a function
 function Button:new(props)
   local button = self:addDefaultProps(props)
 

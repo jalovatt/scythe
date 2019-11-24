@@ -1,0 +1,12 @@
+- Getting Started[](/)
+- GUI
+  - Elements
+    - [Button](gui/elements/Button.md)
+- GUI Modules
+- Public Modules
+    - [public.color](public/color.md)
+    - [public.error](public/error.md)
+    - [Buffer](public/buffer.md)
+- Utilities
+  - [Testing](testing.md)
+  - [Doc Parser](doc-parser.md)

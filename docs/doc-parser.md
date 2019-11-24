@@ -32,23 +32,23 @@ All documentation must be written as an inline (`--`) comment, followed by a spa
 
 Text within tags may use Markdown syntax. New lines of text will be joined with a space; for a true line break, add an empty comment line.
 
-### `@module`
+#### `@module`
 
 The parser will examine all `.lua` files in the repository, but will only generate documentation if an `@module` tag is found within the first 10 lines. This tag will eventually include a high-level description of the file's contents.
 
-### `--- [description]`
+#### `--- [description]`
 
 The first line of a function's documentation _must_ begin with three dashes.
 
-### `@param [name] [type] [description]`
+#### `@param [name] [type] [description]`
 
 Parameters that are required by a function. Descriptions are usually helpful but may not be necessary in cases where the expected value is self-evident (`@param
 
-### `@option [name] [type] [description]`
+#### `@option [name] [type] [description]`
 
 Parameters that are not required by a function. If the function uses a default value, it should be noted in the description.
 
-### `@return [type] [description]`
+#### `@return [type] [description]`
 
 Values that are returned by a function. If a function can return multiple values, use a separate `@return` tag for each:
 

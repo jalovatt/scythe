@@ -34,11 +34,14 @@ local function returnParser(returnStr)
   return ret
 end
 
+local function textParser(text) return text end
+
 local parseTag = {
-  description = function(desc) return desc end,
+  module = textParser,
+  description = textParser,
   param = paramParser,
   option = paramParser,
-  ["return"] = returnParser
+  ["return"] = returnParser,
 }
 
 local Segment = {}
@@ -46,37 +49,38 @@ Segment.__index = Segment
 function Segment:new(line)
   local segment = {
     name = nil,
-    rawTags = T{
-      description = T{},
-      param = T{},
-      option = T{},
-      ["return"] = T{},
-    },
+    rawTags = T{},
     signature = nil,
-    tags = T{
-      description = T{},
-      param = T{},
-      option = T{},
-      ["return"] = T{},
-    },
+    tags = T{},
     currentTag = {
       type = "description",
-      content = T{line},
+      content = T{},
     },
   }
+
+  local isModule, name = line:match("(@module) ?(.*)")
+  if isModule then
+    segment.isModule = true
+    segment.name = name
+  else
+    segment.currentTag.content:insert(line)
+  end
+
   return setmetatable(segment, self)
 end
 
 function Segment:closeTag()
   local tagType = self.currentTag.type
-  local tag = self.currentTag.content:concat(tagType == "description" and "\n" or " ")
+  local tag = self.currentTag.content:concat(
+    (tagType == "description" or tagType == "module") and "\n" or " "
+  )
 
-  self.rawTags[self.currentTag.type]:insert(tag)
+  if not self.rawTags[tagType] then self.rawTags[tagType] = T{} end
+  self.rawTags[tagType]:insert(tag)
 
-  -- function Segment:parseTags()
-  --   self.rawTags:forEach(function(v, k) self.tags[k] = parseTag[k](v) end)
-  -- end
   local parsed = parseTag[tagType](tag)
+
+  if not self.tags[tagType] then self.tags[tagType] = T{} end
   self.tags[tagType]:insert(parsed)
   self.currentTag = nil
 end
@@ -107,8 +111,10 @@ Expected:
 Table.find(t, cb[, iter])
 ]]--
 function Segment:generateSignature()
+  if #self.args == 0 then return self.name .. "()" end
+
   local args = self.args:reduce(function (acc, arg)
-    local argType = self.tags.param:find(function(v) return v.name == arg end)
+    local argType = self.tags.param and self.tags.param:find(function(v) return v.name == arg end)
       and 1
       or 2
 
@@ -124,11 +130,14 @@ function Segment:generateSignature()
   return self.name .. "(" .. args[1]:concat(", ") .. optionSig .. ")"
 end
 
-function Segment:finalize(rawSignature)
+function Segment:finalize(line)
   self:closeTag()
-  self.args = rawSignature:match("%((.-)%)"):split("[^ ,]+")
-  self.name = nameFromSignature(rawSignature)
-  self.signature = self:generateSignature()
+
+  if not self.isModule then
+    self.args = line:match("%((.-)%)"):split("[^ ,]+")
+    self.name = nameFromSignature(line)
+    self.signature = self:generateSignature()
+  end
 end
 
 local Doc = {}
@@ -136,29 +145,36 @@ function Doc.fromFile(path)
   local segments = T{}
   local file, err = io.open(path)
   if not file then
-    Msg("Error opening " .. path .. ": " .. err)
+    error("Error opening " .. path .. ": " .. err)
     return nil
   end
 
+  local module
   local currentSegment
   local n = 0
   local isModule = false
 
   for line in file:lines() do
     n = n + 1
-    if not isModule then
-      if line:match("@module") then
-        isModule = true
-      -- Don't waste time reading the entire file if we don't have to
-      elseif n == 10 then
+    if not isModule and n == 10 then
+      if n == 10 then
         break
       end
+
     elseif line:match("^%-%-%-") then
       currentSegment = Segment:new(line:match("^%-%-%- (.+)"))
+      if currentSegment.isModule then isModule = true end
+
+      if not isModule then break end
+
     elseif currentSegment then
       if not line:match("^%-%-") then
         currentSegment:finalize(line)
-        segments:insert(currentSegment)
+        if currentSegment.isModule then
+          module = currentSegment
+        else
+          segments:insert(currentSegment)
+        end
 
         currentSegment = nil
       else
@@ -167,7 +183,13 @@ function Doc.fromFile(path)
     end
   end
 
-  return #segments > 0 and segments or nil
+  if not module then return end
+
+  module.subPath = path:match(Scythe.libRoot .. "[^\\/]*[\\/](.+)%.lua")
+  module.requirePath = module.subPath:gsub("[\\/]", ".")
+  if not module.name or module.name == "" then module.name = module.requirePath end
+
+  return module, (#segments > 0 and segments or nil)
 end
 
 return Doc
