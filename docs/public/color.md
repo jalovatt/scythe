@@ -131,7 +131,7 @@ Returns the color for a given position on an HSV gradient between two colors.
 
 | **Required** | []() | []() |
 | --- | --- | --- |
-| a	string|array | A | preset strng, or color components with values from 0-1. (`{r, g, b, a}`) |
+| a | string|array | A | preset strng, or color components with values from 0-1. (`{r, g, b, a}`) |
 | b | string&#124;array | A preset strng, or color components with values from 0-1. (`{r, g, b, a}`) |
 | pos | number | Position along the gradient from 0-1, where 0 == `a` and 1 == `b`. |
 

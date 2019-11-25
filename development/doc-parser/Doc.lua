@@ -163,6 +163,11 @@ function Doc.fromFile(path)
       end
 
     elseif line:match("^%-%-%-") then
+      local lineContent = line:match("^%-%-%- (.+)")
+      if not lineContent then
+        error("Failed to begin a doc segment at line " .. n .. " of:\n" .. path .. "\n\nLine: " .. tostring(line))
+      end
+
       currentSegment = Segment:new(line:match("^%-%-%- (.+)"))
       if currentSegment.isModule then isModule = true end
 

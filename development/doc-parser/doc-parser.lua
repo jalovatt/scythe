@@ -70,6 +70,8 @@ Scythe.wrapErrors(function()
     local moduleHeader, docSegments = Doc.fromFile(file.path)
     if not moduleHeader then return end
 
+    Msg("got docs from:\n\t" .. file.path)
+
     local subPath, filename = moduleHeader.subPath:match("(.*)[\\/]([^\\/]+)")
     filename = filename .. ".md"
 

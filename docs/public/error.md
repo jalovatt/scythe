@@ -1,6 +1,6 @@
-# public.error
+# Error
 ```lua
-local public.error = require(public.error)
+local Error = require(public.error)
 ```
 
 <section class="segment">
