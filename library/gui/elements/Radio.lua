@@ -20,30 +20,30 @@ end
 
 function Radio:initOptions()
 
-	local r = self.optionSize / 2
+  local r = self.optionSize / 2
 
-	-- Option bubble
-	Color.set(self.bg)
-	gfx.circle(r + 1, r + 1, r + 2, 1, 0)
-	gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
-	Color.set("elementBody")
-	gfx.circle(r + 1, r + 1, r, 0)
-	gfx.circle(3*r + 3, r + 1, r, 0)
-	Color.set(self.fillColor)
-	gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
+  -- Option bubble
+  Color.set(self.bg)
+  gfx.circle(r + 1, r + 1, r + 2, 1, 0)
+  gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
+  Color.set("elementBody")
+  gfx.circle(r + 1, r + 1, r, 0)
+  gfx.circle(3*r + 3, r + 1, r, 0)
+  Color.set(self.fillColor)
+  gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
 
 end
 
 
 function Radio:val(newval)
 
-	if newval then
-		self.retval = newval
-		self.state = newval
-		self:redraw()
-	else
-		return self.retval
-	end
+  if newval then
+    self.retval = newval
+    self.state = newval
+    self:redraw()
+  else
+    return self.retval
+  end
 
 end
 
@@ -51,16 +51,16 @@ end
 function Radio:onMouseDown(state)
   if state.preventDefault then return end
 
-	self.state = self:getMouseOption(state) or self.state
+  self.state = self:getMouseOption(state) or self.state
 
-	self:redraw()
+  self:redraw()
 
 end
 
 
 function Radio:onMouseUp(state)
   self.focus = false
-	self:redraw()
+  self:redraw()
 
   -- Bypass option for GUI Builder
   if state.preventDefault or not self.focus then
@@ -68,13 +68,13 @@ function Radio:onMouseUp(state)
     return
   end
 
-	-- Set the new option, or revert to the original if the cursor
+  -- Set the new option, or revert to the original if the cursor
   -- isn't inside the list anymore
-	if self:containsPoint(state.mouse.x, state.mouse.y) then
-		self.retval = self.state
-	else
-		self.state = self.retval
-	end
+  if self:containsPoint(state.mouse.x, state.mouse.y) then
+    self.retval = self.state
+  else
+    self.state = self.retval
+  end
 
 end
 
@@ -82,8 +82,8 @@ end
 function Radio:onDrag(state)
   if state.preventDefault then return end
 
-	self:onMouseDown(state)
-	self:redraw()
+  self:onMouseDown(state)
+  self:redraw()
 
 end
 
@@ -95,9 +95,9 @@ function Radio:onWheel(state)
                                       and -1
                                       or 1 )
 
-	self.retval = self.state
+  self.retval = self.state
 
-	self:redraw()
+  self:redraw()
 
 end
 

@@ -33,7 +33,7 @@ Frame.defaultProps = {
 
 function Frame:new(props)
 
-	local frame = self:addDefaultProps(props)
+  local frame = self:addDefaultProps(props)
 
   return setmetatable(frame, self)
 end
@@ -56,7 +56,7 @@ end
 
 function Frame:onDelete()
 
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 
 end
 
@@ -82,13 +82,13 @@ end
 
 function Frame:val(new)
 
-	if new then
-		self.text = new
+  if new then
+    self.text = new
     if self.buffer then self:init() end
-		self:redraw()
-	else
-		return self.text:gsub("\n", "")
-	end
+    self:redraw()
+  else
+    return self.text:gsub("\n", "")
+  end
 
 end
 
@@ -103,8 +103,8 @@ end
 function Frame:drawFrame()
 
   local w, h = self.w, self.h
-	local fill = self.fill
-	local round = self.round
+  local fill = self.fill
+  local round = self.round
 
   -- Frame background
   if self.bg then
@@ -118,25 +118,25 @@ function Frame:drawFrame()
 
   -- Shadow
   local r, g, b, a = table.unpack(Color.colors.shadow)
-	gfx.set(r, g, b, 1)
-	GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
-	gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
+  gfx.set(r, g, b, 1)
+  GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
+  gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
 
     -- Frame
-	Color.set(self.color)
-	if round > 0 then
-		GFX.roundRect(1, 1, w, h, round, 1, fill)
-	else
-		gfx.rect(1, 1, w, h, fill)
-	end
+  Color.set(self.color)
+  if round > 0 then
+    GFX.roundRect(1, 1, w, h, round, 1, fill)
+  else
+    gfx.rect(1, 1, w, h, fill)
+  end
 
 end
 
 
 function Frame:drawText()
 
-	if self.text and self.text:len() > 0 then
+  if self.text and self.text:len() > 0 then
 
     -- Rewrap the text if it changed
     if self.text ~= self.lastText then
@@ -144,14 +144,14 @@ function Frame:drawText()
       self.lastText = self.text
     end
 
-		Font.set(self.font)
-		Color.set(self.textColor)
+    Font.set(self.font)
+    Color.set(self.textColor)
 
-		gfx.x, gfx.y = self.pad + 1, self.pad + 1
-		if not self.fill then Text.drawBackground(self.text, self.bg) end
-		gfx.drawstr(self.text)
+    gfx.x, gfx.y = self.pad + 1, self.pad + 1
+    if not self.fill then Text.drawBackground(self.text, self.bg) end
+    gfx.drawstr(self.text)
 
-	end
+  end
 
 end
 

@@ -1,7 +1,7 @@
 -- NoIndex: true
 
 --[[
-	Scythe example
+  Scythe example
 
   - Using images in a script
 
@@ -126,19 +126,19 @@ function IButton:onMouseDown()
 end
 
 function IButton:onMouseUp(state)
-	self.state = 0
+  self.state = 0
 
-	if self:containsPoint(state.mouse.x, state.mouse.y) then
+  if self:containsPoint(state.mouse.x, state.mouse.y) then
 
-		self:func(table.unpack(self.params))
+    self:func(table.unpack(self.params))
 
-	end
-	self:redraw()
+  end
+  self:redraw()
 end
 
 function IButton:onDoubleclick()
 
-	self.state = 0
+  self.state = 0
 
 end
 

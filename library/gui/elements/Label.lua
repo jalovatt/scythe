@@ -30,7 +30,7 @@ Label.defaultProps = {
 
 
 function Label:new(props)
-	local label = self:addDefaultProps(props)
+  local label = self:addDefaultProps(props)
 
   return setmetatable(label, self)
 end
@@ -77,7 +77,7 @@ function Label:init()
 
   Color.set(self.color)
 
-	if self.shadow then
+  if self.shadow then
     Text.drawWithShadow(output, self.color, "shadow")
   else
     gfx.drawstr(output)
@@ -89,28 +89,28 @@ end
 
 
 function Label:onDelete()
-	Buffer.release(self.buffers)
+  Buffer.release(self.buffers)
 end
 
 
 function Label:fade(len, dest, curve)
   if curve < 0 then self:moveToLayer(dest) end
 
-	self.fadeParams = {
+  self.fadeParams = {
     length = len,
     dest = dest,
     start = reaper.time_precise(),
     curve = (curve or 3)
   }
 
-	self:redraw()
+  self:redraw()
 end
 
 
 function Label:draw()
 
     -- Font stuff doesn't work until we definitely have a gfx window
-	if self.w == 0 then self:init() end
+  if self.w == 0 then self:init() end
 
   local a = self.fadeParams and self:updateFadeAlpha() or 1
   if a == 0 then return end
@@ -132,13 +132,13 @@ end
 
 function Label:val(newval)
 
-	if newval then
-		self.caption = newval
-		self:init()
-		self:redraw()
-	else
-		return self.caption
-	end
+  if newval then
+    self.caption = newval
+    self:init()
+    self:redraw()
+  else
+    return self.caption
+  end
 
 end
 

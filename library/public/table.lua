@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+--- @module Table
 
 local Table = {}
 setmetatable(Table, {__index = table})

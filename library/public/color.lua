@@ -126,8 +126,8 @@ Color.toHsv = function (r, g, b, a)
 
   if hue ~= -1 then hue = hue / 6 end
 
-  local sat = (max ~= 0) 	and	((max - min) / max)
-                          or	0
+  local sat = (max ~= 0)  and ((max - min) / max)
+                          or  0
 
   return {hue * 360, sat, max, (a or 1)}
 
@@ -175,7 +175,7 @@ end
 
 
 --- Returns the color for a given position on an HSV gradient between two colors.
--- @param a	string|array A preset strng, or color components with values from 0-1.
+-- @param a string|array A preset strng, or color components with values from 0-1.
 -- (`{r, g, b, a}`)
 -- @param b string|array A preset strng, or color components with values from 0-1.
 -- (`{r, g, b, a}`)

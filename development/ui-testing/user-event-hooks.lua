@@ -89,7 +89,7 @@ local layer = GUI.createLayer({name = "Layer1", z = 1})
 
 local frm_grid = GUI.createElement({
   name = "frm_grid",
-  type =	"Frame",
+  type = "Frame",
   x = 64,
   y = 48,
   w = 256,

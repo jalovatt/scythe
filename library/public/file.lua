@@ -1,4 +1,4 @@
--- @module
+--- @module File
 
 local T = require("public.table")[2]
 local File = {}

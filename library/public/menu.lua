@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+-- @module Menu
 
 require("public.string")
 local Table, T = require("public.table"):unpack()
@@ -18,15 +18,15 @@ function Menu.parseString(str)
 
   local i = 1
   for item in str:gmatch(psvPattern) do
-		if item == ""
-		or item:sub(1, 1) == ">" then
-			separators:insert(i)
+    if item == ""
+    or item:sub(1, 1) == ">" then
+      separators:insert(i)
     end
 
     i = i + 1
   end
 
-	return separators
+  return separators
 end
 
 --- Parses a table of menu items into a string for use with `gfx.showmenu()`
@@ -47,7 +47,7 @@ end
 -- @return array A list of separator positions (i.e. empty items or folders)
 function Menu.parseTable(menuArr, captionKey)
   local separators = T{}
-	local menus = T{}
+  local menus = T{}
 
   for i = 1, #menuArr do
     local val
@@ -62,11 +62,11 @@ function Menu.parseTable(menuArr, captionKey)
     if (type(val) == "string"
       and (menus[#menus] == "" or menus[#menus]:sub(1, 1) == ">")
     ) then
-			separators:insert(i)
-		end
-	end
+      separators:insert(i)
+    end
+  end
 
-	return menus:concat("|"), separators
+  return menus:concat("|"), separators
 end
 
 

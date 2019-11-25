@@ -1,7 +1,7 @@
 -- NoIndex: true
 
 --[[
-	Scythe testing tool
+  Scythe testing tool
 ]]--
 
 local libPath = reaper.GetExtState("Scythe v3", "libPath")

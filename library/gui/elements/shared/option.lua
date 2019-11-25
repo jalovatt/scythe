@@ -43,7 +43,7 @@ Option.defaultProps = {
 
 function Option:new(props)
 
-	local option = self:addDefaultProps(props, self.defaultProps)
+  local option = self:addDefaultProps(props, self.defaultProps)
   return setmetatable(option, self)
 
 end
@@ -58,40 +58,40 @@ function Option:init()
       return
   end
 
-	self.buffer = self.buffer or Buffer.get()
+  self.buffer = self.buffer or Buffer.get()
 
-	gfx.dest = self.buffer
-	gfx.setimgdim(self.buffer, -1, -1)
-	gfx.setimgdim(self.buffer, 2*self.optionSize + 4, 2*self.optionSize + 2)
+  gfx.dest = self.buffer
+  gfx.setimgdim(self.buffer, -1, -1)
+  gfx.setimgdim(self.buffer, 2*self.optionSize + 4, 2*self.optionSize + 2)
 
   self:initOptions()
 
-	if self.caption and self.caption ~= "" then
-		Font.set(self.captionFont)
-		local strWidth, strHeight = gfx.measurestr(self.caption)
-		self.captionHeight = 0.5*strHeight
-		self.captionX = self.x + (self.w - strWidth) / 2
-	else
-		self.captionHeight = 0
-		self.captionX = 0
-	end
+  if self.caption and self.caption ~= "" then
+    Font.set(self.captionFont)
+    local strWidth, strHeight = gfx.measurestr(self.caption)
+    self.captionHeight = 0.5*strHeight
+    self.captionX = self.x + (self.w - strWidth) / 2
+  else
+    self.captionHeight = 0
+    self.captionX = 0
+  end
 
 end
 
 
 function Option:onDelete()
 
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 
 end
 
 
 function Option:draw()
 
-	if self.frame then
-		Color.set("elementBody")
-		gfx.rect(self.x, self.y, self.w, self.h, 0)
-	end
+  if self.frame then
+    Color.set("elementBody")
+    gfx.rect(self.x, self.y, self.w, self.h, 0)
+  end
 
   if self.caption and self.caption ~= "" then self:drawcaption() end
 
@@ -111,13 +111,13 @@ function Option:getMouseOption(state)
 
   local len = #self.options
 
-	-- See which option it's on
-	local mouseOption = self.horizontal
+  -- See which option it's on
+  local mouseOption = self.horizontal
                 and (state.mouse.x - (self.x + self.pad))
-					      or	(state.mouse.y - (self.y + self.captionHeight + 1.5*self.pad) )
+                or  (state.mouse.y - (self.y + self.captionHeight + 1.5*self.pad) )
 
-	mouseOption = mouseOption / ((self.optionSize + self.pad) * len)
-	mouseOption = Math.clamp( math.floor(mouseOption * len) + 1 , 1, len )
+  mouseOption = mouseOption / ((self.optionSize + self.pad) * len)
+  mouseOption = Math.clamp( math.floor(mouseOption * len) + 1 , 1, len )
 
   return self.options[mouseOption] ~= "_" and mouseOption or false
 
@@ -146,7 +146,7 @@ end
 
 
 function Option:drawOptionBubbles()
-	local pad = self.pad
+  local pad = self.pad
 
   -- Bump everything down for the caption
   local adjustedY = self.y + (
@@ -154,7 +154,7 @@ function Option:drawOptionBubbles()
   ) + 1.5 * pad
 
   -- Bump the options down in horizontal mode with the text on top
-	if self.horizontal and self.caption ~= "" and not self.swap then
+  if self.horizontal and self.caption ~= "" and not self.swap then
     adjustedY = adjustedY + self.captionHeight + 2*pad
   end
 
@@ -162,7 +162,7 @@ function Option:drawOptionBubbles()
 
   local x, y
 
-	for i = 1, #self.options do
+  for i = 1, #self.options do
     if self.options[i] ~= "_" then
 
       x = self.x + (
@@ -177,7 +177,7 @@ function Option:drawOptionBubbles()
       self:drawOptionText(x, y, self.optionSize, self.options[i])
     end
 
-	end
+  end
 
 end
 

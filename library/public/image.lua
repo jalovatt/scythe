@@ -1,4 +1,5 @@
 -- NoIndex: true
+--- @module Image
 
 local Buffer = require("public.buffer")
 local File = require("public.file")

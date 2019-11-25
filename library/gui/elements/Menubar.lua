@@ -35,7 +35,7 @@ Menubar.defaultProps = {
 
 function Menubar:new(props)
 
-	local mnu = self:addDefaultProps(props)
+  local mnu = self:addDefaultProps(props)
 
   return setmetatable(mnu, self)
 
@@ -91,7 +91,7 @@ end
 
 function Menubar:onDelete()
 
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 
 end
 
@@ -237,7 +237,7 @@ function Menubar:onMouseUp(state)
   end
 
   self.mouseDown = false
-	self:redraw()
+  self:redraw()
 
 end
 
@@ -321,20 +321,20 @@ function Menubar:prepMenu()
   local arr = self.menus[self.mouseMenu].options
 
   local separators = {}
-	local menus = {}
+  local menus = {}
 
-	for i = 1, #arr do
+  for i = 1, #arr do
 
     table.insert(menus, arr[i].caption)
 
-		if menus[#menus] == ""
-		or string.sub(menus[#menus], 1, 1) == ">" then
-			table.insert(separators, i)
-		end
+    if menus[#menus] == ""
+    or string.sub(menus[#menus], 1, 1) == ">" then
+      table.insert(separators, i)
+    end
 
-	end
+  end
 
-	return table.concat(menus, "|"), separators
+  return table.concat(menus, "|"), separators
 end
 
 

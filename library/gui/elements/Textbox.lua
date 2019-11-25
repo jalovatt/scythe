@@ -61,33 +61,33 @@ Textbox.defaultProps = {
 }
 
 function Textbox:new(props)
-	local txt = self:addDefaultProps(props)
+  local txt = self:addDefaultProps(props)
 
-	return setmetatable(txt, self)
+  return setmetatable(txt, self)
 end
 
 
 function Textbox:init()
 
-	local w, h = self.w, self.h
+  local w, h = self.w, self.h
 
-	self.buffer = Buffer.get()
+  self.buffer = Buffer.get()
 
-	gfx.dest = self.buffer
-	gfx.setimgdim(self.buffer, -1, -1)
-	gfx.setimgdim(self.buffer, 2*w, h)
+  gfx.dest = self.buffer
+  gfx.setimgdim(self.buffer, -1, -1)
+  gfx.setimgdim(self.buffer, 2*w, h)
 
-	Color.set("backgroundDarkest")
-	gfx.rect(0, 0, 2*w, h, 1)
+  Color.set("backgroundDarkest")
+  gfx.rect(0, 0, 2*w, h, 1)
 
   -- Inactive frame
-	Color.set("elementBody")
-	gfx.rect(0, 0, w, h, 0)
+  Color.set("elementBody")
+  gfx.rect(0, 0, w, h, 0)
 
   -- Active frame
-	Color.set("highlight")
-	gfx.rect(w, 0, w, h, 0)
-	gfx.rect(w + 1, 1, w - 2, h - 2, 0)
+  Color.set("highlight")
+  gfx.rect(w, 0, w, h, 0)
+  gfx.rect(w + 1, 1, w - 2, h - 2, 0)
 
   -- Make sure we calculate this ASAP to avoid errors with
   -- dynamically-generated textboxes
@@ -98,31 +98,31 @@ end
 
 function Textbox:onDelete()
 
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 
 end
 
 
 function Textbox:draw()
 
-	-- Some values can't be set in :init() because the window isn't
-	-- open yet - measurements won't work.
-	if not self.windowW then self:recalculateWindow() end
+  -- Some values can't be set in :init() because the window isn't
+  -- open yet - measurements won't work.
+  if not self.windowW then self:recalculateWindow() end
 
-	if self.caption and self.caption ~= "" then self:drawCaption() end
+  if self.caption and self.caption ~= "" then self:drawCaption() end
 
-	-- Blit the textbox frame, and make it brighter if focused.
-	gfx.blit(self.buffer, 1, 0, (self.focus and self.w or 0), 0,
+  -- Blit the textbox frame, and make it brighter if focused.
+  gfx.blit(self.buffer, 1, 0, (self.focus and self.w or 0), 0,
            self.w, self.h, self.x, self.y)
 
   if self.retval ~= "" then self:drawText() end
 
-	if self.focus then
+  if self.focus then
 
-		if self.selectionStart then self:drawSelection() end
-		if self.showCaret then self:drawCaret() end
+    if self.selectionStart then self:drawSelection() end
+    if self.showCaret then self:drawCaret() end
 
-	end
+  end
 
   self:drawGradient()
 
@@ -131,12 +131,12 @@ end
 
 function Textbox:val(newval)
 
-	if newval then
+  if newval then
     self:setEditorState(tostring(newval), nil, string.len(newval) + 2 - self.windowW)
-		self:redraw()
-	else
-		return self.retval
-	end
+    self:redraw()
+  else
+    return self.retval
+  end
 
 end
 
@@ -144,16 +144,16 @@ end
 -- Just for making the caret blink
 function Textbox:onUpdate()
 
-	if self.focus then
+  if self.focus then
 
-		if self.blink == 0 then
-			self.showCaret = true
-		elseif self.blink == math.floor(Config.caretBlinkRate / 2) then
-			self.showCaret = false
+    if self.blink == 0 then
+      self.showCaret = true
+    elseif self.blink == math.floor(Config.caretBlinkRate / 2) then
+      self.showCaret = false
     end
     self:redraw()
-		self.blink = (self.blink + 1) % Config.caretBlinkRate
-	end
+    self.blink = (self.blink + 1) % Config.caretBlinkRate
+  end
 
 end
 
@@ -196,7 +196,7 @@ end
 function Textbox:onDoubleClick(state)
   if state.preventDefault then return end
 
-	self:selectWord(state)
+  self:selectWord(state)
 
 end
 
@@ -204,10 +204,10 @@ end
 function Textbox:onDrag(state)
   if state.preventDefault then return end
 
-	self.selectionStart = self:calcCaretPosition(state.mouse.ox, state.mouse.oy)
+  self.selectionStart = self:calcCaretPosition(state.mouse.ox, state.mouse.oy)
   self.selectionEnd = self:calcCaretPosition(state.mouse.x, state.mouse.y)
 
-	self:redraw()
+  self:redraw()
 
 end
 
@@ -215,7 +215,7 @@ end
 function Textbox:onType(state)
   if state.preventDefault then return end
 
-	local char = state.kb.char
+  local char = state.kb.char
 
   -- Navigation keys, Return, clipboard stuff, etc
   if self.processKey[char] then
@@ -324,17 +324,17 @@ end
 
 function Textbox:drawText()
 
-	Color.set(self.color)
-	Font.set(self.textFont)
+  Color.set(self.color)
+  Font.set(self.textFont)
 
   local str = string.sub(self.retval, self.windowPosition + 1)
 
-	gfx.x = self.x + 4
-	gfx.y = self.y + (self.h - gfx.texth) / 2
+  gfx.x = self.x + 4
+  gfx.y = self.y + (self.h - gfx.texth) / 2
   local r = gfx.x + self.w - 8
   local b = gfx.y + gfx.texth
 
-	gfx.drawstr(str, 0, r, b)
+  gfx.drawstr(str, 0, r, b)
 
 end
 
@@ -390,8 +390,8 @@ function Textbox:drawSelection()
 
   gfx.mode = 0
 
-	-- Later calls to Color.set should handle this, but for
-	-- some reason they aren't always.
+  -- Later calls to Color.set should handle this, but for
+  -- some reason they aren't always.
   gfx.a = 1
 
 end
@@ -437,7 +437,7 @@ end
 
 function Textbox:isSelectionVisible(x, w)
 
-	return w > 0
+  return w > 0
     and x + w > self.windowPosition -- doesn't end to the left
     and x < self:windowRight()      -- and doesn't start to the right
 
@@ -700,35 +700,35 @@ Textbox.processKey = {
 
   end,
 
-	-- A -- Select All
-	[1] = function(self, state)
-		return self:doCtrlChar(state, self.selectAll)
-	end,
+  -- A -- Select All
+  [1] = function(self, state)
+    return self:doCtrlChar(state, self.selectAll)
+  end,
 
-	-- C -- Copy
-	[3] = function(self, state)
-		return self:doCtrlChar(state, self.toClipboard)
-	end,
+  -- C -- Copy
+  [3] = function(self, state)
+    return self:doCtrlChar(state, self.toClipboard)
+  end,
 
-	-- V -- Paste
-	[22] = function(self, state)
+  -- V -- Paste
+  [22] = function(self, state)
     return self:doCtrlChar(state, self.fromClipboard)
-	end,
+  end,
 
-	-- X -- Cut
-	[24] = function(self, state)
-		return self:doCtrlChar(state, self.toClipboard, true)
-	end,
+  -- X -- Cut
+  [24] = function(self, state)
+    return self:doCtrlChar(state, self.toClipboard, true)
+  end,
 
-	-- Y -- Redo
-	[25] = function (self, state)
-		return self:doCtrlChar(state, self.redo)
-	end,
+  -- Y -- Redo
+  [25] = function (self, state)
+    return self:doCtrlChar(state, self.redo)
+  end,
 
-	-- Z -- Undo
-	[26] = function (self, state)
-		return self:doCtrlChar(state, self.undo)
-	end
+  -- Z -- Undo
+  [26] = function (self, state)
+    return self:doCtrlChar(state, self.undo)
+  end
 
 
 }
@@ -751,7 +751,7 @@ Textbox.redo = TextUtils.redo
 Textbox.storeUndoState = TextUtils.storeUndoState
 
 function Textbox:getEditorState()
-	return { retval = self.retval, caret = self.caret }
+  return { retval = self.retval, caret = self.caret }
 end
 
 function Textbox:setEditorState(retval, caret, windowPosition, selectionStart, selectionEnd)

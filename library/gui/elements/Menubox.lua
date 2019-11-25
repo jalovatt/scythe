@@ -64,7 +64,7 @@ end
 
 function Menubox:onDelete()
 
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 
 end
 

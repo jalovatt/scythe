@@ -132,14 +132,14 @@ GUI.findElementByName = function (name, ...)
   end
 end
 
---[[	Return or change an element's value
+--[[ Return or change an element's value
 
     This is just a wrapper for GUI.findElementByName("elm"):val(newval). Any
     elements you plan on checking frequently should have a reference kept
     locally.
 
     For use with external user functions. Returns the given element's current
-    value or, if specified, sets a new one.	Changing values with this is
+    value or, if specified, sets a new one. Changing values with this is
     preferable to setting them directly, as most :val methods will also update
     some internal parameters and redraw the element when called.
 ]]--
