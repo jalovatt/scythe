@@ -4,9 +4,17 @@
     - [Button](gui/elements/Button.md)
 - GUI Modules
 - Public Modules
-    - [public.color](public/color.md)
-    - [public.error](public/error.md)
+    - [Color](public/color.md)
+    - [String](public/string.md)
+    - [GFX](public/gfx.md)
+    - [Error](public/error.md)
+    - [Math](public/math.md)
+    - [Table](public/table.md)
     - [Buffer](public/buffer.md)
+    - [File](public/file.md)
+    - [Text](public/text.md)
+    - [Font](public/font.md)
+    - [Image](public/image.md)
 - Utilities
   - [Testing](testing.md)
   - [Doc Parser](doc-parser.md)

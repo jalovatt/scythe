@@ -1,5 +1,6 @@
 -- NoIndex: true
 --- @module Table
+-- @require local Table, T = require("public.table"):unpack()
 
 local Table = {}
 setmetatable(Table, {__index = table})

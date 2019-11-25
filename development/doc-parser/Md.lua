@@ -40,7 +40,7 @@ end
 
 -- This syntax is used by Docsify
 local function customHeadingId(name)
-  return " :id=" .. name:lower():gsub("%.", "-")
+  return " :id=" .. name:lower():gsub("[.:]", "-")
 end
 
 local function segmentWrapper(name, signature)
