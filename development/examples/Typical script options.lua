@@ -1,14 +1,10 @@
 -- NoIndex: true
 
 --[[
-  Scythe example
-
-  - Getting user input before running an action rather than having to use
-    GetUserInputs or put user-configurable settings in the script file
-
+  An example UI for a typical real-world use case - getting user input before
+  running an action rather than having to use GetUserInputs or put
+  user-configurable settings in the script file.
 ]]--
-
--- The core library must be loaded prior to anything else
 
 local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
@@ -20,8 +16,6 @@ local GUI = require("gui.core")
 
 
 local window
-
-
 
 
 ------------------------------------
@@ -58,8 +52,6 @@ local function btn_click()
 end
 
 
-
-
 ------------------------------------
 -------- Window settings -----------
 ------------------------------------
@@ -81,7 +73,7 @@ window = GUI.createWindow({
 ------------------------------------
 
 
-local layer = GUI.createLayer({name = "Layer1", z = 1})
+local layer = GUI.createLayer({name = "Layer1"})
 
 layer:addElements( GUI.createElements(
   {

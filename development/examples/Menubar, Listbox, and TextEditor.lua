@@ -1,13 +1,8 @@
 -- NoIndex: true
 
 --[[
-  Scythe example
-
-  - Demonstration of the Listbox, Menubar, and TextEditor classes
-
+  A demonstration of the Listbox, Menubar, and TextEditor classes
 ]]--
-
--- The core library must be loaded prior to anything else
 
 local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
@@ -19,46 +14,97 @@ local GUI = require("gui.core")
 
 local _, T = require("public.table"):unpack()
 
+
 ------------------------------------
 -------- Menu functions ------------
 ------------------------------------
 
 
 local mnu_file = {
-  new = function() GUI.Val("txted_text", "file: new") end,
-  open = function() GUI.Val("txted_text", "file: open") end,
-  recent_blah = function() GUI.Val("txted_text", "file:\trecent files: blah.txt") end,
-  recent_stuff = function() GUI.Val("txted_text", "file:\trecent files: stuff.txt") end,
-  recent_readme = function() GUI.Val("txted_text", "file:\trecent files: readme.md") end,
-  save = function() GUI.Val("txted_text", "file: save") end,
-  save_as = function() GUI.Val("txted_text", "file: save as") end,
-  print = function() GUI.Val("txted_text", "file: print") end,
-  print_preview = function() GUI.Val("txted_text", "file: print preview") end,
-  exit = function() GUI.quit = true end
+  new = function()
+    GUI.Val("txted_text", "file: new")
+  end,
+  open = function()
+    GUI.Val("txted_text", "file: open")
+  end,
+  recent_blah = function()
+    GUI.Val("txted_text", "file:\trecent files: blah.txt")
+  end,
+  recent_stuff = function()
+    GUI.Val("txted_text", "file:\trecent files: stuff.txt")
+  end,
+  recent_readme = function()
+    GUI.Val("txted_text", "file:\trecent files: readme.md")
+  end,
+  save = function()
+    GUI.Val("txted_text", "file: save")
+  end,
+  save_as = function()
+    GUI.Val("txted_text", "file: save as")
+  end,
+  print = function()
+    GUI.Val("txted_text", "file: print")
+  end,
+  print_preview = function()
+    GUI.Val("txted_text", "file: print preview")
+  end,
+  exit = function()
+    GUI.quit = true
+  end
 }
 
 local mnu_edit = {
-  cut = function() GUI.Val("txted_text", "edit: cut") end,
-  copy = function() GUI.Val("txted_text", "edit: copy") end,
-  copy_path = function() GUI.Val("txted_text", "edit:\tcopy current path") end,
-  copy_file = function() GUI.Val("txted_text", "edit:\tcopy current filename") end,
-  copy_dir = function() GUI.Val("txted_text", "edit:\tcopy current directory path") end,
-  paste = function() GUI.Val("txted_text", "edit: paste") end,
-  delete = function() GUI.Val("txted_text", "edit: delete") end,
-  select_all = function() GUI.Val("txted_text", "edit: select all") end
+  cut = function()
+    GUI.Val("txted_text", "edit: cut")
+  end,
+  copy = function()
+    GUI.Val("txted_text", "edit: copy")
+  end,
+  copy_path = function()
+    GUI.Val("txted_text", "edit:\tcopy current path")
+  end,
+  copy_file = function()
+    GUI.Val("txted_text", "edit:\tcopy current filename")
+  end,
+  copy_dir = function()
+    GUI.Val("txted_text", "edit:\tcopy current directory path")
+  end,
+  paste = function()
+    GUI.Val("txted_text", "edit: paste")
+  end,
+  delete = function()
+    GUI.Val("txted_text", "edit: delete")
+  end,
+  select_all = function()
+    GUI.Val("txted_text", "edit: select all")
+  end
 }
 
 local mnu_view = {
-  always_on_top = function() GUI.Val("txted_text", "view: always on top") end,
-  toggle_full_screen = function() GUI.Val("txted_text", "view: toggle full-screen") end,
-  hide_menu = function() GUI.Val("txted_text", "view: hide menu") end
+  always_on_top = function()
+    GUI.Val("txted_text", "view: always on top")
+  end,
+  toggle_full_screen = function()
+    GUI.Val("txted_text", "view: toggle full-screen")
+  end,
+  hide_menu = function()
+    GUI.Val("txted_text", "view: hide menu")
+  end
 }
 
 local mnu_help = {
-  help = function() GUI.Val("txted_text", "help: help") end,
-  open_website = function() GUI.Val("txted_text", "help: open website") end,
-  check_for_updates = function() GUI.Val("txted_text", "help: check for updates") end,
-  about = function() GUI.Val("txted_text", "help: about") end
+  help = function()
+    GUI.Val("txted_text", "help: help")
+  end,
+  open_website = function()
+    GUI.Val("txted_text", "help: open website")
+  end,
+  check_for_updates = function()
+    GUI.Val("txted_text", "help: check for updates")
+  end,
+  about = function()
+    GUI.Val("txted_text", "help: about")
+  end
 }
 
 local mnu_params_func = function(self, label, param)
@@ -127,8 +173,6 @@ local menus = {
     {caption = "Parameter D",               func = mnu_params_func,    params = {"D", "guten tag!"}},
   }},
 }
-
-
 
 
 ------------------------------------
@@ -201,7 +245,6 @@ local titles = items:map(function(val) return val[1] end)
 
 
 local function addText()
-
   -- Get the list box's selected item(s)
   local selected = GUI.Val("lst_titles")
 
@@ -219,10 +262,7 @@ local function addText()
   :concat("\n\n")
 
   GUI.Val("txted_text", str)
-
 end
-
-
 
 
 ------------------------------------
@@ -290,4 +330,5 @@ window:addLayers(
 
 
 window:open()
+
 GUI.Main()

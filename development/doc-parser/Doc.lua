@@ -1,5 +1,8 @@
 local Table, T = require("public.table"):unpack()
 
+local commonParams = {
+
+};
 local function nameFromSignature(sig)
   local key = sig:match("(.+) = function") or sig:match("function (.+) ?%(")
   local stripped = key:match("^local (.+)")
@@ -40,6 +43,7 @@ local parseTag = {
   module = textParser,
   ["require"] = textParser,
   description = textParser,
+  commonParams = function() return commonParams end,
   param = paramParser,
   option = paramParser,
   ["return"] = returnParser,
@@ -82,7 +86,13 @@ function Segment:closeTag()
   local parsed = parseTag[tagType](tag)
 
   if not self.tags[tagType] then self.tags[tagType] = T{} end
-  self.tags[tagType]:insert(parsed)
+  if type(parsed) == "table" then
+    for _, v in ipairs(parsed) do
+      self.tags[tagType]:insert(v)
+    end
+  else
+    self.tags[tagType]:insert(parsed)
+  end
   self.currentTag = nil
 end
 

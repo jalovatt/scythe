@@ -1,6 +1,18 @@
 -- NoIndex: true
 --- @module Button
--- This is the button module
+-- It's a button. You click on it. Things happen.
+-- @commonParams
+-- @option caption string
+-- @option font number A font preset
+-- @option textColor string|table A color preset
+-- @option fillColor string|table A color preset
+-- @option func function Function to execute when the button is clicked.
+-- @option params array Arguments that will be unpacked and passed to `func`. i.e.
+-- ```lua
+-- func = function(a, b, c) end,
+-- params = {1, 2, 3},
+-- ```
+-- @option rightFunc function Function execute when the button is right-clicked.
 
 local Buffer = require("public.buffer")
 
@@ -129,9 +141,8 @@ function Button:onRightMouseUp(state)
   end
 end
 
-
--- Button - Execute (extra method)
--- Used for allowing hotkeys to press a button programmatically
+--- Calls a button's function programmatically
+-- @option r boolean If `true`, will call the button's `rightFunc` instead.
 function Button:exec(r)
 
   if r then

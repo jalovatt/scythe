@@ -9,6 +9,8 @@ Layer.__noRecursion = true
 function Layer:new(props)
   local layer = Table.deepCopy(props or {})
 
+  if not layer.z then layer.z = 1 end
+
   layer.elementCount = 0
   layer.elements = T{}
 
