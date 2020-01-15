@@ -12,6 +12,13 @@ local T = require("public.table")[2]
 local Layer = require("gui.layer")
 local Window = require("gui.window")
 
+local Theme = require("gui.theme")
+
+local Color = require("public.color")
+Color.addColorsFromRgba(Theme.colors)
+
+local Font = require("public.font")
+Font.addFonts(Theme.fonts)
 
 -- -- Initialize a few values
 GUI.lastFuncTime = 0
