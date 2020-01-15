@@ -2,23 +2,35 @@ local Table, T = require("public.table"):unpack()
 
 local Md = {}
 
+local paramTemplate = function (param)
+  if not param.name or not param.type then
+    error("Invalid parameter structure:\n" .. Table.stringify(param))
+  end
+  return "| " .. param.name .. " | " .. param.type .. (param.description and (" | " .. param.description .. " |") or " |   |")
+end
+
 local tagTemplates = T{}
+tagTemplates.module = {
+  header = nil,
+  item = function (desc) return desc end,
+}
 tagTemplates.description = {
   header = nil,
   item = function (desc) return desc end,
 }
 tagTemplates.param = {
   header = "| **Required** | []() | []() |\n| --- | --- | --- |",
-  item = function (param)
-    return "| " .. param.name .. " | " .. param.type .. (param.description and (" | " .. param.description .. " |") or " |   |") end,
+  item = paramTemplate,
 }
 tagTemplates.option = {
   header = "| **Optional** | []() | []() |\n| --- | --- | --- |",
-  item = tagTemplates.param.item,
+  item = paramTemplate,
 }
 tagTemplates["return"] = {
   header = "| **Returns** | []() |\n| --- | --- |",
-  item = function (ret) return "| " .. ret.type .. (ret.description and (" | " .. ret.description .. " |") or " |   |") end,
+  item = function (ret)
+    return "| " .. ret.type .. (ret.description and (" | " .. ret.description .. " |") or " |   |")
+  end,
 }
 
 function Md.parseTags(tags)
@@ -26,6 +38,10 @@ function Md.parseTags(tags)
     if #tagArr == 0 then return acc end
 
     local template = tagTemplates[tagType]
+    if not template then
+      error("Couldn't find tag template for: " .. tagType .. "\n\n" .. Table.stringify(tagArr))
+    end
+
     local mdTag = T{ template.header }
 
     tagArr:orderedForEach(function(tag)
@@ -86,18 +102,19 @@ function Md.parseSegment(name, signature, tags)
 end
 
 function Md.parseHeader(header)
-  Msg(header.description)
-  local out = T{
-    "# " .. header.name,
-    "```lua",
-    header.tags.require
-      and header.tags.require:concat("\n")
-      or ("local " .. header.name .. " = require(" .. header.requirePath .. ")"),
-    "```",
-    header.tags.description and header.tags.description:concat("\n") or "",
-  }
+  return Md.parseSegment(header.name, header.name, header.tags)
+  -- Msg(header.description)
+  -- local out = T{
+  --   "# " .. header.name,
+  --   "```lua",
+  --   header.tags.require
+  --     and header.tags.require:concat("\n")
+  --     or ("local " .. header.name .. " = require(" .. header.requirePath .. ")"),
+  --   "```",
+  --   header.tags.description and header.tags.description:concat("\n") or "",
+  -- }
 
-  return out
+  -- return out
 end
 
 return Md

@@ -12,14 +12,13 @@
 -- func = function(a, b, c) end,
 -- params = {1, 2, 3},
 -- ```
--- @option rightFunc function Function execute when the button is right-clicked.
+-- @option rightFunc function Function to execute when the button is right-clicked.
 
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
--- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Element = require("gui.element")

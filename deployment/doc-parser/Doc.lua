@@ -1,8 +1,28 @@
 local Table, T = require("public.table"):unpack()
 
-local commonParams = {
+local commonParams = T{
+  {
+    name = "x",
+    type = "number",
+    description = "Horizontal distance from the left side of the window, in pixels",
+  },
+  {
+    name = "y",
+    type = "number",
+    description = "Vertical distance from the top of the window, in pixels",
+  },
+  {
+    name = "w",
+    type = "number",
+    description = "Width, in pixels",
+  },
+  {
+    name = "h",
+    type = "number",
+    description = "Height, in pixels",
+  },
+}
 
-};
 local function nameFromSignature(sig)
   local key = sig:match("(.+) = function") or sig:match("function (.+) ?%(")
   local stripped = key:match("^local (.+)")
@@ -49,25 +69,24 @@ local parseTag = {
   ["return"] = returnParser,
 }
 
-local Segment = {}
+local Segment = T{}
 Segment.__index = Segment
 function Segment:new(line)
+  local isModule, name = line:match("(@module) ?(.*)")
+
   local segment = {
-    name = nil,
+    name = name,
     rawTags = T{},
     signature = nil,
     tags = T{},
     currentTag = {
-      type = "description",
+      type = isModule and "module" or "description",
       content = T{},
     },
+    isModule = isModule,
   }
 
-  local isModule, name = line:match("(@module) ?(.*)")
-  if isModule then
-    segment.isModule = true
-    segment.name = name
-  else
+  if not isModule then
     segment.currentTag.content:insert(line)
   end
 
@@ -76,6 +95,10 @@ end
 
 function Segment:closeTag()
   local tagType = self.currentTag.type
+  if not tagType then
+    error("Error closing segment - no current tag type:\n"..self:stringify())
+  end
+
   local tag = self.currentTag.content:concat(
     (tagType == "description" or tagType == "module") and "\n" or " "
   )
@@ -83,14 +106,13 @@ function Segment:closeTag()
   if not self.rawTags[tagType] then self.rawTags[tagType] = T{} end
   self.rawTags[tagType]:insert(tag)
 
-  local parsed = parseTag[tagType](tag)
-
-  if not self.tags[tagType] then self.tags[tagType] = T{} end
-  if type(parsed) == "table" then
-    for _, v in ipairs(parsed) do
-      self.tags[tagType]:insert(v)
-    end
+  if tagType == "commonParams" then
+    self.tags.option = Table.deepCopy(commonParams)
   else
+    local parsed = parseTag[tagType](tag)
+
+    if not self.tags[tagType] then self.tags[tagType] = T{} end
+
     self.tags[tagType]:insert(parsed)
   end
   self.currentTag = nil
@@ -99,7 +121,7 @@ end
 function Segment:push(line)
   if line:match("^@") then
     self:closeTag()
-    local tag, rest = line:match("@([^ ]+) (.+)")
+    local tag, rest = line:match("@([^ ]+) ?(.*)")
 
     self.currentTag = T{
       type = tag,
@@ -171,15 +193,16 @@ function Doc.fromFile(path)
       if n == 10 then
         break
       end
-
     elseif line:match("^%-%-%-") then
       local lineContent = line:match("^%-%-%- (.+)")
       if not lineContent then
-        error("Failed to begin a doc segment at line " .. n .. " of:\n" .. path .. "\n\nLine: " .. tostring(line))
+        error("Error opening doc segment at line " .. n .. " of:\n" .. path .. "\n\nLine: " .. tostring(line))
       end
 
-      currentSegment = Segment:new(line:match("^%-%-%- (.+)"))
-      if currentSegment.isModule then isModule = true end
+      currentSegment = Segment:new(lineContent)
+      if currentSegment.isModule then
+        isModule = true
+      end
 
       if not isModule then break end
 

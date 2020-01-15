@@ -4,7 +4,8 @@ if not libPath or libPath == "" then
     return
 end
 
-loadfile(libPath .. "scythe.lua")({ dev = true })
+loadfile(libPath .. "scythe.lua")({ dev = true, printErrors = true })
+
 local Doc = require("doc-parser.Doc")
 local Md = require("doc-parser.Md")
 local Table, T = require("public.table"):unpack()
@@ -57,12 +58,16 @@ local function writeFile(folder, filename, text)
   fileOut:close()
 end
 
+Msg("Doc parser starting")
 Scythe.wrapErrors(function()
   local docsPath = libRoot .. "docs/"
   File.ensurePathExists(docsPath)
 
   local sidebarEntries = T{}
 
+  Msg("Processing files...")
+  -- local path = libRoot .. "library/gui/elements/Button.lua"
+  -- T{{ path = path }}:forEach(function(file)
   File.getFilesRecursive(libRoot, function(name, _, isFolder)
     if isFolder and name:match("^%.git") then return false end
     return isFolder or name:match("%.lua$")
@@ -70,7 +75,7 @@ Scythe.wrapErrors(function()
     local moduleHeader, docSegments = Doc.fromFile(file.path)
     if not moduleHeader then return end
 
-    Msg("got docs from:\n\t" .. file.path)
+    Msg("\n" .. file.path)
 
     local subPath, filename = moduleHeader.subPath:match("(.*)[\\/]([^\\/]+)")
     filename = filename .. ".md"
@@ -78,7 +83,7 @@ Scythe.wrapErrors(function()
     local writeFolder = docsPath..subPath
     local writePath = writeFolder.."/"..filename
 
-    local mdHeader = Md.parseHeader(moduleHeader):concat("\n")
+    local mdHeader = Md.parseHeader(moduleHeader)
 
     local mdSegments = docSegments
       and docSegments:orderedMap(function(segment)
@@ -100,3 +105,5 @@ Scythe.wrapErrors(function()
   writeFile(docsPath, "_sidebar.md", sidebar)
   Msg("wrote: " .. docsPath .. "_sidebar.md")
 end)
+
+Msg("Doc parser finished")
