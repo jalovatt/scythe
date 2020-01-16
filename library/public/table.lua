@@ -6,12 +6,20 @@ setmetatable(Table, {__index = table})
 
 --- Sets a table's metatable to allow it to access both the Table module and
 -- Lua's native table functions via : syntax.
+--
+-- Because Lua allows function calls to omit parentheses when only one argument
+-- is present, this allows tables to be created and passed to Table.T with a very
+-- clean syntax:
 -- ```
+-- local T = require("public.table").T
+--
 -- local myTable = T{3, 1, 5, 2, 4}
+--
 -- local output = myTable
 --   :sort()
 --   :map(function(n) return n * 2 end)
 --   :stringify()
+--
 -- Msg(output) -- {2, 4, 6, 8, 10}
 -- ```
 -- @param t     table
