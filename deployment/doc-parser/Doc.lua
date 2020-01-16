@@ -81,7 +81,7 @@ function Segment:new(line)
     signature = nil,
     tags = T{},
     currentTag = {
-      type = isModule and "module" or "description",
+      type = "description",
       content = T{},
     },
     isModule = isModule,

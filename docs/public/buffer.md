@@ -2,7 +2,7 @@
 ```lua
 local Buffer = require(public.buffer)
 ```
-
+Manages the graphics buffers available to a script
 <section class="segment">
 
 ### Buffer.get([num]) :id=buffer-get

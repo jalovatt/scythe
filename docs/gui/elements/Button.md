@@ -2,7 +2,7 @@
 ```lua
 local Button = require(gui.elements.Button)
 ```
-
+It's a button. You click on it. Things happen.
 <section class="segment">
 
 ### Button:new([props]) :id=button-new
