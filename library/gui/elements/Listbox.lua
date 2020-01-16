@@ -7,7 +7,8 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 require("public.string")
 
 

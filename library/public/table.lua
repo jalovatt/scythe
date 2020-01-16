@@ -1,6 +1,5 @@
 -- NoIndex: true
 --- @module Table
--- @require local Table, T = require("public.table"):unpack()
 
 local Table = {}
 setmetatable(Table, {__index = table})
@@ -8,12 +7,17 @@ setmetatable(Table, {__index = table})
 --- Sets a table's metatable to allow it to access both the Table module and
 -- Lua's native table functions via : syntax.
 -- ```
--- local myTable = T{}
--- myTable:sort():map():stringify()
+-- local myTable = T{3, 1, 5, 2, 4}
+-- local output = myTable
+--   :sort()
+--   :map(function(n) return n * 2 end)
+--   :stringify()
+-- Msg(output) -- {2, 4, 6, 8, 10}
 -- ```
 -- @param t     table
 -- @return      table   The original table reference
-local T = function(t) return setmetatable(t, {__index = Table}) end
+Table.T = function(t) return setmetatable(t, {__index = Table}) end
+local T = Table.T
 
 --- Iterates over a given table, passing each entry to the callback.
 --
@@ -572,4 +576,4 @@ Table.zip = function(...)
   return tOut
 end
 
-return T{Table, T}
+return Table

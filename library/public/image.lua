@@ -3,7 +3,8 @@
 
 local Buffer = require("public.buffer")
 local File = require("public.file")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local validExtensions = {
   png = true,

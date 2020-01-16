@@ -1,6 +1,7 @@
 -- NoIndex: true
 
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local Element = T{}
 Element.__index = Element

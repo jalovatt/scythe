@@ -9,7 +9,7 @@ local GFX = require("public.gfx")
 local Text = require("public.text")
 local Const = require("public.const")
 local Config = require("gui.config")
-local _, T = require("public.table"):unpack()
+local T = require("public.table").T
 require("public.string")
 
 local TextUtils = require("gui.elements.shared.text")

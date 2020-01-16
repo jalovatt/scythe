@@ -8,7 +8,7 @@ end
 local Error = require("public.error")
 
 local GUI = {}
-local T = require("public.table")[2]
+local T = require("public.table").T
 local Layer = require("gui.layer")
 local Window = require("gui.window")
 

@@ -1,6 +1,7 @@
 # Table
 ```lua
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 ```
 
 <section class="segment">

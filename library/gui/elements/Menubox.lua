@@ -9,7 +9,7 @@ local GFX = require("public.gfx")
 local Text = require("public.text")
 local Menu = require("public.menu")
 local Config = require("gui.config")
-local _, T = require("public.table"):unpack()
+local T = require("public.table").T
 
 local Menubox = require("gui.element"):new()
 Menubox.__index = Menubox

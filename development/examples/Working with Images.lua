@@ -18,7 +18,8 @@ loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 local Image = require("public.image")
 local Sprite = require("public.sprite")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local buttonImages = Image.loadFolder(Scythe.getContext().scriptPath .. "Working with Images/grid")
 

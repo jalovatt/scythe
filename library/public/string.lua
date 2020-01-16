@@ -4,7 +4,7 @@
 -- be called on strings via `:` syntax. This is done when the module is loaded,
 -- so it simply has to be required for all strings in the current scope to benefit.
 
-local T = require("public.table")[2]
+local T = require("public.table").T
 
 local String = {}
 setmetatable(String, {__index = getmetatable("")})

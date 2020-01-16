@@ -8,7 +8,8 @@ loadfile(libPath .. "scythe.lua")({ dev = true, printErrors = true })
 
 local Doc = require("doc-parser.Doc")
 local Md = require("doc-parser.Md")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 local File = require("public.file")
 
 local sidebarTemplate = require("doc-parser.templates.sidebar")

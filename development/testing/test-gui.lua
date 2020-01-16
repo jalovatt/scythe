@@ -11,7 +11,8 @@ if not libPath or libPath == "" then
 end
 loadfile(libPath .. "scythe.lua")({dev = true})
 local GUI = require("gui.core")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 local Test = require("testing.lib.core")
 local Menu = require("public.menu")
 local testFile = Scythe.getContext().scriptPath

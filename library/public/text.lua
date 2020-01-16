@@ -5,7 +5,8 @@ local Font = require("public.font")
 local Color = require("public.color")
 local Config = require("gui.config")
 require("public.string")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local Text = {}
 
