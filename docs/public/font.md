@@ -1,9 +1,8 @@
-<section class="segment">
+# Font
+```lua
+local Font = require(public.font)
+```
 
-### Font :id=font
-
-
-</section>
 <section class="segment">
 
 ### Font.addFonts(fonts) :id=font-addfonts

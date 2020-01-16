@@ -1,9 +1,8 @@
-<section class="segment">
+# File
+```lua
+local File = require(public.file)
+```
 
-### File :id=file
-
-
-</section>
 <section class="segment">
 
 ### File.files(path[, idx]) :id=file-files

@@ -1,9 +1,8 @@
-<section class="segment">
+# Text
+```lua
+local Text = require(public.text)
+```
 
-### Text :id=text
-
-
-</section>
 <section class="segment">
 
 ### Text.initTextWidth() :id=text-inittextwidth

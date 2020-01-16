@@ -1,23 +1,8 @@
-<section class="segment">
+# Button
+```lua
+local Button = require(gui.elements.Button)
+```
 
-### Button :id=button
-
-
-| **Optional** | []() | []() |
-| --- | --- | --- |
-| x | number | Horizontal distance from the left side of the window, in pixels |
-| y | number | Vertical distance from the top of the window, in pixels |
-| w | number | Width, in pixels |
-| h | number | Height, in pixels |
-| caption | string |  |
-| font | number | A font preset |
-| textColor | string&#124;table | A color preset |
-| fillColor | string&#124;table | A color preset |
-| func | function | Function to execute when the button is clicked. |
-| params | array | Arguments that will be unpacked and passed to `func`. i.e. ```lua func = function(a, b, c) end, params = {1, 2, 3}, ``` |
-| rightFunc | function | Function to execute when the button is right-clicked. |
-
-</section>
 <section class="segment">
 
 ### Button:new([props]) :id=button-new

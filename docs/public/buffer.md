@@ -1,9 +1,8 @@
-<section class="segment">
+# Buffer
+```lua
+local Buffer = require(public.buffer)
+```
 
-### Buffer :id=buffer
-
-
-</section>
 <section class="segment">
 
 ### Buffer.get([num]) :id=buffer-get

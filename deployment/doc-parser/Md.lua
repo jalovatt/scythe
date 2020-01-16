@@ -9,30 +9,34 @@ local paramTemplate = function (param)
   return "| " .. param.name .. " | " .. param.type .. (param.description and (" | " .. param.description .. " |") or " |   |")
 end
 
-local tagTemplates = T{}
-tagTemplates.module = {
-  header = nil,
-  item = function (desc) return desc end,
+local tagTemplates = T{
+  module = {
+    header = nil,
+    item = function (desc) return desc end,
+  },
+  require = {
+    header = nil,
+    item = function (req) return req end,
+  },
+  description = {
+    header = nil,
+    item = function (desc) return desc end,
+  },
+  param = {
+    header = "| **Required** | []() | []() |\n| --- | --- | --- |",
+    item = paramTemplate,
+  },
+  option = {
+    header = "| **Optional** | []() | []() |\n| --- | --- | --- |",
+    item = paramTemplate,
+  },
+  ["return"] = {
+    header = "| **Returns** | []() |\n| --- | --- |",
+    item = function (ret)
+      return "| " .. ret.type .. (ret.description and (" | " .. ret.description .. " |") or " |   |")
+    end,
+  }
 }
-tagTemplates.description = {
-  header = nil,
-  item = function (desc) return desc end,
-}
-tagTemplates.param = {
-  header = "| **Required** | []() | []() |\n| --- | --- | --- |",
-  item = paramTemplate,
-}
-tagTemplates.option = {
-  header = "| **Optional** | []() | []() |\n| --- | --- | --- |",
-  item = paramTemplate,
-}
-tagTemplates["return"] = {
-  header = "| **Returns** | []() |\n| --- | --- |",
-  item = function (ret)
-    return "| " .. ret.type .. (ret.description and (" | " .. ret.description .. " |") or " |   |")
-  end,
-}
-
 function Md.parseTags(tags)
   return tags:reduce(function(acc, tagArr, tagType)
     if #tagArr == 0 then return acc end
@@ -102,19 +106,17 @@ function Md.parseSegment(name, signature, tags)
 end
 
 function Md.parseHeader(header)
-  return Md.parseSegment(header.name, header.name, header.tags)
-  -- Msg(header.description)
-  -- local out = T{
-  --   "# " .. header.name,
-  --   "```lua",
-  --   header.tags.require
-  --     and header.tags.require:concat("\n")
-  --     or ("local " .. header.name .. " = require(" .. header.requirePath .. ")"),
-  --   "```",
-  --   header.tags.description and header.tags.description:concat("\n") or "",
-  -- }
+  local out = T{
+    "# " .. header.name,
+    "```lua",
+    header.tags.require
+      and header.tags.require:concat("\n")
+      or ("local " .. header.name .. " = require(" .. header.requirePath .. ")"),
+    "```",
+    header.tags.description and header.tags.description:concat("\n") or "",
+  }
 
-  -- return out
+  return out:concat("\n")
 end
 
 return Md

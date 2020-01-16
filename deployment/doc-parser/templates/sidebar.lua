@@ -1,8 +1,7 @@
 return {
   [[
 - Getting Started[](/)
-- GUI
-  - Elements]],
+- GUI Elements]],
   { path = "gui/elements", indent = 4 },
   [[
 - GUI Modules

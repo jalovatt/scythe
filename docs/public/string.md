@@ -1,9 +1,8 @@
-<section class="segment">
+# String
+```lua
+local String = require(public.string)
+```
 
-### String :id=string
-
-
-</section>
 <section class="segment">
 
 ### String.split(s[, separator]) :id=string-split

@@ -1,9 +1,19 @@
 - Getting Started[](/)
-- GUI
-  - Elements
+- GUI Elements
     - [Button](gui/elements/Button.md)
 - GUI Modules
 - Public Modules
+    - [Buffer](public/buffer.md)
+    - [Color](public/color.md)
+    - [Text](public/text.md)
+    - [String](public/string.md)
+    - [File](public/file.md)
+    - [Font](public/font.md)
+    - [Table](public/table.md)
+    - [Math](public/math.md)
+    - [Error](public/error.md)
+    - [GFX](public/gfx.md)
+    - [Image](public/image.md)
 - Utilities
   - [Testing](testing.md)
   - [Doc Parser](doc-parser.md)
