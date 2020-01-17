@@ -7,11 +7,10 @@
 -- @option textColor string|table A color preset
 -- @option fillColor string|table A color preset
 -- @option func function Function to execute when the button is clicked.
--- @option params array Arguments that will be unpacked and passed to `func`. i.e.
--- ```lua
--- func = function(a, b, c) end,
--- params = {1, 2, 3},
--- ```
+-- @option params array Arguments that will be unpacked and passed to `func`:
+--
+-- `func = function(a, b, c) end`<br/>
+-- `params = {1, 2, 3}`
 -- @option rightFunc function Function to execute when the button is right-clicked.
 
 local Buffer = require("public.buffer")

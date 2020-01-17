@@ -117,6 +117,27 @@ function Md.parseHeader(header)
     header.tags.description and header.tags.description:concat("\n") or "",
   }
 
+  if header.name == "Button" then
+    Msg(Table.stringify(header.tags))
+  end
+
+  local parsedTags = Md.parseTags(header.tags)
+
+  if parsedTags.param then
+    out:insert("")
+    out:insert(parsedTags.param)
+  end
+
+  if parsedTags.option then
+    out:insert("")
+    out:insert(parsedTags.option)
+  end
+
+  if parsedTags["return"] then
+    out:insert("")
+    out:insert(parsedTags["return"])
+  end
+
   return out:concat("\n")
 end
 
