@@ -1,10 +1,10 @@
-- Getting Started[](/)
-- GUI Elements
+- [Getting Started](/)
+- [GUI Elements](/gui/)
     - [Radio](gui/elements/Radio.md)
     - [Button](gui/elements/Button.md)
     - [Checklist](gui/elements/Checklist.md)
 - GUI Modules
-- Public Modules
+- [Public Modules](/public/)
     - [Color](public/color.md)
     - [String](public/string.md)
     - [Sprite](public/sprite.md)
