@@ -1,7 +1,7 @@
 -- NoIndex: true
 
 --[[
-	Scythe example
+  Scythe example
 
   - Using images in a script
 
@@ -18,7 +18,8 @@ loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
 local Image = require("public.image")
 local Sprite = require("public.sprite")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local buttonImages = Image.loadFolder(Scythe.getContext().scriptPath .. "Working with Images/grid")
 
@@ -44,10 +45,6 @@ end
 
 function ILabel:init()
   self.sprite = Sprite:new({
-    frame = {
-      w = self.w,
-      h = self.h,
-    },
     image = self.image,
     drawBounds = true,
   })
@@ -94,8 +91,7 @@ end
 function IButton:init()
   self.sprite = Sprite:new({})
   self.sprite:setImage(self.image)
-  self.sprite.frame.w = self.w
-  self.sprite.frame.h = self.h
+  self.sprite.frame = { w = self.w, h = self.h }
   if not self.sprite.image then error("IButton: The specified image was not found") end
 end
 
@@ -126,19 +122,19 @@ function IButton:onMouseDown()
 end
 
 function IButton:onMouseUp(state)
-	self.state = 0
+  self.state = 0
 
-	if self:containsPoint(state.mouse.x, state.mouse.y) then
+  if self:containsPoint(state.mouse.x, state.mouse.y) then
 
-		self:func(table.unpack(self.params))
+    self:func(table.unpack(self.params))
 
-	end
-	self:redraw()
+  end
+  self:redraw()
 end
 
 function IButton:onDoubleclick()
 
-	self.state = 0
+  self.state = 0
 
 end
 

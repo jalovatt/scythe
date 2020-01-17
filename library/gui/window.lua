@@ -2,7 +2,8 @@
 
 -- Available event hooks: onResize, onMouseMove
 
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 local Color = require("public.color")
 local Font = require("public.font")
 local Math = require("public.math")
@@ -226,8 +227,8 @@ function Window:handleWindowEvents()
 
   -- Window closed
   if (state.kb.char == 27 and not (  state.kb.ctrl
-                              or 	state.kb.shift
-                              or 	state.kb.alt))
+                              or  state.kb.shift
+                              or  state.kb.alt))
     or state.kb.char == -1
     or Scythe.quit == true then
 
@@ -476,10 +477,10 @@ end
 Returns x,y coordinates for a window with the specified anchor position
 
 If no anchor is specified, it will default to the top-left corner of the screen.
-    x,y		offset coordinates from the anchor position
-    w,h		window dimensions
-    anchor	"screen" or "mouse"
-    corner	"TL"
+    x,y   offset coordinates from the anchor position
+    w,h   window dimensions
+    anchor  "screen" or "mouse"
+    corner  "TL"
             "T"
             "TR"
             "R"
@@ -505,15 +506,15 @@ function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
   local cx, cy = 0, 0
   if corner then
     local corners = {
-        TL = 	{0, 				      0},
-        T =		{(aw - w) / 2, 		0},
-        TR = 	{(aw - w) - 16,		0},
-        R =		{(aw - w) - 16,		(ah - h) / 2},
-        BR = 	{(aw - w) - 16,		(ah - h) - 40},
-        B =		{(aw - w) / 2, 		(ah - h) - 40},
-        BL = 	{0, 				      (ah - h) - 40},
-        L =	 	{0, 				      (ah - h) / 2},
-        C =	 	{(aw - w) / 2,		(ah - h) / 2},
+        TL =  {0,               0},
+        T =   {(aw - w) / 2,    0},
+        TR =  {(aw - w) - 16,   0},
+        R =   {(aw - w) - 16,   (ah - h) / 2},
+        BR =  {(aw - w) - 16,   (ah - h) - 40},
+        B =   {(aw - w) / 2,    (ah - h) - 40},
+        BL =  {0,               (ah - h) - 40},
+        L =   {0,               (ah - h) / 2},
+        C =   {(aw - w) / 2,    (ah - h) / 2},
     }
 
     cx, cy = table.unpack(corners[string.upper(corner)])

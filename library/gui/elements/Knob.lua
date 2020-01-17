@@ -42,7 +42,7 @@ local KNOB_RANGE_RADIANS = 3 / 2
 local KNOB_ANGLE_OFFSET_RADIANS = -5 / 4
 
 function Knob:new(props)
-	local knob = self:addDefaultProps(props)
+  local knob = self:addDefaultProps(props)
 
   setmetatable(knob, self)
   knob:recalculateInternals()
@@ -66,68 +66,68 @@ end
 
 function Knob:init()
 
-	self.buffer = self.buffer or Buffer.get()
+  self.buffer = self.buffer or Buffer.get()
 
-	gfx.dest = self.buffer
-	gfx.setimgdim(self.buffer, -1, -1)
+  gfx.dest = self.buffer
+  gfx.setimgdim(self.buffer, -1, -1)
 
-	-- Figure out the points of the triangle
-	local r = self.w / 2
-	local tipRadius = r * 1.5
-	local currentAngle = 0
-	local o = tipRadius + 1
+  -- Figure out the points of the triangle
+  local r = self.w / 2
+  local tipRadius = r * 1.5
+  local currentAngle = 0
+  local o = tipRadius + 1
 
-	local w = 2 * tipRadius + 2
+  local w = 2 * tipRadius + 2
 
-	local sideAngle = (math.acos(0.666667) / Const.PI) * 0.9
+  local sideAngle = (math.acos(0.666667) / Const.PI) * 0.9
 
-	local Ax, Ay = Math.polarToCart(currentAngle, tipRadius, o, o)
+  local Ax, Ay = Math.polarToCart(currentAngle, tipRadius, o, o)
   local Bx, By = Math.polarToCart(currentAngle + sideAngle, r - 1, o, o)
-	local Cx, Cy = Math.polarToCart(currentAngle - sideAngle, r - 1, o, o)
+  local Cx, Cy = Math.polarToCart(currentAngle - sideAngle, r - 1, o, o)
 
   gfx.setimgdim(self.buffer, 2*w, w)
 
-	-- Head
-	Color.set(self.headColor)
-	GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
-	Color.set("elementOutline")
-	GFX.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
+  -- Head
+  Color.set(self.headColor)
+  GFX.triangle(true, Ax, Ay, Bx, By, Cx, Cy)
+  Color.set("elementOutline")
+  GFX.triangle(false, Ax, Ay, Bx, By, Cx, Cy)
 
-	-- Body
-	Color.set(self.bodyColor)
-	gfx.circle(o, o, r, 1)
-	Color.set("elementOutline")
-	gfx.circle(o, o, r, 0)
+  -- Body
+  Color.set(self.bodyColor)
+  gfx.circle(o, o, r, 1)
+  Color.set("elementOutline")
+  gfx.circle(o, o, r, 0)
 
-	--gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
-	gfx.blit(self.buffer, 1, 0, 0, 0, w, w, w + 1, 0)
-	gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, Color.colors.shadow[4])
+  --gfx.blit(source, scale, rotation[, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs] )
+  gfx.blit(self.buffer, 1, 0, 0, 0, w, w, w + 1, 0)
+  gfx.muladdrect(w + 1, 0, w, w, 0, 0, 0, Color.colors.shadow[4])
 
 end
 
 
 function Knob:onDelete()
 
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 
 end
 
 
 function Knob:draw()
-	local r = self.w / 2
-	local o = {x = self.x + r, y = self.y + r}
+  local r = self.w / 2
+  local o = {x = self.x + r, y = self.y + r}
 
-	-- Value labels
-	if self.showValues then self:drawValues(o, r) end
+  -- Value labels
+  if self.showValues then self:drawValues(o, r) end
 
   if self.caption and self.caption ~= "" then self:drawCaption(o, r) end
 
 
-	-- Figure out where the knob is pointing
-	local currentAngle = KNOB_ANGLE_OFFSET_RADIANS + (self.currentStep * self.stepAngle)
+  -- Figure out where the knob is pointing
+  local currentAngle = KNOB_ANGLE_OFFSET_RADIANS + (self.currentStep * self.stepAngle)
 
-	local blitWidth = 3 * r + 2
-	local blitX = 1.5 * r
+  local blitWidth = 3 * r + 2
+  local blitX = 1.5 * r
 
   -- Shadow
   if Config.drawShadows then
@@ -140,8 +140,8 @@ function Knob:draw()
     end
   end
 
-	-- Body
-	gfx.blit(   self.buffer, 1, currentAngle * Const.PI,
+  -- Body
+  gfx.blit(   self.buffer, 1, currentAngle * Const.PI,
               0, 0, blitWidth, blitWidth,
               o.x - blitX - 1, o.y - blitX - 1)
 
@@ -150,14 +150,14 @@ end
 
 function Knob:val(newval)
 
-	if newval then
+  if newval then
 
     self:setCurrentStep(newval)
-		self:redraw()
+    self:redraw()
 
-	else
-		return self.retval
-	end
+  else
+    return self.retval
+  end
 
 end
 
@@ -166,18 +166,18 @@ function Knob:onDrag(state, last)
   if state.preventDefault then return end
 
   -- Ctrl?
-	local ctrl = state.kb.ctrl
+  local ctrl = state.kb.ctrl
 
-	-- Multiplier for how fast the knob turns. Higher = slower
-	--					Ctrl	Normal
-	local adj = ctrl and 1200 or 150
+  -- Multiplier for how fast the knob turns. Higher = slower
+  --          Ctrl  Normal
+  local adj = ctrl and 1200 or 150
 
   local pctChange = (last.mouse.y - state.mouse.y) / adj
   local newPct = Math.clamp(self.currentPct + pctChange, 0, 1)
 
   self:setCurrentPct(newPct)
 
-	self:redraw()
+  self:redraw()
 end
 
 
@@ -185,20 +185,20 @@ function Knob:onDoubleClick(state)
   if state.preventDefault then return end
 
   self:setCurrentStep(self.default)
-	self:redraw()
+  self:redraw()
 end
 
 
 function Knob:onWheel(state)
   if state.preventDefault then return end
 
-	local ctrl = state.kb.ctrl
+  local ctrl = state.kb.ctrl
 
-	-- How many steps per wheel-step
-	local fine = 1
-	local coarse = math.max( Math.round(self.steps / 30), 1)
+  -- How many steps per wheel-step
+  local fine = 1
+  local coarse = math.max( Math.round(self.steps / 30), 1)
 
-	local adj = ctrl and fine or coarse
+  local adj = ctrl and fine or coarse
 
   local currentPct = self:percentFromStep(self.currentStep)
   local pctChange = state.mouse.wheelInc * adj / self.steps
@@ -206,7 +206,7 @@ function Knob:onWheel(state)
 
   self:setCurrentStep(self:stepFromPercent(newPct))
 
-	self:redraw()
+  self:redraw()
 
 end
 
@@ -221,13 +221,13 @@ function Knob:drawCaption(o, r)
 
   local cx, cy = Math.polarToCart(1/2, r * 2, o.x, o.y)
 
-	Font.set(self.captionFont)
+  Font.set(self.captionFont)
   local strWidth, strHeight = gfx.measurestr(self.caption)
 
   gfx.x, gfx.y = cx - strWidth / 2 + self.captionX, cy - strHeight / 2  + 8 + self.captionY
 
-	Text.drawBackground(self.caption, self.bg)
-	Text.drawWithShadow(self.caption, self.textColor, "shadow")
+  Text.drawBackground(self.caption, self.bg)
+  Text.drawWithShadow(self.caption, self.textColor, "shadow")
 
 end
 

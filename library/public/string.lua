@@ -1,7 +1,10 @@
 -- NoIndex: true
--- @module
+--- @module String
+-- This module overrides the `string` type's metatable so that its methods can
+-- be called on strings via `:` syntax. This is done when the module is loaded,
+-- so it simply has to be required for all strings in the current scope to benefit.
 
-local T = require("public.table")[2]
+local T = require("public.table").T
 
 local String = {}
 setmetatable(String, {__index = getmetatable("")})
@@ -33,14 +36,14 @@ String.split = function(s, separator)
   return out
 end
 
-local linesPattern = "([^\r\n]*)\r?\n?"
+String.linesPattern = "([^\r\n]*)\r?\n?"
 
 --- Splits a string at each new line
 -- @param s string
 -- @return array A list of split strings
 String.splitLines = function(s)
   local out = T{}
-  for line in s:gmatch(linesPattern) do
+  for line in s:gmatch(String.linesPattern) do
     out[#out + 1] = line
   end
 

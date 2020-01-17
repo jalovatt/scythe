@@ -1,12 +1,8 @@
 -- NoIndex: true
 
 --[[
-  Scythe example
-
-  - General demonstration
-  - Tabs and layer sets
-  - Accessing elements' parameters
-
+  An example of how Scythe scripts work in a general sense, how to use tabs, and
+  how to access elements' parameters
 ]]--
 
 -- The core library must be loaded prior to anything else
@@ -16,10 +12,10 @@ if not libPath or libPath == "" then
     return
 end
 
+-- This line needs to use loadfile; anything afterward can be required
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
-
-
+local Table = require("public.table")
 
 
 ------------------------------------
@@ -30,26 +26,26 @@ local GUI = require("gui.core")
 local layers
 
 local fadeElm, fadeLayer
-local function fade_lbl()
-
+local function toggleLabelFade()
   if fadeElm.layer then
+    -- Label:fade(len, dest, curve)
+    -- len = time in seconds
+    -- dest = destination layer
+    -- curve = sharpness of the fade; negative values will fade in instead
     fadeElm:fade(1, nil, 6)
   else
     fadeElm:fade(1, fadeLayer, -6)
   end
-
 end
-
 
 
 -- Returns a list of every element in the specified z-layer and
 -- a second list of each element's values
 local function getValuesForLayer(layerNum)
-
   -- The '+ 2' here is just to translate from a tab number to its' associated
-  -- layer, since this script has few enough elements that there's only one
-  -- layer per tab. More complicated scripts would have to actually access the
-  -- Tabs element's layer list and iterate over the table's contents directly
+  -- layer, since there are a couple of static layers we need to skip over.
+  -- More complicated scripts might have to access the Tabs element's layer list
+  -- and iterate over the contents directly.
 
   local layer = layers[layerNum + 2]
 
@@ -57,11 +53,14 @@ local function getValuesForLayer(layerNum)
   local val
 
   for key, elm in pairs(layer.elements) do
-
     if elm.val then
       val = elm:val()
     else
       val = "n/a"
+    end
+
+    if type(val) == "table" then
+      val = "{\n" .. Table.stringify(val) .. "\n}"
     end
 
     values[#values + 1] = key .. ": " .. tostring(val)
@@ -77,8 +76,6 @@ local function btnClick()
   local msg = getValuesForLayer(tab)
   reaper.ShowMessageBox(msg, "Yay!", 0)
 end
-
-
 
 
 ------------------------------------
@@ -105,8 +102,6 @@ layers = table.pack( GUI.createLayers(
 ))
 
 window:addLayers(table.unpack(layers))
-
-
 
 
 ------------------------------------
@@ -139,7 +134,7 @@ layers[1]:addElements( GUI.createElements(
     pad = 16
   },
   {
-    name = "my_btn",
+    name = "btnGo",
     type = "Button",
     x = 168,
     y = 28,
@@ -149,7 +144,7 @@ layers[1]:addElements( GUI.createElements(
     func = btnClick
   },
   {
-    name = "btn_frm",
+    name = "frmDivider",
     type = "Frame",
     x = 0,
     y = 56,
@@ -160,7 +155,7 @@ layers[1]:addElements( GUI.createElements(
 
 layers[2]:addElements( GUI.createElement(
   {
-    name = "tab_bg",
+    name = "frmTabBackground",
     type = "Frame",
     x = 0,
     y = 0,
@@ -170,21 +165,21 @@ layers[2]:addElements( GUI.createElement(
 ))
 
 
-
 ------------------------------------
 -------- Tab 1 Elements ------------
 ------------------------------------
 
+
 layers[3]:addElements( GUI.createElements(
   {
-    name = "my_lbl",
+    name = "label",
     type = "Label",
     x = 256,
     y = 96,
     caption = "Label!"
   },
   {
-    name = "my_knob",
+    name = "knobVolume",
     type = "Knob",
     x = 64,
     y = 112,
@@ -193,7 +188,7 @@ layers[3]:addElements( GUI.createElements(
     vals = false,
   },
   {
-    name = "my_mnu",
+    name = "mnuOptions",
     type = "Menubox",
     x = 256,
     y = 176,
@@ -203,17 +198,17 @@ layers[3]:addElements( GUI.createElements(
     options = {"1","2","3","4","5","6.12435213613"}
   },
   {
-    name = "my_btn2",
+    name = "btnFade",
     type = "Button",
     x = 256,
     y = 256,
     w = 64,
     h = 20,
     caption = "Click me!",
-    func = fade_lbl,
+    func = toggleLabelFade,
   },
   {
-    name = "my_txt",
+    name = "textbox",
     type = "Textbox",
     x = 96,
     y = 224,
@@ -222,7 +217,7 @@ layers[3]:addElements( GUI.createElements(
     caption = "Text:",
   },
   {
-    name = "my_frm",
+    name = "frmText",
     type = "Frame",
     x = 16,
     y = 288,
@@ -233,7 +228,7 @@ layers[3]:addElements( GUI.createElements(
             "it will be wrapped correctly to fit inside this frame"
   },
   {
-    name = "my_picker",
+    name = "picker",
     type = "ColorPicker",
     x = 320,
     y = 300,
@@ -243,32 +238,31 @@ layers[3]:addElements( GUI.createElements(
   }
 ))
 
-fadeElm = GUI.findElementByName("my_lbl")
+fadeElm = GUI.findElementByName("label")
 fadeLayer = fadeElm.layer
 
--- We have too many values to be legible if we draw them all; we'll disable them, and
--- have the knob's caption update itself to show the value instead.
-local my_knob = GUI.findElementByName("my_knob")
-function my_knob:redraw()
-
-    getmetatable(self).redraw(self)
-    self.caption = self.retval .. "dB"
-
+-- We have too many values to be legible if we draw them all; we'll disable them
+-- and have the knob's caption update itself to show the value instead.
+local knobVolume = GUI.findElementByName("knobVolume")
+function knobVolume:redraw()
+  -- This grabs the knob's prototype - the Knob class - so we can use the original
+  -- redraw method.
+  getmetatable(self).redraw(self)
+  self.caption = self.retval .. "dB"
 end
 
 -- Make sure it shows the value right away
-my_knob:redraw()
-
-
+knobVolume:redraw()
 
 
 ------------------------------------
 -------- Tab 2 Elements ------------
 ------------------------------------
 
+
 layers[4]:addElements( GUI.createElements(
   {
-    name = "my_rng",
+    name = "sldrRange",
     type = "Slider",
     x = 32,
     y = 128,
@@ -279,7 +273,7 @@ layers[4]:addElements( GUI.createElements(
     defaults = {5, 10, 15, 20, 25}
   },
   {
-    name = "my_pan",
+    name = "sldrPan",
     type = "Slider",
     x = 32,
     y = 192,
@@ -298,7 +292,7 @@ layers[4]:addElements( GUI.createElements(
     end
   },
   {
-    name = "my_sldr",
+    name = "sldrBoring",
     type = "Slider",
     x = 80,
     y = 256,
@@ -312,7 +306,7 @@ layers[4]:addElements( GUI.createElements(
     output = "Value: %val%",
   },
   {
-    name = "my_dec",
+    name = "sldrDecimals",
     type = "Slider",
     x = 192,
     y = 256,
@@ -325,7 +319,7 @@ layers[4]:addElements( GUI.createElements(
     horizontal = false,
   },
   {
-    name = "my_rng2",
+    name = "sldrVerticalRange",
     type = "Slider",
     x = 352,
     y = 96,
@@ -339,7 +333,6 @@ layers[4]:addElements( GUI.createElements(
 ))
 
 
-
 ------------------------------------
 -------- Tab 3 Elements ------------
 ------------------------------------
@@ -347,7 +340,7 @@ layers[4]:addElements( GUI.createElements(
 
 layers[5]:addElements( GUI.createElements(
   {
-    name = "my_chk",
+    name = "chkNames",
     type = "Checklist",
     x = 32,
     y = 96,
@@ -358,7 +351,7 @@ layers[5]:addElements( GUI.createElements(
     dir = "v"
   },
   {
-    name = "my_opt",
+    name = "optFoods",
     type = "Radio",
     x = 200,
     y = 96,
@@ -371,7 +364,7 @@ layers[5]:addElements( GUI.createElements(
     tooltip = "Well hey there!"
   },
   {
-    name = "my_chk2",
+    name = "chkNames2",
     type = "Checklist",
     x = 32,
     y = 280,
@@ -383,7 +376,7 @@ layers[5]:addElements( GUI.createElements(
     swap = true
   },
   {
-    name = "my_opt2",
+    name = "optNotes",
     type = "Radio",
     x = 32,
     y = 364,
@@ -394,8 +387,6 @@ layers[5]:addElements( GUI.createElements(
     horizontal = true,
   }
 ))
-
-
 
 
 ------------------------------------

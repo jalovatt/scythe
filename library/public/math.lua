@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+--- @module Math
 
 local math = math
 

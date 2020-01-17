@@ -1,11 +1,12 @@
 -- NoIndex: true
--- @module
+--- @module Text
 
 local Font = require("public.font")
 local Color = require("public.color")
 local Config = require("gui.config")
 require("public.string")
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local Text = {}
 
@@ -117,7 +118,7 @@ Text.wrapText = function (str, font, w, indent, pad)
 
   local widthPad = pad and Text.getTextWidth( string.sub(str, 1, pad), font )
                        or 0
-  local newLine = "\n"..string.rep(" ", math.floor(widthPad / space)	)
+  local newLine = "\n"..string.rep(" ", math.floor(widthPad / space))
 
   str:splitLines():forEach(function(line)
 
@@ -207,7 +208,7 @@ Text.drawWithOutline = function (str, textColor, outlineColor)
 end
 
 
----	Draws a background rectangle for a given string. A solid background is
+--- Draws a background rectangle for a given string. A solid background is
 -- necessary for blitting some elements; antialiased text with a transparent
 -- background looks terrible. This function draws a rectangle 2px larger than
 -- the text on all sides.

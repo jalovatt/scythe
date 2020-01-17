@@ -1,9 +1,9 @@
 -- NoIndex: true
 
 --[[
-	Scythe example
+  Scythe example
 
-	- Demonstration of the Listbox, Menubar, and TextEditor classes
+  - Demonstration of the Listbox, Menubar, and TextEditor classes
 
 ]]--
 

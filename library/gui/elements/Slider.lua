@@ -234,7 +234,7 @@ function Slider:onDrag(state, last)
   local ctrl = state.kb.ctrl
 
   -- A multiplier for how fast the slider should move. Higher values = slower
-  --						Ctrl							Normal
+  --            Ctrl              Normal
   local adj = ctrl and math.max(1200, (8*self.steps)) or 150
   local adjustedScale = (self.horizontal and self.w or self.h) / 150
   adj = adj * adjustedScale

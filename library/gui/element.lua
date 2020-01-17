@@ -1,6 +1,7 @@
 -- NoIndex: true
 
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local Element = T{}
 Element.__index = Element
@@ -122,8 +123,8 @@ end
 -- If no coords are given, will use the mouse cursor
 function Element:containsPoint (x, y)
 
-  return	(	x >= (self.x or 0) and x < ((self.x or 0) + (self.w or 0)) and
-            y >= (self.y or 0) and y < ((self.y or 0) + (self.h or 0))	)
+  return  ( x >= (self.x or 0) and x < ((self.x or 0) + (self.w or 0)) and
+            y >= (self.y or 0) and y < ((self.y or 0) + (self.h or 0)) )
 
 end
 

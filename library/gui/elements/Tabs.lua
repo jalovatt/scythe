@@ -48,11 +48,11 @@ function Tabs:new(props)
   setmetatable(tab, self)
   tab:recalculateInternals()
 
-	return tab
+  return tab
 end
 
 function Tabs:recalculateInternals()
-	-- Figure out the total size of the tab frame now that we know the
+  -- Figure out the total size of the tab frame now that we know the
   -- number of buttons, so we can do the math for clicking on it
   self.w = self:getOverallWidth()
   self.h = self.tabH
@@ -101,16 +101,16 @@ end
 
 function Tabs:onDelete()
 
-	Buffer.release(self.buffers)
+  Buffer.release(self.buffers)
 
 end
 
 
 function Tabs:draw()
 
-	local x, y = self.x + self.firstTabOffset, self.y
+  local x, y = self.x + self.firstTabOffset, self.y
   local tabW, tabH = self.tabW, self.tabH
-	local state = self.state
+  local state = self.state
 
   -- Make sure w is at least the size of the tabs.
   -- (GUI builder will let you try to set it lower)
@@ -119,8 +119,8 @@ function Tabs:draw()
     or math.max(self.w, self:getOverallWidth())
 
   -- Background
-	Color.set(self.bg)
-	gfx.rect(x - 16, y, self.w, self.h, true)
+  Color.set(self.bg)
+  gfx.rect(x - 16, y, self.w, self.h, true)
 
   -- Current tab state
   local xOffset = tabW + self.pad - tabH
@@ -132,7 +132,7 @@ function Tabs:draw()
   )
 
   -- Keep the active tab's top separate from the window background
-	Color.set(self.bg)
+  Color.set(self.bg)
   gfx.line(x + (state - 1) * xOffset, y, x + state * xOffset + 2, y, 1)
 
 end
@@ -140,15 +140,15 @@ end
 
 function Tabs:val(newval)
 
-	if newval then
-		self.state = newval
-		self.retval = self.state
+  if newval then
+    self.state = newval
+    self.retval = self.state
 
-		self:updateSets()
-		self:redraw()
-	else
-		return self.state
-	end
+    self:updateSets()
+    self:redraw()
+  else
+    return self.state
+  end
 
 end
 
@@ -171,11 +171,11 @@ function Tabs:onMouseDown(state)
 
   local mousePct = xOffset / width
 
-	local mouseOption = Math.clamp((math.floor(mousePct * #self.tabs) + 1), 1, #self.tabs)
+  local mouseOption = Math.clamp((math.floor(mousePct * #self.tabs) + 1), 1, #self.tabs)
 
-	self.state = mouseOption
+  self.state = mouseOption
 
-	self:redraw()
+  self:redraw()
 
 end
 
@@ -183,17 +183,17 @@ end
 function Tabs:onMouseUp(state)
   if state.preventDefault then return end
 
-	-- Set the new option, or revert to the original if the cursor isn't inside the list anymore
-	if self:containsPoint(state.mouse.x, state.mouse.y) then
+  -- Set the new option, or revert to the original if the cursor isn't inside the list anymore
+  if self:containsPoint(state.mouse.x, state.mouse.y) then
 
-		self.retval = self.state
-		self:updateSets()
+    self.retval = self.state
+    self:updateSets()
 
-	else
-		self.state = self.retval
-	end
+  else
+    self.state = self.retval
+  end
 
-	self:redraw()
+  self:redraw()
 
 end
 
@@ -201,8 +201,8 @@ end
 function Tabs:onDrag(state, last)
   if state.preventDefault then return end
 
-	self:onMouseDown(state, last)
-	self:redraw()
+  self:onMouseDown(state, last)
+  self:redraw()
 
 end
 
@@ -210,14 +210,14 @@ end
 function Tabs:onWheel(state)
   if state.preventDefault then return end
 
-	self.state = Math.round(self.state + state.mouse.wheelInc)
+  self.state = Math.round(self.state + state.mouse.wheelInc)
 
-	if self.state < 1 then self.state = 1 end
-	if self.state > #self.tabs then self.state = #self.tabs end
+  if self.state < 1 then self.state = 1 end
+  if self.state > #self.tabs then self.state = #self.tabs end
 
-	self.retval = self.state
-	self:updateSets()
-	self:redraw()
+  self.retval = self.state
+  self:updateSets()
+  self:redraw()
 
 end
 
@@ -231,7 +231,7 @@ end
 
 function Tabs:drawTab(x, y, w, h, dir, font, textColor, background, lbl)
 
-	local dist = Config.shadowSize
+  local dist = Config.shadowSize
   local y1, y2 = table.unpack(dir == "u" and  {y, y + h}
                                          or   {y + h, y})
 
@@ -263,14 +263,14 @@ function Tabs:drawTab(x, y, w, h, dir, font, textColor, background, lbl)
   self:drawTabRight(adjustedRight, 0, y1, y2, h)
   self:drawAliasingFix(adjustedX, adjustedRight, 0, y1, y2, h)
 
-	-- Draw the tab's label
-	Color.set(textColor)
-	Font.set(font)
+  -- Draw the tab's label
+  Color.set(textColor)
+  Font.set(font)
 
-	local strWidth, strHeight = gfx.measurestr(lbl)
-	gfx.x = adjustedX + ((adjustedW - strWidth) / 2)
-	gfx.y = y + ((h - strHeight) / 2)
-	gfx.drawstr(lbl)
+  local strWidth, strHeight = gfx.measurestr(lbl)
+  gfx.x = adjustedX + ((adjustedW - strWidth) / 2)
+  gfx.y = y + ((h - strHeight) / 2)
+  gfx.drawstr(lbl)
 
 end
 
@@ -304,9 +304,9 @@ end
 -- Updates visibility for any layers assigned to the tabs
 function Tabs:updateSets()
 
-	if not self.tabs or #self.tabs == 0 or #self.tabs[1].layers < 1 then return end
+  if not self.tabs or #self.tabs == 0 or #self.tabs[1].layers < 1 then return end
 
-	for i = 1, #self.tabs do
+  for i = 1, #self.tabs do
     local show = (i == self.state)
     for _, layer in pairs(self.tabs[i].layers) do
       if show then
@@ -315,7 +315,7 @@ function Tabs:updateSets()
         layer:hide()
       end
     end
-	end
+  end
 
 end
 

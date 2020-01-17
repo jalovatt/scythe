@@ -1,15 +1,10 @@
 -- NoIndex: true
 
 --[[
-	Scythe example
-
-  - The bare minimum required to display a window and some elements
-  - Elements now have defaults defined for all of their parameters, in case
-    you forget to include them or are happy with the defaults
-
+  The bare minimum required to display a window and some elements. In Scythe v3,
+  elements have defaults defined for most/all of their parameters in case you
+  forget to include them or are happy with the defaults
 ]]--
-
--- The core library must be loaded prior to anything else
 
 local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
@@ -18,8 +13,6 @@ if not libPath or libPath == "" then
 end
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
-
-
 
 
 ------------------------------------
@@ -39,17 +32,17 @@ local window = GUI.createWindow({
 ------------------------------------
 
 
-local layer = GUI.createLayer({name = "Layer1", z = 1})
+local layer = GUI.createLayer({name = "Layer1"})
 
 layer:addElements( GUI.createElements(
   {
     name = "mnu_mode",
-    type =	"Menubox",
+    type = "Menubox",
     x = 64,
   },
   {
     name = "chk_opts",
-    type =	"Checklist",
+    type = "Checklist",
     x = 192,
     y = 16,
   },
@@ -61,7 +54,7 @@ layer:addElements( GUI.createElements(
   },
   {
     name = "btn_go",
-    type =	"Button",
+    type = "Button",
     x = 168,
     y = 152,
   }

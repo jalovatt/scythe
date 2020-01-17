@@ -1,9 +1,8 @@
 -- NoIndex: true
+Scythe = {}
 
 local args = {...}
-local scytheOptions = args and args[1] or {}
-
-Scythe = {}
+Scythe.args = args and args[1] or {}
 
 Scythe.libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not Scythe.libPath or Scythe.libPath == "" then
@@ -11,14 +10,16 @@ if not Scythe.libPath or Scythe.libPath == "" then
     return
 end
 
+Scythe.libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
+
 local function addPaths()
   local paths = {
     Scythe.libPath:match("(.*[/\\])")
   }
 
-  if scytheOptions.dev then
-    local libRoot = Scythe.libPath:match("(.*[/\\])".."[^/\\]+[/\\]")
-    paths[#paths + 1] = libRoot .. "development/"
+  if Scythe.args.dev then
+    paths[#paths + 1] = Scythe.libRoot .. "development/"
+    paths[#paths + 1] = Scythe.libRoot .. "deployment/"
   end
 
   for i, path in pairs(paths) do
@@ -36,14 +37,6 @@ qMsg = qMsg or Message.queueMsg
 printQMsg = printQMsg or Message.printQueue
 
 if not os then Scythe.scriptRestricted = true end
-
-local Theme = require("gui.theme")
-
-local Color = require("public.color")
-Color.addColorsFromRgba(Theme.colors)
-
-local Font = require("public.font")
-Font.addFonts(Theme.fonts)
 
 local Error = require("public.error")
 Scythe.wrapErrors = function(fn) xpcall(fn, Error.handleError) end

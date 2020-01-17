@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+--- @module Font
 
 local Font = {}
 
@@ -13,7 +13,7 @@ Font.addFonts = function(fonts)
   end
 end
 
----	Applies a font preset.
+--- Applies a font preset.
 -- @param fontIn string|array An existing preset (`"monospace"`, `1`) or an
 -- array of font parameters: `{ fontName, size, "biu" }`.
 Font.set = function (fontIn)
@@ -43,12 +43,12 @@ end
 -- @param fontName string The name of a font.
 -- @return boolean
 Font.exists = function (fontName)
-	if type(fontName) ~= "string" then return false end
+  if type(fontName) ~= "string" then return false end
 
-	gfx.setfont(1, fontName, 10)
+  gfx.setfont(1, fontName, 10)
   local _, ret_font = gfx.getfont()
 
-	return fontName == ret_font
+  return fontName == ret_font
 end
 
 return Font

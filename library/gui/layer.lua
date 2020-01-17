@@ -1,5 +1,6 @@
 -- NoIndex: true
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 local Buffer = require("public.buffer")
 
 local Layer = T{}
@@ -8,6 +9,8 @@ Layer.__noRecursion = true
 
 function Layer:new(props)
   local layer = Table.deepCopy(props or {})
+
+  if not layer.z then layer.z = 1 end
 
   layer.elementCount = 0
   layer.elements = T{}

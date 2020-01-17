@@ -1,4 +1,19 @@
 -- NoIndex: true
+--- @module Radio
+-- A list of options from which only one can be selected.
+-- @commonParams
+-- @option caption string
+-- @option options array `{"Option 1", "Option 2", "Option 3"}`
+-- @option horizontal boolean Lays the options out horizontally (defaults to `false`)
+-- @option pad number Padding between the options (in pixels)
+-- @option bg string|table A color preset
+-- @option textColor string|table A color preset
+-- @option fillColor string|table A color preset
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option optionSize number Size of the option bubbles (in pixels)
+-- @option frame boolean Draws a frame around the list.
+-- @option shadow boolean Draws the caption and list text with shadows
 
 local Color = require("public.color")
 
@@ -20,30 +35,33 @@ end
 
 function Radio:initOptions()
 
-	local r = self.optionSize / 2
+  local r = self.optionSize / 2
 
-	-- Option bubble
-	Color.set(self.bg)
-	gfx.circle(r + 1, r + 1, r + 2, 1, 0)
-	gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
-	Color.set("elementBody")
-	gfx.circle(r + 1, r + 1, r, 0)
-	gfx.circle(3*r + 3, r + 1, r, 0)
-	Color.set(self.fillColor)
-	gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
+  -- Option bubble
+  Color.set(self.bg)
+  gfx.circle(r + 1, r + 1, r + 2, 1, 0)
+  gfx.circle(3*r + 3, r + 1, r + 2, 1, 0)
+  Color.set("elementBody")
+  gfx.circle(r + 1, r + 1, r, 0)
+  gfx.circle(3*r + 3, r + 1, r, 0)
+  Color.set(self.fillColor)
+  gfx.circle(3*r + 3, r + 1, 0.5*r, 1)
 
 end
 
 
+--- Gets or sets the selected option
+-- @option newval number The selected option
+-- @return number The selected option
 function Radio:val(newval)
 
-	if newval then
-		self.retval = newval
-		self.state = newval
-		self:redraw()
-	else
-		return self.retval
-	end
+  if newval ~= nil then
+    self.retval = newval
+    self.state = newval
+    self:redraw()
+  else
+    return self.retval
+  end
 
 end
 
@@ -51,16 +69,16 @@ end
 function Radio:onMouseDown(state)
   if state.preventDefault then return end
 
-	self.state = self:getMouseOption(state) or self.state
+  self.state = self:getMouseOption(state) or self.state
 
-	self:redraw()
+  self:redraw()
 
 end
 
 
 function Radio:onMouseUp(state)
   self.focus = false
-	self:redraw()
+  self:redraw()
 
   -- Bypass option for GUI Builder
   if state.preventDefault or not self.focus then
@@ -68,13 +86,13 @@ function Radio:onMouseUp(state)
     return
   end
 
-	-- Set the new option, or revert to the original if the cursor
+  -- Set the new option, or revert to the original if the cursor
   -- isn't inside the list anymore
-	if self:containsPoint(state.mouse.x, state.mouse.y) then
-		self.retval = self.state
-	else
-		self.state = self.retval
-	end
+  if self:containsPoint(state.mouse.x, state.mouse.y) then
+    self.retval = self.state
+  else
+    self.state = self.retval
+  end
 
 end
 
@@ -82,8 +100,8 @@ end
 function Radio:onDrag(state)
   if state.preventDefault then return end
 
-	self:onMouseDown(state)
-	self:redraw()
+  self:onMouseDown(state)
+  self:redraw()
 
 end
 
@@ -95,9 +113,9 @@ function Radio:onWheel(state)
                                       and -1
                                       or 1 )
 
-	self.retval = self.state
+  self.retval = self.state
 
-	self:redraw()
+  self:redraw()
 
 end
 

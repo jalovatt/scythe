@@ -24,7 +24,7 @@ end
 
 ## Tagging
 
-All documentation must be written as an inline (`--`) comment, followed by a space and one of several specific tags:
+All documentation must be written using inline (`--`) comments, followed by a space and one of several specific tags:
 
 ```lua
 -- @param name string A name
@@ -32,23 +32,41 @@ All documentation must be written as an inline (`--`) comment, followed by a spa
 
 Text within tags may use Markdown syntax. New lines of text will be joined with a space; for a true line break, add an empty comment line.
 
-### `@module`
+### Modules
 
-The parser will examine all `.lua` files in the repository, but will only generate documentation if an `@module` tag is found within the first 10 lines. This tag will eventually include a high-level description of the file's contents.
+#### `--- @module [name]`
 
-### `--- [description]`
+The parser will examine all `.lua` files in the repository, but will only generate documentation if a `@module` tag is found within the first 10 lines. The `name` parameter is optional; if not found, the parser will use the require path of the module (i.e. `public.table`).
+
+#### `-- [description]`
+
+If used, _must_ be immediately after the `@module` tag. Provides a high-level description of the module.
+
+#### `-- @require [require path]`
+
+By default all modules will have a `require` example generated, of the form:
+
+```lua
+local Color = require("public.color")
+```
+
+If a module has multiple returns, requires any arguments, etc, use this tag to provide an example instead.
+
+### Functions
+
+#### `--- [description]`
 
 The first line of a function's documentation _must_ begin with three dashes.
 
-### `@param [name] [type] [description]`
+#### `@param [name] [type] [description]`
 
 Parameters that are required by a function. Descriptions are usually helpful but may not be necessary in cases where the expected value is self-evident (`@param
 
-### `@option [name] [type] [description]`
+#### `@option [name] [type] [description]`
 
 Parameters that are not required by a function. If the function uses a default value, it should be noted in the description.
 
-### `@return [type] [description]`
+#### `@return [type] [description]`
 
 Values that are returned by a function. If a function can return multiple values, use a separate `@return` tag for each:
 

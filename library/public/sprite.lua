@@ -1,6 +1,23 @@
 -- NoIndex: true
+--- @module Sprite
+-- _Under construction; some functionality may be missing or broken_
+--
+-- The Sprite class simplifies a number of common image use-cases, such as
+-- working with sprite sheets (image files with multiple frames). (Only horizontal
+-- sheets are currently supported)
+-- @option translate hash Image offset values, of the form `{ x = 0, y = 0 }`
+-- @option scale number Image size muliplier
+-- @option rotate hash Rotation value, of the form `{ angle = 0, unit = "pct" }`.
+-- The available units are _pct_, _deg_, and _rad_.
+-- @option frame hash Frame dimensions, of the form `{ w = 0, h = 0 }`. Used in
+-- conjunction with the `:draw` method's `state` argument to determine the source
+-- area of the sprite's image to draw. If omitted, the entire image will be used.
+-- @option image hash An image of the form `{ path = "path/img.png", buffer = 5 }`,
+-- such as those returned by the Image module's loading functions.
+-- @option drawBounds boolean For debugging purposes. Draws a border around the
+-- image.
 
-local Table = require("public.table")[1]
+local Table = require("public.table")
 local Image = require("public.image")
 local Buffer = require("public.buffer")
 local Color = require("public.color")
@@ -38,6 +55,10 @@ function Sprite:new(props)
   return setmetatable(sprite, self)
 end
 
+--- Sets the sprite's image via filename or a graphics buffer
+-- @param val string|number If a string is passed, it will be used as a file path
+-- from which to load the image. If a number is passed, the sprite will use that
+-- graphics buffer and set its path to the image assigned there.
 function Sprite:setImage(val)
   if type(val) == "string" then
     self.image.path = val
@@ -56,15 +77,26 @@ local angleUnits = {
   pct = 2 * math.pi,
 }
 
-function Sprite:draw(x, y, state)
+--- Draws the sprite
+-- @param x number
+-- @param y number
+-- @option frame number In conjunction with the sprite's frame.w and frame.h
+-- values, determines the source area to draw. Frames are counted from left to
+-- right, starting at 0.
+function Sprite:draw(x, y, frame)
   if not self.image.buffer then
     error("Unable to draw sprite - no image has been assigned to it")
   end
 
   local rotate = self.rotate.angle * angleUnits[self.rotate.unit]
 
-  local srcX, srcY = self:getFrame(state)
-  local srcW, srcH = self.frame.w, self.frame.h
+  local srcX, srcY = self:getFrame(frame)
+  local srcW, srcH
+  if self.frame.w > 0 then
+    srcW, srcH = self.frame.w, self.frame.h
+  else
+    srcW, srcH = self.image.w, self.image.h
+  end
 
   local destX, destY = x + self.translate.x, y + self.translate.y
 
@@ -111,8 +143,10 @@ end
 
 -- Defaults to a horizontal set of frames. Override with a custom function for more
 -- complex sprite behavior.
-function Sprite:getFrame(state)
-  return (state or 0) * self.frame.w, 0
+function Sprite:getFrame(frame)
+  if self.frame.w == 0 or not frame then return 0, 0 end
+
+  return frame * self.frame.w, 0
 end
 
 return Sprite

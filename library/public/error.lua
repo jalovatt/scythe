@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+--- @module Error
 
 local Error = {}
 
@@ -38,15 +38,15 @@ Error.handleError = function (errObject)
 
   local name = ({reaper.get_action_context()})[2]:match("([^/\\_]+)$")
 
-  local ret = reaper.ShowMessageBox(
+  if Scythe.args.printErrors or (
+    reaper.ShowMessageBox(
       name.." has crashed!\n\n"..
       "Would you like to have a crash report printed "..
       "to the Reaper console?",
       "Oops",
       4
-    )
-
-  if ret == 6 then
+    ) == 6
+  ) then
     reaper.ShowConsoleMsg(
       "Error: "..err.."\n\n"..
       "Stack traceback:\n\t"..table.concat(stack, "\n\t", 2).."\n\n"..

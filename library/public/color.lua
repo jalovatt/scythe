@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+--- @module Color
 
 local Math = require("public.math")
 local Table = require("public.table")
@@ -125,8 +125,8 @@ Color.toHsv = function (r, g, b, a)
 
   if hue ~= -1 then hue = hue / 6 end
 
-  local sat = (max ~= 0) 	and	((max - min) / max)
-                          or	0
+  local sat = (max ~= 0)  and ((max - min) / max)
+                          or  0
 
   return {hue * 360, sat, max, (a or 1)}
 
@@ -174,7 +174,7 @@ end
 
 
 --- Returns the color for a given position on an HSV gradient between two colors.
--- @param a	string|array A preset strng, or color components with values from 0-1.
+-- @param a string|array A preset strng, or color components with values from 0-1.
 -- (`{r, g, b, a}`)
 -- @param b string|array A preset strng, or color components with values from 0-1.
 -- (`{r, g, b, a}`)
@@ -202,11 +202,11 @@ Color.gradient = function (a, b, pos)
   local s = math.abs(a[2] + (pos * (b[2] - a[2])))
   local v = math.abs(a[3] + (pos * (b[3] - a[3])))
 
-  local a = (#a == 4)
+  local alpha = (#a == 4)
       and  (math.abs(a[4] + (pos * (b[4] - a[4]))))
       or  1
 
-  return Color.fromHsv(h, s, v, a)
+  return Color.fromHsv(h, s, v, alpha)
 
 end
 

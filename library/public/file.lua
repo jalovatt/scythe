@@ -1,6 +1,6 @@
--- @module
+--- @module File
 
-local T = require("public.table")[2]
+local T = require("public.table").T
 local File = {}
 
 --- An iterator that loops over the files in a specified path.

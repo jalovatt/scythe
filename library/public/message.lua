@@ -1,5 +1,5 @@
 -- NoIndex: true
--- @module
+-- @module Message
 
 local Message = {}
 

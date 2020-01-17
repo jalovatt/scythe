@@ -36,12 +36,12 @@ local fonts = (os:match("Win") and osFonts.Windows)
 Theme.fonts = {
               -- Font,    size, bold/italics/underline
               --                i.e. "b", "iu", etc.
-              {fonts.sans, 32},	                        -- 1. Title
-              {fonts.sans, 20},	                        -- 2. Header
-              {fonts.sans, 16},	                        -- 3. Label
-              {fonts.sans, 16},	                        -- 4. Value
+              {fonts.sans, 32},                         -- 1. Title
+              {fonts.sans, 20},                         -- 2. Header
+              {fonts.sans, 16},                         -- 3. Label
+              {fonts.sans, 16},                         -- 4. Value
   monospace = {fonts.mono, 14},
-  version = 	{fonts.sans, 12, "i"},
+  version =   {fonts.sans, 12, "i"},
 }
 
 local ext = reaper.GetExtState("Scythe v3", "userTheme")

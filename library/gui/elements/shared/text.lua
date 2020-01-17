@@ -43,22 +43,22 @@ end
 
 function TextUtils.undo(self)
 
-	if #self.undoStates == 0 then return end
-	table.insert(self.redoStates, self:getEditorState() )
-	local state = table.remove(self.undoStates)
+  if #self.undoStates == 0 then return end
+  table.insert(self.redoStates, self:getEditorState() )
+  local state = table.remove(self.undoStates)
 
   self.retval = state.retval
-	self.caret = state.caret
+  self.caret = state.caret
 
-	self:setWindowToCaret()
+  self:setWindowToCaret()
 
 end
 
 function TextUtils.storeUndoState(self)
 
   table.insert(self.undoStates, self:getEditorState() )
-	if #self.undoStates > self.undoLimit then table.remove(self.undoStates, 1) end
-	self.redoStates = {}
+  if #self.undoStates > self.undoLimit then table.remove(self.undoStates, 1) end
+  self.redoStates = {}
 
 end
 
@@ -66,20 +66,20 @@ end
 -- (v2.9.7 or greater)
 function TextUtils.SWS_clipboard(self)
 
-	if (Scythe.hasSWS and reaper.CF_GetClipboardBig) then
-		return true
-	else
+  if (Scythe.hasSWS and reaper.CF_GetClipboardBig) then
+    return true
+  else
 
-		reaper.ShowMessageBox(
+    reaper.ShowMessageBox(
       "Clipboard functions require the SWS extension, v2.9.7 or newer."..
       "\n\nDownload the latest version at http://www.sws-extension.org/index.php",
 
       "Sorry!",
       0
     )
-		return false
+    return false
 
-	end
+  end
 
 end
 

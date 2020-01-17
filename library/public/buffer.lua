@@ -1,7 +1,9 @@
 -- NoIndex: true
--- @module
+--- @module Buffer
+-- Manages the graphics buffers available to a script
 
-local Table, T = require("public.table"):unpack()
+local Table = require("public.table")
+local T = Table.T
 
 local Buffer = {}
 

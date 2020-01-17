@@ -31,7 +31,7 @@ ColorPicker.defaultProps = {
 }
 
 function ColorPicker:new(props)
-	local picker = self:addDefaultProps(props)
+  local picker = self:addDefaultProps(props)
 
   return setmetatable(picker, self)
 end
@@ -47,16 +47,16 @@ function ColorPicker:init()
 end
 
 function ColorPicker:onDelete()
-	Buffer.release(self.buffer)
+  Buffer.release(self.buffer)
 end
 
 function ColorPicker:val(new)
-	if new then
-		self.color = new
-		self:redraw()
-	else
-		return self.color
-	end
+  if new then
+    self.color = new
+    self:redraw()
+  else
+    return self.color
+  end
 end
 
 function ColorPicker:draw()
@@ -113,7 +113,7 @@ end
 function ColorPicker:drawFrame()
 
   local w, h = self.w, self.h
-	local round = self.round
+  local round = self.round
 
   -- Frame background
   if self.bg then
@@ -127,17 +127,17 @@ function ColorPicker:drawFrame()
 
   -- Shadow
   local r, g, b, a = table.unpack(Color.colors.shadow)
-	gfx.set(r, g, b, 1)
-	GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
-	gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
+  gfx.set(r, g, b, 1)
+  GFX.roundRect(w + 2, 1, w, h, round, 1, 1)
+  gfx.muladdrect(w + 2, 1, w + 2, h + 2, 1, 1, 1, a, 0, 0, 0, 0 )
 
   -- Frame
-	Color.set(self.frameColor)
-	if round > 0 then
-		GFX.roundRect(1, 1, w, h, round, 1, false)
-	else
-		gfx.rect(1, 1, w, h, false)
-	end
+  Color.set(self.frameColor)
+  if round > 0 then
+    GFX.roundRect(1, 1, w, h, round, 1, false)
+  else
+    gfx.rect(1, 1, w, h, false)
+  end
 
 end
 
