@@ -15,6 +15,7 @@ end
 -- This line needs to use loadfile; anything afterward can be required
 loadfile(libPath .. "scythe.lua")()
 local GUI = require("gui.core")
+local Table = require("public.table")
 
 
 ------------------------------------
@@ -56,6 +57,10 @@ local function getValuesForLayer(layerNum)
       val = elm:val()
     else
       val = "n/a"
+    end
+
+    if type(val) == "table" then
+      val = "{\n" .. Table.stringify(val) .. "\n}"
     end
 
     values[#values + 1] = key .. ": " .. tostring(val)

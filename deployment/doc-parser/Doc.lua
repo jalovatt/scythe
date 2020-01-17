@@ -3,6 +3,11 @@ local T = Table.T
 
 local commonParams = T{
   {
+    name = "name",
+    type = "string",
+    description = "The element's name. Must be unique.",
+  },
+  {
     name = "x",
     type = "number",
     description = "Horizontal distance from the left side of the window, in pixels",

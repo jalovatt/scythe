@@ -1,4 +1,19 @@
 -- NoIndex: true
+--- @module Radio
+-- A list of options from which only one can be selected.
+-- @commonParams
+-- @option caption string
+-- @option options array `{"Option 1", "Option 2", "Option 3"}`
+-- @option horizontal boolean Lays the options out horizontally (defaults to `false`)
+-- @option pad number Padding between the options (in pixels)
+-- @option bg string|table A color preset
+-- @option textColor string|table A color preset
+-- @option fillColor string|table A color preset
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option optionSize number Size of the option bubbles (in pixels)
+-- @option frame boolean Draws a frame around the list.
+-- @option shadow boolean Draws the caption and list text with shadows
 
 local Color = require("public.color")
 
@@ -35,9 +50,12 @@ function Radio:initOptions()
 end
 
 
+--- Gets or sets the selected option
+-- @option newval number The selected option
+-- @return number The selected option
 function Radio:val(newval)
 
-  if newval then
+  if newval ~= nil then
     self.retval = newval
     self.state = newval
     self:redraw()

@@ -117,10 +117,6 @@ function Md.parseHeader(header)
     header.tags.description and header.tags.description:concat("\n") or "",
   }
 
-  if header.name == "Button" then
-    Msg(Table.stringify(header.tags))
-  end
-
   local parsedTags = Md.parseTags(header.tags)
 
   if parsedTags.param then

@@ -6,6 +6,7 @@ It's a button. You click on it. Things happen.
 
 | **Optional** | []() | []() |
 | --- | --- | --- |
+| name | string | The element's name. Must be unique. |
 | x | number | Horizontal distance from the left side of the window, in pixels |
 | y | number | Vertical distance from the top of the window, in pixels |
 | w | number | Width, in pixels |
@@ -15,7 +16,7 @@ It's a button. You click on it. Things happen.
 | textColor | string&#124;table | A color preset |
 | fillColor | string&#124;table | A color preset |
 | func | function | Function to execute when the button is clicked. |
-| params | array | Arguments that will be unpacked and passed to `func`. i.e. <br> `func = function(a, b, c) end`<br/> `params = {1, 2, 3}` |
+| params | array | Arguments that will be unpacked and passed to `func`: <br> `func = function(a, b, c) end`<br/> `params = {1, 2, 3}` |
 | rightFunc | function | Function to execute when the button is right-clicked. |
 <section class="segment">
 
