@@ -1,10 +1,14 @@
 # Scythe 3.x changelog
 
+## January 17, 2019
+
+- Added more documentation, updated doc parser logic.
+
 ## November 16, 2019
 
 - Updated docs and moved them to a top-level folder; most of the public modules are now documented.
 - Added a public `file` module with helpers for iterating over files/folders
-- Added a documentation parser (`development/doc-parser/doc-parser.lua`). Modules can use [LDoc](https://stevedonovan.github.io/ldoc/)-style comments to document functions, and the parser will generate Markdown from them.
+- Added a documentation parser (`deployment/doc-parser/doc-parser.lua`). Modules can use [LDoc](https://stevedonovan.github.io/ldoc/)-style comments to document functions, and the parser will generate Markdown from them.
 
 ## November 11, 2019
 
