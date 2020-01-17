@@ -28,6 +28,7 @@ Image.load = function(path)
     loadedImages[path] = buffer
     return buffer
   else
+    error("Couldn't load image: " .. path)
     Buffer.release(buffer)
   end
 
@@ -86,7 +87,10 @@ end
 -- @param buffer number A graphics buffer
 -- @return string|boolean Returns the image path if found, otherwise returns `nil`.
 Image.getPathFromBuffer = function(buffer)
-  return loadedImages:find(function(v, k) return (v == buffer) and k end)
+  local path = loadedImages:find(function(v, k) return (v == buffer) and k end)
+  if not path then error("Graphics buffer " .. buffer .. " has not been used by an image file.") end
+
+  return path
 end
 
 

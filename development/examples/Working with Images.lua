@@ -45,10 +45,6 @@ end
 
 function ILabel:init()
   self.sprite = Sprite:new({
-    frame = {
-      w = self.w,
-      h = self.h,
-    },
     image = self.image,
     drawBounds = true,
   })
@@ -95,8 +91,7 @@ end
 function IButton:init()
   self.sprite = Sprite:new({})
   self.sprite:setImage(self.image)
-  self.sprite.frame.w = self.w
-  self.sprite.frame.h = self.h
+  self.sprite.frame = { w = self.w, h = self.h }
   if not self.sprite.image then error("IButton: The specified image was not found") end
 end
 
