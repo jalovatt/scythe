@@ -20,11 +20,26 @@ local static = {
   },
 }
 
-local REMOTE_URL_BASE = "raw.githubusercontent.com/jalovatt/scythe/master/"
-local LOCAL_FILE_BASE = "Lokasenna_Scythe library v3/"
-local OUTPUT_PATH = "/home/adam/Coding/Reaper/ReaScripts/Development/"
+local REMOTE_URL_BASE = "https://github.com/jalovatt/scythe/raw/"
+local LOCAL_FILE_BASE = "/Lokasenna_Scythe library v3/"
+
+local function getCommitHash()
+  local ret, output = reaper.ExecProcess(
+    "/bin/sh -c 'cd " .. context.scriptPath .. ";"
+    .. "git rev-parse HEAD;"
+    .. "'",
+    3):match("([^\n\r]+)[\n\r]([^\n\r]+)")
+
+  if ret ~= "0" then
+    error("ExecProcess returned code " .. ret .. ":\n" .. output)
+  end
+
+  return output
+end
 
 local function getProvides(folder)
+  local commitHash = getCommitHash()
+
   return File.getFilesRecursive(Scythe.libRoot..folder, function(name, _, isFolder)
     if isFolder and name:match("^%.git") then return false end
     return isFolder or name:match("%.lua$")
@@ -35,7 +50,7 @@ local function getProvides(folder)
       .. " "
       .. LOCAL_FILE_BASE .. relativePath
       .. " "
-      .. REMOTE_URL_BASE .. relativePath
+      .. REMOTE_URL_BASE .. commitHash .. "/" .. relativePath
     )
 
     return acc;
@@ -81,7 +96,7 @@ return function(vars) Scythe.wrapErrors(function()
 
   local provides = getProvides(vars.folder)
   local prevHeaderText = readFile(context.scriptPath .. vars.filename .. ".lua")
-  local prevVersion = prevHeaderText:match("Version: ([%a%p%d]+)[\n\r]*$")
+  local prevVersion = prevHeaderText:match("Version: ([%a%p%d]+)[\n\r]*")
   local newVersion = promptForVersion(prevVersion)
 
   local changes = promptForChanges()
