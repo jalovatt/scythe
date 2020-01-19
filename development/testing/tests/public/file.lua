@@ -155,9 +155,10 @@ describe("File.getFilesRecursive", function()
 
   test("with a filter", function()
 
-    local files = File.getFilesRecursive("/test", function(file) return file:match("%.txt") end)
+    local files = File.getFilesRecursive("/test", function(file, _, isFolder) return isFolder or file:match("%.txt") end)
 
     for _, file in pairs(files) do
+      Msg(file.path)
       expect(expected.txt).toInclude(file.path)
     end
 
