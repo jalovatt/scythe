@@ -1,5 +1,10 @@
 # Scythe 3.x changelog
 
+## January 19, 2019
+
+- Added a script to generate ReaPack metapackages
+- Restructured the repo so that the ReaPack packages only include relevant files
+
 ## January 17, 2019
 
 - Added more documentation, updated doc parser logic.
