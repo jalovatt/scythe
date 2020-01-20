@@ -1,3 +1,44 @@
+--- @module Menubar
+-- Provides a standard menubar. The `menus` property uses the form:
+-- ```lua
+-- menus = {
+--   {
+--     title = "A Menu!",
+--     options = {
+--       {
+--         caption = "!Item 1",
+--         func = item1function
+--       },
+--       {
+--         caption = "Item 2",
+--         func = item2function
+--       }
+--     }
+--   },
+--   {
+--     title = "Parameters",
+--     options = {
+--       {
+--         caption = "With parameters",
+--         -- someFunction will be called with ("A", "hello!")
+--         func = someFunction
+--         params = {"A", "hello!"}
+--       },
+--     }
+--   }
+-- }
+-- ```
+-- @option menus array A list of menus, items, and callback functions. Item
+-- captions use the same syntax as `gfx.showmenu` concerning separators and
+-- greying out.
+-- @option fullWidth boolean Automatically extend the menubar the full width of
+-- the window. Defaults to `true`.
+-- @option font number A font preset
+-- @option textColor string|table A color preset
+-- @option backgroundColor string|table A color preset
+-- @option hoverColor string|table A color preset
+-- @option pad number Padding between menus
+-- @option shadow boolean Draw a shadow under the menubar. Defaults to `true`.
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
@@ -124,6 +165,11 @@ function Menubar:draw()
 end
 
 
+--- Get or set the menubar's menu structure. Because there are internal calculations
+-- involved, the menus should only be changed via this method.
+-- @option newval array A list of menus and items, as per the `menus` property
+-- above.
+-- @return array The current menus
 function Menubar:val(newval)
 
   if newval and type(newval) == "table" then
@@ -307,48 +353,6 @@ function Menubar:measureTitles(num, tabs)
   return not tabs
     and len
     or (len + (self.tab + self.pad) * (num or #self.menus))
-
-end
-
-
--- Parse the current menu into a string for gfx.showmenu
--- Returns the string and a table of separators for offsetting the
--- value returned when the user clicks something.
-function Menubar:prepMenu()
-
-  local arr = self.menus[self.mouseMenu].options
-
-  local separators = {}
-  local menus = {}
-
-  for i = 1, #arr do
-
-    table.insert(menus, arr[i].caption)
-
-    if menus[#menus] == ""
-    or string.sub(menus[#menus], 1, 1) == ">" then
-      table.insert(separators, i)
-    end
-
-  end
-
-  return table.concat(menus, "|"), separators
-end
-
-
--- Adjust the returned value to account for any separators,
--- since gfx.showmenu doesn't count them
-function Menubar:stripSeparators(opt, separators)
-
-  for i = 1, #separators do
-    if opt >= separators[i] then
-      opt = opt + 1
-    else
-      break
-    end
-  end
-
-  return opt
 
 end
 
