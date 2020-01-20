@@ -28,6 +28,7 @@
 --   }
 -- }
 -- ```
+-- @commonParams
 -- @option menus array A list of menus, items, and callback functions. Item
 -- captions use the same syntax as `gfx.showmenu` concerning separators and
 -- greying out.

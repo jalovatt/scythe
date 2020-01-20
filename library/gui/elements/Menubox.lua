@@ -1,3 +1,17 @@
+--- @module Menubox
+-- @commonParams
+-- @option options array A list of options: `{"a", "b", "c"}`. Options use the
+-- same syntax as `gfx.showmenu` concerning separators, greying out, etc.
+-- @option caption string
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option captionColor string|table A color preset
+-- @option textColor string|table A color preset
+-- @option bg string|table A color preset
+-- @option pad number Padding between the caption and the element frame
+-- @option align number Alignment flags for the displayed value; see the API
+-- documentation for `gfx.drawstr`
+-- @option retval number The selected item index
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
@@ -88,6 +102,10 @@ function Menubox:draw()
 end
 
 
+--- Get or set the selected item
+-- @option newval number The selected item index
+-- @return number The selected item index
+-- @return string The selected item's text
 function Menubox:val(newval)
 
   if newval then
@@ -108,11 +126,9 @@ end
 
 
 function Menubox:onMouseUp(state)
+  if not self.focus or state.preventDefault then return end
   self.focus = false
   self:redraw()
-
-  -- Bypass option for GUI Builder
-  if not self.focus or state.preventDefault then return end
 
   gfx.x, gfx.y = state.mouse.x, state.mouse.y
   local currentOption = Menu.showMenu(self.options)
@@ -242,50 +258,6 @@ end
 ------------------------------------
 
 
--- Put together a string for gfx.showmenu from the values in options
-function Menubox:prepMenu()
-
-  local options = T{}
-  local separators = T{}
-
-  for i = 1, #self.options do
-
-    options:insert(
-      tostring(
-        type(self.options[i]) == "table"
-          and self.options[i][1]
-          or  self.options[i]
-      )
-    )
-
-    -- Check off the currently-selected option
-    if i == self.retval then options[#options] = "!" .. options[#options] end
-
-    if options[#options] == ""
-    or options[#options]:sub(1, 1) == ">" then
-      separators:insert(i)
-    end
-
-  end
-
-  return options:concat("|"), separators
-end
-
-
--- Adjust the menu's returned value to ignore any separators ( --------- )
-function Menubox:stripSeparators(currentOption, separators)
-
-  for i = 1, #separators do
-    if currentOption >= separators[i] then
-      currentOption = currentOption + 1
-    else
-      break
-    end
-  end
-
-  return currentOption
-
-end
 
 
 function Menubox:validateOption(val, dir)

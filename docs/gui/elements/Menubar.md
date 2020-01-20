@@ -34,6 +34,11 @@ menus = {
 
 | **Optional** | []() | []() |
 | --- | --- | --- |
+| name | string | The element's name. Must be unique. |
+| x | number | Horizontal distance from the left side of the window, in pixels |
+| y | number | Vertical distance from the top of the window, in pixels |
+| w | number | Width, in pixels |
+| h | number | Height, in pixels |
 | menus | array | A list of menus, items, and callback functions. Item captions use the same syntax as `gfx.showmenu` concerning separators and greying out. |
 | fullWidth | boolean | Automatically extend the menubar the full width of the window. Defaults to `true`. |
 | font | number | A font preset |

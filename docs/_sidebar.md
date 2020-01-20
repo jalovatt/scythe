@@ -8,6 +8,7 @@
     - [Label](gui/elements/Label.md)
     - [Listbox](gui/elements/Listbox.md)
     - [Menubar](gui/elements/Menubar.md)
+    - [Menubox](gui/elements/Menubox.md)
     - [Radio](gui/elements/Radio.md)
 - GUI Modules
 - [Public Modules](/public/)
