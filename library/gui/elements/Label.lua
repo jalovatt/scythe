@@ -1,10 +1,16 @@
+--- @module Label
+-- @option caption string
+-- @option shadow  boolean Defaults to false
+-- @option font    number A font preset
+-- @option color   string|table A color preset
+-- @option bg      string|table A color preset
+
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
 local Text = require("public.text")
 
--- local Table = require("public.table")
 
 local Label = require("gui.element"):new()
 Label.__index = Label
@@ -91,6 +97,17 @@ function Label:onDelete()
 end
 
 
+--- Fade a label out over a period of time, moving it to a given layer afterward,
+-- or fading it in on a given layer instead.
+-- @param len number Fade time, in seconds
+-- @param dest layer The destination layer
+-- @param curve number The "steepness" of the transition. Lower values will fade
+-- more abruptly at the beginning, while higher values will fade more abruptly
+-- at the end. Defaults to 3.
+--
+--
+-- If a negative value is given, the label will be moved to the destination layer
+-- immediately and faded in instead.
 function Label:fade(len, dest, curve)
   if curve < 0 then self:moveToLayer(dest) end
 

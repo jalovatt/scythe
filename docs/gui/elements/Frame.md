@@ -16,6 +16,7 @@ Can also be given text, which will be wrapped to fit.
 | textPad | number | When laying out text, wrapped lines will be indented by this many spaces. |
 | font | number | A font preset |
 | pad | number | Text padding, on all sides, from the frame |
+
 <section class="segment">
 
 ### Frame:val([new]) :id=frame-val

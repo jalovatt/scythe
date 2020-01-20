@@ -25,6 +25,7 @@ local Knob = require(gui.elements.Knob)
 | inc | number | Amount to increment between steps |
 | default | number | Default value |
 | showValues | boolean | Show or hide the values. If a knob has too many steps to be readable, consider hiding them and displaying the value elsewhere |
+
 <section class="segment">
 
 ### Knob:recalculateInternals() :id=knob-recalculateinternals

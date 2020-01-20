@@ -97,7 +97,8 @@ Scythe.wrapErrors(function()
       end):concat("\n")
       or ""
 
-    writeFile(writeFolder, filename, mdHeader .. "\n" .. mdSegments .. "\n\n" .. mdFooter)
+    local mdOut = mdHeader .. "\n\n" .. mdSegments .. "\n\n" .. mdFooter
+    writeFile(writeFolder, filename, mdOut)
 
     Msg("wrote: " .. writePath)
 

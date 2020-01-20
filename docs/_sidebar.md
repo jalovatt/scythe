@@ -5,6 +5,7 @@
     - [ColorPicker](gui/elements/ColorPicker.md)
     - [Frame](gui/elements/Frame.md)
     - [Knob](gui/elements/Knob.md)
+    - [Label](gui/elements/Label.md)
     - [Radio](gui/elements/Radio.md)
 - GUI Modules
 - [Public Modules](/public/)

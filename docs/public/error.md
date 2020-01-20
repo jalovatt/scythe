@@ -3,6 +3,7 @@
 local Error = require(public.error)
 ```
 
+
 <section class="segment">
 
 ### Error.handleError([errObject]) :id=error-handleerror

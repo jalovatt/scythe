@@ -24,6 +24,7 @@ One or more options that can be individually toggled
 | optionSize | number | Size of the option bubbles (in pixels) |
 | frame | boolean | Draws a frame around the list. |
 | shadow | boolean | Draws the caption and list text with shadows |
+
 <section class="segment">
 
 ### Checklist:val([newval, returnBool]) :id=checklist-val

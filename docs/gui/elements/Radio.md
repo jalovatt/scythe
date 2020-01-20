@@ -23,6 +23,7 @@ A list of options from which only one can be selected.
 | optionSize | number | Size of the option bubbles (in pixels) |
 | frame | boolean | Draws a frame around the list. |
 | shadow | boolean | Draws the caption and list text with shadows |
+
 <section class="segment">
 
 ### Radio:val([newval]) :id=radio-val

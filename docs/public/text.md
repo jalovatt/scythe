@@ -3,6 +3,7 @@
 local Text = require(public.text)
 ```
 
+
 <section class="segment">
 
 ### Text.initTextWidth() :id=text-inittextwidth

@@ -20,6 +20,7 @@ Allows users to choose colors from a palette
 | round | number | Corner radius |
 | pad | number | Padding between the caption and the element frame |
 | shadow | boolean |  |
+
 <section class="segment">
 
 ### ColorPicker:val([new]) :id=colorpicker-val

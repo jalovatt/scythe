@@ -18,6 +18,7 @@ It's a button. You click on it. Things happen.
 | func | function | Function to execute when the button is clicked. |
 | params | array | Arguments that will be unpacked and passed to `func`: <br> `func = function(a, b, c) end`<br/> `params = {1, 2, 3}` |
 | rightFunc | function | Function to execute when the button is right-clicked. |
+
 <section class="segment">
 
 ### Button:exec([r]) :id=button-exec

@@ -3,6 +3,7 @@
 local Image = require(public.image)
 ```
 
+
 <section class="segment">
 
 ### Image.load(path) :id=image-load

@@ -17,6 +17,7 @@ sheets are currently supported)
 | frame | hash | Frame dimensions, of the form `{ w = 0, h = 0 }`. Used in conjunction with the `:draw` method's `state` argument to determine the source area of the sprite's image to draw. If omitted, the entire image will be used. |
 | image | hash | An image of the form `{ path = "path/img.png", buffer = 5 }`, such as those returned by the Image module's loading functions. |
 | drawBounds | boolean | For debugging purposes. Draws a border around the image. |
+
 <section class="segment">
 
 ### Sprite:setImage(val) :id=sprite-setimage

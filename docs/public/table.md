@@ -3,6 +3,7 @@
 local Table = require(public.table)
 ```
 
+
 <section class="segment">
 
 ### Table.T(t) :id=table-t
