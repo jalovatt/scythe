@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Sprite
 -- _Under construction; some functionality may be missing or broken_
 --

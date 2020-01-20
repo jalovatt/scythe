@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Math
 
 local math = math

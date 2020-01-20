@@ -1,5 +1,3 @@
--- NoIndex: true
-
 if not Scythe then
   error("Couldn't find Scythe. Please make sure the Scythe library has been loaded.")
   return

@@ -1,5 +1,3 @@
--- NoIndex: true
-
 --[[
   An example of how Scythe scripts work in a general sense, how to use tabs, and
   how to access elements' parameters

@@ -1,4 +1,3 @@
--- NoIndex: true
 local Theme = {}
 
 Theme.colors = {

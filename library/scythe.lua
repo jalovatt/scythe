@@ -1,4 +1,3 @@
--- NoIndex: true
 Scythe = {}
 
 local args = {...}

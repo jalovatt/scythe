@@ -1,5 +1,3 @@
--- NoIndex: true
-
 local String = require("public.string")
 
 describe("String.split", function()

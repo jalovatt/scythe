@@ -1,5 +1,3 @@
--- NoIndex: true
-
 local Color = require("public.color")
 
 describe("Color.fromRgba", function()

@@ -1,4 +1,3 @@
--- NoIndex: true
 local Config = {}
 
 Config.doubleclickTime = 0.30

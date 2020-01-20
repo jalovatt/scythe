@@ -1,4 +1,3 @@
--- NoIndex: true
 local testFiles = {
   ["/test"] = {
     files = {

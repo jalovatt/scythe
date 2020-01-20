@@ -1,5 +1,3 @@
--- NoIndex: true
-
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")

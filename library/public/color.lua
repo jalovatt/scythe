@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Color
 
 local Math = require("public.math")

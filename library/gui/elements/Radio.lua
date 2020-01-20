@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Radio
 -- A list of options from which only one can be selected.
 -- @commonParams

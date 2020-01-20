@@ -1,5 +1,3 @@
--- NoIndex: true
-
 local Table = require("public.table")
 
 describe("Table.forEach", function()

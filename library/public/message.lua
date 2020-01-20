@@ -1,4 +1,3 @@
--- NoIndex: true
 -- @module Message
 
 local Message = {}

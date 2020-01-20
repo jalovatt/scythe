@@ -1,5 +1,3 @@
--- NoIndex: true
-
 local TextUtils = {}
 
 function TextUtils.doCtrlChar(self, state, func, ...)

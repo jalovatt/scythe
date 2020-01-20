@@ -1,4 +1,3 @@
--- NoIndex: true
 -- @module Menu
 
 require("public.string")

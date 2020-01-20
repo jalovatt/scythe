@@ -1,5 +1,3 @@
--- NoIndex: true
-
 --[[
   Test script to make sure user events and hooks are being fired correctly
 ]]--

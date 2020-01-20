@@ -1,5 +1,3 @@
--- NoIndex: true
-
 -- Stores the path to Scythe v3 for other scripts to access
 -- Must be run prior to using any Scythe scripts
 

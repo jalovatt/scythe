@@ -5,7 +5,6 @@ One of the more annoying parts of maintaining a project like this is keeping doc
 ## Example
 
 ```lua
--- NoIndex: true
 -- @module
 
 local Message = {}

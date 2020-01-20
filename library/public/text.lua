@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Text
 
 local Font = require("public.font")

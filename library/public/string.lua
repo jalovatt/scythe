@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module String
 -- This module overrides the `string` type's metatable so that its methods can
 -- be called on strings via `:` syntax. This is done when the module is loaded,

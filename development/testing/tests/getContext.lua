@@ -1,5 +1,3 @@
--- NoIndex: true
-
 describe("Scythe.getContext", function()
   local context
   it("should get the script context", function()

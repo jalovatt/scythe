@@ -1,5 +1,3 @@
--- NoIndex: true
-
 -- Available event hooks: onResize, onMouseMove
 
 local Table = require("public.table")

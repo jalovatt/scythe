@@ -1,5 +1,3 @@
--- NoIndex: true
-
 --[[
   Scythe example
 

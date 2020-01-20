@@ -1,4 +1,3 @@
--- NoIndex: true
 local Table = require("public.table")[1]
 
 local function Msg(msg, indents)

@@ -1,5 +1,3 @@
--- NoIndex: true
-
 --[[
   The bare minimum required to display a window and some elements. In Scythe v3,
   elements have defaults defined for most/all of their parameters in case you

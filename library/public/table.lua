@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Table
 
 local Table = {}

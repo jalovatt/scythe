@@ -1,5 +1,3 @@
--- NoIndex: true
-
 --[[
   A demonstration of the Listbox, Menubar, and TextEditor classes
 ]]--

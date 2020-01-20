@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Button
 -- It's a button. You click on it. Things happen.
 -- @commonParams

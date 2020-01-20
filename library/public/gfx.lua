@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module GFX
 
 local GFX = {}

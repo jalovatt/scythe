@@ -1,5 +1,3 @@
--- NoIndex: true
-
 --[[
   An example UI for a typical real-world use case - getting user input before
   running an action rather than having to use GetUserInputs or put

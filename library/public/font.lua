@@ -1,4 +1,3 @@
--- NoIndex: true
 --- @module Font
 
 local Font = {}
