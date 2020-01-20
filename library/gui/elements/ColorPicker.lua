@@ -1,3 +1,16 @@
+--- @module ColorPicker
+-- Allows users to choose colors from a palette
+-- @commonParams
+-- @option caption string
+-- @option color string|table The currently-selected color
+-- @option captionFont number A font preset
+-- @option captionColor string|table A color preset
+-- @option frameColor string|table A color preset
+-- @option bg string|table A color preset
+-- @option round number Corner radius
+-- @option pad number Padding between the caption and the element frame
+-- @option shadow boolean
+
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
@@ -48,6 +61,9 @@ function ColorPicker:onDelete()
   Buffer.release(self.buffer)
 end
 
+--- Gets or sets the current color
+-- @option new string|table A color preset
+-- @return string|table A color preset
 function ColorPicker:val(new)
   if new then
     self.color = new
@@ -91,6 +107,7 @@ function ColorPicker:onDoubleClick()
   self:redraw()
 end
 
+--- Opens the color palette, setting the returned value as the current selection
 function ColorPicker:selectColor()
   local current = Color.toNative(self.color)
   local retval, colorOut = reaper.GR_SelectColor(nil, current)
@@ -161,11 +178,6 @@ function ColorPicker:drawColor()
 
   Color.set(self.color)
   gfx.rect(x, y, w, h, true)
-
-  if self.color then
-    Color.set(self.color)
-    gfx.rect(x + 1, y + 1, w - 2, h - 2, true)
-  end
 
   Color.set("black")
   gfx.rect(x, y, w, h, false)

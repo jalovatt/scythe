@@ -199,7 +199,7 @@ function Doc.fromFile(path)
       if n == 10 then
         break
       end
-    elseif line:match("^%-%-%-") then
+    elseif line:match("^%-%-%- ") then
       local lineContent = line:match("^%-%-%- (.+)")
       if not lineContent then
         error("Error opening doc segment at line " .. n .. " of:\n" .. path .. "\n\nLine: " .. tostring(line))
