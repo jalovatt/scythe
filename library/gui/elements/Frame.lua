@@ -1,10 +1,24 @@
+--- @module Frame
+-- A simple frame, often used for visually grouping or separating other elements.
+-- Can also be given text, which will be wrapped to fit.
+-- @option color string|table A color preset for the frame outline
+-- @option textColor string|table A color preset
+-- @option bg string|table A color preset
+-- @option round number Corner radius
+-- @option text string Text inside the frame. Will be automatically wrapped to fit.
+-- @option textIndent number When laying out text, the first line of each
+-- paragraph will be indented by this many spaces.
+-- @option textPad number When laying out text, wrapped lines will be indented
+-- by this many spaces.
+-- @option font number A font preset
+-- @option pad number Text padding, on all sides, from the frame
+
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
 local GFX = require("public.gfx")
 local Text = require("public.text")
--- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Frame = require("gui.element"):new()
@@ -26,7 +40,6 @@ Frame.defaultProps = {
   font = 4,
   textColor = "text",
   pad = 4,
-
 }
 
 function Frame:new(props)
@@ -78,6 +91,9 @@ function Frame:draw()
 end
 
 
+--- Gets or sets the frame's text
+-- @option new string New text. Will be automatically wrapped to fit the frame.
+-- @return string The current text.
 function Frame:val(new)
 
   if new then

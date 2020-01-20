@@ -4,6 +4,7 @@
     - [Radio](gui/elements/Radio.md)
     - [ColorPicker](gui/elements/ColorPicker.md)
     - [Checklist](gui/elements/Checklist.md)
+    - [Frame](gui/elements/Frame.md)
 - GUI Modules
 - [Public Modules](/public/)
     - [Sprite](public/sprite.md)
