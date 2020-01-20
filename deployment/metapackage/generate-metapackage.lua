@@ -24,10 +24,9 @@ local REMOTE_URL_BASE = "https://github.com/jalovatt/scythe/raw/"
 local LOCAL_FILE_BASE = "/Lokasenna_Scythe library v3/"
 
 local function getCommitHash()
+  local cmd = "/bin/sh -c 'cd " .. context.scriptPath .. "; git rev-parse HEAD;'"
   local ret, output = reaper.ExecProcess(
-    "/bin/sh -c 'cd " .. context.scriptPath .. ";"
-    .. "git rev-parse HEAD;"
-    .. "'",
+    cmd,
     3):match("([^\n\r]+)[\n\r]([^\n\r]+)")
 
   if ret ~= "0" then
@@ -54,7 +53,7 @@ local function getProvides(folder)
     )
 
     return acc;
-  end, T{})
+  end, T{}):sort()
 end
 
 local function readFile(filename)
