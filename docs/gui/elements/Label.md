@@ -6,6 +6,11 @@ local Label = require(gui.elements.Label)
 
 | **Optional** | []() | []() |
 | --- | --- | --- |
+| name | string | The element's name. Must be unique. |
+| x | number | Horizontal distance from the left side of the window, in pixels |
+| y | number | Vertical distance from the top of the window, in pixels |
+| w | number | Width, in pixels |
+| h | number | Height, in pixels |
 | caption | string |  |
 | shadow | boolean | Defaults to false |
 | font | number | A font preset |

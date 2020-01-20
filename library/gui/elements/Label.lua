@@ -1,4 +1,5 @@
 --- @module Label
+-- @commonParams
 -- @option caption string
 -- @option shadow  boolean Defaults to false
 -- @option font    number A font preset

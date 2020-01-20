@@ -1,3 +1,19 @@
+--- @module Listbox
+-- @commonParams
+-- @option list string|array A list of items to display, either as a CSV or an
+-- array: `{"a", "b", "c"}`.
+-- @option retval hash A list of item indices that are selected: `{ 1 = true, 3 = true }`
+-- @option multi boolean Allow multiple items to be selected. Defaults to `false`.
+-- @option caption string
+-- @option pad number Padding between the listbox's edges and text
+-- @option bg string|table A color preset
+-- @option captionBg string|table A color preset
+-- @option color string|table A color preset
+-- @option fillColor string|table A color preset, for the scrollbar.
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option shadow boolean Draw the caption with a shadow. Defaults to `false`.
+
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
@@ -23,6 +39,7 @@ Listbox.defaultProps =  {
 
   list = {},
   retval = {},
+  multi = false,
 
   caption = "",
   pad = 4,
@@ -106,6 +123,11 @@ function Listbox:draw()
 end
 
 
+--- Get or set the selected item(s)
+-- @option newval hash|number The selected items, as per the `retval` property
+-- above, or a single number representing the selected item index.
+-- @return hash|number If the listbox allows multiple selected items, returns an
+-- array of selected indices. Otherwise, returns the single selected index (if any).
 function Listbox:val(newval)
 
   if newval then
@@ -133,7 +155,7 @@ function Listbox:val(newval)
     else
       -- luacheck: ignore 512 (loop executing once)
       for k in pairs(self.retval) do
-        return k
+        if k then return k end
       end
     end
 
@@ -359,7 +381,8 @@ end
 ---------------------------------
 
 
--- Updates internal values for the window size
+--- Update internal values for the window size. If you change the listbox's
+-- `w`, `h`, `pad`, or `textFont`, this method should be called afterward.
 function Listbox:recalculateWindow()
 
   Font.set(self.textFont)
