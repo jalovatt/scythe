@@ -1,11 +1,26 @@
+--- @module Knob
+-- @commonParams
+-- @option caption string
+-- @option textColor string|table A color preset
+-- @option headColor string|table A color preset
+-- @option bodyColor string|table A color preset
+-- @option bg string|table A color preset
+-- @option captionX number Horizontal caption offset
+-- @option captionY number Vertical caption offset
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option min number Minimum value
+-- @option max number Maximum value
+-- @option inc number Amount to increment between steps
+-- @option default number Default value
+-- @option showValues boolean Show or hide the values. If a knob has too many
+-- steps to be readable, consider hiding them and displaying the value elsewhere
 local Buffer = require("public.buffer")
-
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
--- local Table = require("public.table")
 local Config = require("gui.config")
 local Const = require("public.const")
 
@@ -48,6 +63,9 @@ function Knob:new(props)
   return knob
 end
 
+--- Updates internal values based on the knob's properties. If you change any of
+-- `min`, `max`, or `inc` after the knob has been created, this method should be
+-- called afterward
 function Knob:recalculateInternals()
   self.h = self.w
   self.steps = self.steps or (math.abs(self.max - self.min) / self.inc)
@@ -146,13 +164,14 @@ function Knob:draw()
 end
 
 
+--- Get or set the knob's value
+-- @option newval number The new value
+-- @return number The current value
 function Knob:val(newval)
 
   if newval then
-
-    self:setCurrentStep(newval)
+    self:setCurrentStep(self:stepFromValue(newval))
     self:redraw()
-
   else
     return self.retval
   end

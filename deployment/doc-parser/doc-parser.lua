@@ -38,7 +38,7 @@ local function generateSidebar(sidebarEntries)
 
   for _, v in ipairs(sidebarTemplate) do
     if type(v) == "table" then
-      local entries = removeMatchingEntries(v, sidebarEntries)
+      local entries = removeMatchingEntries(v, sidebarEntries):sort()
       if #entries > 0 then
         entries:forEach(function(entry) out[#out+1] = entry end)
       end
