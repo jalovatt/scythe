@@ -42,7 +42,7 @@ local function getProvides(folder)
 
   return File.getFilesRecursive(Scythe.libRoot..folder, function(name, _, isFolder)
     if isFolder and name:match("^%.git") then return false end
-    return isFolder or name:match("%.lua$")
+    return true
   end):reduce(function(acc, file)
     local relativePath = file.path:gsub(Scythe.libRoot, "")
 
