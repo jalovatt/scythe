@@ -12,6 +12,8 @@
     - [Radio](gui/elements/Radio.md)
     - [Slider](gui/elements/Slider.md)
     - [Tabs](gui/elements/Tabs.md)
+    - [TextEditor](gui/elements/TextEditor.md)
+    - [Textbox](gui/elements/Textbox.md)
 - GUI Modules
 - [Public Modules](/public/)
     - [Buffer](public/buffer.md)

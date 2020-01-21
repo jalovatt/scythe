@@ -1,3 +1,16 @@
+--- @module TextEditor
+-- A multiline text editor
+-- @option retval string Text content
+-- @option caption string
+-- @option pad number Padding between text and the textbox's edges
+-- @option color string|table A color preset
+-- @option captionBg string|table A color preset
+-- @option bg string|table A color preset
+-- @option fillColor string|table A color preset, used for the scrollbars
+-- @option captionFont number A font preset
+-- @option textFont number|string A font preset. **Must** be a monospaced font.
+-- @option undoLimit number Undo states to keep. Defaults to `20`.
+-- @option shadow boolean Draw the caption with a shadow. Defaults to `true`.
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
@@ -58,7 +71,6 @@ TextEditor.defaultProps = {
   blink = 0,
 
   shadow = true,
-
 }
 
 function TextEditor:new(props)
@@ -126,6 +138,9 @@ function TextEditor:draw()
 end
 
 
+--- Get or set the text editor's content
+-- @option newval string New content
+-- @return string The text editor's content
 function TextEditor:val(newval)
 
   if newval then
@@ -687,7 +702,8 @@ TextEditor.fromClipboard = TextUtils.fromClipboard
 ------------------------------------
 
 
--- Updates internal values for the window size
+--- Updates several internal values. If `w`, `h`, `pad`, or `textFont` are changed,
+-- this method should be called afterward.
 function TextEditor:recalculateWindow()
 
   Font.set(self.textFont)

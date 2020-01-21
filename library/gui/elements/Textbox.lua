@@ -1,10 +1,27 @@
+--- @module Textbox
+-- @option caption string
+-- @option retval string The textbox's content
+-- @option pad number Padding between the caption and textbox
+-- @option color string|table A color preset
+-- @option bg string|table A color preset
+-- @option captionFont number A font preset
+-- @option textFont number|string A font preset. **Must** be a monospaced font.
+-- @option captionPosition string Caption positioning - one of _left_, _right_,
+-- _top_, _bottom_.
+-- @option undoLimit number Undo states to keep. Defaults to `20`.
+-- @option shadow boolean Draw the caption with a shadow. Defaults to `true`.
+-- @option validator func If present, will be called with the textbox's content
+-- whenever focus is lost (clicking outside, pressing Enter). If the validator
+-- returns `false` or `nil`, the textbox will reset to the previous undo state.
+-- @option validateOnType boolean Calls the validator repeatedly as the user
+-- types; use this for restricting the range of characters that can be entered.
+-- Defaults to `false`.
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Text = require("public.text")
--- local Table = require("public.table")
 
 local Config = require("gui.config")
 
@@ -127,6 +144,9 @@ function Textbox:draw()
 end
 
 
+--- Get or set the textbox's content
+-- @option newval string New content
+-- @return string The textbox's content
 function Textbox:val(newval)
 
   if newval then
@@ -507,6 +527,8 @@ Textbox.fromClipboard = TextUtils.fromClipboard
 ------------------------------------
 
 
+--- Updates several internal values. If `w` or `textFont` are changed, this
+-- method should be called afterward.
 function Textbox:recalculateWindow()
 
   Font.set(self.textFont)
