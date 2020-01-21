@@ -1,3 +1,26 @@
+--- @module Slider
+-- A slider with one or more handles
+-- @commonParams
+-- @option caption string
+-- @option horizontal boolean Draws the slider horizontally (default) or vertically.
+-- @option min number Minimum value
+-- @option max number Maximum value
+-- @option inc number Step size
+-- @option defaults number|array The default value for a single handle, or an array of
+-- the form `{2, 7, 3}`, the length of which determines the number of handles.
+-- @option bg string|table A color preset
+-- @option textColor string|table A color preset
+-- @option handleColor string|table A color preset
+-- @option fillColor string|table A color preset
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option alignValues number Alignment flags for the handles' displayed values; see the
+-- API documentation for `gfx.drawstr`.
+-- @option captionX number Horizontal caption offset
+-- @option captionY number Vertical caption offset
+-- @option showHandles boolean
+-- @option showValues boolean
+
 local Buffer = require("public.buffer")
 
 local Font = require("public.font")
@@ -5,7 +28,6 @@ local Color = require("public.color")
 local Math = require("public.math")
 local GFX = require("public.gfx")
 local Text = require("public.text")
--- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Slider = require("gui.element"):new()
@@ -54,33 +76,6 @@ function Slider:new(props)
   return slider
 end
 
-function Slider:recalculateInternals()
-  self.w, self.h = table.unpack(self.horizontal
-    and {self.w, 8}
-    or  {8, self.w}
-  )
-
-  local min = self.min
-  local max = self.max
-
-  if min > max then
-    min, max = max, min
-  elseif min == max then
-    max = max + 1
-  end
-
-  if not self.horizontal then
-    min, max = max, min
-  end
-  self.min, self.max = min, max
-
-  self.defaults = self.defaults
-
-  -- If the user only asked for one handle
-  if type(self.defaults) == "number" then self.defaults = {self.defaults} end
-
-  self:initHandles(self.defaults)
-end
 
 function Slider:init()
 
@@ -161,6 +156,10 @@ function Slider:draw()
 end
 
 
+--- Get or set the handle(s) value
+-- @option newvals number|array A single handle value, or a list: `{2, 3, 4}`
+-- @return number|array The value of a single handle, or a sorted array of values
+-- if multiple handles are present
 function Slider:val(newvals)
 
   if newvals then
@@ -196,6 +195,35 @@ function Slider:val(newvals)
 end
 
 
+--- Updates a number of internal values. If any of `w`, `min`, `max` are changed,
+-- this method should be called afterward.
+function Slider:recalculateInternals()
+  self.w, self.h = table.unpack(self.horizontal
+    and {self.w, 8}
+    or  {8, self.w}
+  )
+
+  local min = self.min
+  local max = self.max
+
+  if min > max then
+    min, max = max, min
+  elseif min == max then
+    max = max + 1
+  end
+
+  if not self.horizontal then
+    min, max = max, min
+  end
+  self.min, self.max = min, max
+
+  self.defaults = self.defaults
+
+  -- If the user only asked for one handle
+  if type(self.defaults) == "number" then self.defaults = {self.defaults} end
+
+  self:initHandles(self.defaults)
+end
 
 
 ------------------------------------
