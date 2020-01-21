@@ -1,8 +1,44 @@
+--- @module Tabs
+-- A set of tabs that can be used to manage the visibility of multiple layers.
+-- Tabs are specified using the following structure:
+-- ```lua
+-- tabs = {
+--   {
+--     label = "Tab A",
+--     layers = {layer1, layer2}
+--   },
+--   {
+--     label = "Tab B",
+--     layers = {layer3}
+--   },
+--   {
+--     label = "Tab C",
+--     layers = {layer3, layer4}
+--   }
+-- }
+-- ```
+-- - Layers may be be present on multiple tabs, in which case they will be visible
+-- when any of those tabs are selected.
+-- - Layers that aren't specified by any tabs will not be affected
+-- @commonParams
+-- @option tabs array A set of tabs, as described above
+-- @option tabW number Tab width
+-- @option tabH number Tab height
+-- @option captionFont number A font preset
+-- @option textFont number A font preset
+-- @option textColor string|table A color preset
+-- @option tabColorActive string|table A color preset
+-- @option tabColorInactive string|table A color preset
+-- @option bg string|table A color preset
+-- @option pad number Padding between tabs
+-- @option firstTabOffset number Padding before the first tab
+-- @option retval number Currently-selected tab
+-- @option fullWidth boolean Automatically extend the tab bar the full width of
+-- of the window. Defaults to `true`.
 local Font = require("public.font")
 local Color = require("public.color")
 local Math = require("public.math")
 local Buffer = require("public.buffer")
--- local Table = require("public.table")
 local Config = require("gui.config")
 
 local Tabs = require("gui.element"):new()
@@ -49,12 +85,6 @@ function Tabs:new(props)
   return tab
 end
 
-function Tabs:recalculateInternals()
-  -- Figure out the total size of the tab frame now that we know the
-  -- number of buttons, so we can do the math for clicking on it
-  self.w = self:getOverallWidth()
-  self.h = self.tabH
-end
 
 function Tabs:init()
   self.buffer = self.buffer or Buffer.get()
@@ -135,7 +165,9 @@ function Tabs:draw()
 
 end
 
-
+--- Get or set the currently-selected tab
+-- @option newval number A tab index
+-- @return number The selected tab index
 function Tabs:val(newval)
 
   if newval then
@@ -148,6 +180,16 @@ function Tabs:val(newval)
     return self.state
   end
 
+end
+
+
+--- Updates some internal values. If `tabW` or `tabH` are changed, this method
+-- should be called afterward.
+function Tabs:recalculateInternals()
+  -- Figure out the total size of the tab frame now that we know the
+  -- number of buttons, so we can do the math for clicking on it
+  self.w = self:getOverallWidth()
+  self.h = self.tabH
 end
 
 
@@ -299,17 +341,18 @@ function Tabs:getOverallWidth()
 end
 
 
--- Updates visibility for any layers assigned to the tabs
 function Tabs:updateSets()
 
   if not self.tabs or #self.tabs == 0 or #self.tabs[1].layers < 1 then return end
 
+  local showing = {}
   for i = 1, #self.tabs do
     local show = (i == self.state)
     for _, layer in pairs(self.tabs[i].layers) do
       if show then
         layer:show()
-      else
+        showing[layer] = true
+      elseif not showing[layer] then
         layer:hide()
       end
     end

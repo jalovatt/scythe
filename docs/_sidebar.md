@@ -11,6 +11,7 @@
     - [Menubox](gui/elements/Menubox.md)
     - [Radio](gui/elements/Radio.md)
     - [Slider](gui/elements/Slider.md)
+    - [Tabs](gui/elements/Tabs.md)
 - GUI Modules
 - [Public Modules](/public/)
     - [Buffer](public/buffer.md)
