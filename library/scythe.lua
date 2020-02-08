@@ -1,6 +1,19 @@
-Scythe = {}
-
 local args = {...}
+
+reaper.ShowConsoleMsg("loading Scythe")
+-- If the library is inadvertently loaded from multiple files, just add any
+-- additional options and skip everything else
+if Scythe then
+  if args and args[1] then
+    for k, v in pairs(args) do
+      if v then Scythe.args[k] = true end
+    end
+  end
+
+  return
+end
+
+Scythe = {}
 Scythe.args = args and args[1] or {}
 
 Scythe.libPath = reaper.GetExtState("Scythe v3", "libPath")
