@@ -7,10 +7,9 @@ end
 loadfile(libPath .. "scythe.lua")({ dev = true })
 
 local rmLine = 'rm -rf "' .. Scythe.libRoot .. 'docs"'
--- Clear the docs folder
 os.execute(rmLine)
+
 require("doc-parser.doc-parser")
 
 local cpLine = "cp -r '" .. Scythe.libRoot .. "docs-src/.' '" .. Scythe.libRoot .. "docs'"
-Msg(cpLine)
 os.execute(cpLine)

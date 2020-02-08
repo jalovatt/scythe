@@ -1,24 +1,25 @@
-# Scythe 3.0 Documentation
+# Scythe
 
-#### _Under Construction_
-
-I'm still in the process of documenting everything, sorting out a script to generate docs from the library rather than writing them separately, standardizing things, etc.
-
-The structure of this folder will change a fair bit as I add more content, and this folder will hopefully be replaced by an actual web page.
+This repository is the home of Scythe (formerly Lokasenna_GUI), a graphical framework and utility library for Lua scripts in the [Reaper](https://www.reaper.fm/) digital audio workstation.
 
 ## Installation
 
-#### TODO: Add ReaPack instructions
-- Clone this repository
+### ReaPack
+- To use Scythe-based scripts:
+  - Install _Scythe library v3_.
+  - In Reaper's action list, run _Script: Scythe_Set v3 library path.lua_.
+  - You should see a popup confirming that the path has been set.
+- A separate package, _Scythe library v3 (developer tools)_, contains examples and tools for developing your own Scythe scripts.
+
+### Manually
+- Download or clone this repository to your machine
 - In Reaper's Action List, select _ReaScript: Run reaScript (EEL, lua, or python)..._
 - Browse to the repository folder, open `library`, and select `Scythe_Set v3 library path.lua`
-- You should see a popup confirming that the path has been set
+- You should see a popup confirming that the path has been set.
 
-As a test, select _ReaScript: Run reaScript (EEL, lua, or python)..._, browse to the repository folder again, open `development/examples`, and select one of the scripts there. If it runs, Scythe is correctly installed.
+### Using Scythe in a script
 
-## Loading Scythe
-
-Nothing too complicated here, and it's largely the same as in v2.
+Nothing too complicated here, and largely the same as in v2. Paste the following at the top of your script, and you're off to the races:
 
 ```lua
 local libPath = reaper.GetExtState("Scythe v3", "libPath")
@@ -34,7 +35,8 @@ loadfile(libPath .. "scythe.lua")()
 
 - `Scythe` contains path information and some flags that scripts may want to check:
   - `Scythe.libPath`: The absolute path to the library.
-  - `Scythe.version`: The library version, obtained from the ReaPack package info if available.
+  - `Scythe.libRoot`: The absolute path to the repository, in case a script needs to access other files directly.
+  - `Scythe.version`: The library version, obtained from the ReaPack package info if available. For manual installations, this will simply be `v3.x`.
   - `Scythe.getContext()`: Returns a table wrapping the values from `reaper.get_action_context` as well as a couple of others.
     ```
     isNewValue, filename, sectionId, commandId, midiMode, midiResolution, midiValue, scriptPath, scriptName
@@ -45,6 +47,7 @@ loadfile(libPath .. "scythe.lua")()
   - `Scythe.hasSWS`: _boolean_, whether the SWS extension is installed. Currently checks for SWS versions >= 2.9.7, since the GUI's text elements use its clipboard functionality.
   - `Scythe.scriptRestricted`: _boolean_, whether the script has been run in Reaper's restricted mode. Restricted scripts are unable to access the file system - the `io` and `os` libraries aren't even loaded. The library's error handler _will_ let the user know if a script crashes because of this.
 - `Msg` is a wrapper for `reaper.ShowConsoleMsg`. It accepts multiple arguments, separating them with commas, and includes a line break at the end.
+- `qMsg` is the same, but stores messages in an internal queue rather than printing them right away. To print them, call `printQMsg()`. When developing a script it's not unusual to use a large number of console messages, and printing them all immediately can easily slow down or even freeze Reaper. In contrast, queuing messages and printing them all at once doesn't cause any performance issues.
 
 ### Options
 
