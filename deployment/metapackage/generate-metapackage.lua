@@ -21,7 +21,7 @@ local static = {
 }
 
 local REMOTE_URL_BASE = "https://github.com/jalovatt/scythe/raw/"
-local LOCAL_FILE_BASE = "/Lokasenna_Scythe library v3/"
+local LOCAL_FILE_BASE = "/Development/Scythe library v3/"
 
 local function getCommitHash()
   local cmd = "/bin/sh -c 'cd " .. context.scriptPath .. "; git rev-parse HEAD;'"
