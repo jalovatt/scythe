@@ -1,16 +1,12 @@
-# Scythe (WIP)
+# Scythe
 
-This repository is the home of Scythe (formerly Lokasenna_GUI), a graphical framework for Lua scripts in the Reaper digital audio workstation.
+This repository is the home of Scythe (formerly Lokasenna_GUI), a graphical framework and utility library for Lua scripts in the [Reaper](https://www.reaper.fm/) digital audio workstation.
 
-Everything here is a work in progress, and **under no circumstances should this be used in scripts intended for public release**. When the time comes, a stable release will be made available via ReaPack.
+Scythe is currently available via [ReaPack](https://reapack.com/), as a pre-release. All of the functionality for v3 is complete; it's just a matter of making sure everything is documented.
 
-## Installing
+## Installation and Usage
 
-- Clone the repo to your system.
-
-- In Reaper, browse to where you've placed the repo and run `set-scythe-path.lua`. This won't affect your Lokasenna_GUI v2 installation, so don't worry. :)
-
-- Have a look in the `examples` folder for the current test scripts, which also demonstrate the syntax changes compared to v2.
+See the project's [documentation](https://jalovatt.github.io/scythe).
 
 ## Contributing
 
@@ -18,17 +14,15 @@ This is a big project, and I would love some help.
 
 - I've created a long list of features and bugs, and identified a subset that I feel are important to take care of prior to another release. Some are fairly large or complicated tasks, while others are tiny and straightforward - if something catches your eye, let me know and we can go over it in more detail.
 
-- Not all of the features are specific to the GUI - the library has a number of standalone modules that can be used by any script, such as math and table functions, so if the idea of working on the GUI itself seems daunting there's still plenty to do.
+- Many features are unrelated to the GUI - the library has a number of standalone modules that can be used by any script, such as math and table functions, so if the idea of working on the GUI itself seems daunting there's still plenty to do.
 
-- I'd like to use a "feature branch" approach to Git - all work should be done in a separate branch, then submitted as a pull request for approval and merging into _master_.
+- All work should be done in a separate feature branch, then submitted as a pull request for approval and merging into `master`.
 
-- In lieu of proper testing (which may come later), the repo includes several example scripts. Use those as a reference to make sure that any changes haven't broken anything. New features may require more examples or modifications to the existing ones. Ideally, nothing should be considered "done" if it isn't being demonstrated in an example.
+- Standalone modules can make use of Scythe's test runner. As far as GUI modules are concerned, the repo includes several example scripts - use those as a reference to make sure that any changes haven't broken anything. New features may require more examples or modifications to the existing ones. Ideally, nothing should be considered "done" if it isn't being demonstrated in an example.
 
 ## Coding Style
 
-For the most part, I've tried to follow [the Olivine Labs style guide](https://github.com/Olivine-Labs/lua-style-guide), with a few exceptions such as double-quotes for strings.
-
-The big ones:
+For the most part, I've tried to follow [the Olivine Labs style guide](https://github.com/Olivine-Labs/lua-style-guide), with a few exceptions:
 
 - 2 spaces for indents
 - `pascalCase` for names
