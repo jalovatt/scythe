@@ -116,7 +116,10 @@ function Md.parseHeader(header)
         or ("local " .. header.name .. " = require(" .. header.requirePath .. ")")
       )
       out:insert("```")
-      out:insert(header.tags.description and header.tags.description:concat("\n") or "")
+  end
+
+  if header.tags.description then
+    out:insert(header.tags.description:concat("\n"))
   end
 
   local parsedTags = Md.parseTags(header.tags)
