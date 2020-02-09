@@ -6,6 +6,8 @@
   - _Overview (placeholder)_
   - _User events (placeholder)_
 - GUI Modules
+    - [Element](gui/element.md)
+    - [Layer](gui/layer.md)
     - [Window](gui/window.md)
 - GUI Elements
     - [Button](gui/elements/Button.md)

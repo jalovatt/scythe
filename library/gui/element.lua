@@ -1,3 +1,7 @@
+--- @module Element
+-- A base class for all GUI elements. This module is typically only used by other
+-- elements, and will rarely be needed for scripts that aren't implementing their
+-- own.
 local Table = require("public.table")
 local T = Table.T
 
@@ -9,10 +13,10 @@ function Element:new()
   return setmetatable(T{}, self)
 end
 
--- Called when the script window is first opened
--- Used for any do-it-once processing, notably graphics
--- i.e. Elements can draw themselves to a buffer once on :init()
--- and then just blit/rotate/etc as needed afterward
+--- Called when the script window is first opened. Used for any do-it-once
+-- processing, such as assigning and filling graphics buffers. That is, elements
+-- will typically draw themselves to a buffer once on `:init()` and then
+-- blit/rotate/etc from it as needed to draw themselves.
 function Element:init() end
 
 -- Called whenever the element's layer is redrawn

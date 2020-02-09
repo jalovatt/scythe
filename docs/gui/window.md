@@ -1,4 +1,9 @@
 # Window
+```lua
+local Window = require(gui.window)
+```
+The basis of any GUI. Scripts are limited to a single window at the moment,
+but this will hopefully change in the future.
 
 | **Optional** | []() | []() |
 | --- | --- | --- |
@@ -79,6 +84,10 @@ a given point.
 | x | number |  |
 | y | number |  |
 
+| **Returns** | []() |
+| --- | --- |
+| element&#124;nil |  |
+
 </section>
 <section class="segment">
 
@@ -89,6 +98,10 @@ Searches the window's layers for an element matching the given name.
 | **Required** | []() | []() |
 | --- | --- | --- |
 | name | string | An element name |
+
+| **Returns** | []() |
+| --- | --- |
+| element&#124;nil |  |
 
 </section>
 <section class="segment">
