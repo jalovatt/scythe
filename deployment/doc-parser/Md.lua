@@ -107,15 +107,17 @@ function Md.parseSegment(name, signature, tags)
 end
 
 function Md.parseHeader(header)
-  local out = T{
-    "# " .. header.name,
-    "```lua",
-    header.tags.require
-      and header.tags.require:concat("\n")
-      or ("local " .. header.name .. " = require(" .. header.requirePath .. ")"),
-    "```",
-    header.tags.description and header.tags.description:concat("\n") or "",
-  }
+  local out = T{"# " .. header.name}
+
+  if not header.tags.require or header.tags.require[1] ~= "" then
+      out:insert("```lua")
+      out:insert((header.tags.require)
+        and header.tags.require:concat("\n")
+        or ("local " .. header.name .. " = require(" .. header.requirePath .. ")")
+      )
+      out:insert("```")
+      out:insert(header.tags.description and header.tags.description:concat("\n") or "")
+  end
 
   local parsedTags = Md.parseTags(header.tags)
 

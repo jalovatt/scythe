@@ -199,6 +199,7 @@ function Doc.fromFile(path)
       if n == 10 then
         break
       end
+    -- A new segment
     elseif line:match("^%-%-%- ") then
       local lineContent = line:match("^%-%-%- (.+)")
       if not lineContent then
@@ -213,6 +214,7 @@ function Doc.fromFile(path)
       if not isModule then break end
 
     elseif currentSegment then
+      -- Actual code
       if not line:match("^%-%-") then
         currentSegment:finalize(line)
         if currentSegment.isModule then
@@ -222,6 +224,7 @@ function Doc.fromFile(path)
         end
 
         currentSegment = nil
+      -- Continue the current segment
       else
         currentSegment:push(line:match("^%-%-+ (.+)") or "")
       end
