@@ -1,5 +1,13 @@
-- [Getting Started](/)
-- [GUI Elements](/gui/)
+- Getting Started
+  - [Installation](getting-started/installation.md)
+  - [Using Scythe in a script](getting-started/usage.md)
+  - [A basic script](getting-started/basic-script.md)
+- Working with the GUI
+  - _Overview (placeholder)_
+  - _User events (placeholder)_
+- GUI Modules
+    - [Window](gui/window.md)
+- GUI Elements
     - [Button](gui/elements/Button.md)
     - [Checklist](gui/elements/Checklist.md)
     - [ColorPicker](gui/elements/ColorPicker.md)
@@ -14,7 +22,6 @@
     - [Tabs](gui/elements/Tabs.md)
     - [TextEditor](gui/elements/TextEditor.md)
     - [Textbox](gui/elements/Textbox.md)
-- GUI Modules
 - [Public Modules](/public/)
     - [Buffer](public/buffer.md)
     - [Color](public/color.md)
