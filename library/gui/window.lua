@@ -1,7 +1,6 @@
 --- @module Window
 -- The basis of any GUI. Scripts are limited to a single window at the moment,
 -- but this will hopefully change in the future.
--- @require
 -- @option name string The window's title
 -- @option x number Horizontal distance from the left side of the overall screen
 -- area, in pixels
@@ -340,6 +339,7 @@ end
 -- a given point.
 -- @param x number
 -- @param y number
+-- @return element|nil
 function Window:findElementContaining(x, y)
   for i = 1, self.layerCount do
     local elm = self.sortedLayers[i]:findElementContaining(x, y)
@@ -349,6 +349,7 @@ end
 
 --- Searches the window's layers for an element matching the given name.
 -- @param name string An element name
+-- @return element|nil
 function Window:findElementByName(name)
   for _, layer in pairs(self.layers) do
     local elm = layer:findElementByName(name)

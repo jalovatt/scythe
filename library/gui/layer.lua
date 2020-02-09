@@ -1,3 +1,9 @@
+--- @module Layer
+-- A container that manages GUI elements
+-- @param name string
+-- @option z number The layer's front-to-back position. Lower values are "closer"
+-- to the screen, higher values are farther away. Defaults to 1, which is also
+-- the lowest accepted value.
 local Table = require("public.table")
 local T = Table.T
 local Buffer = require("public.buffer")
@@ -22,16 +28,22 @@ function Layer:new(props)
   return setmetatable(layer, self)
 end
 
+--- Hides the layer from view, pausing any updates and preventing any user
+-- interaction.
 function Layer:hide()
   self.hidden = true
   self.needsRedraw = true
 end
 
+--- Shows a hidden layer, resuming updates and allowing user interaction.
 function Layer:show()
   self.hidden = false
   self.needsRedraw = true
 end
 
+--- Adds one or more elements to the layer. Elements will be removed from any
+-- previous layers, and initialized if the layer is attached to an open window.
+-- @param ... elements One or more elements
 function Layer:addElements(...)
   for _, elm in pairs({...}) do
     if elm.layer then elm.layer:removeElements(elm) end
@@ -47,6 +59,7 @@ function Layer:addElements(...)
   return self
 end
 
+--- Removes one or more elements from the layer.
 function Layer:removeElements(...)
   for _, elm in pairs({...}) do
     self.elements[elm.name] = nil
@@ -67,10 +80,16 @@ function Layer:init()
   end
 end
 
+--- Deletes the layer. Any attached elements will be removed and returned.
+-- @return hash Any elements that were attached to the layer.
 function Layer:delete()
+  local elements = ({table.unpack(self.elements)})
+
   self:removeElements(table.unpack(self.elements))
   Buffer.release(self.buffer)
   self.window.needsRedraw = true
+
+  return elements
 end
 
 
@@ -106,10 +125,17 @@ function Layer:redraw()
 
 end
 
+--- Searches the layer for an element matching the given name.
+-- @param name string An element name
+-- @return element|nil
 function Layer:findElementByName(name)
   if self.elements[name] then return self.elements[name] end
 end
 
+--- Searches the layer for any elements containing a given point.
+-- @param x number
+-- @param y number
+-- @return element|nil
 function Layer:findElementContaining(x, y)
   if self.elementCount > 0 and not (self.hidden or self.frozen) then
     for _, elm in pairs(self.elements) do
