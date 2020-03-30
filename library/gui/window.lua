@@ -1,4 +1,22 @@
--- Available event hooks: onResize, onMouseMove
+--- @module Window
+-- The basis of any GUI. Scripts are limited to a single window at the moment,
+-- but this will hopefully change in the future.
+-- @option name string The window's title
+-- @option x number Horizontal distance from the left side of the overall screen
+-- area, in pixels
+-- @option y number Vertical distance from the top of the overall screen area,
+-- in pixels
+-- @option w number Width, in pixels
+-- @option h number Height, in pixels
+-- @option dock number Dock state, as per the API documentation for `gfx.dock`.
+-- @option anchor string Object that the window will be positioned relative to.
+-- Can be "string" or "mouse". Defaults to "screen".
+-- relative
+-- @option corner string Origin point of the window itself, relative to its anchor.
+-- Can be "C" (center), "T" (top), "R" (right), "B" (bottom), "L" (left), "TR"
+-- , "TL", "BR", or "BL". Defaults to "C".
+-- @option onResize function Script hook. See below.
+-- @option onMouseMove function Script hook. See below.
 
 local Table = require("public.table")
 local T = Table.T
@@ -36,6 +54,7 @@ function Window:new(props)
 
 end
 
+--- Opens the window.
 function Window:open()
   -- TODO: Restore previous size and position
 
@@ -78,6 +97,9 @@ function Window:open()
   end
 end
 
+--- Closes the window and reopens it, using the given parameters.
+-- @option params hash A table of window parameters. Accepts `x, y, w, h, dock`.
+-- An parameters that are omitted will use the window's existing value.
 function Window:reopen(params)
   -- params: x, y, w, h, dock
   local currentDock,currentX,currentY,currentW,currentH = gfx.dock(-1,0,0,0,0)
@@ -101,6 +123,7 @@ function Window:sortLayers()
   self.sortedLayers = self.layers:sortByKey("z")
 end
 
+--- Closes the window.
 function Window:close()
   -- TODO: Store current size and position
   self:clearTooltip()
@@ -109,10 +132,12 @@ function Window:close()
   gfx.quit()
 end
 
+--- Stops the window's update loop.
 function Window:pause()
   self.isRunning = false
 end
 
+--- Resumes the window's update loop.
 function Window:run()
   self.isRunning = true
 end
@@ -170,6 +195,8 @@ function Window:redraw()
   self.needsRedraw = false
 end
 
+--- Adds one or more layer's to the window. Layers will be automatically removed
+-- from a previous window, and will be initialized if the window is already open.
 function Window:addLayers(...)
   for _, layer in pairs({...}) do
     self.layers[layer.name] = layer
@@ -183,6 +210,7 @@ function Window:addLayers(...)
   return self
 end
 
+--- Removes one or more layers from the window.
 function Window:removeLayers(...)
   for _, layer in pairs({...}) do
     self.layers[layer.name] = nil
@@ -248,7 +276,7 @@ function Window:handleWindowEvents()
   if last.currentW
   and (state.currentW ~= last.currentW or state.currentH ~= last.currentH) then
     if self.onResize then
-      self:onResize()
+      self:onResize(state, last)
     end
     state.resized = true
   end
@@ -256,7 +284,7 @@ function Window:handleWindowEvents()
   -- Mouse moved
   if (state.x ~= last.x or state.y ~= last.y)
   and self.onMouseMove then
-    self:onMouseMove()
+    self:onMouseMove(state, last)
   end
 
 end
@@ -307,9 +335,24 @@ function Window:updateInputState()
 
 end
 
+--- Searches the window's layers, in `z` order, to see if any elements contain
+-- a given point.
+-- @param x number
+-- @param y number
+-- @return element|nil
 function Window:findElementContaining(x, y)
   for i = 1, self.layerCount do
     local elm = self.sortedLayers[i]:findElementContaining(x, y)
+    if elm then return elm end
+  end
+end
+
+--- Searches the window's layers for an element matching the given name.
+-- @param name string An element name
+-- @return element|nil
+function Window:findElementByName(name)
+  for _, layer in pairs(self.layers) do
+    local elm = layer:findElementByName(name)
     if elm then return elm end
   end
 end
@@ -524,15 +567,11 @@ function Window:getAnchoredPosition(x, y, w, h, anchor, corner)
   return x, y
 end
 
-function Window:findElementByName(name, ...)
-  for _, layer in pairs(... and {...} or self.layers) do
-    local elm = layer:findElementByName(name)
-    if elm then return elm end
-  end
-end
 
-
--- Display a tooltip
+--- Displays a tooltip at the given position relative to the window.
+-- @param x number
+-- @param y number
+-- @param str string Tooltip message
 function Window:setTooltip(x, y, str)
   if not str or str == "" then return end
 
@@ -547,7 +586,7 @@ function Window:setTooltip(x, y, str)
 end
 
 
--- Clear the tooltip
+--- Clears the current tooltip, if any.
 function Window:clearTooltip()
 
   reaper.TrackCtl_SetToolTip("", 0, 0, true)

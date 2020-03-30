@@ -1,6 +1,18 @@
-Scythe = {}
-
 local args = {...}
+
+-- If the library is inadvertently loaded from multiple files, just add any
+-- additional options and skip everything else
+if Scythe then
+  if args and args[1] then
+    for k, v in pairs(args) do
+      if v then Scythe.args[k] = true end
+    end
+  end
+
+  return
+end
+
+Scythe = {}
 Scythe.args = args and args[1] or {}
 
 Scythe.libPath = reaper.GetExtState("Scythe v3", "libPath")
@@ -70,7 +82,9 @@ Scythe.version = (function()
   else
     local package, err = reaper.ReaPack_GetOwner(file)
     if not package or package == "" then
-      return "(" .. tostring(err) .. ")"
+      return err == "the file is not owned by any package entry"
+        and "v3.x"
+        or "(" .. tostring(err) .. ")"
     else
       -- ret, repo, cat, pkg, desc, type, ver, author, pinned, fileCount = reaper.ReaPack_GetEntryInfo(package)
       local ret, _, _, _, _, _, ver, _, _, _ =

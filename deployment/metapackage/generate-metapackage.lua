@@ -1,6 +1,6 @@
 local libPath = reaper.GetExtState("Scythe v3", "libPath")
 if not libPath or libPath == "" then
-    reaper.MB("Couldn't load the Scythe library. Please run 'Script: Scythe_Set v3 library path.lua' in your Action List.", "Whoops!", 0)
+    reaper.MB("Couldn't load the Scythe library. Please install 'Scythe library v3' from ReaPack, then run 'Script: Scythe_Set v3 library path.lua' in your Action List.", "Whoops!", 0)
     return
 end
 
@@ -21,7 +21,7 @@ local static = {
 }
 
 local REMOTE_URL_BASE = "https://github.com/jalovatt/scythe/raw/"
-local LOCAL_FILE_BASE = "/Lokasenna_Scythe library v3/"
+local LOCAL_FILE_BASE = "/Development/Scythe library v3/"
 
 local function getCommitHash()
   local cmd = "/bin/sh -c 'cd " .. context.scriptPath .. "; git rev-parse HEAD;'"
