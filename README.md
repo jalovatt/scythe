@@ -1,16 +1,16 @@
-# Scythe (WIP)
+_**This project is on hold for the forseeable future, as I simply don't have enough time to give it the attention it needs. I'm happy to look into any bugs that may show up, however, and pull requests are still more than welcome.**_
+
+# Scythe
 
 This repository is the home of Scythe (formerly Lokasenna_GUI), a graphical framework for Lua scripts in the Reaper digital audio workstation.
 
-Everything here is a work in progress, and **under no circumstances should this be used in scripts intended for public release**. When the time comes, a stable release will be made available via ReaPack.
-
 ## Installing
 
-- Clone the repo to your system.
+[https://jalovatt.github.io/scythe/#/getting-started/installation](https://jalovatt.github.io/scythe/#/getting-started/installation)
 
-- In Reaper, browse to where you've placed the repo and run `set-scythe-path.lua`. This won't affect your Lokasenna_GUI v2 installation, so don't worry. :)
+## Documentation
 
-- Have a look in the `examples` folder for the current test scripts, which also demonstrate the syntax changes compared to v2.
+[https://jalovatt.github.io/scythe/#/](https://jalovatt.github.io/scythe/#/)
 
 ## Contributing
 
@@ -35,5 +35,9 @@ The big ones:
 - Everything should be `local` unless there's a very good reason
 
 I also use [Luacheck](https://github.com/mpeterv/luacheck) to help spot potential bugs or style problems. There are extensions for most popular editors to provide live checking of your code. A `.luacheckrc` file is included with the repo, and I'm certainly open to changing the rules it uses.
+
+## Donations
+
+If you've found Scythe helpful, or my messy code has made you feel better about your own, or you just really like my Github avatar, I'm happy to accept contributions [via PayPal](https://www.paypal.me/Lokasenna).
 
 Cheers!
