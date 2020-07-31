@@ -1,5 +1,7 @@
 # Scythe
 
+_This project is on an indefinite hiatus. The [Ultraschall team](https://github.com/Ultraschall) have adopted [v2](https://github.com/Lokasenna_GUI) and are continuing development in their codebase._
+
 This repository is the home of Scythe (formerly Lokasenna_GUI), a graphical framework and utility library for Lua scripts in the [Reaper](https://www.reaper.fm/) digital audio workstation.
 
 Scythe is currently available via [ReaPack](https://reapack.com/), as a pre-release. All of the functionality for v3 is complete; it's just a matter of making sure everything is documented.
